@@ -1,0 +1,359 @@
+{
+  "task": "mha_sq2048_gemini_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0",
+  "step": 1,
+  "prefault": {
+    "template_rng": [
+      31495,
+      734,
+      9897
+    ],
+    "seeds": {
+      "1": [
+        30868,
+        601,
+        9407
+      ],
+      "2": [
+        30658,
+        500,
+        8718
+      ],
+      "3": [
+        31539,
+        47,
+        9217
+      ]
+    },
+    "seed_mean": 31021.666666666668,
+    "e2_reference": {
+      "template": 31495,
+      "seeds": {}
+    },
+    "equals_e2_template": true,
+    "equals_e2_seeds": false,
+    "eval_wall": 5.030707597732544,
+    "process_wall": 18.503419399261475
+  },
+  "injected_no_fault": {
+    "template_rng": [
+      31872,
+      717,
+      8535
+    ],
+    "seeds": {
+      "1": [
+        31872,
+        717,
+        10322
+      ],
+      "2": [
+        31809,
+        699,
+        8852
+      ],
+      "3": [
+        30633,
+        601,
+        8651
+      ]
+    },
+    "seed_mean": 31438.0,
+    "fields_written": 481,
+    "sa_args": {
+      "steps": 0.0,
+      "t_max": 10,
+      "t_min": 1e-06,
+      "loss_ratio": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "sa_wall": 0.3420290946960449,
+    "eval_walls": {
+      "1": 5.504552602767944,
+      "2": 5.529911518096924,
+      "3": 5.314561128616333,
+      "template": 6.382054567337036
+    },
+    "process_wall": 36.0294349193573,
+    "migration_vs_prefault": {
+      "moved_behas": 0,
+      "n_behas": 144,
+      "moved_behas_share": 0.0,
+      "moved_weight_bytes": 0,
+      "weight_bytes": 34641920,
+      "moved_weight_share": 0.0,
+      "moved_weight_splits": 0
+    },
+    "route_restore": [
+      {
+        "where": "build_event",
+        "restored": 458,
+        "rerouted": 0,
+        "source_restored": 1,
+        "rerouted_without_any_match": 0,
+        "d_hops": -24576,
+        "d_dist": 28,
+        "relabelled": 0
+      },
+      {
+        "where": "add_broadcast",
+        "restored": 104,
+        "rerouted": 0,
+        "source_restored": 0,
+        "rerouted_without_any_match": 0,
+        "d_hops": 0,
+        "d_dist": 0,
+        "relabelled": 103
+      },
+      {
+        "where": "add_broadcast",
+        "restored": 104,
+        "rerouted": 0,
+        "source_restored": 0,
+        "rerouted_without_any_match": 0,
+        "d_hops": 0,
+        "d_dist": 0,
+        "relabelled": 103
+      }
+    ],
+    "rerouted_without_fault": 0,
+    "route_diff_vs_prefault_template": {
+      "same_route": 562,
+      "different_route": 0,
+      "unmatched": 0,
+      "n_comm_A": 562,
+      "n_comm_B": 562
+    }
+  },
+  "check1": {
+    "pass": true,
+    "criterion": "graph isomorphic and |mean over seeds x processes| <= 1%",
+    "graph_diff": 0,
+    "per_seed_strict_pass": false,
+    "tolerance": 0.01,
+    "per_seed": [
+      {
+        "seed": 1,
+        "prefault": [
+          30868,
+          601,
+          9407
+        ],
+        "injected": [
+          31872,
+          717,
+          10322
+        ],
+        "rel_diff": 0.032525592846961215
+      },
+      {
+        "seed": 2,
+        "prefault": [
+          30658,
+          500,
+          8718
+        ],
+        "injected": [
+          31809,
+          699,
+          8852
+        ],
+        "rel_diff": 0.03754321873572963
+      },
+      {
+        "seed": 3,
+        "prefault": [
+          31539,
+          47,
+          9217
+        ],
+        "injected": [
+          30633,
+          601,
+          8651
+        ],
+        "rel_diff": -0.028726338818605535
+      }
+    ],
+    "template_rng_rel_diff": 0.011970153992697297,
+    "seed_mean_rel_diff": 0.013420727448557379,
+    "repeats": 2,
+    "noise": {
+      "prefault_per_seed": {
+        "1": [
+          30868,
+          31613
+        ],
+        "2": [
+          30658,
+          31291
+        ],
+        "3": [
+          31539,
+          31660
+        ]
+      },
+      "injected_per_seed": {
+        "1": [
+          31872,
+          31638
+        ],
+        "2": [
+          31809,
+          31482
+        ],
+        "3": [
+          30633,
+          30633
+        ]
+      },
+      "injected_template_rng": [
+        31872,
+        30938
+      ],
+      "prefault_cross_process_spread_max": 0.024135026564727227,
+      "injected_cross_process_spread_max": 0.010386887745378312,
+      "mean_prefault_all": 31271.5,
+      "mean_injected_all": 31344.5,
+      "mean_rel_diff_all": 0.002334393936971324,
+      "min_prefault_all": 30658,
+      "min_injected_all": 30633,
+      "n_per_side": 6
+    }
+  },
+  "LB_pre": {
+    "LB": 4855,
+    "dominant": "LB_mem",
+    "LB_comp": 1088,
+    "LB_mem": 4855,
+    "LB_dep": 3488,
+    "LB_comp_by_device": {
+      "tensorcore": 1088,
+      "vectorunit": 37
+    },
+    "LB_mem_read": 4855,
+    "LB_mem_write": 4530,
+    "LB_mem_occ": 9680,
+    "LB_occ": 9680,
+    "dominant_occ": "LB_mem_occ",
+    "n_ddr_ports": 32
+  },
+  "LB_pre_ddr_read_transfers": 216,
+  "LB_pre_ddr_read_bytes": 39360512,
+  "LB_pre_ddr_broadcast_bytes_per_port": 1146880,
+  "LB_identical_across_graphs_and_comp_equals_analytic": true,
+  "analytic_workload_same_in_capture_and_inject": true,
+  "graph_ddr_traffic_minus_analytic": {
+    "prefault_template": {
+      "extra_reads": [
+        3072
+      ],
+      "missing_reads": [],
+      "broadcast_matches": true
+    },
+    "prefault_seeds": [
+      {
+        "extra_reads": [
+          3072
+        ],
+        "missing_reads": [],
+        "broadcast_matches": true
+      },
+      {
+        "extra_reads": [
+          3072
+        ],
+        "missing_reads": [],
+        "broadcast_matches": true
+      },
+      {
+        "extra_reads": [
+          3072
+        ],
+        "missing_reads": [],
+        "broadcast_matches": true
+      }
+    ],
+    "injected": [
+      {
+        "extra_reads": [
+          3072
+        ],
+        "missing_reads": [],
+        "broadcast_matches": true
+      },
+      {
+        "extra_reads": [
+          3072
+        ],
+        "missing_reads": [],
+        "broadcast_matches": true
+      },
+      {
+        "extra_reads": [
+          3072
+        ],
+        "missing_reads": [],
+        "broadcast_matches": true
+      },
+      {
+        "extra_reads": [
+          3072
+        ],
+        "missing_reads": [],
+        "broadcast_matches": true
+      }
+    ]
+  },
+  "comp_duration_equals_working_time": true,
+  "best_latency_prefault_platform": 30633,
+  "n_evaluations": 15,
+  "tightness_pre": {
+    "LB": 0.15848921098162114,
+    "LB_comp": 0.0355172526360461,
+    "LB_mem": 0.15848921098162114,
+    "LB_dep": 0.11386413345085365,
+    "LB_mem_occ": 0.31599908595305715,
+    "LB_occ": 0.31599908595305715
+  },
+  "check3_LB_pre_le_best": true,
+  "platform": {
+    "n_tensorcore": 64,
+    "n_vectorunit": 64,
+    "n_nodes": 96,
+    "ddr2co": {
+      "bandwidth": 256,
+      "latency": 50,
+      "timeunit": 1
+    },
+    "co2ddr": {
+      "bandwidth": 256,
+      "latency": 50,
+      "timeunit": 1
+    }
+  },
+  "artifact_commit": "299089ef266c54c6a1fa8c2f52df66e6c970b52a",
+  "artifact_work_copy": "E:\\58Institute\\PhD_TERM3\\CRISP\\e3_warmstart\\work\\artifact",
+  "template_python_seed": 123,
+  "backend_seeds": [
+    1,
+    2,
+    3
+  ],
+  "command": [
+    "e3_warmstart.py",
+    "step1",
+    "--task",
+    "mhag",
+    "--seeds",
+    "1",
+    "2",
+    "3",
+    "--repeats",
+    "2"
+  ],
+  "notes": "check1 (option A, user 2026-10-31): the pre-fault final mapping (behaviour locations + every data split location) is written over initialized_mapping's result; the template's build_event and add_broadcast rebuild events, then every communication gets its captured pre-fault source and route back (matched by route_key, which excludes the source because the original SA moves weights only on the events; only communications whose key is missing or whose route uses a missing node/link are re-run through the artifact's Dijkstra) and the platform link-load counters are set to what the routes imply; SA runs 0 steps; the final state is evaluated with the same backend seeds as the pre-fault capture. LB_mem (from the mapping-free workload: consumer x needed offline split reads, broadcast splits to every port): reads bounded by total DDR-read bytes / (ports x bandwidth); broadcast writes reach every port, so bounded per port; both via the link formula; LB_mem_occ sums whole per-transfer link occupancy instead."
+}

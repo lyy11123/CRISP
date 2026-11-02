@@ -1,0 +1,1514 @@
+{
+  "task": "ffn_sq2048_greedy0_lossratio5_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0",
+  "latency_a": 349943,
+  "pure_comp_b": 763,
+  "pure_comm_c": 303781,
+  "overlap_a_minus_b_minus_c": 45399,
+  "pure_comm_share_c_over_a": 0.8680870884686934,
+  "pure_comp_share_b_over_a": 0.002180355086399785,
+  "n_events": 4782,
+  "n_activities": 21562,
+  "chain_rows": 187,
+  "chain_events": 165,
+  "chain_time_by_resource_kind_over_a": {
+    "ch2ch": 0.9796395412967255,
+    "tensorcore": 0.017557145020760525,
+    "co2co": 0.001717422551672701,
+    "co2ddr": 0.0008744281211511589,
+    "vectorunit": 0.00021146300969014954,
+    "ddr2co": 0.0
+  },
+  "n_resource_waits_on_chain": 152,
+  "critical_wait_total": 343000,
+  "critical_wait_over_a": 0.9801596259962336,
+  "wait_top1_resource_share": 0.9991282798833819,
+  "wait_top5_resource_share": 1.0,
+  "wait_top_resources": [
+    [
+      "ch2ch:((3, 2), (1, 14))",
+      342701
+    ],
+    [
+      "tensorcore@(3, 0, 0)",
+      295
+    ],
+    [
+      "co2co:((3, 3), (3, 2))",
+      4
+    ]
+  ],
+  "wait_share_by_category": {
+    "defer_only": 0.9991282798833819,
+    "reroute_only": 0.0,
+    "both": 1.1661807580174927e-05,
+    "neither": 0.0008600583090379009
+  },
+  "wait_share_by_resource_kind": {
+    "ch2ch": 0.9991282798833819,
+    "tensorcore": 0.0008600583090379009,
+    "co2co": 1.1661807580174927e-05
+  },
+  "wait_share_by_blocker_type": {
+    "communication": 0.9991399416909621,
+    "computation": 0.0008600583090379009
+  },
+  "wait_share_by_blocker_layer_op": {
+    "MLP_mul": 0.838469387755102,
+    "MLPmlp3": 0.08980758017492711,
+    "MLPmlp2": 0.053892128279883385,
+    "MLPmlp1": 0.017830903790087463,
+    "MLP_act": 0.0,
+    "Combine": 0.0
+  },
+  "wait_share_by_blocker_op": {
+    "MLP_mul_matadd": 0.838469387755102,
+    "MLPmlp3_conv1d_matadd": 0.08894752186588921,
+    "MLPmlp2_conv1d": 0.053892128279883385,
+    "MLPmlp1_conv1d": 0.017830903790087463,
+    "MLPmlp3_conv1d": 0.0008600583090379009,
+    "MLP_act_elesilu": 0.0,
+    "Combine_reduction_matadd": 0.0
+  },
+  "wait_share_by_blocker_data": {
+    "onchip": 0.9274169096209912,
+    "ddr_read": 0.07172303206997084,
+    "compute": 0.0008600583090379009
+  },
+  "wait_share_by_blocked_data": {
+    "ddr_read": 0.9101924198250729,
+    "onchip": 0.08894752186588921,
+    "compute": 0.0008600583090379009
+  },
+  "wait_share_blocker_can_defer": 0.9991399416909621,
+  "wait_share_alt_path_exists": 0.9991399416909621,
+  "wait_share_idle_alt_path_exists": 1.1661807580174927e-05,
+  "wait_share_idle_local_alt_path_exists": 0.9274285714285714,
+  "wait_share_neither_even_with_local_reroute": 0.0008600583090379009,
+  "wait_share_neither_over_70pct": false,
+  "dstu_gain_upper_bound_over_a": 0.9793166315657121,
+  "wait_share_by_category_local": {
+    "defer_only": 0.07171137026239068,
+    "reroute_only": 0.0,
+    "both": 0.9274285714285714,
+    "neither": 0.0008600583090379009
+  },
+  "dstu_gain_upper_bound_local_over_a": 0.9793166315657121,
+  "wait_share_by_category_local_or_reorder": {
+    "defer_only": 0.07171137026239068,
+    "reroute_only": 0.0,
+    "both": 0.9274285714285714,
+    "reorder_only": 0.0,
+    "neither": 0.0008600583090379009
+  },
+  "wait_share_on_resources_with_reorder_gain": 0.0,
+  "raw": {
+    "critical_wait_total": 7527572,
+    "critical_wait_over_a": 21.510851767287814,
+    "wait_top1_resource_share": 0.9999602793570092,
+    "wait_top5_resource_share": 1.0,
+    "wait_top_resources": [
+      [
+        "ch2ch:((3, 2), (1, 14))",
+        7527273
+      ],
+      [
+        "tensorcore@(3, 0, 0)",
+        295
+      ],
+      [
+        "co2co:((3, 3), (3, 2))",
+        4
+      ]
+    ],
+    "wait_share_by_category": {
+      "defer_only": 0.8746927960303801,
+      "reroute_only": 3.892357323184687e-05,
+      "both": 0.12348271129123707,
+      "neither": 0.0017855691051510368
+    },
+    "wait_share_by_resource_kind": {
+      "ch2ch": 0.9999602793570092,
+      "tensorcore": 3.918926315151818e-05,
+      "co2co": 5.313798393426194e-07
+    },
+    "wait_share_by_blocker_type": {
+      "communication": 0.9999608107368485,
+      "computation": 3.918926315151818e-05
+    },
+    "wait_share_by_blocker_layer_op": {
+      "MLPmlp2": 0.3390086471441256,
+      "MLPmlp3": 0.3326853599009083,
+      "MLPmlp1": 0.1518254491620937,
+      "MLP_mul": 0.14645213622666114,
+      "MLP_act": 0.029581251431404443,
+      "Combine": 0.0004471561348068142
+    },
+    "wait_share_by_blocker_op": {
+      "MLPmlp2_conv1d": 0.3390086471441256,
+      "MLPmlp3_conv1d": 0.26611103819398874,
+      "MLPmlp1_conv1d": 0.1518254491620937,
+      "MLP_mul_matadd": 0.14645213622666114,
+      "MLPmlp3_conv1d_matadd": 0.06657432170691957,
+      "MLP_act_elesilu": 0.029581251431404443,
+      "Combine_reduction_matadd": 0.0004471561348068142
+    },
+    "wait_share_by_blocker_data": {
+      "ddr_read": 0.749692065383101,
+      "onchip": 0.25026874535374755,
+      "compute": 3.918926315151818e-05
+    },
+    "wait_share_by_blocked_data": {
+      "ddr_read": 0.9425780318009579,
+      "onchip": 0.05738277893589062,
+      "compute": 3.918926315151818e-05
+    },
+    "wait_share_blocker_can_defer": 0.9981755073216171,
+    "wait_share_alt_path_exists": 0.9999608107368485,
+    "wait_share_idle_alt_path_exists": 0.12352163486446892,
+    "wait_share_idle_local_alt_path_exists": 0.15670683721125483,
+    "wait_share_neither_even_with_local_reroute": 0.0017567417488666996,
+    "wait_share_neither_over_70pct": false,
+    "dstu_gain_upper_bound_over_a": 21.47244265494666,
+    "wait_share_by_category_local": {
+      "defer_only": 0.8415364210398785,
+      "reroute_only": 6.775092951618397e-05,
+      "both": 0.15663908628173864,
+      "neither": 0.0017567417488666996
+    },
+    "dstu_gain_upper_bound_local_over_a": 21.47306275593454,
+    "wait_share_by_category_local_or_reorder": {
+      "defer_only": 0.8415364210398785,
+      "reroute_only": 6.775092951618397e-05,
+      "both": 0.15663908628173864,
+      "reorder_only": 0.0,
+      "neither": 0.0017567417488666996
+    },
+    "wait_share_on_resources_with_reorder_gain": 0.0
+  },
+  "ddr_link_time_on_chain_over_a": 0.0008744281211511589,
+  "ddr_read_events_on_chain": 78,
+  "ddr_read_event_time_on_chain_over_a": 0.9528808977462044,
+  "check1_chain_end_equals_a": true,
+  "check2_chain_intervals_sum_to_a": true,
+  "check2_chain_sum": 349943,
+  "check3_all_s_ge_r": true,
+  "check4_activity_graph_longest_path_equals_a": true,
+  "reorder_gain_best_resource_over_a": 0.0,
+  "reorder_gain_best_resource": "ch2ch:((3, 2), (1, 14))",
+  "reorder_gain_top5_sum_over_a_nonadditive": 0.0,
+  "reorder_gain_all_sum_over_a_nonadditive": 0.0,
+  "reorder_gain_ub_best_resource_over_a": 0.0,
+  "reorder_top5_by_wait": [
+    {
+      "resource": "ch2ch:((3, 2), (1, 14))",
+      "wait_excl": 342701,
+      "n_items": 153,
+      "busy_over_a": 0.9806225585309608,
+      "current_max_f_plus_q": 349943,
+      "schrage_edf": 349943,
+      "exact_nonpreemptive": null,
+      "jackson_preemptive_lb": 349943,
+      "busy_end_plus_min_tail_lb": 345760,
+      "longest_path_avoiding_resource": 349648,
+      "reorder_gain_over_a": 0.0,
+      "reorder_gain_ub_over_a": 0.0
+    },
+    {
+      "resource": "tensorcore@(3, 0, 0)",
+      "wait_excl": 295,
+      "n_items": 14,
+      "busy_over_a": 0.04883080958899021,
+      "current_max_f_plus_q": 349943,
+      "schrage_edf": 349943,
+      "exact_nonpreemptive": 349943,
+      "jackson_preemptive_lb": 349943,
+      "busy_end_plus_min_tail_lb": 349943,
+      "longest_path_avoiding_resource": 349299,
+      "reorder_gain_over_a": 0.0,
+      "reorder_gain_ub_over_a": 0.0
+    },
+    {
+      "resource": "co2co:((3, 3), (3, 2))",
+      "wait_excl": 4,
+      "n_items": 94,
+      "busy_over_a": 0.569584189425135,
+      "current_max_f_plus_q": 349943,
+      "schrage_edf": 349943,
+      "exact_nonpreemptive": null,
+      "jackson_preemptive_lb": 349943,
+      "busy_end_plus_min_tail_lb": 345611,
+      "longest_path_avoiding_resource": 349939,
+      "reorder_gain_over_a": 0.0,
+      "reorder_gain_ub_over_a": 0.0
+    }
+  ],
+  "ddr_corner": {
+    "ddr_port_read_bytes_max_over_mean": 1.041604135683482,
+    "ddr_port_read_bytes_cv": 0.027519623112595197,
+    "ddr_port_read_busy_over_a": {
+      "min": 0.3922753134081836,
+      "mean": 0.4280779298342873,
+      "max": 0.4461698047967812
+    },
+    "ddr_ports_read_busy_over_50pct": 0,
+    "n_ddr_ports": 32,
+    "corner_max_out_link_busy_over_a": {
+      "min": 0.444,
+      "mean": 0.5436875,
+      "max": 0.683
+    },
+    "corners_with_out_link_busy_over_50pct": 11,
+    "n_corners": 16,
+    "hotspot_corner": "(3, 3)",
+    "hotspot": {
+      "ddr_read_bytes": 75566080,
+      "ddr_read_busy_over_a": [
+        0.429,
+        0.428
+      ],
+      "out_link_busy_over_a": [
+        0.57,
+        0.524
+      ],
+      "out_link_bytes": 97869056,
+      "wait_share_ddr_ports": 0.0,
+      "wait_share_out_links": 1.1661807580174927e-05
+    },
+    "wait_share_all_ddr_ports": 0.0,
+    "wait_share_all_corner_out_links": 1.1661807580174927e-05,
+    "per_corner": {
+      "(0, 0)": {
+        "ddr_read_bytes": 73977856,
+        "ddr_read_busy_over_a": [
+          0.411,
+          0.427
+        ],
+        "out_link_busy_over_a": [
+          0.444,
+          0.374
+        ],
+        "out_link_bytes": 73188864,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(0, 3)": {
+        "ddr_read_bytes": 77126912,
+        "ddr_read_busy_over_a": [
+          0.429,
+          0.445
+        ],
+        "out_link_busy_over_a": [
+          0.465,
+          0.521
+        ],
+        "out_link_bytes": 88243968,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(0, 12)": {
+        "ddr_read_bytes": 75620608,
+        "ddr_read_busy_over_a": [
+          0.429,
+          0.428
+        ],
+        "out_link_busy_over_a": [
+          0.518,
+          0.449
+        ],
+        "out_link_bytes": 86560000,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(0, 15)": {
+        "ddr_read_bytes": 75568896,
+        "ddr_read_busy_over_a": [
+          0.428,
+          0.428
+        ],
+        "out_link_busy_over_a": [
+          0.532,
+          0.507
+        ],
+        "out_link_bytes": 92913920,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(1, 0)": {
+        "ddr_read_bytes": 72397056,
+        "ddr_read_busy_over_a": [
+          0.392,
+          0.427
+        ],
+        "out_link_busy_over_a": [
+          0.417,
+          0.606
+        ],
+        "out_link_bytes": 91641088,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(1, 3)": {
+        "ddr_read_bytes": 77131520,
+        "ddr_read_busy_over_a": [
+          0.429,
+          0.445
+        ],
+        "out_link_busy_over_a": [
+          0.479,
+          0.39
+        ],
+        "out_link_bytes": 77830176,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(1, 12)": {
+        "ddr_read_bytes": 75565568,
+        "ddr_read_busy_over_a": [
+          0.428,
+          0.428
+        ],
+        "out_link_busy_over_a": [
+          0.683,
+          0.511
+        ],
+        "out_link_bytes": 106767872,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(1, 15)": {
+        "ddr_read_bytes": 77117952,
+        "ddr_read_busy_over_a": [
+          0.445,
+          0.428
+        ],
+        "out_link_busy_over_a": [
+          0.49,
+          0.482
+        ],
+        "out_link_bytes": 87068448,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(2, 0)": {
+        "ddr_read_bytes": 75612160,
+        "ddr_read_busy_over_a": [
+          0.428,
+          0.428
+        ],
+        "out_link_busy_over_a": [
+          0.574,
+          0.36
+        ],
+        "out_link_bytes": 83680000,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(2, 3)": {
+        "ddr_read_bytes": 73986048,
+        "ddr_read_busy_over_a": [
+          0.41,
+          0.428
+        ],
+        "out_link_busy_over_a": [
+          0.635,
+          0.48
+        ],
+        "out_link_bytes": 99812608,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(2, 12)": {
+        "ddr_read_bytes": 73965824,
+        "ddr_read_busy_over_a": [
+          0.427,
+          0.41
+        ],
+        "out_link_busy_over_a": [
+          0.353,
+          0.478
+        ],
+        "out_link_bytes": 74457344,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(2, 15)": {
+        "ddr_read_bytes": 75569152,
+        "ddr_read_busy_over_a": [
+          0.446,
+          0.411
+        ],
+        "out_link_busy_over_a": [
+          0.625,
+          0.412
+        ],
+        "out_link_bytes": 92818976,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(3, 0)": {
+        "ddr_read_bytes": 75559424,
+        "ddr_read_busy_over_a": [
+          0.428,
+          0.429
+        ],
+        "out_link_busy_over_a": [
+          0.565,
+          0.527
+        ],
+        "out_link_bytes": 97782784,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(3, 3)": {
+        "ddr_read_bytes": 75566080,
+        "ddr_read_busy_over_a": [
+          0.429,
+          0.428
+        ],
+        "out_link_busy_over_a": [
+          0.57,
+          0.524
+        ],
+        "out_link_bytes": 97869056,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 1.1661807580174927e-05
+      },
+      "(3, 12)": {
+        "ddr_read_bytes": 78700544,
+        "ddr_read_busy_over_a": [
+          0.445,
+          0.446
+        ],
+        "out_link_busy_over_a": [
+          0.52,
+          0.5
+        ],
+        "out_link_bytes": 91334656,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      },
+      "(3, 15)": {
+        "ddr_read_bytes": 75620352,
+        "ddr_read_busy_over_a": [
+          0.43,
+          0.427
+        ],
+        "out_link_busy_over_a": [
+          0.459,
+          0.376
+        ],
+        "out_link_bytes": 74750976,
+        "wait_share_ddr_ports": 0.0,
+        "wait_share_out_links": 0.0
+      }
+    }
+  },
+  "d2d": {
+    "n_d2d_links": 16,
+    "d2d_link_time_on_chain_over_a": 0.9796395412967255,
+    "d2d_crossing_event_time_on_chain_over_a": 0.981448407312048,
+    "wait_share_on_d2d_links": 0.9991282798833819,
+    "wait_share_blocker_crosses_d2d": 0.9991399416909621,
+    "wait_share_blocked_crosses_d2d": 0.9991399416909621,
+    "d2d_link_busy_over_a": {
+      "min": 0.6570584352308805,
+      "mean": 0.8822367142648946,
+      "max": 0.9806225585309608
+    },
+    "d2d_bytes_share_of_all_comm_bytes": 0.7525331122125011
+  },
+  "backend_rng_digest": "3ffb9ad21eb2587d",
+  "reseeded_runs": [
+    {
+      "backend_seed": 1,
+      "latency_a": 349965,
+      "pure_comm_share_c_over_a": 0.8504078979326504,
+      "pure_comp_share_b_over_a": 0.0064892203506064896,
+      "chain_rows": 261,
+      "critical_wait_over_a": 0.9021530724501021,
+      "wait_top1_resource_share": 0.9792729046439589,
+      "wait_top5_resource_share": 1.0,
+      "wait_share_by_category": {
+        "defer_only": 0.5291870696372125,
+        "reroute_only": 0.0,
+        "both": 0.4698658946794965,
+        "neither": 0.0009470356832909965
+      },
+      "wait_share_by_blocker_type": {
+        "communication": 0.9792729046439589,
+        "computation": 0.020727095356041073
+      },
+      "wait_share_by_blocker_data": {
+        "onchip": 0.6634285859078557,
+        "ddr_read": 0.3158443187361033,
+        "compute": 0.020727095356041073
+      },
+      "wait_share_alt_path_exists": 0.9792729046439589,
+      "wait_share_idle_local_alt_path_exists": 0.6635204388671047,
+      "dstu_gain_upper_bound_over_a": 0.9012987012987013,
+      "ddr_link_time_on_chain_over_a": 0.0008743731516008743,
+      "wait_share_by_category_local": {
+        "defer_only": 0.3355325254496044,
+        "reroute_only": 0.0,
+        "both": 0.6635204388671047,
+        "neither": 0.0009470356832909965
+      },
+      "dstu_gain_upper_bound_local_over_a": 0.9012987012987013,
+      "wait_share_by_category_local_or_reorder": {
+        "defer_only": 0.3355325254496044,
+        "reroute_only": 0.0,
+        "both": 0.6635204388671047,
+        "reorder_only": 0.0,
+        "neither": 0.0009470356832909965
+      },
+      "reorder_gain_best_resource_over_a": 0.0003228894318003229,
+      "reorder_gain_best_resource": "ch2ch:((0, 11), (1, 8))",
+      "reorder_gain_ub_best_resource_over_a": 0.0003228894318003229,
+      "reorder_gain_top5_sum_over_a_nonadditive": 0.0003228894318003229,
+      "check1_chain_end_equals_a": true,
+      "check2_chain_intervals_sum_to_a": true,
+      "check3_all_s_ge_r": true,
+      "check4_activity_graph_longest_path_equals_a": true,
+      "ddr_corner": {
+        "ddr_port_read_bytes_max_over_mean": 1.041604135683482,
+        "ddr_port_read_bytes_cv": 0.027519623112595197,
+        "ddr_port_read_busy_over_a": {
+          "min": 0.39225065363679223,
+          "mean": 0.42805101938765305,
+          "max": 0.44614175703284614
+        },
+        "ddr_ports_read_busy_over_50pct": 0,
+        "n_ddr_ports": 32,
+        "corner_max_out_link_busy_over_a": {
+          "min": 0.444,
+          "mean": 0.543625,
+          "max": 0.683
+        },
+        "corners_with_out_link_busy_over_50pct": 11,
+        "n_corners": 16,
+        "hotspot_corner": null,
+        "hotspot": null,
+        "wait_share_all_ddr_ports": 0.0,
+        "wait_share_all_corner_out_links": 0.0,
+        "per_corner": {
+          "(0, 0)": {
+            "ddr_read_bytes": 73977856,
+            "ddr_read_busy_over_a": [
+              0.411,
+              0.427
+            ],
+            "out_link_busy_over_a": [
+              0.444,
+              0.373
+            ],
+            "out_link_bytes": 73188864,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 3)": {
+            "ddr_read_bytes": 77126912,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.445
+            ],
+            "out_link_busy_over_a": [
+              0.465,
+              0.52
+            ],
+            "out_link_bytes": 88243968,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 12)": {
+            "ddr_read_bytes": 75620608,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.518,
+              0.449
+            ],
+            "out_link_bytes": 86560000,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 15)": {
+            "ddr_read_bytes": 75568896,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.532,
+              0.507
+            ],
+            "out_link_bytes": 92913920,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 0)": {
+            "ddr_read_bytes": 72397056,
+            "ddr_read_busy_over_a": [
+              0.392,
+              0.427
+            ],
+            "out_link_busy_over_a": [
+              0.417,
+              0.606
+            ],
+            "out_link_bytes": 91641088,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 3)": {
+            "ddr_read_bytes": 77131520,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.445
+            ],
+            "out_link_busy_over_a": [
+              0.479,
+              0.39
+            ],
+            "out_link_bytes": 77830176,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 12)": {
+            "ddr_read_bytes": 75565568,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.683,
+              0.511
+            ],
+            "out_link_bytes": 106767872,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 15)": {
+            "ddr_read_bytes": 77117952,
+            "ddr_read_busy_over_a": [
+              0.445,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.49,
+              0.482
+            ],
+            "out_link_bytes": 87068448,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 0)": {
+            "ddr_read_bytes": 75612160,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.574,
+              0.36
+            ],
+            "out_link_bytes": 83680000,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 3)": {
+            "ddr_read_bytes": 73986048,
+            "ddr_read_busy_over_a": [
+              0.41,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.635,
+              0.48
+            ],
+            "out_link_bytes": 99812608,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 12)": {
+            "ddr_read_bytes": 73965824,
+            "ddr_read_busy_over_a": [
+              0.427,
+              0.41
+            ],
+            "out_link_busy_over_a": [
+              0.353,
+              0.478
+            ],
+            "out_link_bytes": 74457344,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 15)": {
+            "ddr_read_bytes": 75569152,
+            "ddr_read_busy_over_a": [
+              0.446,
+              0.411
+            ],
+            "out_link_busy_over_a": [
+              0.625,
+              0.412
+            ],
+            "out_link_bytes": 92818976,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 0)": {
+            "ddr_read_bytes": 75559424,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.429
+            ],
+            "out_link_busy_over_a": [
+              0.565,
+              0.527
+            ],
+            "out_link_bytes": 97782784,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 3)": {
+            "ddr_read_bytes": 75566080,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.57,
+              0.523
+            ],
+            "out_link_bytes": 97869056,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 12)": {
+            "ddr_read_bytes": 78700544,
+            "ddr_read_busy_over_a": [
+              0.445,
+              0.446
+            ],
+            "out_link_busy_over_a": [
+              0.52,
+              0.5
+            ],
+            "out_link_bytes": 91334656,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 15)": {
+            "ddr_read_bytes": 75620352,
+            "ddr_read_busy_over_a": [
+              0.43,
+              0.427
+            ],
+            "out_link_busy_over_a": [
+              0.459,
+              0.376
+            ],
+            "out_link_bytes": 74750976,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          }
+        }
+      },
+      "d2d": {
+        "n_d2d_links": 16,
+        "d2d_link_time_on_chain_over_a": 0.9685882874001686,
+        "d2d_crossing_event_time_on_chain_over_a": 0.9711199691397712,
+        "wait_share_on_d2d_links": 0.9792729046439589,
+        "wait_share_blocker_crosses_d2d": 0.9792729046439589,
+        "wait_share_blocked_crosses_d2d": 0.9792729046439589,
+        "d2d_link_busy_over_a": {
+          "min": 0.657017130284457,
+          "mean": 0.8821812538396696,
+          "max": 0.9805609132341806
+        },
+        "d2d_bytes_share_of_all_comm_bytes": 0.7525331122125011
+      }
+    },
+    {
+      "backend_seed": 2,
+      "latency_a": 350300,
+      "pure_comm_share_c_over_a": 0.867202397944619,
+      "pure_comp_share_b_over_a": 0.0010419640308307165,
+      "chain_rows": 203,
+      "critical_wait_over_a": 0.9533656865543819,
+      "wait_top1_resource_share": 0.9998922039501263,
+      "wait_top5_resource_share": 1.0,
+      "wait_share_by_category": {
+        "defer_only": 0.9910140015091446,
+        "reroute_only": 0.0,
+        "both": 0.008985998490855301,
+        "neither": 0.0
+      },
+      "wait_share_by_blocker_type": {
+        "communication": 1.0
+      },
+      "wait_share_by_blocker_data": {
+        "ddr_read": 0.5532542429722964,
+        "onchip": 0.4467457570277036
+      },
+      "wait_share_alt_path_exists": 1.0,
+      "wait_share_idle_local_alt_path_exists": 0.43785557724784707,
+      "dstu_gain_upper_bound_over_a": 0.9533656865543819,
+      "ddr_link_time_on_chain_over_a": 0.0008735369683128747,
+      "wait_share_by_category_local": {
+        "defer_only": 0.5621444227521529,
+        "reroute_only": 0.0,
+        "both": 0.43785557724784707,
+        "neither": 0.0
+      },
+      "dstu_gain_upper_bound_local_over_a": 0.9533656865543819,
+      "wait_share_by_category_local_or_reorder": {
+        "defer_only": 0.5621444227521529,
+        "reroute_only": 0.0,
+        "both": 0.43785557724784707,
+        "reorder_only": 0.0,
+        "neither": 0.0
+      },
+      "reorder_gain_best_resource_over_a": 0.0,
+      "reorder_gain_best_resource": "ch2ch:((3, 2), (1, 14))",
+      "reorder_gain_ub_best_resource_over_a": 0.00025977733371395945,
+      "reorder_gain_top5_sum_over_a_nonadditive": 0.0,
+      "check1_chain_end_equals_a": true,
+      "check2_chain_intervals_sum_to_a": true,
+      "check3_all_s_ge_r": true,
+      "check4_activity_graph_longest_path_equals_a": true,
+      "ddr_corner": {
+        "ddr_port_read_bytes_max_over_mean": 1.041604135683482,
+        "ddr_port_read_bytes_cv": 0.027519623112595197,
+        "ddr_port_read_busy_over_a": {
+          "min": 0.3918755352554953,
+          "mean": 0.4276416642877534,
+          "max": 0.4457151013417071
+        },
+        "ddr_ports_read_busy_over_50pct": 0,
+        "n_ddr_ports": 32,
+        "corner_max_out_link_busy_over_a": {
+          "min": 0.443,
+          "mean": 0.543125,
+          "max": 0.682
+        },
+        "corners_with_out_link_busy_over_50pct": 11,
+        "n_corners": 16,
+        "hotspot_corner": "(3, 3)",
+        "hotspot": {
+          "ddr_read_bytes": 75566080,
+          "ddr_read_busy_over_a": [
+            0.428,
+            0.428
+          ],
+          "out_link_busy_over_a": [
+            0.569,
+            0.523
+          ],
+          "out_link_bytes": 97869056,
+          "wait_share_ddr_ports": 0.0,
+          "wait_share_out_links": 1.1977338874848786e-05
+        },
+        "wait_share_all_ddr_ports": 0.0,
+        "wait_share_all_corner_out_links": 1.1977338874848786e-05,
+        "per_corner": {
+          "(0, 0)": {
+            "ddr_read_bytes": 73977856,
+            "ddr_read_busy_over_a": [
+              0.41,
+              0.427
+            ],
+            "out_link_busy_over_a": [
+              0.443,
+              0.373
+            ],
+            "out_link_bytes": 73188864,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 3)": {
+            "ddr_read_bytes": 77126912,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.444
+            ],
+            "out_link_busy_over_a": [
+              0.465,
+              0.52
+            ],
+            "out_link_bytes": 88243968,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 12)": {
+            "ddr_read_bytes": 75620608,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.427
+            ],
+            "out_link_busy_over_a": [
+              0.518,
+              0.448
+            ],
+            "out_link_bytes": 86560000,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 15)": {
+            "ddr_read_bytes": 75568896,
+            "ddr_read_busy_over_a": [
+              0.427,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.531,
+              0.506
+            ],
+            "out_link_bytes": 92913920,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 0)": {
+            "ddr_read_bytes": 72397056,
+            "ddr_read_busy_over_a": [
+              0.392,
+              0.427
+            ],
+            "out_link_busy_over_a": [
+              0.417,
+              0.606
+            ],
+            "out_link_bytes": 91641088,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 3)": {
+            "ddr_read_bytes": 77131520,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.445
+            ],
+            "out_link_busy_over_a": [
+              0.479,
+              0.389
+            ],
+            "out_link_bytes": 77830176,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 12)": {
+            "ddr_read_bytes": 75565568,
+            "ddr_read_busy_over_a": [
+              0.427,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.682,
+              0.511
+            ],
+            "out_link_bytes": 106767872,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 15)": {
+            "ddr_read_bytes": 77117952,
+            "ddr_read_busy_over_a": [
+              0.444,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.49,
+              0.482
+            ],
+            "out_link_bytes": 87068448,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 0)": {
+            "ddr_read_bytes": 75612160,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.574,
+              0.36
+            ],
+            "out_link_bytes": 83680000,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 3)": {
+            "ddr_read_bytes": 73986048,
+            "ddr_read_busy_over_a": [
+              0.41,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.634,
+              0.479
+            ],
+            "out_link_bytes": 99812608,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 12)": {
+            "ddr_read_bytes": 73965824,
+            "ddr_read_busy_over_a": [
+              0.427,
+              0.409
+            ],
+            "out_link_busy_over_a": [
+              0.353,
+              0.478
+            ],
+            "out_link_bytes": 74457344,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 15)": {
+            "ddr_read_bytes": 75569152,
+            "ddr_read_busy_over_a": [
+              0.446,
+              0.411
+            ],
+            "out_link_busy_over_a": [
+              0.624,
+              0.411
+            ],
+            "out_link_bytes": 92818976,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 0)": {
+            "ddr_read_bytes": 75559424,
+            "ddr_read_busy_over_a": [
+              0.427,
+              0.429
+            ],
+            "out_link_busy_over_a": [
+              0.565,
+              0.527
+            ],
+            "out_link_bytes": 97782784,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 3)": {
+            "ddr_read_bytes": 75566080,
+            "ddr_read_busy_over_a": [
+              0.428,
+              0.428
+            ],
+            "out_link_busy_over_a": [
+              0.569,
+              0.523
+            ],
+            "out_link_bytes": 97869056,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 1.1977338874848786e-05
+          },
+          "(3, 12)": {
+            "ddr_read_bytes": 78700544,
+            "ddr_read_busy_over_a": [
+              0.445,
+              0.445
+            ],
+            "out_link_busy_over_a": [
+              0.519,
+              0.5
+            ],
+            "out_link_bytes": 91334656,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 15)": {
+            "ddr_read_bytes": 75620352,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.427
+            ],
+            "out_link_busy_over_a": [
+              0.458,
+              0.376
+            ],
+            "out_link_bytes": 74750976,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          }
+        }
+      },
+      "d2d": {
+        "n_d2d_links": 16,
+        "d2d_link_time_on_chain_over_a": 0.9795432486440194,
+        "d2d_crossing_event_time_on_chain_over_a": 0.9821752783328576,
+        "wait_share_on_d2d_links": 0.9999880226611252,
+        "wait_share_blocker_crosses_d2d": 1.0,
+        "wait_share_blocked_crosses_d2d": 1.0,
+        "d2d_link_busy_over_a": {
+          "min": 0.6563888095917785,
+          "mean": 0.881337603482729,
+          "max": 0.979623180131316
+        },
+        "d2d_bytes_share_of_all_comm_bytes": 0.7525331122125011
+      }
+    },
+    {
+      "backend_seed": 3,
+      "latency_a": 348786,
+      "pure_comm_share_c_over_a": 0.8711731548858039,
+      "pure_comp_share_b_over_a": 0.0019180815743751183,
+      "chain_rows": 193,
+      "critical_wait_over_a": 0.9511935685491963,
+      "wait_top1_resource_share": 0.991629566889617,
+      "wait_top5_resource_share": 1.0,
+      "wait_share_by_category": {
+        "defer_only": 0.446879248137978,
+        "reroute_only": 0.0007565641738228796,
+        "both": 0.5444066999635282,
+        "neither": 0.007957487724670925
+      },
+      "wait_share_by_blocker_type": {
+        "communication": 0.9932059934350727,
+        "computation": 0.006794006564927373
+      },
+      "wait_share_by_blocker_data": {
+        "onchip": 0.9177063144473615,
+        "ddr_read": 0.07549967898771111,
+        "compute": 0.006794006564927373
+      },
+      "wait_share_alt_path_exists": 0.9930462408406001,
+      "wait_share_idle_local_alt_path_exists": 0.5451632641373511,
+      "dstu_gain_upper_bound_over_a": 0.9436244574036802,
+      "ddr_link_time_on_chain_over_a": 0.0010292844322879933,
+      "wait_share_by_category_local": {
+        "defer_only": 0.446879248137978,
+        "reroute_only": 0.0007565641738228796,
+        "both": 0.5444066999635282,
+        "neither": 0.007957487724670925
+      },
+      "dstu_gain_upper_bound_local_over_a": 0.9436244574036802,
+      "wait_share_by_category_local_or_reorder": {
+        "defer_only": 0.446879248137978,
+        "reroute_only": 0.0007565641738228796,
+        "both": 0.5444066999635282,
+        "reorder_only": 0.0,
+        "neither": 0.007957487724670925
+      },
+      "reorder_gain_best_resource_over_a": 0.0,
+      "reorder_gain_best_resource": "ch2ch:((3, 2), (1, 14))",
+      "reorder_gain_ub_best_resource_over_a": 0.000616423824350748,
+      "reorder_gain_top5_sum_over_a_nonadditive": 0.0,
+      "check1_chain_end_equals_a": true,
+      "check2_chain_intervals_sum_to_a": true,
+      "check3_all_s_ge_r": true,
+      "check4_activity_graph_longest_path_equals_a": true,
+      "ddr_corner": {
+        "ddr_port_read_bytes_max_over_mean": 1.041604135683482,
+        "ddr_port_read_bytes_cv": 0.027519623112595197,
+        "ddr_port_read_busy_over_a": {
+          "min": 0.39357657704150967,
+          "mean": 0.4294979586336608,
+          "max": 0.44764984833106836
+        },
+        "ddr_ports_read_busy_over_50pct": 0,
+        "n_ddr_ports": 32,
+        "corner_max_out_link_busy_over_a": {
+          "min": 0.445,
+          "mean": 0.5453749999999999,
+          "max": 0.685
+        },
+        "corners_with_out_link_busy_over_50pct": 11,
+        "n_corners": 16,
+        "hotspot_corner": "(3, 3)",
+        "hotspot": {
+          "ddr_read_bytes": 75566080,
+          "ddr_read_busy_over_a": [
+            0.43,
+            0.43
+          ],
+          "out_link_busy_over_a": [
+            0.571,
+            0.525
+          ],
+          "out_link_bytes": 97869056,
+          "wait_share_ddr_ports": 0.00015975259447256022,
+          "wait_share_out_links": 0.0
+        },
+        "wait_share_all_ddr_ports": 0.00015975259447256022,
+        "wait_share_all_corner_out_links": 0.0,
+        "per_corner": {
+          "(0, 0)": {
+            "ddr_read_bytes": 73977856,
+            "ddr_read_busy_over_a": [
+              0.412,
+              0.429
+            ],
+            "out_link_busy_over_a": [
+              0.445,
+              0.375
+            ],
+            "out_link_bytes": 73188864,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 3)": {
+            "ddr_read_bytes": 77126912,
+            "ddr_read_busy_over_a": [
+              0.43,
+              0.446
+            ],
+            "out_link_busy_over_a": [
+              0.467,
+              0.522
+            ],
+            "out_link_bytes": 88243968,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 12)": {
+            "ddr_read_bytes": 75620608,
+            "ddr_read_busy_over_a": [
+              0.43,
+              0.429
+            ],
+            "out_link_busy_over_a": [
+              0.52,
+              0.45
+            ],
+            "out_link_bytes": 86560000,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(0, 15)": {
+            "ddr_read_bytes": 75568896,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.43
+            ],
+            "out_link_busy_over_a": [
+              0.534,
+              0.508
+            ],
+            "out_link_bytes": 92913920,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 0)": {
+            "ddr_read_bytes": 72397056,
+            "ddr_read_busy_over_a": [
+              0.394,
+              0.429
+            ],
+            "out_link_busy_over_a": [
+              0.419,
+              0.608
+            ],
+            "out_link_bytes": 91641088,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 3)": {
+            "ddr_read_bytes": 77131520,
+            "ddr_read_busy_over_a": [
+              0.431,
+              0.447
+            ],
+            "out_link_busy_over_a": [
+              0.481,
+              0.391
+            ],
+            "out_link_bytes": 77830176,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 12)": {
+            "ddr_read_bytes": 75565568,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.43
+            ],
+            "out_link_busy_over_a": [
+              0.685,
+              0.513
+            ],
+            "out_link_bytes": 106767872,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(1, 15)": {
+            "ddr_read_bytes": 77117952,
+            "ddr_read_busy_over_a": [
+              0.446,
+              0.43
+            ],
+            "out_link_busy_over_a": [
+              0.492,
+              0.484
+            ],
+            "out_link_bytes": 87068448,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 0)": {
+            "ddr_read_bytes": 75612160,
+            "ddr_read_busy_over_a": [
+              0.43,
+              0.429
+            ],
+            "out_link_busy_over_a": [
+              0.576,
+              0.362
+            ],
+            "out_link_bytes": 83680000,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 3)": {
+            "ddr_read_bytes": 73986048,
+            "ddr_read_busy_over_a": [
+              0.411,
+              0.43
+            ],
+            "out_link_busy_over_a": [
+              0.637,
+              0.482
+            ],
+            "out_link_bytes": 99812608,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 12)": {
+            "ddr_read_bytes": 73965824,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.411
+            ],
+            "out_link_busy_over_a": [
+              0.354,
+              0.48
+            ],
+            "out_link_bytes": 74457344,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(2, 15)": {
+            "ddr_read_bytes": 75569152,
+            "ddr_read_busy_over_a": [
+              0.448,
+              0.413
+            ],
+            "out_link_busy_over_a": [
+              0.627,
+              0.413
+            ],
+            "out_link_bytes": 92818976,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 0)": {
+            "ddr_read_bytes": 75559424,
+            "ddr_read_busy_over_a": [
+              0.429,
+              0.431
+            ],
+            "out_link_busy_over_a": [
+              0.567,
+              0.529
+            ],
+            "out_link_bytes": 97782784,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 3)": {
+            "ddr_read_bytes": 75566080,
+            "ddr_read_busy_over_a": [
+              0.43,
+              0.43
+            ],
+            "out_link_busy_over_a": [
+              0.571,
+              0.525
+            ],
+            "out_link_bytes": 97869056,
+            "wait_share_ddr_ports": 0.00015975259447256022,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 12)": {
+            "ddr_read_bytes": 78700544,
+            "ddr_read_busy_over_a": [
+              0.447,
+              0.447
+            ],
+            "out_link_busy_over_a": [
+              0.521,
+              0.502
+            ],
+            "out_link_bytes": 91334656,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          },
+          "(3, 15)": {
+            "ddr_read_bytes": 75620352,
+            "ddr_read_busy_over_a": [
+              0.431,
+              0.429
+            ],
+            "out_link_busy_over_a": [
+              0.46,
+              0.377
+            ],
+            "out_link_bytes": 74750976,
+            "wait_share_ddr_ports": 0.0,
+            "wait_share_out_links": 0.0
+          }
+        }
+      },
+      "d2d": {
+        "n_d2d_links": 16,
+        "d2d_link_time_on_chain_over_a": 0.9774360209412075,
+        "d2d_crossing_event_time_on_chain_over_a": 0.9811947727259696,
+        "wait_share_on_d2d_links": 0.991629566889617,
+        "wait_share_blocker_crosses_d2d": 0.9930974822388271,
+        "wait_share_blocked_crosses_d2d": 0.9925579404574952,
+        "d2d_link_busy_over_a": {
+          "min": 0.6592380428113513,
+          "mean": 0.885163287803983,
+          "max": 0.9838754995900065
+        },
+        "d2d_bytes_share_of_all_comm_bytes": 0.7525331122125011
+      }
+    }
+  ],
+  "artifact_commit": "299089ef266c54c6a1fa8c2f52df66e6c970b52a",
+  "template_python_seed": 123,
+  "final_eval_rng": "template's own random state at the 2nd event_driver call (digest above)",
+  "command": [
+    "e2_attribution.py",
+    "--task",
+    "E:\\58Institute\\PhD_TERM3\\CRISP\\third_party\\isca2026-busybarn-artifact\\models\\intra_mapping_qwen3moe_decode\\py\\ffn_sq2048_greedy0_lossratio5_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0.py",
+    "--seeds",
+    "1",
+    "2",
+    "3",
+    "--out",
+    "e2_out\\ext\\intra_mapping_qwen3moe_decode"
+  ],
+  "task_wall_seconds": 166.99004745483398,
+  "environment": {
+    "python": "C:\\Users\\YiyangLiu\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "python_version": "3.13.16",
+    "packages": {
+      "numpy": "2.5.4",
+      "networkx": "3.7",
+      "matplotlib": "3.11.2",
+      "yaml": "6.0.3",
+      "simanneal": "0.5.0",
+      "tqdm": "4.70.1"
+    }
+  },
+  "notes": "Chain over activities (computation execution or one hop); critical wait = s - earliest start of the blocked activity; check2 = rows tile [0, a]. Defer: blocked.can + blocked.dur + blocker.dur (on the contended resource) <= D(b). Reroute window = [r(b), r(b) + f(b) - s(b)] with s(b) the backend start_time (last-hop issue), b's own records excluded; path search is BFS on directed links minus the contended one. Round 2: PRIMARY categories are *_local (pairwise defer + local reroute = remainder of b's branch from the contended link's upstream node, idle over b's hold window); the whole-path categories are kept as secondary. Reorder: per resource, durations and the order on all other resources fixed; release = current earliest start; tail = longest path from the item's finish to the end without that resource's order edges; gain = current max(f+q) - max(Schrage EDF, longest path avoiding the resource); gain_ub uses the preemptive Jackson / busy_end+min tail lower bounds. Per-resource gains are not additive; the headline is the best single resource. BusyBarn routing is already congestion-aware static Dijkstra (gamma=100), so reroute measures runtime rerouting on top of it."
+}

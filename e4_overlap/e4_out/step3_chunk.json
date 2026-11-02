@@ -1,0 +1,152 @@
+{
+  "streams": [
+    "mha2048",
+    "ffn"
+  ],
+  "seed": 1,
+  "T": {
+    "0": 20357.333333333332,
+    "1": 207509.0
+  },
+  "T_ffn_seeds": [
+    203603,
+    214648,
+    204276
+  ],
+  "variants": {
+    "none": {
+      "sim_wall": 17.132275342941284,
+      "process_wall": 21.026739597320557,
+      "n_events": 1340,
+      "n_comm": 1017,
+      "latency_a": 204683,
+      "S_max": 9.763213911448782,
+      "stretch": {
+        "0": 9.763213911448782,
+        "1": 0.9863813135815795
+      },
+      "makespan": 204683,
+      "chunk_stats": null
+    },
+    "huge": {
+      "sim_wall": 17.379557609558105,
+      "process_wall": 21.078940391540527,
+      "n_events": 1340,
+      "n_comm": 1017,
+      "latency_a": 204683,
+      "S_max": 9.763213911448782,
+      "stretch": {
+        "0": 9.763213911448782,
+        "1": 0.9863813135815795
+      },
+      "makespan": 204683,
+      "chunk_stats": {
+        "messages_chunked": 0,
+        "blocks_added": 0,
+        "bytes_conserved": true,
+        "tree_conserved": true,
+        "extra_occupancy": 0,
+        "extra_occupancy_d2d": 0,
+        "base_occupancy": 18710164,
+        "extra_by_kind": {},
+        "n_events": 1340,
+        "extra_over_base": 0.0,
+        "chunk_wall": 0.021862030029296875
+      }
+    },
+    "256K_d2d": {
+      "sim_wall": 205.22573018074036,
+      "process_wall": 209.42986345291138,
+      "n_events": 3062,
+      "n_comm": 2739,
+      "latency_a": 207834,
+      "S_max": 9.21736638721509,
+      "stretch": {
+        "0": 9.21736638721509,
+        "1": 1.0015661971287992
+      },
+      "makespan": 207834,
+      "chunk_stats": {
+        "messages_chunked": 119,
+        "blocks_added": 1722,
+        "bytes_conserved": true,
+        "tree_conserved": true,
+        "extra_occupancy": 138854,
+        "extra_occupancy_d2d": 43200,
+        "base_occupancy": 18710164,
+        "extra_by_kind": {
+          "ddr2co": 86100,
+          "co2co": 9554,
+          "ch2ch": 43200
+        },
+        "n_events": 3062,
+        "extra_over_base": 0.007421313891209078,
+        "chunk_wall": 0.2911081314086914
+      }
+    },
+    "256K": {
+      "sim_wall": 254.0310652256012,
+      "process_wall": 258.3687207698822,
+      "n_events": 3620,
+      "n_comm": 3297,
+      "latency_a": 211189,
+      "S_max": 9.48807964369924,
+      "stretch": {
+        "0": 9.48807964369924,
+        "1": 1.0177341705660958
+      },
+      "makespan": 211189,
+      "chunk_stats": {
+        "messages_chunked": 160,
+        "blocks_added": 2280,
+        "bytes_conserved": true,
+        "tree_conserved": true,
+        "extra_occupancy": 168950,
+        "extra_occupancy_d2d": 43200,
+        "base_occupancy": 18710164,
+        "extra_by_kind": {
+          "ddr2co": 114000,
+          "co2co": 11750,
+          "ch2ch": 43200
+        },
+        "n_events": 3620,
+        "extra_over_base": 0.009029851368486134,
+        "chunk_wall": 0.4496762752532959
+      }
+    },
+    "64K_d2d": {
+      "timeout": true,
+      "process_wall": 1800.0161786079407
+    },
+    "64K": {
+      "timeout": true,
+      "process_wall": 1800.0151834487915
+    }
+  },
+  "timeout": 1800,
+  "check4": {
+    "huge": {
+      "bytes_conserved": true,
+      "tree_conserved": true
+    },
+    "256K_d2d": {
+      "bytes_conserved": true,
+      "tree_conserved": true
+    },
+    "256K": {
+      "bytes_conserved": true,
+      "tree_conserved": true
+    },
+    "huge_graph_diff_vs_none": 0,
+    "huge_messages_chunked": 0,
+    "huge_same_latency_seed": true,
+    "pass": true
+  },
+  "wall": 1800.162534236908,
+  "command": [
+    "e4_chunk.py",
+    "--timeout",
+    "1800"
+  ],
+  "artifact_commit": "299089ef266c54c6a1fa8c2f52df66e6c970b52a"
+}

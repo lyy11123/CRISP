@@ -1,0 +1,491 @@
+{
+  "task": "ffn_sq2048_greedy1_lossratio4_ch1x4_bw256_co4x4_bw256_t128x64_failpattern0",
+  "fault": {
+    "id": "F1",
+    "kind": "node (core + router)",
+    "failed_nodes": [
+      [
+        3,
+        8
+      ]
+    ],
+    "failed_links": [],
+    "rule": "non-corner core with the largest computation busy time (tensor + vector unit) in the pre-fault final evaluation; ties -> smallest (die, core)",
+    "compute_busy": 37056,
+    "compute_busy_over_a": 0.15889814155724982,
+    "ties": [
+      [
+        3,
+        8
+      ],
+      [
+        3,
+        13
+      ]
+    ]
+  },
+  "best_W": "F1_W_s1000_t10",
+  "prefault": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 0.00019263974526226627,
+    "reorder_max": 0.0005779192357867988,
+    "delete_mean": 0.009616058762544767,
+    "delete_max": 0.01666709468656103,
+    "top_resource": "ch2ch:((1, 7), (2, 4))",
+    "top_resource_votes": {
+      "ch2ch:((3, 4), (2, 7))": 1,
+      "ch2ch:((1, 7), (2, 4))": 2
+    },
+    "top_busy_mean": 0.8759688643136423,
+    "top_wait_share_mean": 0.8560728706150341,
+    "dstu_ub_local_mean": 0.7304984336489166,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 233634,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((3, 4), (2, 7))",
+        "reorder_ub": 0.00035953671126633964,
+        "delete": 0.01666709468656103,
+        "delete_resource": "tensorcore@(1, 7, 0)",
+        "top_resource": "ch2ch:((3, 4), (2, 7))",
+        "top_busy": 0.8770170437521936,
+        "top_wait_share": 0.9533249789428272,
+        "critical_wait_over_a": 0.8333889759196007,
+        "dstu_ub_local": 0.7944905279197377,
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 185620,
+            "busy_over_a": 0.8770170437521936,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 233550
+          },
+          {
+            "resource": "tensorcore@(1, 7, 0)",
+            "wait_excl": 9004,
+            "busy_over_a": 0.11833894039394952,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 229740
+          },
+          {
+            "resource": "ch2ch:((0, 7), (1, 4))",
+            "wait_excl": 84,
+            "busy_over_a": 0.7183372283143721,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 229740
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 235327,
+        "reorder": 0.0005779192357867988,
+        "reorder_resource": "tensorcore@(1, 12, 0)",
+        "reorder_ub": 0.0005779192357867988,
+        "delete": 0.0056942042349581645,
+        "delete_resource": "co2co:((2, 4), (2, 0))",
+        "top_resource": "ch2ch:((1, 7), (2, 4))",
+        "top_busy": 0.8750037182303773,
+        "top_wait_share": 0.827794936369991,
+        "critical_wait_over_a": 0.8571604618254599,
+        "dstu_ub_local": 0.7052654391548782,
+        "top5": [
+          {
+            "resource": "ch2ch:((1, 7), (2, 4))",
+            "wait_excl": 166977,
+            "busy_over_a": 0.8750037182303773,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 235256
+          },
+          {
+            "resource": "co2co:((2, 4), (2, 0))",
+            "wait_excl": 17309,
+            "busy_over_a": 0.33637449166478983,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 233987
+          },
+          {
+            "resource": "tensorcore@(1, 2, 0)",
+            "wait_excl": 9004,
+            "busy_over_a": 0.0783250540736932,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 233987
+          },
+          {
+            "resource": "tensorcore@(1, 12, 0)",
+            "wait_excl": 8178,
+            "busy_over_a": 0.11748758111053981,
+            "reorder_gain_over_a": 0.0005779192357867988,
+            "longest_path_avoiding_resource": 235191
+          },
+          {
+            "resource": "co2co:((1, 12), (1, 13))",
+            "wait_excl": 136,
+            "busy_over_a": 0.555686342833589,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 234279
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 235090,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((1, 7), (2, 4))",
+        "reorder_ub": 0.00024246033434003998,
+        "delete": 0.006486877366115105,
+        "delete_resource": "co2co:((1, 7), (1, 3))",
+        "top_resource": "ch2ch:((1, 7), (2, 4))",
+        "top_busy": 0.8758858309583564,
+        "top_wait_share": 0.787098696532284,
+        "critical_wait_over_a": 0.8993832149389596,
+        "dstu_ub_local": 0.691739333872134,
+        "top5": [
+          {
+            "resource": "ch2ch:((1, 7), (2, 4))",
+            "wait_excl": 166421,
+            "busy_over_a": 0.8758858309583564,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 234904
+          },
+          {
+            "resource": "co2co:((2, 4), (2, 0))",
+            "wait_excl": 35537,
+            "busy_over_a": 0.3367135990471734,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 234904
+          },
+          {
+            "resource": "tensorcore@(1, 2, 0)",
+            "wait_excl": 8830,
+            "busy_over_a": 0.07840401548343187,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 233806
+          },
+          {
+            "resource": "ch2ch:((2, 8), (1, 11))",
+            "wait_excl": 462,
+            "busy_over_a": 0.8437492024331107,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 234904
+          },
+          {
+            "resource": "co2co:((1, 7), (1, 3))",
+            "wait_excl": 186,
+            "busy_over_a": 0.1939895359224127,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 233565
+          }
+        ]
+      }
+    ]
+  },
+  "R0": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 0.0005579367587011274,
+    "reorder_max": 0.0005639621074573876,
+    "delete_mean": 0.07213393980316472,
+    "delete_max": 0.10196510333467046,
+    "top_resource": "ch2ch:((3, 4), (2, 7))",
+    "top_resource_votes": {
+      "ch2ch:((3, 4), (2, 7))": 3
+    },
+    "top_busy_mean": 0.9531050077773949,
+    "top_wait_share_mean": 0.9983259693498673,
+    "dstu_ub_local_mean": 0.9077239372125812,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 420241,
+        "reorder": 0.0005639621074573876,
+        "reorder_resource": "ch2ch:((3, 4), (2, 7))",
+        "reorder_ub": 0.0005639621074573876,
+        "delete": 0.05773591819931896,
+        "delete_resource": "ch2ch:((3, 4), (2, 7))",
+        "top_resource": "ch2ch:((3, 4), (2, 7))",
+        "top_busy": 0.953905021166426,
+        "top_wait_share": 0.9981710129129633,
+        "critical_wait_over_a": 0.9081265273973743,
+        "dstu_ub_local": 0.9072627373340536,
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 380934,
+            "busy_over_a": 0.953905021166426,
+            "reorder_gain_over_a": 0.0005639621074573876,
+            "longest_path_avoiding_resource": 395978
+          },
+          {
+            "resource": "co2ddr:((3, 3), (3, 19))",
+            "wait_excl": 472,
+            "busy_over_a": 0.0023034401688554903,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 420241
+          },
+          {
+            "resource": "ch2ch:((2, 7), (3, 4))",
+            "wait_excl": 207,
+            "busy_over_a": 0.8556709126429834,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 420222
+          },
+          {
+            "resource": "ch2ch:((0, 7), (1, 4))",
+            "wait_excl": 19,
+            "busy_over_a": 0.40145535537941324,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 420085
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 420241,
+        "reorder": 0.0005473049987983086,
+        "reorder_resource": "ch2ch:((3, 4), (2, 7))",
+        "reorder_ub": 0.0005473049987983086,
+        "delete": 0.05670079787550477,
+        "delete_resource": "ch2ch:((3, 4), (2, 7))",
+        "top_resource": "ch2ch:((3, 4), (2, 7))",
+        "top_busy": 0.953905021166426,
+        "top_wait_share": 0.9984012328853291,
+        "critical_wait_over_a": 0.9079171237456602,
+        "dstu_ub_local": 0.9078385973762674,
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 380934,
+            "busy_over_a": 0.953905021166426,
+            "reorder_gain_over_a": 0.0005473049987983086,
+            "longest_path_avoiding_resource": 396413
+          },
+          {
+            "resource": "co2ddr:((3, 15), (3, 23))",
+            "wait_excl": 577,
+            "busy_over_a": 0.0023034401688554903,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 420241
+          },
+          {
+            "resource": "ch2ch:((0, 7), (1, 4))",
+            "wait_excl": 19,
+            "busy_over_a": 0.40145535537941324,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 420227
+          },
+          {
+            "resource": "ch2ch:((1, 7), (2, 4))",
+            "wait_excl": 14,
+            "busy_over_a": 0.4946019070009828,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 420203
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 421301,
+        "reorder": 0.0005625431698476861,
+        "reorder_resource": "ch2ch:((3, 4), (2, 7))",
+        "reorder_ub": 0.0005625431698476861,
+        "delete": 0.10196510333467046,
+        "delete_resource": "ch2ch:((3, 4), (2, 7))",
+        "top_resource": "ch2ch:((3, 4), (2, 7))",
+        "top_busy": 0.951504980999333,
+        "top_wait_share": 0.9984056622513094,
+        "critical_wait_over_a": 0.908148805723224,
+        "dstu_ub_local": 0.9080704769274225,
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 381994,
+            "busy_over_a": 0.951504980999333,
+            "reorder_gain_over_a": 0.0005625431698476861,
+            "longest_path_avoiding_resource": 378343
+          },
+          {
+            "resource": "co2ddr:((3, 15), (3, 23))",
+            "wait_excl": 577,
+            "busy_over_a": 0.0022976446768462454,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 421301
+          },
+          {
+            "resource": "ch2ch:((0, 7), (1, 4))",
+            "wait_excl": 19,
+            "busy_over_a": 0.4004452873361326,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 421287
+          },
+          {
+            "resource": "ch2ch:((1, 7), (2, 4))",
+            "wait_excl": 14,
+            "busy_over_a": 0.493357480756039,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 421263
+          }
+        ]
+      }
+    ]
+  },
+  "best_W_mapping": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 0.0,
+    "reorder_max": 0.0,
+    "delete_mean": 0.0036163526051876064,
+    "delete_max": 0.00751347231683382,
+    "top_resource": "ch2ch:((2, 4), (1, 7))",
+    "top_resource_votes": {
+      "ch2ch:((2, 4), (1, 7))": 2,
+      "ch2ch:((1, 8), (0, 11))": 1
+    },
+    "top_busy_mean": 0.8848370115326851,
+    "top_wait_share_mean": 0.9417515482807195,
+    "dstu_ub_local_mean": 0.8646270644124058,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 288556,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 4), (1, 7))",
+        "reorder_ub": 0.0,
+        "delete": 0.002696183756359251,
+        "delete_resource": "ch2ch:((2, 4), (1, 7))",
+        "top_resource": "ch2ch:((2, 4), (1, 7))",
+        "top_busy": 0.9011214460971181,
+        "top_wait_share": 0.9338638373121132,
+        "critical_wait_over_a": 0.9602815398050984,
+        "dstu_ub_local": 0.8971395500353484,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 4), (1, 7))",
+            "wait_excl": 258769,
+            "busy_over_a": 0.9011214460971181,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 287778
+          },
+          {
+            "resource": "tensorcore@(1, 11, 0)",
+            "wait_excl": 18220,
+            "busy_over_a": 0.15969170628924714,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 288349
+          },
+          {
+            "resource": "ch2ch:((0, 11), (1, 8))",
+            "wait_excl": 57,
+            "busy_over_a": 0.6717171017064278,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 288349
+          },
+          {
+            "resource": "co2co:((2, 0), (2, 4))",
+            "wait_excl": 49,
+            "busy_over_a": 0.5186133714079763,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 288507
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 287769,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((1, 8), (0, 11))",
+        "reorder_ub": 6.602517991861528e-05,
+        "delete": 0.000639401742369748,
+        "delete_resource": "ch2ch:((1, 8), (0, 11))",
+        "top_resource": "ch2ch:((1, 8), (0, 11))",
+        "top_busy": 0.876512063495373,
+        "top_wait_share": 0.9905594981240307,
+        "critical_wait_over_a": 0.8020808356702772,
+        "dstu_ub_local": 0.7969864717881356,
+        "top5": [
+          {
+            "resource": "ch2ch:((1, 8), (0, 11))",
+            "wait_excl": 228635,
+            "busy_over_a": 0.876512063495373,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 287585
+          },
+          {
+            "resource": "tensorcore@(2, 11, 0)",
+            "wait_excl": 1349,
+            "busy_over_a": 0.06405137453999563,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 287693
+          },
+          {
+            "resource": "ch2ch:((0, 11), (1, 8))",
+            "wait_excl": 231,
+            "busy_over_a": 0.6735541354350191,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 287693
+          },
+          {
+            "resource": "co2co:((1, 0), (1, 4))",
+            "wait_excl": 193,
+            "busy_over_a": 0.35196633410826045,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 287586
+          },
+          {
+            "resource": "co2co:((0, 11), (0, 15))",
+            "wait_excl": 183,
+            "busy_over_a": 0.3357519399240363,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 287586
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 296534,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 4), (1, 7))",
+        "reorder_ub": 0.0,
+        "delete": 0.00751347231683382,
+        "delete_resource": "ch2ch:((2, 4), (1, 7))",
+        "top_resource": "ch2ch:((2, 4), (1, 7))",
+        "top_busy": 0.8768775250055643,
+        "top_wait_share": 0.9008313094060149,
+        "critical_wait_over_a": 0.8997551714137333,
+        "dstu_ub_local": 0.8997551714137333,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 4), (1, 7))",
+            "wait_excl": 240349,
+            "busy_over_a": 0.8768775250055643,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 294306
+          },
+          {
+            "resource": "tensorcore@(1, 11, 0)",
+            "wait_excl": 26410,
+            "busy_over_a": 0.1553953340932237,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 294306
+          },
+          {
+            "resource": "co2co:((2, 0), (2, 4))",
+            "wait_excl": 49,
+            "busy_over_a": 0.504660511104966,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 296485
+          }
+        ]
+      }
+    ]
+  },
+  "definitions": "E3 step 4: post-fault single-resource analysis (E2's pipeline on E3's saved event graphs).\n\nFor every task x fault, the R0 mapping and the best warm-start mapping (smallest 3-seed mean among the W\nruns) are analysed with e2_attribution.analyse on each backend seed's final event graph (no new\nsimulation). The pre-fault reference is the same analysis on the pre-fault graphs captured in E3 step 1\n(work copy), so the numbers are directly comparable with E2's.\n\nPer graph:\n  reorder  = best single-resource exact reorder gain / a       (E2 reorder_gain_best_resource_over_a)\n  delete   = max over the 5 resources with the most exclusive critical wait of\n             (a - longest path that avoids the resource) / a    (E2's \"delete the resource\" bound; over\n             E2's 26 tasks this reproduces median 1.85%, max 13.4%)\n  top      = resource with the most exclusive critical wait, its busy time / a, its share of the wait",
+  "e2_reference_same_task_third_party": null,
+  "e2_reference_all_26_tasks": {
+    "delete_median": 0.0185,
+    "delete_max": 0.134,
+    "reorder_max": 0.033
+  }
+}

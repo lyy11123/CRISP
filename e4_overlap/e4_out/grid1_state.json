@@ -1,0 +1,909 @@
+{
+  "command": [
+    "e4_grid.py",
+    "--jobs",
+    "12"
+  ],
+  "artifact_commit": "299089ef266c54c6a1fa8c2f52df66e6c970b52a",
+  "phases": {
+    "A": {
+      "configs": [
+        "a1_3s_512-2048-8192_d0",
+        "a1_3s_512-2048-8192_d0.25",
+        "a1_3s_512-2048-8192_d0.5",
+        "a1_3s_512-2048-8192_d1",
+        "a1_3s_512-2048-8192_serial",
+        "a1_3s_2048x3_d0",
+        "a1_3s_2048x3_d0.25",
+        "a1_3s_2048x3_d0.5",
+        "a1_3s_2048x3_d1",
+        "a1_3s_2048x3_serial",
+        "a2_2s_mha-ffn_d0",
+        "a2_2s_mha-ffn_d0.25",
+        "a2_2s_mha-ffn_d0.5",
+        "a2_2s_mha-ffn_d1",
+        "a2_2s_mha-ffn_serial",
+        "a2_3s_mha-ffn-mha_d0",
+        "a2_3s_mha-ffn-mha_d0.25",
+        "a2_3s_mha-ffn-mha_d0.5",
+        "a2_3s_mha-ffn-mha_d1",
+        "a2_3s_mha-ffn-mha_serial"
+      ],
+      "wall": 63.688812494277954,
+      "check3": {
+        "a1_3s_512-2048-8192_serial": true,
+        "a1_3s_2048x3_serial": true,
+        "a2_2s_mha-ffn_serial": true,
+        "a2_3s_mha-ffn-mha_serial": true
+      }
+    },
+    "E_F4": {
+      "configs": [
+        "a1_2s_512-8192_F4_d0",
+        "a1_2s_512-8192_F4_d0.25",
+        "a1_2s_512-8192_F4_d0.5",
+        "a1_2s_512-8192_F4_d1",
+        "a1_2s_512-8192_F4_serial",
+        "a1_2s_2048-8192_F4_d0",
+        "a1_2s_2048-8192_F4_d0.25",
+        "a1_2s_2048-8192_F4_d0.5",
+        "a1_2s_2048-8192_F4_d1",
+        "a1_2s_2048-8192_F4_serial",
+        "a1_2s_2048-2048_F4_d0",
+        "a1_2s_2048-2048_F4_d0.25",
+        "a1_2s_2048-2048_F4_d0.5",
+        "a1_2s_2048-2048_F4_d1",
+        "a1_2s_2048-2048_F4_serial",
+        "a1_3s_512-2048-8192_F4_d0",
+        "a1_3s_512-2048-8192_F4_d0.25",
+        "a1_3s_512-2048-8192_F4_d0.5",
+        "a1_3s_512-2048-8192_F4_d1",
+        "a1_3s_512-2048-8192_F4_serial",
+        "a1_3s_2048x3_F4_d0",
+        "a1_3s_2048x3_F4_d0.25",
+        "a1_3s_2048x3_F4_d0.5",
+        "a1_3s_2048x3_F4_d1",
+        "a1_3s_2048x3_F4_serial",
+        "a2_2s_mha-ffn_F4_d0",
+        "a2_2s_mha-ffn_F4_d0.25",
+        "a2_2s_mha-ffn_F4_d0.5",
+        "a2_2s_mha-ffn_F4_d1",
+        "a2_2s_mha-ffn_F4_serial",
+        "a2_3s_mha-ffn-mha_F4_d0",
+        "a2_3s_mha-ffn-mha_F4_d0.25",
+        "a2_3s_mha-ffn-mha_F4_d0.5",
+        "a2_3s_mha-ffn-mha_F4_d1",
+        "a2_3s_mha-ffn-mha_F4_serial"
+      ],
+      "wall": 159.83549118041992,
+      "check3": {
+        "a1_2s_512-8192_F4_serial": true,
+        "a1_2s_2048-8192_F4_serial": true,
+        "a1_2s_2048-2048_F4_serial": true,
+        "a1_3s_512-2048-8192_F4_serial": true,
+        "a1_3s_2048x3_F4_serial": true,
+        "a2_2s_mha-ffn_F4_serial": true,
+        "a2_3s_mha-ffn-mha_F4_serial": true
+      }
+    }
+  },
+  "T_nofault": {
+    "mha2048": 20357.333333333332,
+    "mha512": 16523.333333333332,
+    "mha8192": 38776.0,
+    "ffn": 207509.0
+  },
+  "faults": {
+    "a1_2s_512-8192": {
+      "F4": {
+        "id": "F4",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              4
+            ]
+          ],
+          [
+            [
+              1,
+              4
+            ],
+            [
+              0,
+              7
+            ]
+          ]
+        ],
+        "rule": "busiest ch2ch link (busy time) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "busy": 36503,
+        "busy_over_a": 0.7261388502088721,
+        "busy_reverse": 27172,
+        "top": [
+          [
+            "((0, 7), (1, 4))",
+            36503
+          ],
+          [
+            "((2, 11), (3, 8))",
+            32489
+          ],
+          [
+            "((2, 7), (3, 4))",
+            31863
+          ],
+          [
+            "((0, 13), (2, 1))",
+            31658
+          ]
+        ]
+      },
+      "F5": {
+        "id": "F5",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          [
+            [
+              3,
+              4
+            ],
+            [
+              2,
+              7
+            ]
+          ]
+        ],
+        "rule": "co2co/ch2ch link with the largest exclusive critical wait (E2 attribution with release times) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "critical_wait": 25831,
+        "critical_wait_over_a": 0.5138452357270739,
+        "busy": 31863,
+        "busy_over_a": 0.6338372786950468,
+        "top_critical_links": [
+          [
+            "((2, 7), (3, 4))",
+            25831
+          ],
+          [
+            "((3, 4), (3, 0))",
+            2600
+          ],
+          [
+            "((0, 0), (0, 1))",
+            1025
+          ],
+          [
+            "((3, 4), (2, 7))",
+            873
+          ],
+          [
+            "((0, 7), (0, 11))",
+            805
+          ]
+        ]
+      }
+    },
+    "a1_2s_2048-8192": {
+      "F4": {
+        "id": "F4",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              14
+            ]
+          ],
+          [
+            [
+              0,
+              14
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ],
+        "rule": "busiest ch2ch link (busy time) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "busy": 36038,
+        "busy_over_a": 0.6871448728215689,
+        "busy_reverse": 23631,
+        "top": [
+          [
+            "((2, 2), (0, 14))",
+            36038
+          ],
+          [
+            "((0, 7), (1, 4))",
+            33823
+          ],
+          [
+            "((3, 8), (2, 11))",
+            32543
+          ],
+          [
+            "((1, 4), (0, 7))",
+            31981
+          ]
+        ]
+      },
+      "F5": {
+        "id": "F5",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              14
+            ]
+          ],
+          [
+            [
+              0,
+              14
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ],
+        "rule": "co2co/ch2ch link with the largest exclusive critical wait (E2 attribution with release times) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "critical_wait": 22158,
+        "critical_wait_over_a": 0.42249170575449035,
+        "busy": 36038,
+        "busy_over_a": 0.6871448728215689,
+        "top_critical_links": [
+          [
+            "((2, 2), (0, 14))",
+            22158
+          ],
+          [
+            "((0, 13), (2, 1))",
+            0
+          ],
+          [
+            "((2, 1), (0, 13))",
+            0
+          ],
+          [
+            "((2, 7), (2, 3))",
+            0
+          ],
+          [
+            "((2, 11), (3, 8))",
+            0
+          ]
+        ]
+      }
+    },
+    "a1_2s_2048-2048": {
+      "F4": {
+        "id": "F4",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              14
+            ]
+          ],
+          [
+            [
+              0,
+              14
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ],
+        "rule": "busiest ch2ch link (busy time) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "busy": 31388,
+        "busy_over_a": 0.8540952380952381,
+        "busy_reverse": 16830,
+        "top": [
+          [
+            "((2, 2), (0, 14))",
+            31388
+          ],
+          [
+            "((1, 13), (3, 1))",
+            29498
+          ],
+          [
+            "((3, 1), (1, 13))",
+            25688
+          ],
+          [
+            "((0, 11), (1, 8))",
+            24682
+          ]
+        ]
+      },
+      "F5": {
+        "id": "F5",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              3,
+              1
+            ],
+            [
+              1,
+              13
+            ]
+          ],
+          [
+            [
+              1,
+              13
+            ],
+            [
+              3,
+              1
+            ]
+          ]
+        ],
+        "rule": "co2co/ch2ch link with the largest exclusive critical wait (E2 attribution with release times) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "critical_wait": 15975,
+        "critical_wait_over_a": 0.4346938775510204,
+        "busy": 25688,
+        "busy_over_a": 0.6989931972789115,
+        "top_critical_links": [
+          [
+            "((3, 1), (1, 13))",
+            15975
+          ],
+          [
+            "((2, 7), (3, 4))",
+            22
+          ]
+        ]
+      }
+    },
+    "a1_3s_512-2048-8192": {
+      "F4": {
+        "id": "F4",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              14
+            ]
+          ],
+          [
+            [
+              0,
+              14
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ],
+        "rule": "busiest ch2ch link (busy time) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "busy": 46978,
+        "busy_over_a": 0.7459311834103431,
+        "busy_reverse": 29955,
+        "top": [
+          [
+            "((2, 2), (0, 14))",
+            46978
+          ],
+          [
+            "((0, 7), (1, 4))",
+            44998
+          ],
+          [
+            "((2, 7), (3, 4))",
+            39728
+          ],
+          [
+            "((1, 13), (3, 1))",
+            39495
+          ]
+        ]
+      },
+      "F5": {
+        "id": "F5",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              1,
+              13
+            ],
+            [
+              3,
+              1
+            ]
+          ],
+          [
+            [
+              3,
+              1
+            ],
+            [
+              1,
+              13
+            ]
+          ]
+        ],
+        "rule": "co2co/ch2ch link with the largest exclusive critical wait (E2 attribution with release times) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "critical_wait": 25168,
+        "critical_wait_over_a": 0.39962527191603553,
+        "busy": 39495,
+        "busy_over_a": 0.6271137998380413,
+        "top_critical_links": [
+          [
+            "((1, 13), (3, 1))",
+            25168
+          ],
+          [
+            "((3, 2), (3, 3))",
+            4847
+          ],
+          [
+            "((1, 7), (1, 11))",
+            0
+          ],
+          [
+            "((1, 15), (1, 11))",
+            0
+          ],
+          [
+            "((1, 14), (1, 15))",
+            0
+          ]
+        ]
+      }
+    },
+    "a1_3s_2048x3": {
+      "F4": {
+        "id": "F4",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              14
+            ]
+          ],
+          [
+            [
+              0,
+              14
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ],
+        "rule": "busiest ch2ch link (busy time) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "busy": 47082,
+        "busy_over_a": 0.8824290132133821,
+        "busy_reverse": 25245,
+        "top": [
+          [
+            "((2, 2), (0, 14))",
+            47082
+          ],
+          [
+            "((1, 13), (3, 1))",
+            44247
+          ],
+          [
+            "((3, 1), (1, 13))",
+            38532
+          ],
+          [
+            "((0, 11), (1, 8))",
+            37023
+          ]
+        ]
+      },
+      "F5": {
+        "id": "F5",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              1,
+              13
+            ],
+            [
+              3,
+              1
+            ]
+          ],
+          [
+            [
+              3,
+              1
+            ],
+            [
+              1,
+              13
+            ]
+          ]
+        ],
+        "rule": "co2co/ch2ch link with the largest exclusive critical wait (E2 attribution with release times) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "critical_wait": 29643,
+        "critical_wait_over_a": 0.5555805454034298,
+        "busy": 44247,
+        "busy_over_a": 0.8292943491706494,
+        "top_critical_links": [
+          [
+            "((1, 13), (3, 1))",
+            29643
+          ],
+          [
+            "((0, 7), (0, 3))",
+            0
+          ],
+          [
+            "((0, 14), (2, 2))",
+            0
+          ],
+          [
+            "((0, 11), (0, 7))",
+            0
+          ],
+          [
+            "((1, 8), (0, 11))",
+            0
+          ]
+        ]
+      }
+    },
+    "a2_2s_mha-ffn": {
+      "F4": {
+        "id": "F4",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              3,
+              2
+            ],
+            [
+              1,
+              14
+            ]
+          ],
+          [
+            [
+              1,
+              14
+            ],
+            [
+              3,
+              2
+            ]
+          ]
+        ],
+        "rule": "busiest ch2ch link (busy time) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "busy": 179646,
+        "busy_over_a": 0.8776791428697058,
+        "busy_reverse": 156377,
+        "top": [
+          [
+            "((3, 2), (1, 14))",
+            179646
+          ],
+          [
+            "((2, 1), (0, 13))",
+            177073
+          ],
+          [
+            "((3, 4), (2, 7))",
+            175028
+          ],
+          [
+            "((0, 14), (2, 2))",
+            174939
+          ]
+        ]
+      },
+      "F5": {
+        "id": "F5",
+        "kind": "link co2co, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              3,
+              15
+            ],
+            [
+              3,
+              14
+            ]
+          ],
+          [
+            [
+              3,
+              14
+            ],
+            [
+              3,
+              15
+            ]
+          ]
+        ],
+        "rule": "co2co/ch2ch link with the largest exclusive critical wait (E2 attribution with release times) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "critical_wait": 106102,
+        "critical_wait_over_a": 0.5183723123073241,
+        "busy": 152380,
+        "busy_over_a": 0.744468275333076,
+        "top_critical_links": [
+          [
+            "((3, 15), (3, 14))",
+            106102
+          ]
+        ]
+      }
+    },
+    "a2_3s_mha-ffn-mha": {
+      "F4": {
+        "id": "F4",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              3,
+              2
+            ],
+            [
+              1,
+              14
+            ]
+          ],
+          [
+            [
+              1,
+              14
+            ],
+            [
+              3,
+              2
+            ]
+          ]
+        ],
+        "rule": "busiest ch2ch link (busy time) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "busy": 189588,
+        "busy_over_a": 0.884903872632989,
+        "busy_reverse": 162106,
+        "top": [
+          [
+            "((3, 2), (1, 14))",
+            189588
+          ],
+          [
+            "((2, 1), (0, 13))",
+            185434
+          ],
+          [
+            "((3, 4), (2, 7))",
+            183956
+          ],
+          [
+            "((0, 14), (2, 2))",
+            183354
+          ]
+        ]
+      },
+      "F5": {
+        "id": "F5",
+        "kind": "link ch2ch, both directions",
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              1,
+              14
+            ],
+            [
+              3,
+              2
+            ]
+          ],
+          [
+            [
+              3,
+              2
+            ],
+            [
+              1,
+              14
+            ]
+          ]
+        ],
+        "rule": "co2co/ch2ch link with the largest exclusive critical wait (E2 attribution with release times) in the merged Delta=0 no-fault default graph, backend seed 1",
+        "critical_wait": 134805,
+        "critical_wait_over_a": 0.629203676130821,
+        "busy": 162106,
+        "busy_over_a": 0.7566313647332285,
+        "top_critical_links": [
+          [
+            "((1, 14), (3, 2))",
+            134805
+          ],
+          [
+            "((3, 2), (3, 3))",
+            17653
+          ],
+          [
+            "((3, 8), (2, 11))",
+            1012
+          ],
+          [
+            "((3, 3), (3, 7))",
+            73
+          ]
+        ]
+      }
+    }
+  },
+  "r0_captures": {
+    "mha512__963c9c2d": "cached",
+    "mha8192__963c9c2d": "cached",
+    "mha512__8655b285": "cached",
+    "mha8192__8655b285": "cached",
+    "mha2048__531d8b2b": "cached",
+    "mha8192__531d8b2b": "cached",
+    "mha2048__4cdea6f0": "cached",
+    "mha512__531d8b2b": "cached",
+    "mha512__4cdea6f0": "cached",
+    "mha8192__4cdea6f0": "cached",
+    "mha2048__5f4daae8": "cached",
+    "ffn__5f4daae8": "cached",
+    "mha2048__bbd7e98b": "cached",
+    "ffn__bbd7e98b": "cached"
+  },
+  "T_fault": {
+    "mha512__963c9c2d": 18532.333333333332,
+    "mha8192__963c9c2d": 47710.666666666664,
+    "mha512__8655b285": 19137.666666666668,
+    "mha8192__8655b285": 54055.666666666664,
+    "mha2048__531d8b2b": 27332.0,
+    "mha8192__531d8b2b": 44588.666666666664,
+    "mha2048__4cdea6f0": 23958.333333333332,
+    "mha512__531d8b2b": 19517.666666666668,
+    "mha512__4cdea6f0": 18811.666666666668,
+    "mha8192__4cdea6f0": 41650.333333333336,
+    "mha2048__5f4daae8": 25162.666666666668,
+    "ffn__5f4daae8": 319567.6666666667,
+    "mha2048__bbd7e98b": 20131.0,
+    "ffn__bbd7e98b": 270754.6666666667
+  },
+  "T_fault_seeds": {
+    "mha512__963c9c2d": [
+      18931,
+      17950,
+      18716
+    ],
+    "mha8192__963c9c2d": [
+      47935,
+      47591,
+      47606
+    ],
+    "mha512__8655b285": [
+      19620,
+      19620,
+      18173
+    ],
+    "mha8192__8655b285": [
+      54561,
+      52336,
+      55270
+    ],
+    "mha2048__531d8b2b": [
+      27513,
+      26510,
+      27973
+    ],
+    "mha8192__531d8b2b": [
+      44065,
+      46002,
+      43699
+    ],
+    "mha2048__4cdea6f0": [
+      24300,
+      23650,
+      23925
+    ],
+    "mha512__531d8b2b": [
+      19387,
+      19779,
+      19387
+    ],
+    "mha512__4cdea6f0": [
+      18883,
+      18721,
+      18831
+    ],
+    "mha8192__4cdea6f0": [
+      42876,
+      41519,
+      40556
+    ],
+    "mha2048__5f4daae8": [
+      25881,
+      24865,
+      24742
+    ],
+    "ffn__5f4daae8": [
+      319965,
+      319394,
+      319344
+    ],
+    "mha2048__bbd7e98b": [
+      19993,
+      20290,
+      20110
+    ],
+    "ffn__bbd7e98b": [
+      270972,
+      270646,
+      270646
+    ]
+  },
+  "F5_same_as_F4": [
+    "a1_2s_2048-8192",
+    "a2_3s_mha-ffn-mha"
+  ]
+}

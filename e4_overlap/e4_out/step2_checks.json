@@ -1,0 +1,528 @@
+{
+  "checks": {
+    "check1_single_stream": {
+      "pass": true,
+      "detail": {
+        "mha2048": {
+          "merged_latency": {
+            "1": 20547,
+            "2": 19642,
+            "3": 20883
+          },
+          "original_latency": {
+            "1": 20623,
+            "2": 19697,
+            "3": 20752
+          },
+          "merged_mean": 20357.333333333332,
+          "original_mean": 20357.333333333332,
+          "rel_diff": 0.0,
+          "graph_diff": [
+            0,
+            0,
+            0
+          ],
+          "within_1pct": true,
+          "pass": true
+        },
+        "mha512": {
+          "merged_latency": {
+            "1": 16647,
+            "2": 16647,
+            "3": 16276
+          },
+          "original_latency": {
+            "1": 16647,
+            "2": 16647,
+            "3": 16276
+          },
+          "merged_mean": 16523.333333333332,
+          "original_mean": 16523.333333333332,
+          "rel_diff": 0.0,
+          "graph_diff": [
+            0,
+            0,
+            0
+          ],
+          "within_1pct": true,
+          "pass": true
+        },
+        "mha8192": {
+          "merged_latency": {
+            "1": 39046,
+            "2": 37323,
+            "3": 39959
+          },
+          "original_latency": {
+            "1": 37439,
+            "2": 37740,
+            "3": 39945
+          },
+          "merged_mean": 38776.0,
+          "original_mean": 38374.666666666664,
+          "rel_diff": 0.01045828845418859,
+          "graph_diff": [
+            0,
+            0,
+            0
+          ],
+          "within_1pct": false,
+          "pass": true
+        }
+      }
+    },
+    "check2_release_respected": {
+      "pass": true,
+      "n_runs": 135,
+      "impl": "(b): no virtual events exist",
+      "release_rows_on_chain": 26
+    },
+    "check3_serial": {
+      "pass": true,
+      "detail": {
+        "a1_2s_512-8192_serial": {
+          "latency_rel_diff": {
+            "0": 0.0,
+            "1": 0.026115810466955443
+          },
+          "cross_stream_share": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "latency_seeds": {
+            "0": [
+              16647,
+              16647,
+              16276
+            ],
+            "1": [
+              37472.0,
+              38015.0,
+              37803.0
+            ]
+          },
+          "within_1pct": false,
+          "pass": true
+        },
+        "a1_2s_2048-8192_serial": {
+          "latency_rel_diff": {
+            "0": 0.005829185223997964,
+            "1": 0.020012378791004745
+          },
+          "cross_stream_share": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "latency_seeds": {
+            "0": [
+              20648,
+              20277,
+              20503
+            ],
+            "1": [
+              39448.0,
+              39956.0,
+              39252.0
+            ]
+          },
+          "within_1pct": false,
+          "pass": true
+        },
+        "a1_2s_2048-2048_serial": {
+          "latency_rel_diff": {
+            "0": 0.012215090385119264,
+            "1": 0.00813793555148028
+          },
+          "cross_stream_share": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "latency_seeds": {
+            "0": [
+              20635,
+              20277,
+              20906
+            ],
+            "1": [
+              20641.0,
+              20623.0,
+              20305.0
+            ]
+          },
+          "within_1pct": false,
+          "pass": true
+        }
+      }
+    },
+    "check5_e2_analysis": {
+      "pass": true,
+      "n_graphs": 54,
+      "failures": {},
+      "smax_model_matches_actual": true
+    },
+    "check6_smax_vs_e2": {
+      "pass": true,
+      "detail": {
+        "mha2048_seed1": {
+          "rows": [
+            {
+              "resource": "co2co:((0, 14), (0, 10))",
+              "e2_best": 20547,
+              "smax_times_T": 20546.999999999,
+              "e2_exact_known": true,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((0, 13), (2, 1))",
+              "e2_best": 20547,
+              "smax_times_T": 20546.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((0, 9), (0, 10))",
+              "e2_best": 20547,
+              "smax_times_T": 20546.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((0, 1), (0, 0))",
+              "e2_best": 20547,
+              "smax_times_T": 20546.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((0, 14), (0, 15))",
+              "e2_best": 20547,
+              "smax_times_T": 20546.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": false,
+              "match": true
+            }
+          ],
+          "pass": true
+        },
+        "mha2048_seed2": {
+          "rows": [
+            {
+              "resource": "co2ddr:((1, 12), (1, 20))",
+              "e2_best": 19642,
+              "smax_times_T": 19642.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((3, 8), (2, 11))",
+              "e2_best": 19642,
+              "smax_times_T": 19641.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": false,
+              "match": true
+            }
+          ],
+          "pass": true
+        },
+        "mha2048_seed3": {
+          "rows": [
+            {
+              "resource": "ch2ch:((1, 13), (3, 1))",
+              "e2_best": 20883,
+              "smax_times_T": 20882.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ddr2co:((1, 16), (1, 0))",
+              "e2_best": 20883,
+              "smax_times_T": 20882.999999999996,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((0, 13), (2, 1))",
+              "e2_best": 20883,
+              "smax_times_T": 20882.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((3, 2), (3, 3))",
+              "e2_best": 20883,
+              "smax_times_T": 20882.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((0, 7), (0, 11))",
+              "e2_best": 20883,
+              "smax_times_T": 20882.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            }
+          ],
+          "pass": true
+        },
+        "mha512_seed1": {
+          "rows": [
+            {
+              "resource": "co2ddr:((2, 15), (2, 22))",
+              "e2_best": 16647,
+              "smax_times_T": 16647.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((2, 11), (3, 8))",
+              "e2_best": 16647,
+              "smax_times_T": 16647.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((2, 15), (2, 11))",
+              "e2_best": 16647,
+              "smax_times_T": 16647.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            }
+          ],
+          "pass": true
+        },
+        "mha512_seed2": {
+          "rows": [
+            {
+              "resource": "ch2ch:((1, 13), (3, 1))",
+              "e2_best": 16647,
+              "smax_times_T": 16647.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2ddr:((0, 0), (0, 16))",
+              "e2_best": 16647,
+              "smax_times_T": 16647.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((1, 14), (1, 15))",
+              "e2_best": 16647,
+              "smax_times_T": 16647.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((0, 7), (1, 4))",
+              "e2_best": 16647,
+              "smax_times_T": 16647.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((1, 4), (0, 7))",
+              "e2_best": 16647,
+              "smax_times_T": 16647.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            }
+          ],
+          "pass": true
+        },
+        "mha512_seed3": {
+          "rows": [
+            {
+              "resource": "co2ddr:((1, 3), (1, 19))",
+              "e2_best": 16276,
+              "smax_times_T": 16276.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((0, 7), (1, 4))",
+              "e2_best": 16276,
+              "smax_times_T": 16276.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            }
+          ],
+          "pass": true
+        },
+        "mha8192_seed1": {
+          "rows": [
+            {
+              "resource": "ch2ch:((0, 7), (1, 4))",
+              "e2_best": 39046,
+              "smax_times_T": 39045.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((1, 4), (1, 0))",
+              "e2_best": 39046,
+              "smax_times_T": 39045.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((3, 4), (2, 7))",
+              "e2_best": 39046,
+              "smax_times_T": 39045.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((2, 2), (0, 14))",
+              "e2_best": 38002,
+              "smax_times_T": 38001.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": false,
+              "match": true
+            },
+            {
+              "resource": "co2co:((2, 7), (2, 3))",
+              "e2_best": 39046,
+              "smax_times_T": 39045.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": false,
+              "match": true
+            }
+          ],
+          "pass": true
+        },
+        "mha8192_seed2": {
+          "rows": [
+            {
+              "resource": "ch2ch:((0, 7), (1, 4))",
+              "e2_best": 37323,
+              "smax_times_T": 37322.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": false,
+              "match": true
+            },
+            {
+              "resource": "co2co:((2, 7), (2, 11))",
+              "e2_best": 37323,
+              "smax_times_T": 37322.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((1, 8), (0, 11))",
+              "e2_best": 37323,
+              "smax_times_T": 37322.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": false,
+              "match": true
+            },
+            {
+              "resource": "co2co:((2, 3), (2, 7))",
+              "e2_best": 37323,
+              "smax_times_T": 37322.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((2, 11), (2, 15))",
+              "e2_best": 37323,
+              "smax_times_T": 37322.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            }
+          ],
+          "pass": true
+        },
+        "mha8192_seed3": {
+          "rows": [
+            {
+              "resource": "ch2ch:((0, 7), (1, 4))",
+              "e2_best": 39959,
+              "smax_times_T": 39958.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": false,
+              "match": true
+            },
+            {
+              "resource": "ch2ch:((3, 4), (2, 7))",
+              "e2_best": 39959,
+              "smax_times_T": 39958.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((2, 11), (2, 15))",
+              "e2_best": 39959,
+              "smax_times_T": 39958.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((2, 13), (2, 12))",
+              "e2_best": 39476,
+              "smax_times_T": 39476.0,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            },
+            {
+              "resource": "co2co:((0, 14), (0, 15))",
+              "e2_best": 39959,
+              "smax_times_T": 39958.999999999,
+              "e2_exact_known": false,
+              "smax_exact_everywhere": true,
+              "match": true
+            }
+          ],
+          "pass": true
+        }
+      }
+    }
+  },
+  "T": {
+    "mha2048": 20357.333333333332,
+    "mha512": 16523.333333333332,
+    "mha8192": 38776.0
+  },
+  "stop_compute_dominant": [],
+  "wall_seconds": 1211.7614877223969,
+  "artifact_commit": "299089ef266c54c6a1fa8c2f52df66e6c970b52a",
+  "command": [
+    "e4_overlap.py",
+    "step2",
+    "--jobs",
+    "12"
+  ],
+  "python": "C:\\Users\\YiyangLiu\\Envs\\maptools-wsi-p00\\Scripts\\python.exe"
+}

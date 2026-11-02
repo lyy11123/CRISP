@@ -1,0 +1,2943 @@
+{
+  "config": "a2_3s_mha-ffn-mha_d1",
+  "composition": "a2",
+  "n_streams": 3,
+  "streams": [
+    "mha2048",
+    "ffn",
+    "mha2048"
+  ],
+  "tasks": [
+    "mha_sq2048_greedy0_lossratio4_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0",
+    "ffn_sq2048_greedy0_lossratio6_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0",
+    "mha_sq2048_greedy0_lossratio4_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0"
+  ],
+  "stagger": 1.0,
+  "T": {
+    "0": 20357.333333333332,
+    "1": 207509.0,
+    "2": 20357.333333333332
+  },
+  "Tmin": 20357.333333333332,
+  "T_ratio": 10.193329185223998,
+  "hardware": "nofault",
+  "faults": null,
+  "chunking": "none",
+  "backend_seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "release_mean": {
+    "0": 0.0,
+    "1": 20357.0,
+    "2": 40714.0
+  },
+  "latency_mean": {
+    "0": 49496.166666666664,
+    "1": 210806.0,
+    "2": 172358.83333333334
+  },
+  "stretch_mean": {
+    "0": 2.4313678936337437,
+    "1": 1.0158884674881572,
+    "2": 8.466670487293689
+  },
+  "S_max_mean": 8.466670487293689,
+  "S_max_seeds": [
+    8.715974587372282,
+    8.483085538380928,
+    8.483085538380928,
+    8.063580691642652,
+    8.255649069950223,
+    8.798647498035107
+  ],
+  "makespan_mean": 231163.0,
+  "beat_mean": 77054.33333333333,
+  "overlap_ge2_mean": 179144.5,
+  "pair_overlap_mean": {
+    "0-1": 29276.166666666668,
+    "0-2": 22490.5,
+    "1-2": 172358.83333333334
+  },
+  "all_met_share": {
+    "1.1": 0.0,
+    "1.5": 0.0,
+    "2.0": 0.0
+  },
+  "critical_wait_over_a_mean": 0.8165958742981448,
+  "wait_share_by_class_mean": {
+    "compute": 0.1363453566788471,
+    "onchip": 0.5717181826330338,
+    "ddr": 0.1417683151951902,
+    "d2d": 0.15016814549292887
+  },
+  "cross_stream_share_mean": 0.41010313111638225,
+  "cross_stream_share_seeds": [
+    0.5395008098954499,
+    0.34929153132796686,
+    0.5369801325944015,
+    0.34528987226325475,
+    0.5451949716852694,
+    0.14436146893195123
+  ],
+  "smax_bound_reduction_mean": 9.17121280835568e-16,
+  "smax_bound_reduction_ub_mean": 9.17121280835568e-16,
+  "Lmax_current_mean": {
+    "1.1": 149965.7666666667,
+    "1.5": 141822.83333333334,
+    "2.0": 131644.1666666667
+  },
+  "Lmax_best_top5_mean": {
+    "1.1": 149965.7666666667,
+    "1.5": 141822.83333333334,
+    "2.0": 131644.1666666667
+  },
+  "makespan_reorder_gain_mean": 0.003959266231852959,
+  "makespan_reorder_gain_ub_mean": 0.009243905028590063,
+  "makespan_delete_gain_mean": 0.012208021409646275,
+  "slack_range_max_mean": {
+    "1.1": 25500.722222222244,
+    "1.5": 100361.38888888888,
+    "2.0": 193937.22222222225
+  },
+  "slack_cv_max_mean": {
+    "1.1": 4.12049317680723,
+    "1.5": 1.0257045776323037,
+    "2.0": 0.9574044988183125
+  },
+  "prio_S_max_mean": {
+    "prio_012": 8.85945277705004,
+    "prio_021": 8.19178183128111,
+    "prio_102": 8.910302593659942,
+    "prio_120": 9.074223866911188,
+    "prio_201": 8.150813793555146,
+    "prio_210": 8.138574141996331
+  },
+  "prio_best_order": "prio_210",
+  "prio_best_over_default": 0.9612484806406785,
+  "per_seed_analysis": [
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": true,
+      "release_in_segs": 0,
+      "a": 225943,
+      "critical_wait_over_a": 0.8415750875220741,
+      "critical_wait_total": 190148,
+      "cross_stream_wait": 102585,
+      "cross_stream_share": 0.5395008098954499,
+      "wait_share_by_class": {
+        "compute": 0.1443875297136967,
+        "onchip": 0.6710772661295412,
+        "ddr": 0.1845352041567621
+      },
+      "cross_wait_share_by_class": {
+        "onchip": 0.4521635778446263,
+        "ddr": 0.08733723205082357
+      },
+      "wait_share_by_resource_kind": {
+        "co2co": 0.6710772661295412,
+        "ddr2co": 0.1845352041567621,
+        "tensorcore": 0.1443875297136967
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "co2co": 0.5809252776142655,
+        "ddr2co": 0.16359878376404668,
+        "tensorcore": 0.1631561942613845,
+        "release": 0.09009794505693913,
+        "co2ddr": 0.0010710665964424656,
+        "ch2ch": 0.0009382897456438128,
+        "vectorunit": 0.0002124429612778444
+      },
+      "wait_top_resources": [
+        [
+          "co2co:((3, 15), (3, 14))",
+          127604
+        ],
+        [
+          "ddr2co:((3, 23), (3, 15))",
+          35089
+        ],
+        [
+          "tensorcore@(3, 14, 0)",
+          27455
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 117402,
+          "1": 225943,
+          "2": 218148
+        },
+        "release": {
+          "0": 0,
+          "1": 20357,
+          "2": 40714
+        },
+        "first_activity": {
+          "0": 0,
+          "2": 57321,
+          "1": 20357
+        },
+        "latency": {
+          "0": 117402,
+          "1": 205586,
+          "2": 177434
+        },
+        "stretch": {
+          "0": 5.7670618286612525,
+          "1": 0.9907329320655972,
+          "2": 8.715974587372282
+        },
+        "S_max": 8.715974587372282,
+        "argmax_stream": 2,
+        "makespan": 225943,
+        "beat": 75314.33333333333,
+        "met": {
+          "1.1": {
+            "0": false,
+            "1": true,
+            "2": false
+          },
+          "1.5": {
+            "0": false,
+            "1": true,
+            "2": false
+          },
+          "2.0": {
+            "0": false,
+            "1": true,
+            "2": false
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": false
+        },
+        "pair_overlap": {
+          "0-1": 97045,
+          "0-2": 76688,
+          "1-2": 177434
+        },
+        "overlap_ge2": 197791,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.004487857556994463,
+        "reorder_gain_ub_over_a_top5_max": 0.011994175522144965,
+        "delete_gain_over_a_top5_max": 0.011994175522144965,
+        "top5": [
+          {
+            "resource": "co2co:((3, 15), (3, 14))",
+            "wait_excl": 127604,
+            "n_items": 165,
+            "current_max_f_plus_q": 225943,
+            "schrage_edf": 224929,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 222894,
+            "longest_path_avoiding_resource": 223233,
+            "reorder_gain_over_a": 0.004487857556994463,
+            "reorder_gain_ub_over_a": 0.011994175522144965
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "wait_excl": 35089,
+            "n_items": 19,
+            "current_max_f_plus_q": 225943,
+            "schrage_edf": 225943,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 224884,
+            "longest_path_avoiding_resource": 225933,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 4.4258950266217584e-05
+          },
+          {
+            "resource": "tensorcore@(3, 14, 0)",
+            "wait_excl": 27455,
+            "n_items": 6,
+            "current_max_f_plus_q": 225943,
+            "schrage_edf": 225943,
+            "exact_nonpreemptive": 225943,
+            "jackson_preemptive_lb": 225943,
+            "longest_path_avoiding_resource": 223233,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "co2co:((3, 15), (3, 14))",
+            "resource_kind": "co2co",
+            "n_items": 165,
+            "items_by_stream": {
+              "0": 77,
+              "1": 11,
+              "2": 77
+            },
+            "items_reaching_other_streams": 165,
+            "off": {
+              "0": 117402,
+              "1": 223233,
+              "2": 218037
+            },
+            "k_floor": 8.710522006811633,
+            "S_cur_model": 8.715974587372282,
+            "S_opt_ub": 8.715974587372234,
+            "S_opt_lb": 8.715974587372234,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 155040.93333333335,
+                "best": 155040.93333333335,
+                "lb": 155040.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 146898.0,
+                "best": 146898.0,
+                "lb": 146898.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 136719.33333333334,
+                "best": 136719.33333333334,
+                "lb": 136719.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 5.502727685013407e-15,
+            "S_reduction_ub": 5.502727685013407e-15
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "resource_kind": "ddr2co",
+            "n_items": 19,
+            "items_by_stream": {
+              "0": 7,
+              "1": 5,
+              "2": 7
+            },
+            "items_reaching_other_streams": 19,
+            "off": {
+              "0": 117402,
+              "1": 225933,
+              "2": 218148
+            },
+            "k_floor": 8.715974587372282,
+            "S_cur_model": 8.715974587372282,
+            "S_opt_ub": 8.715974587372282,
+            "S_opt_lb": 8.715974587372282,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 155040.93333333335,
+                "best": 155040.93333333335,
+                "lb": 155040.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 146898.0,
+                "best": 146898.0,
+                "lb": 146898.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 136719.33333333334,
+                "best": 136719.33333333334,
+                "lb": 136719.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "tensorcore@(3, 14, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 6,
+            "items_by_stream": {
+              "0": 1,
+              "2": 1,
+              "1": 4
+            },
+            "items_reaching_other_streams": 5,
+            "off": {
+              "0": 117402,
+              "1": 223233,
+              "2": 218148
+            },
+            "k_floor": 8.715974587372282,
+            "S_cur_model": 8.715974587372282,
+            "S_opt_ub": 8.715974587372282,
+            "S_opt_lb": 8.715974587372282,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 155040.93333333335,
+                "best": 155040.93333333335,
+                "lb": 155040.93333333335,
+                "exact": true
+              },
+              "1.5": {
+                "current": 146898.0,
+                "best": 146898.0,
+                "lb": 146898.0,
+                "exact": true
+              },
+              "2.0": {
+                "current": 136719.33333333334,
+                "best": 136719.33333333334,
+                "lb": 136719.33333333334,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          }
+        ],
+        "S_reduction_top5_max": 5.502727685013407e-15,
+        "S_reduction_ub_top5_max": 5.502727685013407e-15,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 155040.93333333335,
+          "1.5": 146898.0,
+          "2.0": 136719.33333333334
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 155040.93333333335,
+          "1.5": 146898.0,
+          "2.0": 136719.33333333334
+        }
+      },
+      "slack": [
+        {
+          "t": 20357,
+          "stream": 1,
+          "live": [
+            0,
+            1
+          ],
+          "1.1": {
+            "slack": [
+              2035.7333333333336,
+              20750.900000000023
+            ],
+            "range": 18715.16666666669,
+            "cv": 0.82132214938875
+          },
+          "1.5": {
+            "slack": [
+              10178.666666666668,
+              103754.5
+            ],
+            "range": 93575.83333333333,
+            "cv": 0.8213221493887499
+          },
+          "2.0": {
+            "slack": [
+              20357.333333333332,
+              207509.0
+            ],
+            "range": 187151.66666666666,
+            "cv": 0.8213221493887499
+          }
+        },
+        {
+          "t": 40714,
+          "stream": 2,
+          "live": [
+            0,
+            1,
+            2
+          ],
+          "1.1": {
+            "slack": [
+              -18320.933333333334,
+              20750.900000000023,
+              2035.7333333333336
+            ],
+            "range": 39071.83333333336,
+            "cv": 10.718835231644192
+          },
+          "1.5": {
+            "slack": [
+              -10178.0,
+              103754.5,
+              10178.666666666668
+            ],
+            "range": 113932.5,
+            "cv": 1.4344694341194117
+          },
+          "2.0": {
+            "slack": [
+              0.6666666666642413,
+              207509.0,
+              20357.333333333325
+            ],
+            "range": 207508.33333333334,
+            "cv": 1.2295691976774377
+          }
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": true,
+      "release_in_segs": 0,
+      "a": 236889,
+      "critical_wait_over_a": 0.8070741993085369,
+      "critical_wait_total": 191187,
+      "cross_stream_wait": 66780,
+      "cross_stream_share": 0.34929153132796686,
+      "wait_share_by_class": {
+        "ddr": 0.1859383744710676,
+        "onchip": 0.6696009665929169,
+        "d2d": 0.0008577989089216318,
+        "compute": 0.14360286002709388
+      },
+      "cross_wait_share_by_class": {
+        "onchip": 0.26242893083734775,
+        "ddr": 0.08686260049061913
+      },
+      "wait_share_by_resource_kind": {
+        "co2co": 0.6696009665929169,
+        "ddr2co": 0.18353235314116545,
+        "tensorcore": 0.14360286002709388,
+        "co2ddr": 0.0024060213299021377,
+        "ch2ch": 0.0008577989089216318
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "co2co": 0.5577380123180055,
+        "tensorcore": 0.1945214847460203,
+        "ddr2co": 0.156039326435588,
+        "release": 0.08593476269476422,
+        "co2ddr": 0.003064726517482872,
+        "ch2ch": 0.0017898678283922006,
+        "vectorunit": 0.0009118194597469701
+      },
+      "wait_top_resources": [
+        [
+          "co2co:((3, 15), (3, 14))",
+          127831
+        ],
+        [
+          "ddr2co:((3, 23), (3, 15))",
+          35089
+        ],
+        [
+          "tensorcore@(3, 14, 0)",
+          27455
+        ],
+        [
+          "co2ddr:((3, 0), (3, 17))",
+          460
+        ],
+        [
+          "co2co:((3, 8), (3, 4))",
+          188
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 20166,
+          "1": 236889,
+          "2": 213407
+        },
+        "release": {
+          "0": 0,
+          "1": 20357,
+          "2": 40714
+        },
+        "first_activity": {
+          "0": 0,
+          "2": 57321,
+          "1": 20357
+        },
+        "latency": {
+          "0": 20166,
+          "1": 216532,
+          "2": 172693
+        },
+        "stretch": {
+          "0": 0.9906012575320933,
+          "1": 1.0434824513635552,
+          "2": 8.483085538380928
+        },
+        "S_max": 8.483085538380928,
+        "argmax_stream": 2,
+        "makespan": 236889,
+        "beat": 78963.0,
+        "met": {
+          "1.1": {
+            "0": true,
+            "1": true,
+            "2": false
+          },
+          "1.5": {
+            "0": true,
+            "1": true,
+            "2": false
+          },
+          "2.0": {
+            "0": true,
+            "1": true,
+            "2": false
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": false
+        },
+        "pair_overlap": {
+          "0-1": 0,
+          "0-2": 0,
+          "1-2": 172693
+        },
+        "overlap_ge2": 172693,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.0037781408170071214,
+        "reorder_gain_ub_over_a_top5_max": 0.011098024813309187,
+        "delete_gain_over_a_top5_max": 0.016248116206324482,
+        "top5": [
+          {
+            "resource": "co2co:((3, 15), (3, 14))",
+            "wait_excl": 127831,
+            "n_items": 165,
+            "current_max_f_plus_q": 236889,
+            "schrage_edf": 235994,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 234260,
+            "longest_path_avoiding_resource": 234201,
+            "reorder_gain_over_a": 0.0037781408170071214,
+            "reorder_gain_ub_over_a": 0.011098024813309187
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "wait_excl": 35089,
+            "n_items": 19,
+            "current_max_f_plus_q": 236889,
+            "schrage_edf": 236889,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 235573,
+            "longest_path_avoiding_resource": 236696,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0008147275728294687
+          },
+          {
+            "resource": "tensorcore@(3, 14, 0)",
+            "wait_excl": 27455,
+            "n_items": 6,
+            "current_max_f_plus_q": 236889,
+            "schrage_edf": 236889,
+            "exact_nonpreemptive": 236889,
+            "jackson_preemptive_lb": 236889,
+            "longest_path_avoiding_resource": 233040,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2ddr:((3, 0), (3, 17))",
+            "wait_excl": 460,
+            "n_items": 212,
+            "current_max_f_plus_q": 236889,
+            "schrage_edf": 236889,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 236889,
+            "longest_path_avoiding_resource": 236889,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2co:((3, 8), (3, 4))",
+            "wait_excl": 188,
+            "n_items": 97,
+            "current_max_f_plus_q": 236889,
+            "schrage_edf": 236889,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 236889,
+            "longest_path_avoiding_resource": 236782,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "co2co:((3, 15), (3, 14))",
+            "resource_kind": "co2co",
+            "n_items": 165,
+            "items_by_stream": {
+              "0": 77,
+              "1": 11,
+              "2": 77
+            },
+            "items_reaching_other_streams": 164,
+            "off": {
+              "0": 20166,
+              "1": 234201,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "resource_kind": "ddr2co",
+            "n_items": 19,
+            "items_by_stream": {
+              "0": 7,
+              "1": 5,
+              "2": 7
+            },
+            "items_reaching_other_streams": 19,
+            "off": {
+              "0": 20166,
+              "1": 236696,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "tensorcore@(3, 14, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 6,
+            "items_by_stream": {
+              "0": 1,
+              "2": 1,
+              "1": 4
+            },
+            "items_reaching_other_streams": 4,
+            "off": {
+              "0": 20166,
+              "1": 233040,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": true
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": true
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2ddr:((3, 0), (3, 17))",
+            "resource_kind": "co2ddr",
+            "n_items": 212,
+            "items_by_stream": {
+              "0": 104,
+              "2": 104,
+              "1": 4
+            },
+            "items_reaching_other_streams": 0,
+            "off": {
+              "0": 20166,
+              "1": 236889,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2co:((3, 8), (3, 4))",
+            "resource_kind": "co2co",
+            "n_items": 97,
+            "items_by_stream": {
+              "0": 40,
+              "1": 17,
+              "2": 40
+            },
+            "items_reaching_other_streams": 91,
+            "off": {
+              "0": 20166,
+              "1": 236782,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          }
+        ],
+        "S_reduction_top5_max": 0.0,
+        "S_reduction_ub_top5_max": 0.0,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 150299.93333333335,
+          "1.5": 142157.0,
+          "2.0": 131978.33333333334
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 150299.93333333335,
+          "1.5": 142157.0,
+          "2.0": 131978.33333333334
+        }
+      },
+      "slack": [
+        {
+          "t": 20357,
+          "stream": 1,
+          "live": [
+            1
+          ],
+          "1.1": {
+            "slack": [
+              20750.900000000023
+            ],
+            "range": null,
+            "cv": null
+          },
+          "1.5": {
+            "slack": [
+              103754.5
+            ],
+            "range": null,
+            "cv": null
+          },
+          "2.0": {
+            "slack": [
+              207509.0
+            ],
+            "range": null,
+            "cv": null
+          }
+        },
+        {
+          "t": 40714,
+          "stream": 2,
+          "live": [
+            1,
+            2
+          ],
+          "1.1": {
+            "slack": [
+              20750.900000000023,
+              2035.7333333333336
+            ],
+            "range": 18715.16666666669,
+            "cv": 0.82132214938875
+          },
+          "1.5": {
+            "slack": [
+              103754.5,
+              10178.666666666668
+            ],
+            "range": 93575.83333333333,
+            "cv": 0.8213221493887499
+          },
+          "2.0": {
+            "slack": [
+              207509.0,
+              20357.333333333325
+            ],
+            "range": 187151.6666666667,
+            "cv": 0.82132214938875
+          }
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": true,
+      "release_in_segs": 0,
+      "a": 236572,
+      "critical_wait_over_a": 0.7772221564682211,
+      "critical_wait_total": 183869,
+      "cross_stream_wait": 98734,
+      "cross_stream_share": 0.5369801325944015,
+      "wait_share_by_class": {
+        "ddr": 0.19333873573032975,
+        "onchip": 0.6564510602657326,
+        "d2d": 0.0008919393698774671,
+        "compute": 0.14931826463406012
+      },
+      "cross_wait_share_by_class": {
+        "onchip": 0.44666039408491914,
+        "ddr": 0.0903197385094823
+      },
+      "wait_share_by_resource_kind": {
+        "co2co": 0.6564510602657326,
+        "ddr2co": 0.19083695457091734,
+        "tensorcore": 0.14931826463406012,
+        "co2ddr": 0.0025017811594124075,
+        "ch2ch": 0.0008919393698774671
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "co2co": 0.557145393368615,
+        "tensorcore": 0.19478213820739562,
+        "ddr2co": 0.1562484148589013,
+        "release": 0.08604991292291564,
+        "co2ddr": 0.0030688331670696446,
+        "ch2ch": 0.00179226620225555,
+        "vectorunit": 0.000913041272847167
+      },
+      "wait_top_resources": [
+        [
+          "co2co:((3, 15), (3, 14))",
+          120513
+        ],
+        [
+          "ddr2co:((3, 23), (3, 15))",
+          35089
+        ],
+        [
+          "tensorcore@(3, 14, 0)",
+          27455
+        ],
+        [
+          "co2ddr:((3, 0), (3, 17))",
+          460
+        ],
+        [
+          "co2co:((3, 8), (3, 4))",
+          188
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 98969,
+          "1": 236572,
+          "2": 213407
+        },
+        "release": {
+          "0": 0,
+          "1": 20357,
+          "2": 40714
+        },
+        "first_activity": {
+          "0": 0,
+          "2": 57321,
+          "1": 20357
+        },
+        "latency": {
+          "0": 98969,
+          "1": 216215,
+          "2": 172693
+        },
+        "stretch": {
+          "0": 4.861589599161645,
+          "1": 1.041954806779465,
+          "2": 8.483085538380928
+        },
+        "S_max": 8.483085538380928,
+        "argmax_stream": 2,
+        "makespan": 236572,
+        "beat": 78857.33333333333,
+        "met": {
+          "1.1": {
+            "0": false,
+            "1": true,
+            "2": false
+          },
+          "1.5": {
+            "0": false,
+            "1": true,
+            "2": false
+          },
+          "2.0": {
+            "0": false,
+            "1": true,
+            "2": false
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": false
+        },
+        "pair_overlap": {
+          "0-1": 78612,
+          "0-2": 58255,
+          "1-2": 172693
+        },
+        "overlap_ge2": 193050,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.0023882792553641175,
+        "reorder_gain_ub_over_a_top5_max": 0.011066398390342052,
+        "delete_gain_over_a_top5_max": 0.013606851191180698,
+        "top5": [
+          {
+            "resource": "co2co:((3, 15), (3, 14))",
+            "wait_excl": 120513,
+            "n_items": 165,
+            "current_max_f_plus_q": 236572,
+            "schrage_edf": 236007,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 233920,
+            "longest_path_avoiding_resource": 233954,
+            "reorder_gain_over_a": 0.0023882792553641175,
+            "reorder_gain_ub_over_a": 0.011066398390342052
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "wait_excl": 35089,
+            "n_items": 19,
+            "current_max_f_plus_q": 236572,
+            "schrage_edf": 236572,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 235473,
+            "longest_path_avoiding_resource": 236379,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0008158192854606631
+          },
+          {
+            "resource": "tensorcore@(3, 14, 0)",
+            "wait_excl": 27455,
+            "n_items": 6,
+            "current_max_f_plus_q": 236572,
+            "schrage_edf": 236572,
+            "exact_nonpreemptive": 236572,
+            "jackson_preemptive_lb": 236572,
+            "longest_path_avoiding_resource": 233353,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2ddr:((3, 0), (3, 17))",
+            "wait_excl": 460,
+            "n_items": 212,
+            "current_max_f_plus_q": 236572,
+            "schrage_edf": 236572,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 236572,
+            "longest_path_avoiding_resource": 236572,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2co:((3, 8), (3, 4))",
+            "wait_excl": 188,
+            "n_items": 97,
+            "current_max_f_plus_q": 236572,
+            "schrage_edf": 236572,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 236572,
+            "longest_path_avoiding_resource": 236465,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "co2co:((3, 15), (3, 14))",
+            "resource_kind": "co2co",
+            "n_items": 165,
+            "items_by_stream": {
+              "0": 77,
+              "1": 11,
+              "2": 77
+            },
+            "items_reaching_other_streams": 164,
+            "off": {
+              "0": 98969,
+              "1": 233954,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "resource_kind": "ddr2co",
+            "n_items": 19,
+            "items_by_stream": {
+              "0": 7,
+              "1": 5,
+              "2": 7
+            },
+            "items_reaching_other_streams": 19,
+            "off": {
+              "0": 98969,
+              "1": 236379,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "tensorcore@(3, 14, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 6,
+            "items_by_stream": {
+              "0": 1,
+              "2": 1,
+              "1": 4
+            },
+            "items_reaching_other_streams": 4,
+            "off": {
+              "0": 98969,
+              "1": 233353,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": true
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": true
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2ddr:((3, 0), (3, 17))",
+            "resource_kind": "co2ddr",
+            "n_items": 212,
+            "items_by_stream": {
+              "0": 104,
+              "2": 104,
+              "1": 4
+            },
+            "items_reaching_other_streams": 0,
+            "off": {
+              "0": 98969,
+              "1": 236572,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 131978.33333333337,
+                "best": 131978.33333333337,
+                "lb": 131978.33333333337,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2co:((3, 8), (3, 4))",
+            "resource_kind": "co2co",
+            "n_items": 97,
+            "items_by_stream": {
+              "0": 40,
+              "1": 17,
+              "2": 40
+            },
+            "items_reaching_other_streams": 92,
+            "off": {
+              "0": 98969,
+              "1": 236465,
+              "2": 213407
+            },
+            "k_floor": 8.483085538380928,
+            "S_cur_model": 8.483085538380928,
+            "S_opt_ub": 8.483085538380928,
+            "S_opt_lb": 8.483085538380928,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 150299.93333333335,
+                "best": 150299.93333333335,
+                "lb": 150299.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 142157.0,
+                "best": 142157.0,
+                "lb": 142157.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 131978.33333333334,
+                "best": 131978.33333333334,
+                "lb": 131978.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          }
+        ],
+        "S_reduction_top5_max": 0.0,
+        "S_reduction_ub_top5_max": 0.0,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 150299.93333333335,
+          "1.5": 142157.0,
+          "2.0": 131978.33333333334
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 150299.93333333335,
+          "1.5": 142157.0,
+          "2.0": 131978.33333333334
+        }
+      },
+      "slack": [
+        {
+          "t": 20357,
+          "stream": 1,
+          "live": [
+            0,
+            1
+          ],
+          "1.1": {
+            "slack": [
+              2035.7333333333336,
+              20750.900000000023
+            ],
+            "range": 18715.16666666669,
+            "cv": 0.82132214938875
+          },
+          "1.5": {
+            "slack": [
+              10178.666666666668,
+              103754.5
+            ],
+            "range": 93575.83333333333,
+            "cv": 0.8213221493887499
+          },
+          "2.0": {
+            "slack": [
+              20357.333333333332,
+              207509.0
+            ],
+            "range": 187151.66666666666,
+            "cv": 0.8213221493887499
+          }
+        },
+        {
+          "t": 40714,
+          "stream": 2,
+          "live": [
+            0,
+            1,
+            2
+          ],
+          "1.1": {
+            "slack": [
+              -18320.933333333334,
+              20750.900000000023,
+              2035.7333333333336
+            ],
+            "range": 39071.83333333336,
+            "cv": 10.718835231644192
+          },
+          "1.5": {
+            "slack": [
+              -10178.0,
+              103754.5,
+              10178.666666666668
+            ],
+            "range": 113932.5,
+            "cv": 1.4344694341194117
+          },
+          "2.0": {
+            "slack": [
+              0.6666666666642413,
+              207509.0,
+              20357.333333333325
+            ],
+            "range": 207508.33333333334,
+            "cv": 1.2295691976774377
+          }
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": true,
+      "release_in_segs": 0,
+      "a": 225811,
+      "critical_wait_over_a": 0.8400255080576234,
+      "critical_wait_total": 189687,
+      "cross_stream_wait": 65497,
+      "cross_stream_share": 0.34528987226325475,
+      "wait_share_by_class": {
+        "compute": 0.14473843753130156,
+        "onchip": 0.6702778788214269,
+        "ddr": 0.18498368364727155
+      },
+      "cross_wait_share_by_class": {
+        "onchip": 0.2577403828412068,
+        "ddr": 0.0875494894220479
+      },
+      "wait_share_by_resource_kind": {
+        "co2co": 0.6702778788214269,
+        "ddr2co": 0.18498368364727155,
+        "tensorcore": 0.14473843753130156
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "co2co": 0.5806803034396022,
+        "ddr2co": 0.16369441701245732,
+        "tensorcore": 0.16325156878982866,
+        "release": 0.09015061268051601,
+        "co2ddr": 0.0010716926987613534,
+        "ch2ch": 0.000938838231972756,
+        "vectorunit": 0.00021256714686175606
+      },
+      "wait_top_resources": [
+        [
+          "co2co:((3, 15), (3, 14))",
+          127143
+        ],
+        [
+          "ddr2co:((3, 23), (3, 15))",
+          35089
+        ],
+        [
+          "tensorcore@(3, 14, 0)",
+          27455
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 20153,
+          "1": 225811,
+          "2": 204867
+        },
+        "release": {
+          "0": 0,
+          "1": 20357,
+          "2": 40714
+        },
+        "first_activity": {
+          "0": 0,
+          "2": 57321,
+          "1": 20357
+        },
+        "latency": {
+          "0": 20153,
+          "1": 205454,
+          "2": 164153
+        },
+        "stretch": {
+          "0": 0.9899626670159812,
+          "1": 0.9900968150779003,
+          "2": 8.063580691642652
+        },
+        "S_max": 8.063580691642652,
+        "argmax_stream": 2,
+        "makespan": 225811,
+        "beat": 75270.33333333333,
+        "met": {
+          "1.1": {
+            "0": true,
+            "1": true,
+            "2": false
+          },
+          "1.5": {
+            "0": true,
+            "1": true,
+            "2": false
+          },
+          "2.0": {
+            "0": true,
+            "1": true,
+            "2": false
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": false
+        },
+        "pair_overlap": {
+          "0-1": 0,
+          "0-2": 0,
+          "1-2": 164153
+        },
+        "overlap_ge2": 164153,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.0037597814101173106,
+        "reorder_gain_ub_over_a_top5_max": 0.011328057534841084,
+        "delete_gain_over_a_top5_max": 0.011328057534841084,
+        "top5": [
+          {
+            "resource": "co2co:((3, 15), (3, 14))",
+            "wait_excl": 127143,
+            "n_items": 165,
+            "current_max_f_plus_q": 225811,
+            "schrage_edf": 224962,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 222845,
+            "longest_path_avoiding_resource": 223253,
+            "reorder_gain_over_a": 0.0037597814101173106,
+            "reorder_gain_ub_over_a": 0.011328057534841084
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "wait_excl": 35089,
+            "n_items": 19,
+            "current_max_f_plus_q": 225811,
+            "schrage_edf": 225811,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 225415,
+            "longest_path_avoiding_resource": 225804,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 3.0999375584006095e-05
+          },
+          {
+            "resource": "tensorcore@(3, 14, 0)",
+            "wait_excl": 27455,
+            "n_items": 6,
+            "current_max_f_plus_q": 225811,
+            "schrage_edf": 225811,
+            "exact_nonpreemptive": 225811,
+            "jackson_preemptive_lb": 225811,
+            "longest_path_avoiding_resource": 223253,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "co2co:((3, 15), (3, 14))",
+            "resource_kind": "co2co",
+            "n_items": 165,
+            "items_by_stream": {
+              "0": 77,
+              "1": 11,
+              "2": 77
+            },
+            "items_reaching_other_streams": 164,
+            "off": {
+              "0": 20153,
+              "1": 223253,
+              "2": 204867
+            },
+            "k_floor": 8.063580691642652,
+            "S_cur_model": 8.063580691642652,
+            "S_opt_ub": 8.063580691642652,
+            "S_opt_lb": 8.063580691642652,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 141759.93333333335,
+                "best": 141759.93333333335,
+                "lb": 141759.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 133617.0,
+                "best": 133617.0,
+                "lb": 133617.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 123438.33333333334,
+                "best": 123438.33333333334,
+                "lb": 123438.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "resource_kind": "ddr2co",
+            "n_items": 19,
+            "items_by_stream": {
+              "0": 7,
+              "1": 5,
+              "2": 7
+            },
+            "items_reaching_other_streams": 19,
+            "off": {
+              "0": 20153,
+              "1": 225804,
+              "2": 204867
+            },
+            "k_floor": 8.063580691642652,
+            "S_cur_model": 8.063580691642652,
+            "S_opt_ub": 8.063580691642652,
+            "S_opt_lb": 8.063580691642652,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 141759.93333333335,
+                "best": 141759.93333333335,
+                "lb": 141759.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 133617.0,
+                "best": 133617.0,
+                "lb": 133617.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 123438.33333333334,
+                "best": 123438.33333333334,
+                "lb": 123438.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "tensorcore@(3, 14, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 6,
+            "items_by_stream": {
+              "0": 1,
+              "2": 1,
+              "1": 4
+            },
+            "items_reaching_other_streams": 3,
+            "off": {
+              "0": 20153,
+              "1": 223253,
+              "2": 204867
+            },
+            "k_floor": 8.063580691642652,
+            "S_cur_model": 8.063580691642652,
+            "S_opt_ub": 8.063580691642652,
+            "S_opt_lb": 8.063580691642652,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 141759.93333333335,
+                "best": 141759.93333333335,
+                "lb": 141759.93333333335,
+                "exact": true
+              },
+              "1.5": {
+                "current": 133617.0,
+                "best": 133617.0,
+                "lb": 133617.0,
+                "exact": true
+              },
+              "2.0": {
+                "current": 123438.33333333334,
+                "best": 123438.33333333334,
+                "lb": 123438.33333333334,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          }
+        ],
+        "S_reduction_top5_max": 0.0,
+        "S_reduction_ub_top5_max": 0.0,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 141759.93333333335,
+          "1.5": 133617.0,
+          "2.0": 123438.33333333334
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 141759.93333333335,
+          "1.5": 133617.0,
+          "2.0": 123438.33333333334
+        }
+      },
+      "slack": [
+        {
+          "t": 20357,
+          "stream": 1,
+          "live": [
+            1
+          ],
+          "1.1": {
+            "slack": [
+              20750.900000000023
+            ],
+            "range": null,
+            "cv": null
+          },
+          "1.5": {
+            "slack": [
+              103754.5
+            ],
+            "range": null,
+            "cv": null
+          },
+          "2.0": {
+            "slack": [
+              207509.0
+            ],
+            "range": null,
+            "cv": null
+          }
+        },
+        {
+          "t": 40714,
+          "stream": 2,
+          "live": [
+            1,
+            2
+          ],
+          "1.1": {
+            "slack": [
+              20750.900000000023,
+              2035.7333333333336
+            ],
+            "range": 18715.16666666669,
+            "cv": 0.82132214938875
+          },
+          "1.5": {
+            "slack": [
+              103754.5,
+              10178.666666666668
+            ],
+            "range": 93575.83333333333,
+            "cv": 0.8213221493887499
+          },
+          "2.0": {
+            "slack": [
+              207509.0,
+              20357.333333333325
+            ],
+            "range": 187151.6666666667,
+            "cv": 0.82132214938875
+          }
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": true,
+      "release_in_segs": 0,
+      "a": 231927,
+      "critical_wait_over_a": 0.8139242089105624,
+      "critical_wait_total": 188771,
+      "cross_stream_wait": 102917,
+      "cross_stream_share": 0.5451949716852694,
+      "wait_share_by_class": {
+        "ddr": 0.0037187915516684236,
+        "onchip": 0.0038989039630027917,
+        "d2d": 0.8991317522288911,
+        "compute": 0.09325055225643769
+      },
+      "cross_wait_share_by_class": {
+        "onchip": 0.0011230538589084129,
+        "d2d": 0.544071917826361
+      },
+      "wait_share_by_resource_kind": {
+        "ch2ch": 0.8991317522288911,
+        "tensorcore": 0.09325055225643769,
+        "co2co": 0.0038989039630027917,
+        "co2ddr": 0.0037187915516684236
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "ch2ch": 0.7421861189081047,
+        "tensorcore": 0.1589465650829787,
+        "release": 0.08777330798052836,
+        "co2co": 0.005988953420688406,
+        "co2ddr": 0.0041737270779167585,
+        "vectorunit": 0.0009313275297830783,
+        "ddr2co": 0.0
+      },
+      "wait_top_resources": [
+        [
+          "ch2ch:((0, 7), (1, 4))",
+          169542
+        ],
+        [
+          "tensorcore@(2, 5, 0)",
+          17603
+        ],
+        [
+          "co2ddr:((2, 15), (2, 23))",
+          702
+        ],
+        [
+          "co2co:((1, 4), (1, 8))",
+          379
+        ],
+        [
+          "co2co:((1, 11), (1, 10))",
+          193
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 20281,
+          "1": 231927,
+          "2": 208777
+        },
+        "release": {
+          "0": 0,
+          "1": 20357,
+          "2": 40714
+        },
+        "first_activity": {
+          "0": 0,
+          "2": 57321,
+          "1": 20357
+        },
+        "latency": {
+          "0": 20281,
+          "1": 211570,
+          "2": 168063
+        },
+        "stretch": {
+          "0": 0.996250327482316,
+          "1": 1.0195702355078575,
+          "2": 8.255649069950223
+        },
+        "S_max": 8.255649069950223,
+        "argmax_stream": 2,
+        "makespan": 231927,
+        "beat": 77309.0,
+        "met": {
+          "1.1": {
+            "0": true,
+            "1": true,
+            "2": false
+          },
+          "1.5": {
+            "0": true,
+            "1": true,
+            "2": false
+          },
+          "2.0": {
+            "0": true,
+            "1": true,
+            "2": false
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": false
+        },
+        "pair_overlap": {
+          "0-1": 0,
+          "0-2": 0,
+          "1-2": 168063
+        },
+        "overlap_ge2": 168063,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.00907613171385824,
+        "reorder_gain_ub_over_a_top5_max": 0.00907613171385824,
+        "delete_gain_over_a_top5_max": 0.00907613171385824,
+        "top5": [
+          {
+            "resource": "ch2ch:((0, 7), (1, 4))",
+            "wait_excl": 169542,
+            "n_items": 122,
+            "current_max_f_plus_q": 231927,
+            "schrage_edf": 231948,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 231746,
+            "longest_path_avoiding_resource": 231920,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 3.0181910687414573e-05
+          },
+          {
+            "resource": "tensorcore@(2, 5, 0)",
+            "wait_excl": 17603,
+            "n_items": 4,
+            "current_max_f_plus_q": 231927,
+            "schrage_edf": 225308,
+            "exact_nonpreemptive": 225308,
+            "jackson_preemptive_lb": 225308,
+            "longest_path_avoiding_resource": 229822,
+            "reorder_gain_over_a": 0.00907613171385824,
+            "reorder_gain_ub_over_a": 0.00907613171385824
+          },
+          {
+            "resource": "co2ddr:((2, 15), (2, 23))",
+            "wait_excl": 702,
+            "n_items": 212,
+            "current_max_f_plus_q": 231927,
+            "schrage_edf": 231927,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 231927,
+            "longest_path_avoiding_resource": 231927,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2co:((1, 4), (1, 8))",
+            "wait_excl": 379,
+            "n_items": 129,
+            "current_max_f_plus_q": 231927,
+            "schrage_edf": 234557,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 231763,
+            "longest_path_avoiding_resource": 230759,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0007071190503908557
+          },
+          {
+            "resource": "co2co:((1, 11), (1, 10))",
+            "wait_excl": 193,
+            "n_items": 20,
+            "current_max_f_plus_q": 231927,
+            "schrage_edf": 231927,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 231927,
+            "longest_path_avoiding_resource": 231739,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "ch2ch:((0, 7), (1, 4))",
+            "resource_kind": "ch2ch",
+            "n_items": 122,
+            "items_by_stream": {
+              "0": 56,
+              "1": 10,
+              "2": 56
+            },
+            "items_reaching_other_streams": 122,
+            "off": {
+              "0": 20255,
+              "1": 231920,
+              "2": 208777
+            },
+            "k_floor": 8.255649069950223,
+            "S_cur_model": 8.255649069950223,
+            "S_opt_ub": 8.255649069950223,
+            "S_opt_lb": 8.255649069950223,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 145669.93333333335,
+                "best": 145669.93333333335,
+                "lb": 145669.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 137527.0,
+                "best": 137527.0,
+                "lb": 137527.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 127348.33333333334,
+                "best": 127348.33333333334,
+                "lb": 127348.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "tensorcore@(2, 5, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 4,
+            "items_by_stream": {
+              "1": 4
+            },
+            "items_reaching_other_streams": 2,
+            "off": {
+              "0": 20281,
+              "1": 229822,
+              "2": 208777
+            },
+            "k_floor": 8.255649069950223,
+            "S_cur_model": 8.255649069950223,
+            "S_opt_ub": 8.255649069950223,
+            "S_opt_lb": 8.255649069950223,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 145669.93333333335,
+                "best": 145669.93333333335,
+                "lb": 145669.93333333335,
+                "exact": true
+              },
+              "1.5": {
+                "current": 137527.0,
+                "best": 137527.0,
+                "lb": 137527.0,
+                "exact": true
+              },
+              "2.0": {
+                "current": 127348.33333333334,
+                "best": 127348.33333333334,
+                "lb": 127348.33333333334,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2ddr:((2, 15), (2, 23))",
+            "resource_kind": "co2ddr",
+            "n_items": 212,
+            "items_by_stream": {
+              "0": 104,
+              "2": 104,
+              "1": 4
+            },
+            "items_reaching_other_streams": 0,
+            "off": {
+              "0": 20281,
+              "1": 231927,
+              "2": 208777
+            },
+            "k_floor": 8.255649069950223,
+            "S_cur_model": 8.255649069950223,
+            "S_opt_ub": 8.255649069950223,
+            "S_opt_lb": 8.255649069950223,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 145669.93333333335,
+                "best": 145669.93333333335,
+                "lb": 145669.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 137527.0,
+                "best": 137527.0,
+                "lb": 137527.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 127348.33333333337,
+                "best": 127348.33333333337,
+                "lb": 127348.33333333337,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2co:((1, 4), (1, 8))",
+            "resource_kind": "co2co",
+            "n_items": 129,
+            "items_by_stream": {
+              "0": 57,
+              "1": 15,
+              "2": 57
+            },
+            "items_reaching_other_streams": 128,
+            "off": {
+              "0": 20255,
+              "1": 230759,
+              "2": 208777
+            },
+            "k_floor": 8.255649069950223,
+            "S_cur_model": 8.255649069950223,
+            "S_opt_ub": 8.255649069950223,
+            "S_opt_lb": 8.255649069950223,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 145669.93333333335,
+                "best": 145669.93333333335,
+                "lb": 145669.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 137527.0,
+                "best": 137527.0,
+                "lb": 137527.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 127348.33333333334,
+                "best": 127348.33333333334,
+                "lb": 127348.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2co:((1, 11), (1, 10))",
+            "resource_kind": "co2co",
+            "n_items": 20,
+            "items_by_stream": {
+              "0": 3,
+              "1": 14,
+              "2": 3
+            },
+            "items_reaching_other_streams": 14,
+            "off": {
+              "0": 20281,
+              "1": 231739,
+              "2": 208777
+            },
+            "k_floor": 8.255649069950223,
+            "S_cur_model": 8.255649069950223,
+            "S_opt_ub": 8.255649069950223,
+            "S_opt_lb": 8.255649069950223,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 145669.93333333335,
+                "best": 145669.93333333335,
+                "lb": 145669.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 137527.0,
+                "best": 137527.0,
+                "lb": 137527.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 127348.33333333334,
+                "best": 127348.33333333334,
+                "lb": 127348.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          }
+        ],
+        "S_reduction_top5_max": 0.0,
+        "S_reduction_ub_top5_max": 0.0,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 145669.93333333335,
+          "1.5": 137527.0,
+          "2.0": 127348.33333333334
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 145669.93333333335,
+          "1.5": 137527.0,
+          "2.0": 127348.33333333334
+        }
+      },
+      "slack": [
+        {
+          "t": 20357,
+          "stream": 1,
+          "live": [
+            1
+          ],
+          "1.1": {
+            "slack": [
+              20750.900000000023
+            ],
+            "range": null,
+            "cv": null
+          },
+          "1.5": {
+            "slack": [
+              103754.5
+            ],
+            "range": null,
+            "cv": null
+          },
+          "2.0": {
+            "slack": [
+              207509.0
+            ],
+            "range": null,
+            "cv": null
+          }
+        },
+        {
+          "t": 40714,
+          "stream": 2,
+          "live": [
+            1,
+            2
+          ],
+          "1.1": {
+            "slack": [
+              20750.900000000023,
+              2035.7333333333336
+            ],
+            "range": 18715.16666666669,
+            "cv": 0.82132214938875
+          },
+          "1.5": {
+            "slack": [
+              103754.5,
+              10178.666666666668
+            ],
+            "range": 93575.83333333333,
+            "cv": 0.8213221493887499
+          },
+          "2.0": {
+            "slack": [
+              207509.0,
+              20357.333333333325
+            ],
+            "range": 187151.6666666667,
+            "cv": 0.82132214938875
+          }
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": true,
+      "release_in_segs": 0,
+      "a": 229836,
+      "critical_wait_over_a": 0.8197540855218504,
+      "critical_wait_total": 188409,
+      "cross_stream_wait": 27199,
+      "cross_stream_share": 0.14436146893195123,
+      "wait_share_by_class": {
+        "compute": 0.1427744959104926,
+        "d2d": 0.00012738244988296738,
+        "onchip": 0.7590030200255826,
+        "ddr": 0.0980951016140418
+      },
+      "cross_wait_share_by_class": {
+        "d2d": 0.00012738244988296738,
+        "onchip": 0.14423408648206826
+      },
+      "wait_share_by_resource_kind": {
+        "co2co": 0.7590030200255826,
+        "tensorcore": 0.1427744959104926,
+        "ddr2co": 0.0980951016140418,
+        "ch2ch": 0.00012738244988296738
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "co2co": 0.6664534711707478,
+        "tensorcore": 0.1603926277867697,
+        "release": 0.08857185123305314,
+        "ddr2co": 0.08041386031779181,
+        "ch2ch": 0.0020710419603543395,
+        "co2ddr": 0.0010529246941297272,
+        "vectorunit": 0.0010442228371534486
+      },
+      "wait_top_resources": [
+        [
+          "co2co:((3, 9), (3, 8))",
+          68402
+        ],
+        [
+          "co2co:((3, 11), (3, 10))",
+          37765
+        ],
+        [
+          "tensorcore@(2, 13, 0)",
+          26900
+        ],
+        [
+          "ddr2co:((3, 23), (3, 15))",
+          18482
+        ],
+        [
+          "co2co:((3, 10), (3, 9))",
+          18433
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 20006,
+          "1": 229836,
+          "2": 219831
+        },
+        "release": {
+          "0": 0,
+          "1": 20357,
+          "2": 40714
+        },
+        "first_activity": {
+          "0": 0,
+          "2": 57321,
+          "1": 20357
+        },
+        "latency": {
+          "0": 20006,
+          "1": 209479,
+          "2": 179117
+        },
+        "stretch": {
+          "0": 0.9827416819491748,
+          "1": 1.0094935641345677,
+          "2": 8.798647498035107
+        },
+        "S_max": 8.798647498035107,
+        "argmax_stream": 2,
+        "makespan": 229836,
+        "beat": 76612.0,
+        "met": {
+          "1.1": {
+            "0": true,
+            "1": true,
+            "2": false
+          },
+          "1.5": {
+            "0": true,
+            "1": true,
+            "2": false
+          },
+          "2.0": {
+            "0": true,
+            "1": true,
+            "2": false
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": false
+        },
+        "pair_overlap": {
+          "0-1": 0,
+          "0-2": 0,
+          "1-2": 179117
+        },
+        "overlap_ge2": 179117,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.0002654066377765015,
+        "reorder_gain_ub_over_a_top5_max": 0.0009006421970448494,
+        "delete_gain_over_a_top5_max": 0.010994796289528186,
+        "top5": [
+          {
+            "resource": "co2co:((3, 9), (3, 8))",
+            "wait_excl": 68402,
+            "n_items": 52,
+            "current_max_f_plus_q": 229836,
+            "schrage_edf": 229775,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 229629,
+            "longest_path_avoiding_resource": 229532,
+            "reorder_gain_over_a": 0.0002654066377765015,
+            "reorder_gain_ub_over_a": 0.0009006421970448494
+          },
+          {
+            "resource": "co2co:((3, 11), (3, 10))",
+            "wait_excl": 37765,
+            "n_items": 23,
+            "current_max_f_plus_q": 229836,
+            "schrage_edf": 229836,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 229836,
+            "longest_path_avoiding_resource": 229643,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "tensorcore@(2, 13, 0)",
+            "wait_excl": 26900,
+            "n_items": 10,
+            "current_max_f_plus_q": 229836,
+            "schrage_edf": 229836,
+            "exact_nonpreemptive": 229836,
+            "jackson_preemptive_lb": 229836,
+            "longest_path_avoiding_resource": 227309,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "wait_excl": 18482,
+            "n_items": 19,
+            "current_max_f_plus_q": 229836,
+            "schrage_edf": 229836,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 229836,
+            "longest_path_avoiding_resource": 229787,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2co:((3, 10), (3, 9))",
+            "wait_excl": 18433,
+            "n_items": 35,
+            "current_max_f_plus_q": 229836,
+            "schrage_edf": 229836,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 229836,
+            "longest_path_avoiding_resource": 229532,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "co2co:((3, 9), (3, 8))",
+            "resource_kind": "co2co",
+            "n_items": 52,
+            "items_by_stream": {
+              "0": 18,
+              "1": 16,
+              "2": 18
+            },
+            "items_reaching_other_streams": 50,
+            "off": {
+              "0": 20006,
+              "1": 229532,
+              "2": 219831
+            },
+            "k_floor": 8.798647498035107,
+            "S_cur_model": 8.798647498035107,
+            "S_opt_ub": 8.798647498035107,
+            "S_opt_lb": 8.798647498035107,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 156723.93333333335,
+                "best": 156723.93333333335,
+                "lb": 156723.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 148581.0,
+                "best": 148581.0,
+                "lb": 148581.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 138402.33333333334,
+                "best": 138402.33333333334,
+                "lb": 138402.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2co:((3, 11), (3, 10))",
+            "resource_kind": "co2co",
+            "n_items": 23,
+            "items_by_stream": {
+              "0": 5,
+              "1": 13,
+              "2": 5
+            },
+            "items_reaching_other_streams": 21,
+            "off": {
+              "0": 20006,
+              "1": 229643,
+              "2": 219831
+            },
+            "k_floor": 8.798647498035107,
+            "S_cur_model": 8.798647498035107,
+            "S_opt_ub": 8.798647498035107,
+            "S_opt_lb": 8.798647498035107,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 156723.93333333335,
+                "best": 156723.93333333335,
+                "lb": 156723.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 148581.0,
+                "best": 148581.0,
+                "lb": 148581.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 138402.33333333334,
+                "best": 138402.33333333334,
+                "lb": 138402.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "tensorcore@(2, 13, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 10,
+            "items_by_stream": {
+              "0": 3,
+              "2": 3,
+              "1": 4
+            },
+            "items_reaching_other_streams": 8,
+            "off": {
+              "0": 20006,
+              "1": 227309,
+              "2": 219831
+            },
+            "k_floor": 8.798647498035107,
+            "S_cur_model": 8.798647498035107,
+            "S_opt_ub": 8.798647498035107,
+            "S_opt_lb": 8.798647498035107,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 156723.93333333335,
+                "best": 156723.93333333335,
+                "lb": 156723.93333333335,
+                "exact": true
+              },
+              "1.5": {
+                "current": 148581.0,
+                "best": 148581.0,
+                "lb": 148581.0,
+                "exact": true
+              },
+              "2.0": {
+                "current": 138402.33333333334,
+                "best": 138402.33333333334,
+                "lb": 138402.33333333334,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "ddr2co:((3, 23), (3, 15))",
+            "resource_kind": "ddr2co",
+            "n_items": 19,
+            "items_by_stream": {
+              "0": 7,
+              "1": 5,
+              "2": 7
+            },
+            "items_reaching_other_streams": 19,
+            "off": {
+              "0": 20006,
+              "1": 229787,
+              "2": 219831
+            },
+            "k_floor": 8.798647498035107,
+            "S_cur_model": 8.798647498035107,
+            "S_opt_ub": 8.798647498035107,
+            "S_opt_lb": 8.798647498035107,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 156723.93333333335,
+                "best": 156723.93333333335,
+                "lb": 156723.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 148581.0,
+                "best": 148581.0,
+                "lb": 148581.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 138402.33333333334,
+                "best": 138402.33333333334,
+                "lb": 138402.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          },
+          {
+            "resource": "co2co:((3, 10), (3, 9))",
+            "resource_kind": "co2co",
+            "n_items": 35,
+            "items_by_stream": {
+              "0": 11,
+              "1": 13,
+              "2": 11
+            },
+            "items_reaching_other_streams": 35,
+            "off": {
+              "0": 20006,
+              "1": 229532,
+              "2": 219831
+            },
+            "k_floor": 8.798647498035107,
+            "S_cur_model": 8.798647498035107,
+            "S_opt_ub": 8.798647498035107,
+            "S_opt_lb": 8.798647498035107,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 156723.93333333335,
+                "best": 156723.93333333335,
+                "lb": 156723.93333333335,
+                "exact": false
+              },
+              "1.5": {
+                "current": 148581.0,
+                "best": 148581.0,
+                "lb": 148581.0,
+                "exact": false
+              },
+              "2.0": {
+                "current": 138402.33333333334,
+                "best": 138402.33333333334,
+                "lb": 138402.33333333334,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          }
+        ],
+        "S_reduction_top5_max": 0.0,
+        "S_reduction_ub_top5_max": 0.0,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 156723.93333333335,
+          "1.5": 148581.0,
+          "2.0": 138402.33333333334
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 156723.93333333335,
+          "1.5": 148581.0,
+          "2.0": 138402.33333333334
+        }
+      },
+      "slack": [
+        {
+          "t": 20357,
+          "stream": 1,
+          "live": [
+            1
+          ],
+          "1.1": {
+            "slack": [
+              20750.900000000023
+            ],
+            "range": null,
+            "cv": null
+          },
+          "1.5": {
+            "slack": [
+              103754.5
+            ],
+            "range": null,
+            "cv": null
+          },
+          "2.0": {
+            "slack": [
+              207509.0
+            ],
+            "range": null,
+            "cv": null
+          }
+        },
+        {
+          "t": 40714,
+          "stream": 2,
+          "live": [
+            1,
+            2
+          ],
+          "1.1": {
+            "slack": [
+              20750.900000000023,
+              2035.7333333333336
+            ],
+            "range": 18715.16666666669,
+            "cv": 0.82132214938875
+          },
+          "1.5": {
+            "slack": [
+              103754.5,
+              10178.666666666668
+            ],
+            "range": 93575.83333333333,
+            "cv": 0.8213221493887499
+          },
+          "2.0": {
+            "slack": [
+              207509.0,
+              20357.333333333325
+            ],
+            "range": 187151.6666666667,
+            "cv": 0.82132214938875
+          }
+        }
+      ]
+    }
+  ],
+  "smax_models_match": true,
+  "prio_detail": {
+    "default": {
+      "S_max": 8.466670487293689,
+      "stretch": {
+        "0": 2.4313678936337437,
+        "1": 1.0158884674881572,
+        "2": 8.466670487293689
+      },
+      "makespan": 231163.0,
+      "beat": 77054.33333333333,
+      "n_seeds": 6
+    },
+    "orders": {
+      "prio_012": {
+        "S_max": 8.85945277705004,
+        "stretch": {
+          "0": 3.77587110296044,
+          "1": 1.0207179768909622,
+          "2": 8.85945277705004
+        },
+        "makespan": 232189.16666666666,
+        "beat": 77396.38888888889,
+        "n_seeds": 6
+      },
+      "prio_021": {
+        "S_max": 8.19178183128111,
+        "stretch": {
+          "0": 3.6313122216400315,
+          "1": 1.0031902230746617,
+          "2": 8.19178183128111
+        },
+        "makespan": 228528.0,
+        "beat": 76176.0,
+        "n_seeds": 6
+      },
+      "prio_102": {
+        "S_max": 8.910302593659942,
+        "stretch": {
+          "0": 5.732815365470265,
+          "1": 1.0126821808532,
+          "2": 8.910302593659942
+        },
+        "makespan": 230845.5,
+        "beat": 76948.50000000001,
+        "n_seeds": 6
+      },
+      "prio_120": {
+        "S_max": 9.074223866911188,
+        "stretch": {
+          "0": 4.78517978779146,
+          "1": 1.0121673437457333,
+          "2": 9.074223866911188
+        },
+        "makespan": 230738.66666666666,
+        "beat": 76912.88888888889,
+        "n_seeds": 6
+      },
+      "prio_201": {
+        "S_max": 8.150813793555146,
+        "stretch": {
+          "0": 4.185797091957035,
+          "1": 1.0144186517211302,
+          "2": 8.150813793555146
+        },
+        "makespan": 230858.0,
+        "beat": 76952.66666666667,
+        "n_seeds": 6
+      },
+      "prio_210": {
+        "S_max": 8.138574141996331,
+        "stretch": {
+          "0": 4.826925596017815,
+          "1": 1.0114300263281752,
+          "2": 8.138574141996331
+        },
+        "makespan": 230237.83333333334,
+        "beat": 76745.94444444445,
+        "n_seeds": 6
+      }
+    },
+    "best_order": "prio_210",
+    "best": {
+      "S_max": 8.138574141996331,
+      "stretch": {
+        "0": 4.826925596017815,
+        "1": 1.0114300263281752,
+        "2": 8.138574141996331
+      },
+      "makespan": 230237.83333333334,
+      "beat": 76745.94444444445,
+      "n_seeds": 6
+    },
+    "best_over_default": {
+      "S_max": 0.9612484806406785,
+      "stretch": {
+        "0": 1.9852715866885313,
+        "1": 0.995611288736247,
+        "2": 0.9612484806406785
+      },
+      "makespan": 0.995997773576798,
+      "beat": 0.9959977735767981
+    }
+  },
+  "artifact_commit": "299089ef266c54c6a1fa8c2f52df66e6c970b52a",
+  "template_python_seed": 123,
+  "release_impl": "(b) in-memory backend copy e4_backend.event_driver_e4",
+  "command": [
+    "e4_grid.py",
+    "--jobs",
+    "12"
+  ],
+  "assumption_no_sram_capacity_check": true
+}

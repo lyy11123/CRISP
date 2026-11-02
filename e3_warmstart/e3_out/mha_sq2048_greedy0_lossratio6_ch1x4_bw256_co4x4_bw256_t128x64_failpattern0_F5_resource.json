@@ -1,0 +1,543 @@
+{
+  "task": "mha_sq2048_greedy0_lossratio6_ch1x4_bw256_co4x4_bw256_t128x64_failpattern0",
+  "fault": {
+    "id": "F5",
+    "kind": "link ch2ch, both directions",
+    "failed_nodes": [],
+    "failed_links": [
+      [
+        [
+          2,
+          11
+        ],
+        [
+          3,
+          8
+        ]
+      ],
+      [
+        [
+          3,
+          8
+        ],
+        [
+          2,
+          11
+        ]
+      ]
+    ],
+    "rule": "on-chip link (co2co/ch2ch) with the largest exclusive critical wait (E2 attribution) in the pre-fault final evaluation (template RNG); DDR port links cannot be failed in the artifact",
+    "critical_wait": 10331,
+    "critical_wait_over_a": 0.4255117591334075,
+    "busy": 16556,
+    "busy_over_a": 0.6819061740598872,
+    "busy_reverse": 12201,
+    "top_critical_links": [
+      [
+        "((2, 11), (3, 8))",
+        10331
+      ],
+      [
+        "((3, 8), (3, 12))",
+        230
+      ],
+      [
+        "((1, 11), (2, 8))",
+        21
+      ]
+    ]
+  },
+  "best_W": "F5_W_s1000_t1",
+  "prefault": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 0.0,
+    "reorder_max": 0.0,
+    "delete_mean": 0.00035902959760154867,
+    "delete_max": 0.0005799262665175428,
+    "top_resource": "ch2ch:((0, 11), (1, 8))",
+    "top_resource_votes": {
+      "ch2ch:((0, 11), (1, 8))": 1,
+      "ch2ch:((1, 4), (0, 7))": 1,
+      "ch2ch:((1, 7), (2, 4))": 1
+    },
+    "top_busy_mean": 0.818402207596368,
+    "top_wait_share_mean": 0.5747363620848659,
+    "dstu_ub_local_mean": 0.8921861585872702,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 24141,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((0, 11), (1, 8))",
+        "reorder_ub": 0.00012426991425375916,
+        "delete": 0.0005799262665175428,
+        "delete_resource": "co2co:((1, 8), (1, 12))",
+        "top_resource": "ch2ch:((0, 11), (1, 8))",
+        "top_busy": 0.8037778053933142,
+        "top_wait_share": 0.4952313836034766,
+        "critical_wait_over_a": 0.8816950416304212,
+        "dstu_ub_local": 0.7945818317385361,
+        "top5": [
+          {
+            "resource": "ch2ch:((0, 11), (1, 8))",
+            "wait_excl": 10541,
+            "busy_over_a": 0.8037778053933142,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24138
+          },
+          {
+            "resource": "co2ddr:((1, 12), (1, 21))",
+            "wait_excl": 8641,
+            "busy_over_a": 0.40097758999212957,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24141
+          },
+          {
+            "resource": "co2co:((1, 8), (1, 12))",
+            "wait_excl": 2103,
+            "busy_over_a": 0.37873327534070667,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24127
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 24120,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((1, 4), (0, 7))",
+        "reorder_ub": 4.145936981757877e-05,
+        "delete": 0.0003316749585406302,
+        "delete_resource": "co2co:((1, 8), (1, 12))",
+        "top_resource": "ch2ch:((1, 4), (0, 7))",
+        "top_busy": 0.8173714759535655,
+        "top_wait_share": 0.6045190156599553,
+        "critical_wait_over_a": 0.9266169154228856,
+        "dstu_ub_local": 0.9266169154228856,
+        "top5": [
+          {
+            "resource": "ch2ch:((1, 4), (0, 7))",
+            "wait_excl": 13511,
+            "busy_over_a": 0.8173714759535655,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24120
+          },
+          {
+            "resource": "co2ddr:((1, 12), (1, 21))",
+            "wait_excl": 8839,
+            "busy_over_a": 0.4013266998341625,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24120
+          },
+          {
+            "resource": "co2co:((1, 8), (1, 12))",
+            "wait_excl": 0,
+            "busy_over_a": 0.37906301824212274,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24112
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 24171,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((1, 7), (2, 4))",
+        "reorder_ub": 0.0,
+        "delete": 0.00016548756774647304,
+        "delete_resource": "ch2ch:((2, 4), (1, 7))",
+        "top_resource": "ch2ch:((1, 7), (2, 4))",
+        "top_busy": 0.8340573414422241,
+        "top_wait_share": 0.6244586869911658,
+        "critical_wait_over_a": 0.9553597286003889,
+        "dstu_ub_local": 0.9553597286003889,
+        "top5": [
+          {
+            "resource": "ch2ch:((1, 7), (2, 4))",
+            "wait_excl": 14420,
+            "busy_over_a": 0.8340573414422241,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24171
+          },
+          {
+            "resource": "co2ddr:((1, 12), (1, 20))",
+            "wait_excl": 8672,
+            "busy_over_a": 0.40047991394646476,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24171
+          },
+          {
+            "resource": "ch2ch:((2, 4), (1, 7))",
+            "wait_excl": 0,
+            "busy_over_a": 0.5662570849364942,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24167
+          },
+          {
+            "resource": "co2co:((0, 7), (0, 11))",
+            "wait_excl": 0,
+            "busy_over_a": 0.26792437218153986,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24171
+          },
+          {
+            "resource": "co2co:((1, 8), (1, 12))",
+            "wait_excl": 0,
+            "busy_over_a": 0.37826320797650076,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 24171
+          }
+        ]
+      }
+    ]
+  },
+  "R0": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 0.0,
+    "reorder_max": 0.0,
+    "delete_mean": 0.20984385925660357,
+    "delete_max": 0.2211024013935548,
+    "top_resource": "ch2ch:((2, 7), (3, 4))",
+    "top_resource_votes": {
+      "ch2ch:((2, 7), (3, 4))": 3
+    },
+    "top_busy_mean": 0.9208616985750333,
+    "top_wait_share_mean": 0.9823492098121526,
+    "dstu_ub_local_mean": 0.7791684605558397,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 40185,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 7), (3, 4))",
+        "reorder_ub": 0.0,
+        "delete": 0.2211024013935548,
+        "delete_resource": "ch2ch:((2, 7), (3, 4))",
+        "top_resource": "ch2ch:((2, 7), (3, 4))",
+        "top_busy": 0.916635560532537,
+        "top_wait_share": 0.983394951555329,
+        "critical_wait_over_a": 0.7807888515615279,
+        "dstu_ub_local": 0.7807888515615279,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 7), (3, 4))",
+            "wait_excl": 30855,
+            "busy_over_a": 0.916635560532537,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31300
+          },
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 276,
+            "busy_over_a": 0.6176931690929451,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 38943
+          },
+          {
+            "resource": "co2co:((3, 4), (3, 8))",
+            "wait_excl": 225,
+            "busy_over_a": 0.23770063456513624,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 39445
+          },
+          {
+            "resource": "ch2ch:((1, 11), (2, 8))",
+            "wait_excl": 20,
+            "busy_over_a": 0.1960681846460122,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 40185
+          },
+          {
+            "resource": "ch2ch:((1, 7), (2, 4))",
+            "wait_excl": 0,
+            "busy_over_a": 0.5133258678611422,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 40138
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 39909,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 7), (3, 4))",
+        "reorder_ub": 0.0,
+        "delete": 0.21017815530331505,
+        "delete_resource": "ch2ch:((2, 7), (3, 4))",
+        "top_resource": "ch2ch:((2, 7), (3, 4))",
+        "top_busy": 0.9229747675962815,
+        "top_wait_share": 0.9832422000643294,
+        "critical_wait_over_a": 0.7790222756771655,
+        "dstu_ub_local": 0.7790222756771655,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 7), (3, 4))",
+            "wait_excl": 30569,
+            "busy_over_a": 0.9229747675962815,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31521
+          },
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 276,
+            "busy_over_a": 0.6219649703074495,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 38648
+          },
+          {
+            "resource": "co2co:((3, 4), (3, 8))",
+            "wait_excl": 225,
+            "busy_over_a": 0.23934450875742314,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 39169
+          },
+          {
+            "resource": "ch2ch:((0, 7), (1, 4))",
+            "wait_excl": 20,
+            "busy_over_a": 0.3598687012954471,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 39901
+          },
+          {
+            "resource": "ch2ch:((1, 7), (2, 4))",
+            "wait_excl": 0,
+            "busy_over_a": 0.5168758926557919,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 39862
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 39909,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 7), (3, 4))",
+        "reorder_ub": 0.0,
+        "delete": 0.19825102107294093,
+        "delete_resource": "ch2ch:((2, 7), (3, 4))",
+        "top_resource": "ch2ch:((2, 7), (3, 4))",
+        "top_busy": 0.9229747675962815,
+        "top_wait_share": 0.9804104778167994,
+        "critical_wait_over_a": 0.7776942544288256,
+        "dstu_ub_local": 0.7776942544288256,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 7), (3, 4))",
+            "wait_excl": 30429,
+            "busy_over_a": 0.9229747675962815,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31997
+          },
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 328,
+            "busy_over_a": 0.6219649703074495,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 38648
+          },
+          {
+            "resource": "co2co:((3, 4), (3, 8))",
+            "wait_excl": 225,
+            "busy_over_a": 0.23934450875742314,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 39169
+          },
+          {
+            "resource": "ch2ch:((1, 7), (2, 4))",
+            "wait_excl": 35,
+            "busy_over_a": 0.5168758926557919,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 39862
+          },
+          {
+            "resource": "ch2ch:((0, 7), (1, 4))",
+            "wait_excl": 20,
+            "busy_over_a": 0.3598687012954471,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 39901
+          }
+        ]
+      }
+    ]
+  },
+  "best_W_mapping": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 0.00041732175494978304,
+    "reorder_max": 0.001182937860970009,
+    "delete_mean": 0.009784278883021988,
+    "delete_max": 0.02031352735578088,
+    "top_resource": "ch2ch:((1, 11), (2, 8))",
+    "top_resource_votes": {
+      "ch2ch:((1, 11), (2, 8))": 2,
+      "ch2ch:((1, 8), (0, 11))": 1
+    },
+    "top_busy_mean": 0.8947438428707967,
+    "top_wait_share_mean": 0.9247201519441705,
+    "dstu_ub_local_mean": 0.7664422133087271,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 28974,
+        "reorder": 6.90274038793401e-05,
+        "reorder_resource": "ch2ch:((2, 8), (1, 11))",
+        "reorder_ub": 0.0008283288465520812,
+        "delete": 0.0008283288465520812,
+        "delete_resource": "co2co:((1, 12), (1, 8))",
+        "top_resource": "ch2ch:((1, 11), (2, 8))",
+        "top_busy": 0.8862773521087872,
+        "top_wait_share": 0.8836079886500054,
+        "critical_wait_over_a": 0.6324981017463933,
+        "dstu_ub_local": 0.6240422447711742,
+        "top5": [
+          {
+            "resource": "ch2ch:((1, 11), (2, 8))",
+            "wait_excl": 16193,
+            "busy_over_a": 0.8862773521087872,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28968
+          },
+          {
+            "resource": "ch2ch:((2, 8), (1, 11))",
+            "wait_excl": 583,
+            "busy_over_a": 0.7195071443363015,
+            "reorder_gain_over_a": 6.90274038793401e-05,
+            "longest_path_avoiding_resource": 28970
+          },
+          {
+            "resource": "co2co:((2, 4), (2, 0))",
+            "wait_excl": 517,
+            "busy_over_a": 0.1500310623317457,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28972
+          },
+          {
+            "resource": "co2co:((1, 12), (1, 8))",
+            "wait_excl": 320,
+            "busy_over_a": 0.289017740042797,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28950
+          },
+          {
+            "resource": "ch2ch:((2, 4), (1, 7))",
+            "wait_excl": 276,
+            "busy_over_a": 0.33136605232277216,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28972
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 28742,
+        "reorder": 0.001182937860970009,
+        "reorder_resource": "co2co:((1, 12), (1, 8))",
+        "reorder_ub": 0.001182937860970009,
+        "delete": 0.008210980446733004,
+        "delete_resource": "co2co:((1, 4), (1, 0))",
+        "top_resource": "ch2ch:((1, 11), (2, 8))",
+        "top_busy": 0.8934312156426136,
+        "top_wait_share": 0.943782155853934,
+        "critical_wait_over_a": 0.8317792777120591,
+        "dstu_ub_local": 0.8173752696402478,
+        "top5": [
+          {
+            "resource": "ch2ch:((1, 11), (2, 8))",
+            "wait_excl": 22563,
+            "busy_over_a": 0.8934312156426136,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28601
+          },
+          {
+            "resource": "co2co:((1, 12), (1, 8))",
+            "wait_excl": 450,
+            "busy_over_a": 0.29135063669890754,
+            "reorder_gain_over_a": 0.001182937860970009,
+            "longest_path_avoiding_resource": 28642
+          },
+          {
+            "resource": "ch2ch:((2, 8), (1, 11))",
+            "wait_excl": 329,
+            "busy_over_a": 0.7253148702247582,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28527
+          },
+          {
+            "resource": "co2co:((1, 14), (1, 13))",
+            "wait_excl": 243,
+            "busy_over_a": 0.12514786723262125,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28644
+          },
+          {
+            "resource": "co2co:((1, 4), (1, 0))",
+            "wait_excl": 215,
+            "busy_over_a": 0.15771345069932502,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28506
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 28897,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((1, 8), (0, 11))",
+        "reorder_ub": 0.0,
+        "delete": 0.02031352735578088,
+        "delete_resource": "ch2ch:((1, 8), (0, 11))",
+        "top_resource": "ch2ch:((1, 8), (0, 11))",
+        "top_busy": 0.904522960860989,
+        "top_wait_share": 0.946770311328572,
+        "critical_wait_over_a": 0.8770114544762432,
+        "dstu_ub_local": 0.8579091255147593,
+        "top5": [
+          {
+            "resource": "ch2ch:((1, 8), (0, 11))",
+            "wait_excl": 23994,
+            "busy_over_a": 0.904522960860989,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28310
+          },
+          {
+            "resource": "co2co:((0, 7), (0, 3))",
+            "wait_excl": 728,
+            "busy_over_a": 0.356888258296709,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28877
+          },
+          {
+            "resource": "co2co:((1, 12), (1, 8))",
+            "wait_excl": 257,
+            "busy_over_a": 0.289787867252656,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28852
+          },
+          {
+            "resource": "co2co:((1, 14), (1, 13))",
+            "wait_excl": 185,
+            "busy_over_a": 0.12447658926532167,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28852
+          },
+          {
+            "resource": "co2co:((2, 8), (2, 4))",
+            "wait_excl": 137,
+            "busy_over_a": 0.12098141675606465,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28863
+          }
+        ]
+      }
+    ]
+  },
+  "definitions": "E3 step 4: post-fault single-resource analysis (E2's pipeline on E3's saved event graphs).\n\nFor every task x fault, the R0 mapping and the best warm-start mapping (smallest 3-seed mean among the W\nruns) are analysed with e2_attribution.analyse on each backend seed's final event graph (no new\nsimulation). The pre-fault reference is the same analysis on the pre-fault graphs captured in E3 step 1\n(work copy), so the numbers are directly comparable with E2's.\n\nPer graph:\n  reorder  = best single-resource exact reorder gain / a       (E2 reorder_gain_best_resource_over_a)\n  delete   = max over the 5 resources with the most exclusive critical wait of\n             (a - longest path that avoids the resource) / a    (E2's \"delete the resource\" bound; over\n             E2's 26 tasks this reproduces median 1.85%, max 13.4%)\n  top      = resource with the most exclusive critical wait, its busy time / a, its share of the wait",
+  "e2_reference_same_task_third_party": null,
+  "e2_reference_all_26_tasks": {
+    "delete_median": 0.0185,
+    "delete_max": 0.134,
+    "reorder_max": 0.033
+  }
+}

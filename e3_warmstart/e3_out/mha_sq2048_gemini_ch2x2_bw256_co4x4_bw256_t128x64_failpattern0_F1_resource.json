@@ -1,0 +1,507 @@
+{
+  "task": "mha_sq2048_gemini_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0",
+  "fault": {
+    "id": "F1",
+    "kind": "node (core + router)",
+    "failed_nodes": [
+      [
+        0,
+        2
+      ]
+    ],
+    "failed_links": [],
+    "rule": "non-corner core with the largest computation busy time (tensor + vector unit) in the pre-fault final evaluation; ties -> smallest (die, core)",
+    "compute_busy": 4736,
+    "compute_busy_over_a": 0.15037307509128434,
+    "ties": [
+      [
+        0,
+        2
+      ]
+    ]
+  },
+  "best_W": "F1_W_s300_t10",
+  "prefault": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 7.610846543588406e-05,
+    "reorder_max": 0.00022832539630765218,
+    "delete_mean": 0.012147086406514648,
+    "delete_max": 0.027521481340562478,
+    "top_resource": "ch2ch:((2, 1), (0, 13))",
+    "top_resource_votes": {
+      "ch2ch:((2, 1), (0, 13))": 2,
+      "tensorcore@(0, 5, 0)": 1
+    },
+    "top_busy_mean": 0.6050367927539498,
+    "top_wait_share_mean": 0.6773378108142648,
+    "dstu_ub_local_mean": 0.1308313029453854,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 30868,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 1), (0, 13))",
+        "reorder_ub": 0.00479460930413373,
+        "delete": 0.0025592846961254375,
+        "delete_resource": "ch2ch:((2, 1), (0, 13))",
+        "top_resource": "ch2ch:((2, 1), (0, 13))",
+        "top_busy": 0.875113386030841,
+        "top_wait_share": 0.6216216216216216,
+        "critical_wait_over_a": 0.16781132564468057,
+        "dstu_ub_local": 0.15935596734482313,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 1), (0, 13))",
+            "wait_excl": 3220,
+            "busy_over_a": 0.875113386030841,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30789
+          },
+          {
+            "resource": "co2co:((1, 12), (1, 8))",
+            "wait_excl": 570,
+            "busy_over_a": 0.36147466632110925,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30793
+          },
+          {
+            "resource": "co2co:((0, 15), (0, 14))",
+            "wait_excl": 532,
+            "busy_over_a": 0.32052611118310226,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30825
+          },
+          {
+            "resource": "ch2ch:((0, 14), (2, 2))",
+            "wait_excl": 308,
+            "busy_over_a": 0.26804457690812494,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30825
+          },
+          {
+            "resource": "co2co:((1, 10), (1, 14))",
+            "wait_excl": 257,
+            "busy_over_a": 0.21854347544382532,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30789
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 30658,
+        "reorder": 0.00022832539630765218,
+        "reorder_resource": "co2co:((0, 5), (0, 6))",
+        "reorder_ub": 0.0018592210842194533,
+        "delete": 0.006360493182856025,
+        "delete_resource": "co2co:((1, 12), (1, 13))",
+        "top_resource": "tensorcore@(0, 5, 0)",
+        "top_busy": 0.08350185922108422,
+        "top_wait_share": 0.4871287128712871,
+        "critical_wait_over_a": 0.11530432513536434,
+        "dstu_ub_local": 0.032846239154543676,
+        "top5": [
+          {
+            "resource": "tensorcore@(0, 5, 0)",
+            "wait_excl": 1722,
+            "busy_over_a": 0.08350185922108422,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30651
+          },
+          {
+            "resource": "ch2ch:((2, 1), (0, 13))",
+            "wait_excl": 1229,
+            "busy_over_a": 0.8811077043512296,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30624
+          },
+          {
+            "resource": "ch2ch:((1, 14), (3, 2))",
+            "wait_excl": 442,
+            "busy_over_a": 0.41349729271315805,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30645
+          },
+          {
+            "resource": "co2co:((0, 5), (0, 6))",
+            "wait_excl": 66,
+            "busy_over_a": 0.3148933394220106,
+            "reorder_gain_over_a": 0.00022832539630765218,
+            "longest_path_avoiding_resource": 30651
+          },
+          {
+            "resource": "co2co:((1, 12), (1, 13))",
+            "wait_excl": 57,
+            "busy_over_a": 0.6215017287494292,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30463
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 31539,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 1), (0, 13))",
+        "reorder_ub": 0.0,
+        "delete": 0.027521481340562478,
+        "delete_resource": "ch2ch:((1, 13), (3, 1))",
+        "top_resource": "ch2ch:((2, 1), (0, 13))",
+        "top_busy": 0.8564951330099242,
+        "top_wait_share": 0.9232630979498861,
+        "critical_wait_over_a": 0.22270839278353785,
+        "dstu_ub_local": 0.20029170233678936,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 1), (0, 13))",
+            "wait_excl": 6485,
+            "busy_over_a": 0.8564951330099242,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31493
+          },
+          {
+            "resource": "co2co:((0, 15), (0, 14))",
+            "wait_excl": 332,
+            "busy_over_a": 0.3137068391515267,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31535
+          },
+          {
+            "resource": "ch2ch:((2, 2), (0, 14))",
+            "wait_excl": 114,
+            "busy_over_a": 0.3282285424395193,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31184
+          },
+          {
+            "resource": "ch2ch:((1, 13), (3, 1))",
+            "wait_excl": 51,
+            "busy_over_a": 0.5755730999714639,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 30671
+          },
+          {
+            "resource": "ch2ch:((0, 11), (1, 8))",
+            "wait_excl": 23,
+            "busy_over_a": 0.23891055518564316,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31247
+          }
+        ]
+      }
+    ]
+  },
+  "R0": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 0.0,
+    "reorder_max": 0.0,
+    "delete_mean": 0.010082096651549062,
+    "delete_max": 0.01759668768231862,
+    "top_resource": "ch2ch:((2, 1), (0, 13))",
+    "top_resource_votes": {
+      "ch2ch:((2, 1), (0, 13))": 3
+    },
+    "top_busy_mean": 0.852871487459424,
+    "top_wait_share_mean": 0.8471055256859664,
+    "dstu_ub_local_mean": 0.327196479211074,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 31881,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 1), (0, 13))",
+        "reorder_ub": 0.002383864997961168,
+        "delete": 0.01759668768231862,
+        "delete_resource": "ch2ch:((2, 2), (0, 14))",
+        "top_resource": "ch2ch:((2, 1), (0, 13))",
+        "top_busy": 0.8473071735516452,
+        "top_wait_share": 0.7710697899058199,
+        "critical_wait_over_a": 0.2597785514883473,
+        "dstu_ub_local": 0.24340516294971926,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 1), (0, 13))",
+            "wait_excl": 6386,
+            "busy_over_a": 0.8473071735516452,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31839
+          },
+          {
+            "resource": "ch2ch:((1, 14), (3, 2))",
+            "wait_excl": 784,
+            "busy_over_a": 0.39763495498886486,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31638
+          },
+          {
+            "resource": "co2co:((1, 12), (1, 8))",
+            "wait_excl": 671,
+            "busy_over_a": 0.3499890216743515,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31844
+          },
+          {
+            "resource": "co2co:((1, 10), (1, 14))",
+            "wait_excl": 257,
+            "busy_over_a": 0.21159938521376367,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31673
+          },
+          {
+            "resource": "ch2ch:((2, 2), (0, 14))",
+            "wait_excl": 165,
+            "busy_over_a": 0.32470750603807913,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31320
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 31694,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 1), (0, 13))",
+        "reorder_ub": 0.0017984476557077048,
+        "delete": 0.004890515554994636,
+        "delete_resource": "ch2ch:((2, 2), (0, 14))",
+        "top_resource": "ch2ch:((2, 1), (0, 13))",
+        "top_busy": 0.852306430239162,
+        "top_wait_share": 0.8363946470742587,
+        "critical_wait_over_a": 0.240487158452704,
+        "dstu_ub_local": 0.21991544140846847,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 1), (0, 13))",
+            "wait_excl": 6375,
+            "busy_over_a": 0.852306430239162,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31601
+          },
+          {
+            "resource": "co2co:((0, 15), (0, 14))",
+            "wait_excl": 794,
+            "busy_over_a": 0.3213226478197766,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31663
+          },
+          {
+            "resource": "co2co:((1, 10), (1, 14))",
+            "wait_excl": 257,
+            "busy_over_a": 0.21284785763866979,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31577
+          },
+          {
+            "resource": "ch2ch:((2, 2), (0, 14))",
+            "wait_excl": 146,
+            "busy_over_a": 0.32662333564712565,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31539
+          },
+          {
+            "resource": "ch2ch:((0, 14), (2, 2))",
+            "wait_excl": 31,
+            "busy_over_a": 0.2464188805452136,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31663
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 31447,
+        "reorder": 0.0,
+        "reorder_resource": "ch2ch:((2, 1), (0, 13))",
+        "reorder_ub": 0.006741501574077018,
+        "delete": 0.007759086717333927,
+        "delete_resource": "ch2ch:((0, 11), (1, 8))",
+        "top_resource": "ch2ch:((2, 1), (0, 13))",
+        "top_busy": 0.8590008585874647,
+        "top_wait_share": 0.933852140077821,
+        "critical_wait_over_a": 0.523038763634051,
+        "dstu_ub_local": 0.5182688332750341,
+        "top5": [
+          {
+            "resource": "ch2ch:((2, 1), (0, 13))",
+            "wait_excl": 15360,
+            "busy_over_a": 0.8590008585874647,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31395
+          },
+          {
+            "resource": "co2co:((1, 12), (1, 13))",
+            "wait_excl": 212,
+            "busy_over_a": 0.6059083537380354,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31220
+          },
+          {
+            "resource": "co2co:((0, 7), (0, 3))",
+            "wait_excl": 210,
+            "busy_over_a": 0.5535345183960314,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31430
+          },
+          {
+            "resource": "ch2ch:((0, 11), (1, 8))",
+            "wait_excl": 189,
+            "busy_over_a": 0.23960950170127515,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31203
+          },
+          {
+            "resource": "ch2ch:((1, 4), (0, 7))",
+            "wait_excl": 121,
+            "busy_over_a": 0.6640697045823131,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 31443
+          }
+        ]
+      }
+    ]
+  },
+  "best_W_mapping": {
+    "n": 3,
+    "errors": [],
+    "reorder_mean": 0.0027279683289530587,
+    "reorder_max": 0.008183904986859177,
+    "delete_mean": 0.05444288174808348,
+    "delete_max": 0.06965824865009894,
+    "top_resource": "ddr2co:((1, 21), (1, 12))",
+    "top_resource_votes": {
+      "ddr2co:((1, 21), (1, 12))": 3
+    },
+    "top_busy_mean": 0.8337349851699319,
+    "top_wait_share_mean": 0.9657701610885194,
+    "dstu_ub_local_mean": 0.7406853916175025,
+    "per_seed": [
+      {
+        "seed": 1,
+        "a": 29830,
+        "reorder": 0.0,
+        "reorder_resource": "ddr2co:((1, 21), (1, 12))",
+        "reorder_ub": 0.0,
+        "delete": 0.03335568219912839,
+        "delete_resource": "ch2ch:((3, 4), (2, 7))",
+        "top_resource": "ddr2co:((1, 21), (1, 12))",
+        "top_busy": 0.8357358364063023,
+        "top_wait_share": 0.9687106854429609,
+        "critical_wait_over_a": 0.8260476030841435,
+        "dstu_ub_local": 0.8260476030841435,
+        "top5": [
+          {
+            "resource": "ddr2co:((1, 21), (1, 12))",
+            "wait_excl": 23870,
+            "busy_over_a": 0.8357358364063023,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 29765
+          },
+          {
+            "resource": "co2co:((0, 7), (0, 3))",
+            "wait_excl": 463,
+            "busy_over_a": 0.22175662085149178,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 29684
+          },
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 276,
+            "busy_over_a": 0.23198122695273216,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28835
+          },
+          {
+            "resource": "co2co:((0, 6), (0, 7))",
+            "wait_excl": 32,
+            "busy_over_a": 0.26020784445189404,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 29830
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "a": 30059,
+        "reorder": 0.008183904986859177,
+        "reorder_resource": "ddr2co:((1, 21), (1, 12))",
+        "reorder_ub": 0.008183904986859177,
+        "delete": 0.060314714395023124,
+        "delete_resource": "ddr2co:((1, 21), (1, 12))",
+        "top_resource": "ddr2co:((1, 21), (1, 12))",
+        "top_busy": 0.8293689078146312,
+        "top_wait_share": 0.9645066133790084,
+        "critical_wait_over_a": 0.6992248577796999,
+        "dstu_ub_local": 0.6992248577796999,
+        "top5": [
+          {
+            "resource": "ddr2co:((1, 21), (1, 12))",
+            "wait_excl": 20272,
+            "busy_over_a": 0.8293689078146312,
+            "reorder_gain_over_a": 0.008183904986859177,
+            "longest_path_avoiding_resource": 28246
+          },
+          {
+            "resource": "co2co:((0, 7), (0, 3))",
+            "wait_excl": 470,
+            "busy_over_a": 0.22006720117103032,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 29894
+          },
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 276,
+            "busy_over_a": 0.23021391263847765,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 29064
+          }
+        ]
+      },
+      {
+        "seed": 3,
+        "a": 29817,
+        "reorder": 0.0,
+        "reorder_resource": "ddr2co:((1, 21), (1, 12))",
+        "reorder_ub": 0.0,
+        "delete": 0.06965824865009894,
+        "delete_resource": "ddr2co:((1, 21), (1, 12))",
+        "top_resource": "ddr2co:((1, 21), (1, 12))",
+        "top_busy": 0.836100211288862,
+        "top_wait_share": 0.9640931844435887,
+        "critical_wait_over_a": 0.6967837139886642,
+        "dstu_ub_local": 0.6967837139886642,
+        "top5": [
+          {
+            "resource": "ddr2co:((1, 21), (1, 12))",
+            "wait_excl": 20030,
+            "busy_over_a": 0.836100211288862,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 27740
+          },
+          {
+            "resource": "co2co:((0, 7), (0, 3))",
+            "wait_excl": 470,
+            "busy_over_a": 0.22185330516148505,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 29652
+          },
+          {
+            "resource": "ch2ch:((3, 4), (2, 7))",
+            "wait_excl": 276,
+            "busy_over_a": 0.23208236911828822,
+            "reorder_gain_over_a": 0.0,
+            "longest_path_avoiding_resource": 28822
+          }
+        ]
+      }
+    ]
+  },
+  "definitions": "E3 step 4: post-fault single-resource analysis (E2's pipeline on E3's saved event graphs).\n\nFor every task x fault, the R0 mapping and the best warm-start mapping (smallest 3-seed mean among the W\nruns) are analysed with e2_attribution.analyse on each backend seed's final event graph (no new\nsimulation). The pre-fault reference is the same analysis on the pre-fault graphs captured in E3 step 1\n(work copy), so the numbers are directly comparable with E2's.\n\nPer graph:\n  reorder  = best single-resource exact reorder gain / a       (E2 reorder_gain_best_resource_over_a)\n  delete   = max over the 5 resources with the most exclusive critical wait of\n             (a - longest path that avoids the resource) / a    (E2's \"delete the resource\" bound; over\n             E2's 26 tasks this reproduces median 1.85%, max 13.4%)\n  top      = resource with the most exclusive critical wait, its busy time / a, its share of the wait",
+  "e2_reference_same_task_third_party": null,
+  "e2_reference_all_26_tasks": {
+    "delete_median": 0.0185,
+    "delete_max": 0.134,
+    "reorder_max": 0.033
+  }
+}
