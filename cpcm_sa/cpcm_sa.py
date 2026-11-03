@@ -65,7 +65,7 @@ ARMS = ["A0", "A1", "A2", "A3", "A3CB", "A3h"]
 CPCM_ARMS = {"A2", "A3", "A3CB", "A3h"}
 TARGETED = {"A3", "A3CB", "A3h"}
 SA_SEEDS = [123, 1, 2, 3, 4, 5, 6]       # A2+: g0/g1 x these 7 seeds (A0/A1: g0/g1 x lossratio0-6, seed 123)
-BACKEND_SEEDS = [1, 2, 3, 4, 5]
+BACKEND_SEEDS = list(range(1, 11))     # user 2026-11-04: 10 seeds (was 1-5; A0/A1 re-evaluated, see reeval)
 BCAST_SEED = 0
 P, K = 0.5, 5
 CAL_PROBES, CAL_SEED_OFFSET = 50, 100003
@@ -755,15 +755,7 @@ def diag_child(cfg, arm, g, x, out_path):
     from add_communication import add_broadcast
     from event_driver import event_driver
     ctx = load_run(cfg, arm, g, x)["meta"]["ctx"]     # the template's broadcast arguments, saved by the run
-    with gzip.open(os.path.join(OUT, "snaps", run_name(cfg, arm, g, x) + ".pkl.gz"), "rb") as f:
-        blob, hist = pickle.load(f)
-    b_, d_, e_ = pickle.loads(blob)
-    hp_ = platform(cfg)
-    for k in ("link_loads_dict", "link_loads_count"):
-        if set(getattr(hp_, k)) != set(hist[k]):
-            raise RuntimeError(f"{k}: link set of the rebuilt platform differs from the run's")
-        getattr(hp_, k).update(hist[k])
-    snap = (b_, d_, e_, hp_)
+    snap = load_snap(cfg, arm, g, x)
     res = {}
     for mode in ("i_history", "ii_fresh_loads", "iii_cb_weights"):
         beha, data, events, hp = copy.deepcopy(snap)
@@ -813,6 +805,58 @@ def diag_child(cfg, arm, g, x, out_path):
         print(mode, res[mode], flush=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(res, f, indent=1, default=str)
+
+
+def load_snap(cfg, arm, g, x):
+    """Saved selected state with a rebuilt platform carrying the run's routing-history counters."""
+    with gzip.open(os.path.join(OUT, "snaps", run_name(cfg, arm, g, x) + ".pkl.gz"), "rb") as f:
+        blob, hist = pickle.load(f)
+    b_, d_, e_ = pickle.loads(blob)
+    hp_ = copy.deepcopy(platform(cfg))
+    for k in ("link_loads_dict", "link_loads_count"):
+        if set(getattr(hp_, k)) != set(hist[k]):
+            raise RuntimeError(f"{k}: link set of the rebuilt platform differs from the run's")
+        getattr(hp_, k).update(hist[k])
+    return b_, d_, e_, hp_
+
+
+def reeval_child(cfg, arm, g, x):
+    """Re-evaluate a finished run's selected state with the current BACKEND_SEEDS in this (fresh) process; the
+    in-run 5-seed result is kept as backend_inrun_5."""
+    _artifact_path()
+    from add_communication import add_broadcast
+    from event_driver import event_driver
+    path = os.path.join(OUT, "runs", run_name(cfg, arm, g, x) + ".pkl.gz")
+    d = load_run(cfg, arm, g, x)
+    sel = d["selected"]
+    if sel.get("reeval"):
+        return
+    t0 = time.time()
+    fe = final_eval(load_snap(cfg, arm, g, x), d["meta"]["ctx"], add_broadcast, event_driver)
+    if (fe["T_pre"], fe["T_bc"]) != (sel["T_pre"], sel["T_bc"]):
+        raise RuntimeError(f"rebuilt state differs: T {fe['T_pre']}/{fe['T_bc']} vs {sel['T_pre']}/{sel['T_bc']}")
+    sel.update(backend_inrun_5=sel["backend"], backend=fe["backend"], backend_wall=fe["backend_wall"], reeval=True,
+               reeval_wall=time.time() - t0, reeval_routes_equal=fe["e3map"]["routes"] == sel["e3map"]["routes"])
+    d["meta"]["backend_seeds"] = BACKEND_SEEDS
+    with gzip.open(path + ".tmp", "wb") as f:
+        pickle.dump(d, f, protocol=pickle.HIGHEST_PROTOCOL)
+    os.replace(path + ".tmp", path)
+    print(f"{cfg} {arm} g{g} {x}: 10-seed mean {bmean(fe['backend']):.0f}, in-run 5-seed {bmean(sel['backend_inrun_5']):.0f}")
+
+
+def reeval(configs, arms, jobs):
+    todo = [(c, a, g, x) for c in configs for a in arms for g, x in variants(a)]
+
+    def one(t):
+        name = run_name(*t)
+        with open(os.path.join(OUT, "logs", f"reeval_{name}.log"), "w", encoding="utf-8") as lf:
+            rc = subprocess.call([sys.executable, os.path.abspath(__file__), "reeval_child", *map(str, t)],
+                                 cwd=HERE, stdout=lf, stderr=subprocess.STDOUT)
+        print(f"[reeval] {name}: exit {rc}", flush=True)
+        return rc
+    with ThreadPoolExecutor(jobs) as ex:
+        rcs = list(ex.map(one, todo))
+    print(f"[reeval] {len(rcs)} runs, {sum(1 for r in rcs if r)} failed", flush=True)
 
 
 def diag(configs, jobs):
@@ -965,12 +1009,16 @@ def main():
         _, _, cfg, arm, g, x, sink, snap, checks = sys.argv
         child(cfg, arm, int(g), int(x), sink, snap, checks == "1")
         return
+    if sys.argv[1] == "reeval_child":
+        _, _, cfg, arm, g, x = sys.argv
+        reeval_child(cfg, arm, int(g), int(x))
+        return
     if sys.argv[1] == "diag_child":
         _, _, cfg, arm, g, x, out = sys.argv
         diag_child(cfg, arm, int(g), int(x), out)
         return
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["run", "check3", "diag", "analyse"])
+    ap.add_argument("cmd", choices=["run", "reeval", "check3", "diag", "analyse"])
     ap.add_argument("--configs", nargs="*", default=list(CONFIGS))
     ap.add_argument("--arms", nargs="*", default=ARMS)
     ap.add_argument("--jobs", type=int, default=12)
@@ -979,6 +1027,8 @@ def main():
     t0 = time.time()
     if a.cmd == "run":
         run(a.configs, a.arms, a.jobs, a.first)
+    elif a.cmd == "reeval":
+        reeval(a.configs, a.arms, a.jobs)
     elif a.cmd == "check3":
         check3(a.configs, a.arms, a.jobs)
     elif a.cmd == "diag":
