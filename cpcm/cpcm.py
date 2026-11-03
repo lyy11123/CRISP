@@ -323,6 +323,7 @@ def _loop(g, sc, st, mode, prio, rng, ck, stop):
     a_f = sc.a_f
     cnt, free, pos, blast, last = st.cnt, st.free, st.pos, st.blast, st.last
     todo, fin, heap = st.todo, st.fin, st.heap
+    evst = {}       # bb: per-message buckets of waiting / in-progress messages (derivable from pos; not checkpointed)
 
     def at(dct, t, e):
         lst = dct.get(t)
@@ -374,7 +375,67 @@ def _loop(g, sc, st, mode, prio, rng, ck, stop):
         if not comms:
             continue
         cand = {}
-        if mode == "bb":
+        if mode == "bb" and rng is None:
+            # Phase 4 with per-message buckets (V7 speed-up, user 2026-11-03), same result as the level scan below:
+            # byrem[L] = branches with exactly L hops left, byhead[q] = branches whose next hop is on link q; kept
+            # while a message waits (re-tried at the earliest end of its busy heads, as before), rebuilt from pos
+            # when missing (fresh message, or after incremental() restored a checkpoint). Per level only the
+            # messages that have a branch of that length are visited.
+            lvl = {}
+            maxL = 0
+            for e in comms:
+                es = evst.get(e)
+                if es is None:
+                    byrem, byhead = {}, {}
+                    for b in ev_br[e]:
+                        p = pos[b]
+                        if p < br_hi[b]:
+                            byrem.setdefault(br_hi[b] - p, []).append(b)
+                            byhead.setdefault(hop_link[p], []).append(b)
+                    es = evst[e] = (byrem, byhead)
+                for k in es[0]:
+                    lvl.setdefault(k, set()).add(e)
+                    if k > maxL:
+                        maxL = k
+            L = maxL
+            while L > 0:
+                evs = lvl.get(L)
+                if evs:
+                    keyed = sorted((-max(evst[e][0]), e) for e in evs if L in evst[e][0])
+                    for _, e in keyed:
+                        byrem, byhead = evst[e]
+                        brs = byrem.get(L)
+                        if not brs:
+                            continue
+                        brs = sorted(brs, key=lambda b: (not hop_suf3[pos[b]], b)) if len(brs) > 1 else list(brs)
+                        for b in brs:
+                            h = pos[b]
+                            if br_hi[b] - h != L:       # trimmed by a shared head issued just before
+                                continue
+                            q = hop_link[h]
+                            if free[q] > t:
+                                if free[q] < cand.get(e, inf):
+                                    cand[e] = free[q]
+                                continue
+                            f = t + hop_dur[h]
+                            free[q] = f
+                            a = act(e, q, t, f, blast[b])
+                            last[e] = a
+                            for c in byhead.pop(q):
+                                p = pos[c]
+                                k = br_hi[c] - p
+                                lst = byrem[k]
+                                lst.remove(c)
+                                if not lst:
+                                    del byrem[k]
+                                pos[c] = p + 1
+                                blast[c] = a
+                                if k > 1:
+                                    byrem.setdefault(k - 1, []).append(c)
+                                    byhead.setdefault(hop_link[p + 1], []).append(c)
+                                    lvl.setdefault(k - 1, set()).add(e)
+                L -= 1
+        elif mode == "bb":
             L = 0
             for e in comms:
                 for b in ev_br[e]:
@@ -465,6 +526,7 @@ def _loop(g, sc, st, mode, prio, rng, ck, stop):
                     break
         for e in comms:
             if all(pos[b] == br_hi[b] for b in ev_br[e]):
+                evst.pop(e, None)
                 a = last[e]
                 term[e] = a
                 S_last[e] = t
