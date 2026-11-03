@@ -874,12 +874,16 @@ def _merge(iv):
 
 # ------------------------------------------------------------------ single-message reroute (full recompute for now)
 def reroute(g, b, branches, link_dur, mode="bb", prio=None, base=None):
-    """Evaluate moving communication b to `branches` (lists of resource ids). Returns dict(T, F_b, D_b, ok)
-    where D_b is the deadline of b in the CURRENT schedule (base Analysis, computed if not given).
-    TODO(V7): route through the incremental update instead of a full recompute."""
+    """Evaluate moving communication b to `branches` (lists of resource ids). Returns dict(T, F_b, D_b, ok, schedule)
+    where D_b is the deadline of b in the CURRENT schedule. base: the current Analysis (computed if not given);
+    when its schedule has checkpoints (simulate(..., checkpoint_every=K)) the evaluation goes through
+    incremental(), otherwise a full recompute. The graph g is not modified (a copy is rerouted)."""
     if base is None:
         base = Analysis(simulate(g, mode, prio))
     g2 = g.copy()
     g2.set_branches(b, branches, link_dur)
-    sc2 = simulate(g2, mode, prio)
+    if base.sc.ckpts:
+        sc2 = incremental(g2, base.sc, [b])
+    else:
+        sc2 = simulate(g2, mode, prio, base.sc.release)
     return {"T": sc2.T, "F_b": sc2.F[b], "D_b": base.D[b], "ok": sc2.F[b] <= base.D[b], "schedule": sc2}
