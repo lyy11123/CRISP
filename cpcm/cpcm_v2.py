@@ -84,6 +84,12 @@ def inject_eval(orig, events_dict, hp, call_no, g):
     t0 = time.time()
     sink["graph"] = cpcm.compile_bb(events_dict, hp, path_lists=paths, deps=deps)
     sink["compile_s"] = time.time() - t0
+    rep = int(os.environ.get("CPCM_COMPILE_REPEAT", "0"))   # V7: serial compile timing, perf_counter
+    sink["compile_times"] = []
+    for _ in range(rep):
+        t0 = time.perf_counter()
+        cpcm.compile_bb(events_dict, hp, path_lists=paths, deps=deps)
+        sink["compile_times"].append(time.perf_counter() - t0)
     with open(os.environ["E3_SINK"], "wb") as f:
         pickle.dump(sink, f, protocol=pickle.HIGHEST_PROTOCOL)
     return out
