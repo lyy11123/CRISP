@@ -15,7 +15,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 ## 当前阶段
 
-判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。现在是第 3 步：CPCM 接入 SA 映射搜索，交接说明 `cpcm_sa\CPCM_SA_HANDOFF.md` 待用户确认。E4c（请求随机到达、goodput、P99、SLO）以后再议。
+判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。现在是第 3 步：CPCM 接入 SA 映射搜索，按 `cpcm_sa\CPCM_SA_HANDOFF.md` 执行第 1 阶段试点。E4c（请求随机到达、goodput、P99、SLO）以后再议。
 
 研究方案、判定标准和结论记录在 claude.ai 上的方案文档里，不在本目录。本目录里每个实验都有一份交接说明 `<实验文件夹>\<实验>_HANDOFF.md`，执行时以它为准。
 
@@ -29,7 +29,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `e3_warmstart\` | E3：故障后热启动 SA、迁移量与下界紧度 |
 | `e4_overlap\` | E4a：多流重叠下的链路冲突与仲裁收益上限；E4b：按跳截止时间仲裁原型与异构截止时间（均已完成） |
 | `cpcm\` | CPCM 的设计、实现与验证（V0–V7 完成，汇总 `CPCM_SUMMARY.md`） |
-| `cpcm_sa\` | 第 3 步：CPCM 接入 SA 映射搜索（交接说明起草中） |
+| `cpcm_sa\` | 第 3 步：CPCM 接入 SA 映射搜索（第 1 阶段试点进行中） |
 
 ## 规则
 
