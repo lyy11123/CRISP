@@ -60,17 +60,9 @@ STATE_KEY = ("energy", "hops", "comm_dist", "max_link_load", "max_tc_load", "max
 
 
 # ------------------------------------------------------------------ child
-def child(name, part, nparts, every, seeds, sink_path, keep_graph=False):
-    model, task = PLAN[name][:2]
-    task_path = os.path.join(WORK, "models", model, "py", task + ".py")
-    for sub in SRC_SUBDIRS:
-        p = os.path.join(WORK, sub)
-        if p not in sys.path:
-            sys.path.append(p)
-    import Stream_Mapping
-    from add_communication import add_broadcast
-    from event_driver import event_driver
-
+def make_anneal(name, part, nparts, every, seeds, sink_path, keep_graph, add_broadcast, event_driver):
+    """Replacement for StreamOptimization.anneal: the artifact's loop plus sampling (see module docstring);
+    writes the sink and exits the process after the last step. Also used by cpcm_v4.py inside E3's inject mode."""
     sink = {"rows": [], "energies": {}, "meta": {}}
 
     def evaluate(self, st, step, E, T, ctx):
@@ -176,7 +168,22 @@ def child(name, part, nparts, every, seeds, sink_path, keep_graph=False):
             pickle.dump(sink, f, protocol=pickle.HIGHEST_PROTOCOL)
         raise SystemExit(0)    # samples taken: skip the template's own final evaluation
 
-    Stream_Mapping.StreamOptimization.anneal = anneal
+    return anneal
+
+
+def child(name, part, nparts, every, seeds, sink_path, keep_graph=False):
+    model, task = PLAN[name][:2]
+    task_path = os.path.join(WORK, "models", model, "py", task + ".py")
+    for sub in SRC_SUBDIRS:
+        p = os.path.join(WORK, sub)
+        if p not in sys.path:
+            sys.path.append(p)
+    import Stream_Mapping
+    from add_communication import add_broadcast
+    from event_driver import event_driver
+
+    Stream_Mapping.StreamOptimization.anneal = make_anneal(name, part, nparts, every, seeds, sink_path, keep_graph,
+                                                          add_broadcast, event_driver)
     os.makedirs(os.path.join(os.path.dirname(task_path), "..", "results"), exist_ok=True)
     runpy.run_path(task_path, run_name="__main__")
 

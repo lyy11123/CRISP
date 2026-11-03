@@ -248,6 +248,8 @@ class Schedule:
         self.a_ev, self.a_res, self.a_s, self.a_f, self.a_par = [], [], [], [], []
         self.res_seq = [[] for _ in range(g.nres)]
         self.T = None
+        self.ckpts = []
+        self.prio = self.release = None
 
     def _act(self, e, q, s, f, par):
         a = len(self.a_s)
@@ -269,28 +271,58 @@ class Schedule:
         return self
 
 
-def simulate(g, mode="bb", prio=None, release=None, rng=None):
+class _State:
+    """Mutable engine state of the bb / hop forward pass (everything the future of the run depends on)."""
+    __slots__ = ("cnt", "free", "pos", "blast", "last", "todo", "fin", "heap", "ticks")
+
+
+def simulate(g, mode="bb", prio=None, release=None, rng=None, checkpoint_every=0):
     """Forward pass in mode "bb" or "hop". release: optional {event id: earliest ready time} for source events.
     rng: DIAGNOSTIC ONLY (V3, user 2026-11-03): a random.Random that replaces the event-id tie rule of bb mode by
     random ties (compute order, events of equal remaining length, branches of equal key), like the backend's
-    shuffles. CPCM itself is the deterministic pass (rng None)."""
+    shuffles. CPCM itself is the deterministic pass (rng None).
+    checkpoint_every: K > 0 stores the engine state at the start of every K-th tick (sc.ckpts), for incremental()."""
     if mode not in ("bb", "hop"):
         raise CPCMError(f"unknown mode {mode}")
     sc = Schedule(g, mode)
+    sc.prio, sc.release = prio, release
+    st = _State()
     n = g.n
-    kind, pred_ptr, succ_ptr, succ = g.kind, g.pred_ptr, g.succ_ptr, g.succ
+    st.cnt = [g.pred_ptr[e + 1] - g.pred_ptr[e] for e in range(n)]
+    st.free = [0] * g.nres
+    st.pos = list(g.br_lo)          # per branch: next unissued hop
+    st.blast = [-1] * len(g.br_lo)  # per branch: activity of its last issued hop
+    st.last = [-1] * n              # per event: last issued activity
+    st.todo, st.fin, st.heap, st.ticks = {}, {}, [], 0
+    for e in range(n):
+        if st.cnt[e] == 0:
+            t0 = release.get(e, 0) if release else 0
+            sc.r[e] = t0
+            if t0 not in st.todo:
+                st.todo[t0] = []
+                heapq.heappush(st.heap, t0)
+            st.todo[t0].append(e)
+    _loop(g, sc, st, mode, prio, rng, checkpoint_every, None)
+    return sc._done()
+
+
+def _snapshot(sc, st, t):
+    return {"t": t, "ticks": st.ticks, "na": len(sc.a_s), "cnt": st.cnt[:], "free": st.free[:], "pos": st.pos[:],
+            "blast": st.blast[:], "last": st.last[:], "todo": {k: v[:] for k, v in st.todo.items()},
+            "fin": {k: v[:] for k, v in st.fin.items()}, "heap": sorted(set(st.heap) | {t}),
+            "r": sc.r[:], "S": sc.S[:], "S_last": sc.S_last[:], "F": sc.F[:], "term": sc.term[:]}
+
+
+def _loop(g, sc, st, mode, prio, rng, ck, stop):
+    kind, succ_ptr, succ = g.kind, g.succ_ptr, g.succ
     res_of, dur = g.res_of, g.dur
     ev_br, br_lo, br_hi = g.ev_br, g.br_lo, g.br_hi
     hop_link, hop_dur, hop_suf3 = g.hop_link, g.hop_dur, g.hop_suf3
     r, S_last, F, term = sc.r, sc.S_last, sc.F, sc.term
     act = sc._act
     a_f = sc.a_f
-    cnt = [pred_ptr[e + 1] - pred_ptr[e] for e in range(n)]
-    free = [0] * g.nres
-    pos = list(br_lo)               # per branch: next unissued hop
-    blast = [-1] * len(br_lo)       # per branch: activity of its last issued hop
-    last = [-1] * n                 # per event: last issued activity
-    todo, fin, heap = {}, {}, []
+    cnt, free, pos, blast, last = st.cnt, st.free, st.pos, st.blast, st.last
+    todo, fin, heap = st.todo, st.fin, st.heap
 
     def at(dct, t, e):
         lst = dct.get(t)
@@ -300,17 +332,17 @@ def simulate(g, mode="bb", prio=None, release=None, rng=None):
         else:
             lst.append(e)
 
-    for e in range(n):
-        if cnt[e] == 0:
-            t0 = release.get(e, 0) if release else 0
-            r[e] = t0
-            at(todo, t0, e)
     prev_t = None
     while heap:
         t = heapq.heappop(heap)
         if t == prev_t:
             continue
         prev_t = t
+        st.ticks += 1
+        if ck and (st.ticks - 1) % ck == 0:
+            sc.ckpts.append(_snapshot(sc, st, t))
+        if stop is not None and stop(t):
+            return True
         ready = todo.pop(t, [])
         for e in fin.pop(t, ()):
             for i in range(succ_ptr[e], succ_ptr[e + 1]):
@@ -443,7 +475,113 @@ def simulate(g, mode="bb", prio=None, release=None, rng=None):
                 if c is None:
                     raise CPCMError(f"event {g.tag[e]} blocked with no candidate time at {t}")
                 at(todo, c, e)
+    return False
+
+
+def incremental(g_new, base, changed):
+    """Re-evaluate after the events in `changed` got a new resource, route or duration (g_new = base.g with only
+    those events modified, e.g. by Graph.set_branches or res_of/dur edits; resource ids unchanged). base: a
+    Schedule from simulate(..., checkpoint_every=K) on the old graph.
+    Restarts from the last checkpoint at or before the earliest old ready time of the changed events (nothing
+    before that tick can differ). Once every changed event has finished issuing (in both runs), at each tick that
+    has an old checkpoint the engine state is compared with it (resource free times, branch positions of
+    unchanged events, dependency counters, pending ready / finish lists, r and S of unfinished events); when equal,
+    the rest of the old schedule is spliced in (activities renumbered, parent hops re-resolved by (event, link)).
+    The result must equal a full recompute (checked in V7). sc.inc = {"restart_t", "splice_t" or None, ...}."""
+    mode, prio = base.mode, base.prio
+    if not base.ckpts:
+        raise CPCMError("base schedule has no checkpoints")
+    changed = sorted(set(changed))
+    t0 = min(base.r[e] for e in changed)
+    cps = [c for c in base.ckpts if c["t"] <= t0]
+    if not cps:
+        sc = simulate(g_new, mode, prio, base.release)
+        sc.inc = {"restart_t": 0, "splice_t": None, "events_total": g_new.n, "checks": 0}
+        return sc
+    cp = cps[-1]
+    na = cp["na"]
+    sc = Schedule(g_new, mode)
+    sc.prio, sc.release = prio, base.release
+    for name in ("a_ev", "a_res", "a_s", "a_f", "a_par"):
+        getattr(sc, name)[:] = getattr(base, name)[:na]
+    for q, seq in enumerate(base.res_seq):
+        k = len(seq)
+        while k and seq[k - 1] >= na:
+            k -= 1
+        sc.res_seq[q] = seq[:k]
+    for e, lst in enumerate(base.ev_acts):
+        k = len(lst)
+        while k and lst[k - 1] >= na:
+            k -= 1
+        sc.ev_acts[e] = lst[:k]
+    for name in ("r", "S", "S_last", "F", "term"):
+        getattr(sc, name)[:] = cp[name]
+    st = _State()
+    st.cnt, st.free, st.last = cp["cnt"][:], cp["free"][:], cp["last"][:]
+    nb_old = len(cp["pos"])
+    st.pos = cp["pos"][:] + list(g_new.br_lo[nb_old:])
+    st.blast = cp["blast"][:] + [-1] * (len(g_new.br_lo) - nb_old)
+    st.todo = {k: v[:] for k, v in cp["todo"].items()}
+    st.fin = {k: v[:] for k, v in cp["fin"].items()}
+    st.heap = cp["heap"][:]
+    st.ticks = cp["ticks"] - 1
+    old_by_t = {c["t"]: c for c in base.ckpts if c["t"] > t0}
+    chg = set(changed)
+    keep_br = [b for e in range(g_new.n) if e not in chg for b in g_new.ev_br[e]]
+    info = {"restart_t": cp["t"], "splice_t": None, "events_total": g_new.n, "checks": 0}
+
+    def stop(t):
+        c = old_by_t.get(t)
+        if c is None or any(sc.F[e] < 0 or c["F"][e] < 0 for e in changed):
+            return False
+        info["checks"] += 1
+        if st.free != c["free"] or st.cnt != c["cnt"]:
+            return False
+        if any(st.pos[b] != c["pos"][b] for b in keep_br):
+            return False
+        if set(st.heap) | {t} != set(c["heap"]):
+            return False
+        if {k: sorted(v) for k, v in st.todo.items()} != {k: sorted(v) for k, v in c["todo"].items()}:
+            return False
+        if {k: sorted(v) for k, v in st.fin.items()} != {k: sorted(v) for k, v in c["fin"].items()}:
+            return False
+        for e in range(g_new.n):
+            if sc.F[e] < 0 and (sc.S[e] != c["S"][e] or (st.cnt[e] == 0 and sc.r[e] != c["r"][e])):
+                return False
+        _splice(sc, base, c)
+        info["splice_t"] = t
+        info["events_done_at_splice"] = sum(1 for e in range(g_new.n) if c["F"][e] >= 0)
+        return True
+
+    _loop(g_new, sc, st, mode, prio, None, 0, stop)
+    sc.inc = info
     return sc._done()
+
+
+def _splice(sc, base, c):
+    na_old, na_new = c["na"], len(sc.a_s)
+    off = na_new - na_old
+    where = {}
+    for a in range(na_new):
+        where[(sc.a_ev[a], sc.a_res[a])] = a
+    for a in range(na_old, len(base.a_s)):
+        e, q = base.a_ev[a], base.a_res[a]
+        p = base.a_par[a]
+        if p >= na_old:
+            p += off
+        elif p >= 0:
+            p = where[(base.a_ev[p], base.a_res[p])]
+        sc.a_ev.append(e)
+        sc.a_res.append(q)
+        sc.a_s.append(base.a_s[a])
+        sc.a_f.append(base.a_f[a])
+        sc.a_par.append(p)
+        sc.res_seq[q].append(a + off)
+        sc.ev_acts[e].append(a + off)
+    for e in range(sc.g.n):
+        if sc.F[e] < 0:
+            sc.r[e], sc.S[e], sc.S_last[e], sc.F[e] = base.r[e], base.S[e], base.S_last[e], base.F[e]
+            sc.term[e] = base.term[e] + off
 
 
 def hop_tree(g, e):
@@ -571,7 +709,10 @@ class Analysis:
     D(b) = min over data successors x of LSTev(x) (T_end if none); W(e) = S_last(e) - r(e).
     """
 
-    def __init__(self, sc):
+    def __init__(self, sc, sink_deadline=None):
+        """sink_deadline: optional per-event latest finish (e.g. the deadline d_i of the event's stream, multi-stream
+        use); replaces T_end as every activity's base bound and as D(b) of a message with no data successor.
+        Slack may then be negative (a deadline the schedule misses)."""
         self.sc = sc
         g = sc.g
         na = len(sc.a_s)
@@ -584,7 +725,10 @@ class Analysis:
         self.T = sc.T
         self.T_end = max([sc.T] + a_f)
         T_end = self.T_end
-        lst = [T_end - (a_f[a] - a_s[a]) for a in range(na)]
+        if sink_deadline is None:
+            lst = [T_end - (a_f[a] - a_s[a]) for a in range(na)]
+        else:
+            lst = [sink_deadline[a_ev[a]] - (a_f[a] - a_s[a]) for a in range(na)]
         pred, pred_ptr, term = g.pred, g.pred_ptr, sc.term
         for a in range(na - 1, -1, -1):
             v = lst[a]
@@ -606,10 +750,11 @@ class Analysis:
                     lst[u] = w
         self.lst = lst
         self.slack = [lst[a] - a_s[a] for a in range(na)]
-        if min(self.slack, default=0) < 0:
+        if sink_deadline is None and min(self.slack, default=0) < 0:
             raise CPCMError("negative slack: the schedule violates its own extended graph")
-        self.lst_ev = [min((lst[a] for a in sc.ev_acts[e] if a_par[a] < 0), default=T_end) for e in range(g.n)]
-        self.D = [min((self.lst_ev[g.succ[k]] for k in range(g.succ_ptr[b], g.succ_ptr[b + 1])), default=T_end)
+        dflt = [T_end] * g.n if sink_deadline is None else sink_deadline
+        self.lst_ev = [min((lst[a] for a in sc.ev_acts[e] if a_par[a] < 0), default=dflt[e]) for e in range(g.n)]
+        self.D = [min((self.lst_ev[g.succ[k]] for k in range(g.succ_ptr[b], g.succ_ptr[b + 1])), default=dflt[b])
                   for b in range(g.n)]
         self._cp = None
 

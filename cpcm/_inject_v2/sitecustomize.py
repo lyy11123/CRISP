@@ -25,7 +25,21 @@ if os.environ.get("E3_MODE"):
 
     def _patch(name, module):
         if not _CAPTURE:
+            if name == "event_driver":
+                module._orig_event_driver = module.event_driver   # for cpcm_v4's trajectory sampling
             _e3().patch_module(name, module)
+            if name == "Stream_Mapping" and os.environ.get("CPCM_V4_SAMPLE"):
+                # cpcm_v4 (V4 fault tau): sample the post-fault SA trajectory with cpcm_v3.make_anneal; broadcast
+                # through E3's wrapped add_broadcast (route restore, as E3's own W evaluation), backend through
+                # the original event_driver
+                sys.path.insert(0, os.environ["CPCM_HOME"])
+                import cpcm_v3
+                sys.path.pop(0)
+                lab, part, nparts, every, sink, seeds = os.environ["CPCM_V4_SAMPLE"].split("|")
+                module.StreamOptimization.anneal = cpcm_v3.make_anneal(
+                    lab, int(part), int(nparts), int(every), [int(x) for x in seeds.split()], sink, False,
+                    lambda **kw: sys.modules["add_communication"].add_broadcast(**kw),
+                    lambda **kw: sys.modules["event_driver"]._orig_event_driver(**kw))
             return
         orig, calls = module.event_driver, [0]
 
