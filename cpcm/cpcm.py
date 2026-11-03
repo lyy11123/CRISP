@@ -453,67 +453,80 @@ def hop_tree(g, e):
 
 
 def simulate_order(g, seq, term_res=None, release=None):
-    """Imposed service order. seq: {resource id: [event ids in service order]} (resources absent from seq serve
-    in readiness order of whoever asks, i.e. are uncontended only if one user). term_res: optional {event id:
-    resource id of the hop whose end is F(e)}; default: the hop with the latest start, ties by latest end."""
+    """Imposed service order. seq: {resource id: [event ids in service order]}. A resource absent from seq serves
+    its users first-come first-served by earliest start (ties: event id, hop index). term_res: optional
+    {event id: resource id of the hop whose end is F(e)} (replay); default: the hop with the latest start, ties by
+    latest end. An activity is issued once its earliest start c is known and, on an ordered resource, its
+    predecessor in the order is issued; then s = max(c, end of that predecessor) is final. One heap keyed by the
+    start (ordered) or by c (unordered) keeps unordered resources in time order; activity ids follow pops."""
     sc = Schedule(g, "order")
     n = g.n
     trees = [hop_tree(g, e) if g.kind[e] == COMM else [(g.res_of[e], g.dur[e], -1)] for e in range(n)]
-    pos_in = {}
+    slot = [{q: i for i, (q, _, _) in enumerate(trees[e])} for e in range(n)]
+    children = [[[] for _ in trees[e]] for e in range(n)]
+    for e in range(n):
+        for i, (_, _, p) in enumerate(trees[e]):
+            if p >= 0:
+                children[e][p].append(i)
+    order = {}
     for q, evs in seq.items():
-        for i, e in enumerate(evs):
-            if (q, e) in pos_in:
-                raise CPCMError(f"event {g.tag[e]} twice in the order of {g.res_name[q]}")
-            pos_in[(q, e)] = i
+        lst = []
+        for e in evs:
+            i = slot[e].get(q)
+            if i is None:
+                raise CPCMError(f"event {g.tag[e]} is in the order of {g.res_name[q]} but does not use it")
+            lst.append((e, i))
+        if len(set(lst)) != len(lst):
+            raise CPCMError(f"repeated event in the order of {g.res_name[q]}")
+        order[q] = lst
+    n_ordered = {q: 0 for q in order}
     for e in range(n):
         for q, _, _ in trees[e]:
-            if q in seq and (q, e) not in pos_in:
-                raise CPCMError(f"event {g.tag[e]} uses {g.res_name[q]} but is missing from its order")
-    nxt = {q: 0 for q in seq}
-    rfree = {}                         # resource -> end of its last activity (ordered resources)
+            if q in order:
+                n_ordered[q] += 1
+    for q, lst in order.items():
+        if n_ordered[q] != len(lst):
+            raise CPCMError(f"order of {g.res_name[q]} lists {len(lst)} of its {n_ordered[q]} users")
+    nxt = {q: 0 for q in order}
+    rfree = [0] * g.nres
+    can = [[None] * len(trees[e]) for e in range(n)]
+    hop_act = [[-1] * len(trees[e]) for e in range(n)]
     cnt = [g.pred_ptr[e + 1] - g.pred_ptr[e] for e in range(n)]
     ready_ev = [release.get(e, 0) if release else 0 for e in range(n)]
     done_hops = [0] * n
-    hop_act = [[-1] * len(trees[e]) for e in range(n)]
-    # waiting[(q)] = list of (e, i) whose turn on q has not come yet
-    pending = set()                    # (e, i) whose non-resource predecessors are done
+    heap = []
+
+    def offer(e, i):
+        q = trees[e][i][0]
+        if q in order:
+            lst = order[q]
+            if nxt[q] < len(lst) and lst[nxt[q]] == (e, i) and can[e][i] is not None:
+                heapq.heappush(heap, (max(can[e][i], rfree[q]), e, i))
+        else:
+            heapq.heappush(heap, (can[e][i], e, i))
+
+    def known(e, i, c):
+        can[e][i] = c
+        offer(e, i)
+
     for e in range(n):
         if cnt[e] == 0:
-            for i, (q, d, p) in enumerate(trees[e]):
+            for i, (_, _, p) in enumerate(trees[e]):
                 if p < 0:
-                    pending.add((e, i))
-    unordered_free = {}
-    while pending:
-        # issue every pending activity whose resource turn has come; pick the smallest feasible start first
-        best = None
-        for (e, i) in pending:
-            q, d, p = trees[e][i]
-            if q in seq:
-                if seq[q][nxt[q]] != e:
-                    continue
-                prevf = rfree.get(q, 0)
-            else:
-                prevf = unordered_free.get(q, 0)
-            c = ready_ev[e] if p < 0 else sc.a_s[hop_act[e][p]]
-            s = max(c, prevf)
-            k = (s, e, i)
-            if best is None or k < best:
-                best = k
-        if best is None:
-            raise CPCMError("imposed order deadlocks against the data dependencies")
-        s, e, i = best
-        pending.discard((e, i))
+                    known(e, i, ready_ev[e])
+    while heap:
+        _, e, i = heapq.heappop(heap)
         q, d, p = trees[e][i]
+        s = max(can[e][i], rfree[q])
         a = sc._act(e, q, s, s + d, hop_act[e][p] if p >= 0 else -1)
         hop_act[e][i] = a
-        if q in seq:
+        rfree[q] = s + d
+        for j in children[e][i]:
+            known(e, j, s)
+        if q in order:
             nxt[q] += 1
-            rfree[q] = s + d
-        else:
-            unordered_free[q] = s + d
-        for j, (_, _, pj) in enumerate(trees[e]):
-            if pj == i:
-                pending.add((e, j))
+            if nxt[q] < len(order[q]):
+                offer(*order[q][nxt[q]])
         done_hops[e] += 1
         if done_hops[e] == len(trees[e]):
             acts = sc.ev_acts[e]
@@ -524,7 +537,6 @@ def simulate_order(g, seq, term_res=None, release=None):
             sc.term[e] = ta
             sc.S_last[e] = max(sc.a_s[x] for x in acts)
             sc.F[e] = sc.a_f[ta]
-            sc.r[e] = ready_ev[e]
             for k in range(g.succ_ptr[e], g.succ_ptr[e + 1]):
                 x = g.succ[k]
                 cnt[x] -= 1
@@ -532,12 +544,10 @@ def simulate_order(g, seq, term_res=None, release=None):
                     ready_ev[x] = max(sc.F[g.pred[j]] for j in range(g.pred_ptr[x], g.pred_ptr[x + 1]))
                     for j, (_, _, pj) in enumerate(trees[x]):
                         if pj < 0:
-                            pending.add((x, j))
-    for e in range(n):
-        sc.r[e] = ready_ev[e]
-    # activity ids above follow issue order by increasing start, but an activity issued later in the loop can
-    # start earlier than one issued before it; the backward pass only needs every edge to go from a lower to a
-    # higher id, which holds because an activity is created only after all its predecessors exist.
+                            known(x, j, ready_ev[x])
+    if min(done_hops[e] - len(trees[e]) for e in range(n)) < 0:
+        raise CPCMError("imposed order deadlocks against the data dependencies")
+    sc.r[:] = ready_ev
     return sc._done()
 
 
@@ -645,8 +655,11 @@ class Analysis:
         return rows
 
     def _attribute(self):
+        """CB on the critical chain. cb_excl (main measure, user 2026-11-03): E2's exclusive crediting, each instant
+        credited only to the latest wait covering it; cb (raw): plain sum of waits. phi[q][b]: overlap of b's
+        service on q with the waits on q; idle[q] = wait - sum phi ("idle or other")."""
         sc = self.sc
-        cb, cb_excl, phi = {}, {}, {}
+        cb, cb_excl, phi, idle = {}, {}, {}, {}
         claimed = []
         for row in reversed(self._cp):          # latest wait first (E2's exclusive crediting)
             if row["edge"] != "resource":
@@ -667,21 +680,25 @@ class Analysis:
                     shares[b] = shares.get(b, 0) + ov
                 u = self.rprev[u]
             row["phi"] = shares
+            row["idle"] = hi - lo - sum(shares.values())
+            idle[q] = idle.get(q, 0) + row["idle"]
             dq = phi.setdefault(q, {})
             for b, v in shares.items():
                 dq[b] = dq.get(b, 0) + v
-        self.cb, self.cb_excl, self.phi = cb, cb_excl, phi
+        self.cb, self.cb_excl, self.phi, self.idle = cb, cb_excl, phi, idle
 
     # ---- interfaces used downstream
     def wait(self, e):
         return self.sc.S_last[e] - self.sc.r[e]
 
-    def blocking(self, q=None):
-        """CB(q) and {blocker event: phi} on resource q; with q None, {q: CB} for every resource with CB > 0."""
+    def blocking(self, q=None, raw=False):
+        """CB(q) and {blocker event: phi} on resource q; with q None, {q: CB} for every resource with a wait.
+        CB is the exclusive (E2) measure unless raw=True."""
         self.critical_path()
+        cb = self.cb if raw else self.cb_excl
         if q is None:
-            return dict(self.cb)
-        return self.cb.get(q, 0), dict(self.phi.get(q, {}))
+            return dict(cb)
+        return cb.get(q, 0), dict(self.phi.get(q, {}))
 
     def deadline(self, b):
         return self.D[b]
