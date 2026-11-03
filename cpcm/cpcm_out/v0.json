@@ -1,0 +1,1472 @@
+{
+ "summary": {
+  "cases": 16,
+  "passed": 16,
+  "checks": 193,
+  "mismatches": 0
+ },
+ "cases": [
+  {
+   "name": "ex1_original_bb",
+   "doc": "plan doc (2) example 1, original: P [0,1], R [1,2] on L1, FFN starts 2.0 ms",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "P",
+     "L1",
+     "start",
+     0,
+     0,
+     10
+    ],
+    [
+     "R",
+     "L1",
+     "resource",
+     8,
+     10,
+     20
+    ],
+    [
+     "FFN",
+     "devB",
+     "data",
+     0,
+     20,
+     30
+    ]
+   ],
+   "cb": {
+    "L1": 8
+   },
+   "gaps": 0,
+   "events": {
+    "Rpre": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 2,
+     "D": 10,
+     "W": 0
+    },
+    "R": {
+     "r": 2,
+     "S": 10,
+     "S_last": 10,
+     "F": 20,
+     "D": 20,
+     "W": 8
+    },
+    "P": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 10,
+     "D": 20,
+     "W": 0
+    },
+    "FFN": {
+     "r": 20,
+     "S": 20,
+     "S_last": 20,
+     "F": 30,
+     "D": 30,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "Rpre",
+     "res": "devA",
+     "s": 0,
+     "f": 2,
+     "lst": 8,
+     "slack": 8
+    },
+    {
+     "event": "P",
+     "res": "L1",
+     "s": 0,
+     "f": 10,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "R",
+     "res": "L1",
+     "s": 10,
+     "f": 20,
+     "lst": 10,
+     "slack": 0
+    },
+    {
+     "event": "FFN",
+     "res": "devB",
+     "s": 20,
+     "f": 30,
+     "lst": 20,
+     "slack": 0
+    }
+   ],
+   "T": 30,
+   "pass": true
+  },
+  {
+   "name": "ex1_defer_P_order",
+   "doc": "example 1, defer P: R [0.2,1.2], P [1.2,2.2], FFN 2.2 ms",
+   "mode": "order",
+   "mismatches": [],
+   "cp": [
+    [
+     "Rpre",
+     "devA",
+     "start",
+     0,
+     0,
+     2
+    ],
+    [
+     "R",
+     "L1",
+     "data",
+     0,
+     2,
+     12
+    ],
+    [
+     "P",
+     "L1",
+     "resource",
+     12,
+     12,
+     22
+    ],
+    [
+     "FFN",
+     "devB",
+     "data",
+     0,
+     22,
+     32
+    ]
+   ],
+   "cb": {
+    "L1": 12
+   },
+   "gaps": 0,
+   "events": {
+    "Rpre": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 2,
+     "D": 2,
+     "W": 0
+    },
+    "R": {
+     "r": 2,
+     "S": 2,
+     "S_last": 2,
+     "F": 12,
+     "D": 22,
+     "W": 0
+    },
+    "P": {
+     "r": 0,
+     "S": 12,
+     "S_last": 12,
+     "F": 22,
+     "D": 22,
+     "W": 12
+    },
+    "FFN": {
+     "r": 22,
+     "S": 22,
+     "S_last": 22,
+     "F": 32,
+     "D": 32,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "Rpre",
+     "res": "devA",
+     "s": 0,
+     "f": 2,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "R",
+     "res": "L1",
+     "s": 2,
+     "f": 12,
+     "lst": 2,
+     "slack": 0
+    },
+    {
+     "event": "P",
+     "res": "L1",
+     "s": 12,
+     "f": 22,
+     "lst": 12,
+     "slack": 0
+    },
+    {
+     "event": "FFN",
+     "res": "devB",
+     "s": 22,
+     "f": 32,
+     "lst": 22,
+     "slack": 0
+    }
+   ],
+   "T": 32,
+   "pass": true
+  },
+  {
+   "name": "ex1_reroute_P_L2",
+   "doc": "example 1, P on L2: FFN 1.2 ms; reroute check F'(P)=1 <= D(P)=2",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "Rpre",
+     "devA",
+     "start",
+     0,
+     0,
+     2
+    ],
+    [
+     "R",
+     "L1",
+     "data",
+     0,
+     2,
+     12
+    ],
+    [
+     "FFN",
+     "devB",
+     "data",
+     0,
+     12,
+     22
+    ]
+   ],
+   "cb": {},
+   "gaps": 0,
+   "events": {
+    "Rpre": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 2,
+     "D": 2,
+     "W": 0
+    },
+    "R": {
+     "r": 2,
+     "S": 2,
+     "S_last": 2,
+     "F": 12,
+     "D": 12,
+     "W": 0
+    },
+    "P": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 10,
+     "D": 12,
+     "W": 0
+    },
+    "FFN": {
+     "r": 12,
+     "S": 12,
+     "S_last": 12,
+     "F": 22,
+     "D": 22,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "Rpre",
+     "res": "devA",
+     "s": 0,
+     "f": 2,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "P",
+     "res": "L2",
+     "s": 0,
+     "f": 10,
+     "lst": 2,
+     "slack": 2
+    },
+    {
+     "event": "R",
+     "res": "L1",
+     "s": 2,
+     "f": 12,
+     "lst": 2,
+     "slack": 0
+    },
+    {
+     "event": "FFN",
+     "res": "devB",
+     "s": 12,
+     "f": 22,
+     "lst": 12,
+     "slack": 0
+    }
+   ],
+   "T": 22,
+   "pass": true
+  },
+  {
+   "name": "ex1_kv_mapA_bb",
+   "doc": "example 1 + KV write-back, mapping A (P on L1, KV on L2)",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "P",
+     "L1",
+     "start",
+     0,
+     0,
+     10
+    ],
+    [
+     "R",
+     "L1",
+     "resource",
+     8,
+     10,
+     20
+    ],
+    [
+     "FFN",
+     "devB",
+     "data",
+     0,
+     20,
+     30
+    ]
+   ],
+   "cb": {
+    "L1": 8
+   },
+   "gaps": 0,
+   "events": {
+    "Rpre": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 2,
+     "D": 10,
+     "W": 0
+    },
+    "R": {
+     "r": 2,
+     "S": 10,
+     "S_last": 10,
+     "F": 20,
+     "D": 20,
+     "W": 8
+    },
+    "P": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 10,
+     "D": 20,
+     "W": 0
+    },
+    "FFN": {
+     "r": 20,
+     "S": 20,
+     "S_last": 20,
+     "F": 30,
+     "D": 30,
+     "W": 0
+    },
+    "KV": {
+     "r": 15,
+     "S": 15,
+     "S_last": 15,
+     "F": 25,
+     "D": 30,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "Rpre",
+     "res": "devA",
+     "s": 0,
+     "f": 2,
+     "lst": 8,
+     "slack": 8
+    },
+    {
+     "event": "P",
+     "res": "L1",
+     "s": 0,
+     "f": 10,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "R",
+     "res": "L1",
+     "s": 10,
+     "f": 20,
+     "lst": 10,
+     "slack": 0
+    },
+    {
+     "event": "KV",
+     "res": "L2",
+     "s": 15,
+     "f": 25,
+     "lst": 20,
+     "slack": 5
+    },
+    {
+     "event": "FFN",
+     "res": "devB",
+     "s": 20,
+     "f": 30,
+     "lst": 20,
+     "slack": 0
+    }
+   ],
+   "T": 30,
+   "pass": true
+  },
+  {
+   "name": "ex1_kv_mapB_bb",
+   "doc": "example 1 + KV write-back, mapping B (P on L2, KV on L1)",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "KV",
+     "L1",
+     "start",
+     0,
+     15,
+     25
+    ]
+   ],
+   "cb": {},
+   "gaps": 0,
+   "events": {
+    "Rpre": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 2,
+     "D": 5,
+     "W": 0
+    },
+    "R": {
+     "r": 2,
+     "S": 2,
+     "S_last": 2,
+     "F": 12,
+     "D": 15,
+     "W": 0
+    },
+    "P": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 10,
+     "D": 15,
+     "W": 0
+    },
+    "FFN": {
+     "r": 12,
+     "S": 12,
+     "S_last": 12,
+     "F": 22,
+     "D": 25,
+     "W": 0
+    },
+    "KV": {
+     "r": 15,
+     "S": 15,
+     "S_last": 15,
+     "F": 25,
+     "D": 25,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "Rpre",
+     "res": "devA",
+     "s": 0,
+     "f": 2,
+     "lst": 3,
+     "slack": 3
+    },
+    {
+     "event": "P",
+     "res": "L2",
+     "s": 0,
+     "f": 10,
+     "lst": 5,
+     "slack": 5
+    },
+    {
+     "event": "R",
+     "res": "L1",
+     "s": 2,
+     "f": 12,
+     "lst": 5,
+     "slack": 3
+    },
+    {
+     "event": "FFN",
+     "res": "devB",
+     "s": 12,
+     "f": 22,
+     "lst": 15,
+     "slack": 3
+    },
+    {
+     "event": "KV",
+     "res": "L1",
+     "s": 15,
+     "f": 25,
+     "lst": 15,
+     "slack": 0
+    }
+   ],
+   "T": 25,
+   "pass": true
+  },
+  {
+   "name": "ex2_fcfs_bb",
+   "doc": "plan doc (2) example 2, FCFS: up 2.0 ms, down 4.0 ms",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "P2",
+     "L1",
+     "start",
+     0,
+     0,
+     10
+    ],
+    [
+     "R",
+     "L1",
+     "resource",
+     8,
+     10,
+     20
+    ],
+    [
+     "up",
+     "devU",
+     "data",
+     0,
+     20,
+     40
+    ],
+    [
+     "down",
+     "devD",
+     "data",
+     0,
+     40,
+     50
+    ]
+   ],
+   "cb": {
+    "L1": 8
+   },
+   "gaps": 0,
+   "events": {
+    "Rpre": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 2,
+     "D": 10,
+     "W": 0
+    },
+    "R": {
+     "r": 2,
+     "S": 10,
+     "S_last": 10,
+     "F": 20,
+     "D": 20,
+     "W": 8
+    },
+    "P2": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 10,
+     "D": 40,
+     "W": 0
+    },
+    "up": {
+     "r": 20,
+     "S": 20,
+     "S_last": 20,
+     "F": 40,
+     "D": 40,
+     "W": 0
+    },
+    "down": {
+     "r": 40,
+     "S": 40,
+     "S_last": 40,
+     "F": 50,
+     "D": 50,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "Rpre",
+     "res": "devA",
+     "s": 0,
+     "f": 2,
+     "lst": 8,
+     "slack": 8
+    },
+    {
+     "event": "P2",
+     "res": "L1",
+     "s": 0,
+     "f": 10,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "R",
+     "res": "L1",
+     "s": 10,
+     "f": 20,
+     "lst": 10,
+     "slack": 0
+    },
+    {
+     "event": "up",
+     "res": "devU",
+     "s": 20,
+     "f": 40,
+     "lst": 20,
+     "slack": 0
+    },
+    {
+     "event": "down",
+     "res": "devD",
+     "s": 40,
+     "f": 50,
+     "lst": 40,
+     "slack": 0
+    }
+   ],
+   "T": 50,
+   "pass": true
+  },
+  {
+   "name": "ex2_defer_P2_order",
+   "doc": "example 2, defer P': up 1.2 ms, down 3.2 ms, P' arrives 2.2 <= 3.2",
+   "mode": "order",
+   "mismatches": [],
+   "cp": [
+    [
+     "Rpre",
+     "devA",
+     "start",
+     0,
+     0,
+     2
+    ],
+    [
+     "R",
+     "L1",
+     "data",
+     0,
+     2,
+     12
+    ],
+    [
+     "up",
+     "devU",
+     "data",
+     0,
+     12,
+     32
+    ],
+    [
+     "down",
+     "devD",
+     "data",
+     0,
+     32,
+     42
+    ]
+   ],
+   "cb": {},
+   "gaps": 0,
+   "events": {
+    "Rpre": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 2,
+     "D": 2,
+     "W": 0
+    },
+    "R": {
+     "r": 2,
+     "S": 2,
+     "S_last": 2,
+     "F": 12,
+     "D": 12,
+     "W": 0
+    },
+    "P2": {
+     "r": 0,
+     "S": 12,
+     "S_last": 12,
+     "F": 22,
+     "D": 32,
+     "W": 12
+    },
+    "up": {
+     "r": 12,
+     "S": 12,
+     "S_last": 12,
+     "F": 32,
+     "D": 32,
+     "W": 0
+    },
+    "down": {
+     "r": 32,
+     "S": 32,
+     "S_last": 32,
+     "F": 42,
+     "D": 42,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "Rpre",
+     "res": "devA",
+     "s": 0,
+     "f": 2,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "R",
+     "res": "L1",
+     "s": 2,
+     "f": 12,
+     "lst": 2,
+     "slack": 0
+    },
+    {
+     "event": "P2",
+     "res": "L1",
+     "s": 12,
+     "f": 22,
+     "lst": 22,
+     "slack": 10
+    },
+    {
+     "event": "up",
+     "res": "devU",
+     "s": 12,
+     "f": 32,
+     "lst": 12,
+     "slack": 0
+    },
+    {
+     "event": "down",
+     "res": "devD",
+     "s": 32,
+     "f": 42,
+     "lst": 32,
+     "slack": 0
+    }
+   ],
+   "T": 42,
+   "pass": true
+  },
+  {
+   "name": "c1_multihop_layering_bb",
+   "doc": "3-hop message issues all hops in one tick; longest path first",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "A",
+     "l1",
+     "start",
+     0,
+     0,
+     5
+    ],
+    [
+     "A",
+     "l2",
+     "hop",
+     0,
+     0,
+     5
+    ],
+    [
+     "B",
+     "l2",
+     "resource",
+     5,
+     5,
+     10
+    ]
+   ],
+   "cb": {
+    "l2": 5
+   },
+   "gaps": 0,
+   "events": {
+    "B": {
+     "r": 0,
+     "S": 5,
+     "S_last": 5,
+     "F": 10,
+     "D": 10,
+     "W": 5
+    },
+    "A": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 5,
+     "D": 10,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "A",
+     "res": "l1",
+     "s": 0,
+     "f": 5,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "A",
+     "res": "l2",
+     "s": 0,
+     "f": 5,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "A",
+     "res": "l3",
+     "s": 0,
+     "f": 5,
+     "lst": 5,
+     "slack": 5
+    },
+    {
+     "event": "B",
+     "res": "l2",
+     "s": 5,
+     "f": 10,
+     "lst": 5,
+     "slack": 0
+    }
+   ],
+   "T": 10,
+   "pass": true
+  },
+  {
+   "name": "c2_hold_and_wait_bb",
+   "doc": "first hop issued while the second waits; the early hop still blocks C",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "B",
+     "l2",
+     "start",
+     0,
+     0,
+     20
+    ],
+    [
+     "A",
+     "l2",
+     "resource",
+     20,
+     20,
+     25
+    ]
+   ],
+   "cb": {
+    "l2": 20
+   },
+   "gaps": 0,
+   "events": {
+    "B": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 20,
+     "D": 25,
+     "W": 0
+    },
+    "A": {
+     "r": 0,
+     "S": 0,
+     "S_last": 20,
+     "F": 25,
+     "D": 25,
+     "W": 20
+    },
+    "C": {
+     "r": 3,
+     "S": 5,
+     "S_last": 5,
+     "F": 10,
+     "D": 25,
+     "W": 2
+    }
+   },
+   "acts": [
+    {
+     "event": "A",
+     "res": "l1",
+     "s": 0,
+     "f": 5,
+     "lst": 15,
+     "slack": 15
+    },
+    {
+     "event": "B",
+     "res": "l2",
+     "s": 0,
+     "f": 20,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "C",
+     "res": "l1",
+     "s": 5,
+     "f": 10,
+     "lst": 20,
+     "slack": 15
+    },
+    {
+     "event": "A",
+     "res": "l2",
+     "s": 20,
+     "f": 25,
+     "lst": 20,
+     "slack": 0
+    }
+   ],
+   "T": 25,
+   "pass": true
+  },
+  {
+   "name": "c3_multicast_bb",
+   "doc": "multicast tree: shared head issued once, one branch blocked",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "C",
+     "l3",
+     "start",
+     0,
+     0,
+     12
+    ],
+    [
+     "A",
+     "l3",
+     "resource",
+     12,
+     12,
+     17
+    ]
+   ],
+   "cb": {
+    "l3": 12
+   },
+   "gaps": 0,
+   "events": {
+    "C": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 12,
+     "D": 17,
+     "W": 0
+    },
+    "A": {
+     "r": 0,
+     "S": 0,
+     "S_last": 12,
+     "F": 17,
+     "D": 17,
+     "W": 12
+    }
+   },
+   "acts": [
+    {
+     "event": "A",
+     "res": "l1",
+     "s": 0,
+     "f": 5,
+     "lst": 12,
+     "slack": 12
+    },
+    {
+     "event": "C",
+     "res": "l3",
+     "s": 0,
+     "f": 12,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "A",
+     "res": "l2",
+     "s": 0,
+     "f": 5,
+     "lst": 12,
+     "slack": 12
+    },
+    {
+     "event": "A",
+     "res": "l3",
+     "s": 12,
+     "f": 17,
+     "lst": 12,
+     "slack": 0
+    }
+   ],
+   "T": 17,
+   "pass": true
+  },
+  {
+   "name": "c4_last_issued_end_bb",
+   "doc": "F(e) = end of the last issued hop, not the latest-ending hop",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "A",
+     "l1",
+     "start",
+     0,
+     0,
+     5
+    ],
+    [
+     "Z",
+     "devZ",
+     "data",
+     0,
+     5,
+     6
+    ]
+   ],
+   "cb": {},
+   "gaps": 0,
+   "events": {
+    "A": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 5,
+     "D": 8,
+     "W": 0
+    },
+    "Z": {
+     "r": 5,
+     "S": 5,
+     "S_last": 5,
+     "F": 6,
+     "D": 9,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "A",
+     "res": "x",
+     "s": 0,
+     "f": 9,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "A",
+     "res": "l1",
+     "s": 0,
+     "f": 5,
+     "lst": 3,
+     "slack": 3
+    },
+    {
+     "event": "Z",
+     "res": "devZ",
+     "s": 5,
+     "f": 6,
+     "lst": 8,
+     "slack": 3
+    }
+   ],
+   "T": 6,
+   "pass": true
+  },
+  {
+   "name": "c5_compute_contention_bb",
+   "doc": "same-tick compute events on one device: id order, deferral",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "E1",
+     "devX",
+     "start",
+     0,
+     0,
+     5
+    ],
+    [
+     "E2",
+     "devX",
+     "resource",
+     5,
+     5,
+     10
+    ]
+   ],
+   "cb": {
+    "devX": 5
+   },
+   "gaps": 0,
+   "events": {
+    "E1": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 5,
+     "D": 7,
+     "W": 0
+    },
+    "E2": {
+     "r": 0,
+     "S": 5,
+     "S_last": 5,
+     "F": 10,
+     "D": 10,
+     "W": 5
+    },
+    "E3": {
+     "r": 5,
+     "S": 5,
+     "S_last": 5,
+     "F": 8,
+     "D": 10,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "E1",
+     "res": "devX",
+     "s": 0,
+     "f": 5,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "E2",
+     "res": "devX",
+     "s": 5,
+     "f": 10,
+     "lst": 5,
+     "slack": 0
+    },
+    {
+     "event": "E3",
+     "res": "devY",
+     "s": 5,
+     "f": 8,
+     "lst": 7,
+     "slack": 2
+    }
+   ],
+   "T": 10,
+   "pass": true
+  },
+  {
+   "name": "c6a_longest_first_bb",
+   "doc": "bb: the longer message wins the shared first link",
+   "mode": "bb",
+   "mismatches": [],
+   "cp": [
+    [
+     "X",
+     "l1",
+     "start",
+     0,
+     0,
+     5
+    ],
+    [
+     "Y",
+     "l1",
+     "resource",
+     5,
+     5,
+     10
+    ]
+   ],
+   "cb": {
+    "l1": 5
+   },
+   "gaps": 0,
+   "events": {
+    "Y": {
+     "r": 0,
+     "S": 5,
+     "S_last": 5,
+     "F": 10,
+     "D": 10,
+     "W": 5
+    },
+    "X": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 5,
+     "D": 10,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "X",
+     "res": "l1",
+     "s": 0,
+     "f": 5,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "X",
+     "res": "l2",
+     "s": 0,
+     "f": 5,
+     "lst": 5,
+     "slack": 5
+    },
+    {
+     "event": "Y",
+     "res": "l1",
+     "s": 5,
+     "f": 10,
+     "lst": 5,
+     "slack": 0
+    }
+   ],
+   "T": 10,
+   "pass": true
+  },
+  {
+   "name": "c6b_hop_priority",
+   "doc": "hop: the fixed priority key decides each link",
+   "mode": "hop",
+   "mismatches": [],
+   "cp": [
+    [
+     "Y",
+     "l1",
+     "start",
+     0,
+     0,
+     5
+    ],
+    [
+     "X",
+     "l1",
+     "resource",
+     5,
+     5,
+     10
+    ],
+    [
+     "X",
+     "l2",
+     "hop",
+     0,
+     5,
+     10
+    ]
+   ],
+   "cb": {
+    "l1": 5
+   },
+   "gaps": 0,
+   "events": {
+    "Y": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 5,
+     "D": 10,
+     "W": 0
+    },
+    "X": {
+     "r": 0,
+     "S": 5,
+     "S_last": 5,
+     "F": 10,
+     "D": 10,
+     "W": 5
+    }
+   },
+   "acts": [
+    {
+     "event": "Y",
+     "res": "l1",
+     "s": 0,
+     "f": 5,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "X",
+     "res": "l1",
+     "s": 5,
+     "f": 10,
+     "lst": 5,
+     "slack": 0
+    },
+    {
+     "event": "X",
+     "res": "l2",
+     "s": 5,
+     "f": 10,
+     "lst": 5,
+     "slack": 0
+    }
+   ],
+   "T": 10,
+   "pass": true
+  },
+  {
+   "name": "c6c_hop_default_P1",
+   "doc": "hop without priority = E4b P1 (-ln): same as bb here",
+   "mode": "hop",
+   "mismatches": [],
+   "cp": [
+    [
+     "X",
+     "l1",
+     "start",
+     0,
+     0,
+     5
+    ],
+    [
+     "Y",
+     "l1",
+     "resource",
+     5,
+     5,
+     10
+    ]
+   ],
+   "cb": {
+    "l1": 5
+   },
+   "gaps": 0,
+   "events": {
+    "Y": {
+     "r": 0,
+     "S": 5,
+     "S_last": 5,
+     "F": 10,
+     "D": 10,
+     "W": 5
+    },
+    "X": {
+     "r": 0,
+     "S": 0,
+     "S_last": 0,
+     "F": 5,
+     "D": 10,
+     "W": 0
+    }
+   },
+   "acts": [
+    {
+     "event": "X",
+     "res": "l1",
+     "s": 0,
+     "f": 5,
+     "lst": 0,
+     "slack": 0
+    },
+    {
+     "event": "X",
+     "res": "l2",
+     "s": 0,
+     "f": 5,
+     "lst": 5,
+     "slack": 5
+    },
+    {
+     "event": "Y",
+     "res": "l1",
+     "s": 5,
+     "f": 10,
+     "lst": 5,
+     "slack": 0
+    }
+   ],
+   "T": 10,
+   "pass": true
+  },
+  {
+   "name": "c7_order_deadlock",
+   "doc": "order mode rejects an order that deadlocks against the data edges",
+   "mode": "order",
+   "mismatches": [],
+   "error": "imposed order deadlocks against the data dependencies",
+   "pass": true
+  }
+ ]
+}
