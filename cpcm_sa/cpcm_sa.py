@@ -73,6 +73,9 @@ CAL_MIN_WORSE, CAL_MAX_PROBES = 3, 200    # fewer than 3 worsening probes in 50:
 MONITOR_EVERY = 50                        # T (CPCM) of the current state for A0 / A1 (no effect on the trajectory)
 CHECK2_STEPS = (200, 400, 600, 800, 1000)
 CHECK4_N = 100
+# self-check 1 points exempted by the user 2026-11-04 (backend multimodality; PROGRESS step 3)
+CHECK1_EXEMPT = {("ffn", 0, 4), ("ffn", 1, 2), ("mha", 1, 2), ("ffn_f5", 1, 4)}
+E3_F5 = {"R0_mean_3seeds": 270742.0, "FULL_best_mean_3seeds": 232402.0, "FULL_best_variant": "g1_l6"}
 
 
 def variants(arm):
@@ -590,7 +593,8 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
                     t3 = time.perf_counter()
                     best.update(E=E, T=Tcur, step=step, snap=snapshot())
                     row["t_snapshot"] = time.perf_counter() - t3
-                if checks and len(c2) < len(CHECK2_STEPS) and step >= CHECK2_STEPS[len(c2)]:
+                c2_due = (step >= c2[-1]["step"] + 10 if c2 else True) if os.environ.get("CPCM_SA_CHECK2_ANY")                     else step >= CHECK2_STEPS[min(len(c2), len(CHECK2_STEPS) - 1)]
+                if checks and len(c2) < len(CHECK2_STEPS) and c2_due:   # CHECK2_ANY: first accepted states, >= 10 apart
                     T_rec = Tcur if cp_arm else cpcm_sim(self.state[7], self.hardware_platform)[1].T
                     c2.append({"step": step, "T_rec": T_rec,
                                "state": pickle.dumps(self.state[7], protocol=pickle.HIGHEST_PROTOCOL)})
@@ -884,6 +888,10 @@ def bmean(bk):
     return statistics.mean(v[0] for v in bk.values())
 
 
+def bmean_json(bk):
+    return statistics.mean(v[0] for v in bk.values())
+
+
 def spread(bk):
     v = [x[0] for x in bk.values()]
     return min(v), max(v)
@@ -973,8 +981,10 @@ def analyse(configs, arms):
             d = r["d"]
             if arm == "A0" and "template_out" in d:
                 t = d["template_out"][0]
-                chk["check1"].append({"cfg": cfg, "run": f"g{r['g']}_{r['x']}", "seed_mean": r["mean"],
-                                      "template": t, "rel": (r["mean"] - t) / t})
+                m5 = bmean(d["selected"].get("backend_inrun_5", d["selected"]["backend"]))
+                chk["check1"].append({"cfg": cfg, "run": f"g{r['g']}_{r['x']}", "inrun_5seed_mean": m5,
+                                      "reeval_10seed_mean": r["mean"], "template": t, "rel": (m5 - t) / t,
+                                      "rel_10": (r["mean"] - t) / t, "exempt": (cfg, r["g"], r["x"]) in CHECK1_EXEMPT})
             for c in d.get("check2") or []:
                 ev, hp = pickle.loads(c["state"]), platform(cfg)
                 chk["check2"].append({"cfg": cfg, "arm": arm, "step": c["step"], "T_rec": c["T_rec"],
@@ -987,7 +997,22 @@ def analyse(configs, arms):
         if a1:
             for k in ("sel_backend_mean", "sel_own_mean", "median_of_runs", "best_of_runs"):
                 t[k + "_vs_A1"] = round(t[k] / a1[k] - 1, 4)
-    res = {"table": table, "process": proc, "backend_noise_median": nz,
+    diagres = {}
+    for fn in sorted(os.listdir(os.path.join(OUT, "diag"))) if os.path.isdir(os.path.join(OUT, "diag")) else []:
+        with open(os.path.join(OUT, "diag", fn), encoding="utf-8") as f:
+            dd = json.load(f)
+        diagres[fn[:-5]] = {m: {"mean": bmean(v["backend"]), "min": spread(v["backend"])[0],
+                                "max": spread(v["backend"])[1], "T_pre": v["T_pre"], "T_bc": v["T_bc"],
+                                "routes_changed": v["routes_changed"], "comms": v["comms"]} for m, v in dd.items()}
+    c3 = None
+    if os.path.exists(os.path.join(OUT, "check3.json")):
+        with open(os.path.join(OUT, "check3.json"), encoding="utf-8") as f:
+            c3 = json.load(f)
+    res = {"table": table, "process": proc, "backend_noise_median": nz, "diag": diagres, "check3": c3,
+           "e3_f5_reference": E3_F5,
+           "check1_nonexempt_max_abs": max((abs(c["rel"]) for c in chk["check1"] if not c["exempt"]), default=None),
+           "check4_on_cp": sum(1 for c in chk["check4"] if c["on_fresh_cp"]),
+           "check4_T_equal": sum(1 for c in chk["check4"] if c["T_fresh"] == c["T_cached"]),
            "check1_max_abs": max((abs(c["rel"]) for c in chk["check1"]), default=None),
            "check1": chk["check1"],
            "check2_mismatch": sum(1 for c in chk["check2"] if c["T_rec"] != c["T_offline"]), "check2_n": len(chk["check2"]),
