@@ -1,0 +1,1517 @@
+{
+  "config": "a1_2s_2048-2048_F5_d0",
+  "composition": "a1",
+  "n_streams": 2,
+  "streams": [
+    "mha2048__4cdea6f0",
+    "mha2048__4cdea6f0"
+  ],
+  "tasks": [
+    "mha_sq2048_greedy0_lossratio4_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0",
+    "mha_sq2048_greedy0_lossratio4_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0"
+  ],
+  "stagger": 0.0,
+  "T": {
+    "0": 23661.666666666668,
+    "1": 23661.666666666668
+  },
+  "Tmin": 23661.666666666668,
+  "T_ratio": 1.0,
+  "hardware": "F5",
+  "faults": {
+    "failed_nodes": [],
+    "failed_links": [
+      [
+        [
+          3,
+          1
+        ],
+        [
+          1,
+          13
+        ]
+      ],
+      [
+        [
+          1,
+          13
+        ],
+        [
+          3,
+          1
+        ]
+      ]
+    ]
+  },
+  "chunking": "none",
+  "backend_seeds": [
+    1,
+    2,
+    3
+  ],
+  "release_mean": {
+    "0": 0.0,
+    "1": 0.0
+  },
+  "latency_mean": {
+    "0": 45757.333333333336,
+    "1": 45833.666666666664
+  },
+  "stretch_mean": {
+    "0": 1.9338170035923081,
+    "1": 1.9370430372613932
+  },
+  "S_max_mean": 1.9603859970416284,
+  "S_max_seeds": [
+    2.001549623159822,
+    1.9220116926111148,
+    1.957596675353948
+  ],
+  "makespan_mean": 46386.0,
+  "beat_mean": 23193.0,
+  "overlap_ge2_mean": 45205.0,
+  "pair_overlap_mean": {
+    "0-1": 45205.0
+  },
+  "all_met_share": {
+    "1.1": 0.0,
+    "1.5": 0.0,
+    "2.0": 0.6666666666666666
+  },
+  "critical_wait_over_a_mean": 0.9351322734276399,
+  "wait_share_by_class_mean": {
+    "ddr": 0.00011305566861122416,
+    "compute": 0.024145986432765446,
+    "onchip": 0.03812200802167317,
+    "d2d": 0.9376189498769503
+  },
+  "cross_stream_share_mean": 0.7008635647546679,
+  "cross_stream_share_seeds": [
+    0.9996608329941663,
+    0.13241366366366367,
+    0.970516197606174
+  ],
+  "smax_bound_reduction_mean": 0.00010557432434582104,
+  "smax_bound_reduction_ub_mean": 0.00010557432434582104,
+  "Lmax_current_mean": {
+    "1.1": 20031.833333333332,
+    "1.5": 10448.5,
+    "2.0": -1530.6666666666642
+  },
+  "Lmax_best_top5_mean": {
+    "1.1": 20026.833333333332,
+    "1.5": 10443.5,
+    "2.0": -1535.6666666666642
+  },
+  "makespan_reorder_gain_mean": 0.00010557432432432433,
+  "makespan_reorder_gain_ub_mean": 0.00010557432432432433,
+  "makespan_delete_gain_mean": 0.022115741717841753,
+  "slack_range_max_mean": {
+    "1.1": 0.0,
+    "1.5": 0.0,
+    "2.0": 0.0
+  },
+  "slack_cv_max_mean": {
+    "1.1": 0.0,
+    "1.5": 0.0,
+    "2.0": 0.0
+  },
+  "prio_S_max_mean": {
+    "prio_01": 1.921673593012608,
+    "prio_10": 1.9247024019158978
+  },
+  "prio_best_order": "prio_01",
+  "prio_best_over_default": 0.9802526624412538,
+  "per_seed_analysis": [
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": false,
+      "release_in_segs": 0,
+      "a": 47360,
+      "critical_wait_over_a": 0.9338260135135135,
+      "critical_wait_total": 44226,
+      "cross_stream_wait": 44211,
+      "cross_stream_share": 0.9996608329941663,
+      "wait_share_by_class": {
+        "ddr": 0.0003391670058336725,
+        "compute": 0.052050829828607606,
+        "onchip": 0.10229276895943562,
+        "d2d": 0.8453172342061231
+      },
+      "cross_wait_share_by_class": {
+        "compute": 0.052050829828607606,
+        "onchip": 0.10229276895943562,
+        "d2d": 0.8453172342061231
+      },
+      "wait_share_by_resource_kind": {
+        "ch2ch": 0.8453172342061231,
+        "co2co": 0.10229276895943562,
+        "tensorcore": 0.052050829828607606,
+        "co2ddr": 0.0003391670058336725
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "ch2ch": 0.789379222972973,
+        "co2co": 0.11070523648648649,
+        "tensorcore": 0.0972972972972973,
+        "co2ddr": 0.0026182432432432434,
+        "ddr2co": 0.0
+      },
+      "wait_top_resources": [
+        [
+          "ch2ch:((3, 2), (1, 14))",
+          37385
+        ],
+        [
+          "co2co:((1, 14), (1, 15))",
+          4524
+        ],
+        [
+          "tensorcore@(1, 15, 0)",
+          2302
+        ],
+        [
+          "co2ddr:((3, 3), (3, 19))",
+          15
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 47360,
+          "1": 45703
+        },
+        "release": {
+          "0": 0,
+          "1": 0
+        },
+        "first_activity": {
+          "0": 0,
+          "1": 0
+        },
+        "latency": {
+          "0": 47360,
+          "1": 45703
+        },
+        "stretch": {
+          "0": 1.9767652173913044,
+          "1": 1.9076034782608697
+        },
+        "S_max": 1.9767652173913044,
+        "argmax_stream": 0,
+        "makespan": 47360,
+        "beat": 23680.0,
+        "met": {
+          "1.1": {
+            "0": false,
+            "1": false
+          },
+          "1.5": {
+            "0": false,
+            "1": false
+          },
+          "2.0": {
+            "0": true,
+            "1": true
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": true
+        },
+        "pair_overlap": {
+          "0-1": 45703
+        },
+        "overlap_ge2": 45703,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.000316722972972973,
+        "reorder_gain_ub_over_a_top5_max": 0.000316722972972973,
+        "delete_gain_over_a_top5_max": 0.03236908783783784,
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 2), (1, 14))",
+            "wait_excl": 37385,
+            "n_items": 158,
+            "current_max_f_plus_q": 47360,
+            "schrage_edf": 50757,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 47360,
+            "longest_path_avoiding_resource": 47291,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2co:((1, 14), (1, 15))",
+            "wait_excl": 4524,
+            "n_items": 180,
+            "current_max_f_plus_q": 47360,
+            "schrage_edf": 47345,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 47345,
+            "longest_path_avoiding_resource": 45827,
+            "reorder_gain_over_a": 0.000316722972972973,
+            "reorder_gain_ub_over_a": 0.000316722972972973
+          },
+          {
+            "resource": "tensorcore@(1, 15, 0)",
+            "wait_excl": 2302,
+            "n_items": 4,
+            "current_max_f_plus_q": 47360,
+            "schrage_edf": 47360,
+            "exact_nonpreemptive": 47360,
+            "jackson_preemptive_lb": 47360,
+            "longest_path_avoiding_resource": 45827,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2ddr:((3, 3), (3, 19))",
+            "wait_excl": 15,
+            "n_items": 208,
+            "current_max_f_plus_q": 47360,
+            "schrage_edf": 47360,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 47360,
+            "longest_path_avoiding_resource": 47360,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 2), (1, 14))",
+            "resource_kind": "ch2ch",
+            "n_items": 158,
+            "items_by_stream": {
+              "0": 79,
+              "1": 79
+            },
+            "items_reaching_other_streams": 157,
+            "off": {
+              "0": 47291,
+              "1": 45049
+            },
+            "k_floor": 1.9738852173913044,
+            "S_cur_model": 1.9767652173913044,
+            "S_opt_ub": 1.9767652173912629,
+            "S_opt_lb": 1.9767652173912629,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 21005.833333333332,
+                "best": 21005.833333333332,
+                "lb": 21005.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 11422.5,
+                "best": 11422.5,
+                "lb": 11422.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -556.6666666666642,
+                "best": -556.6666666666642,
+                "lb": -556.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.100519614351421e-14,
+            "S_reduction_ub": 2.100519614351421e-14
+          },
+          {
+            "resource": "co2co:((1, 14), (1, 15))",
+            "resource_kind": "co2co",
+            "n_items": 180,
+            "items_by_stream": {
+              "0": 90,
+              "1": 90
+            },
+            "items_reaching_other_streams": 175,
+            "off": {
+              "0": 45827,
+              "1": 45703
+            },
+            "k_floor": 1.9127791304347828,
+            "S_cur_model": 1.9767652173913044,
+            "S_opt_ub": 1.976139130434741,
+            "S_opt_lb": 1.976139130434741,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 21005.833333333332,
+                "best": 20990.833333333332,
+                "lb": 20990.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 11422.5,
+                "best": 11407.5,
+                "lb": 11407.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -556.6666666666642,
+                "best": -571.6666666666642,
+                "lb": -571.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.000316722972993997,
+            "S_reduction_ub": 0.000316722972993997
+          },
+          {
+            "resource": "tensorcore@(1, 15, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 4,
+            "items_by_stream": {
+              "0": 2,
+              "1": 2
+            },
+            "items_reaching_other_streams": 3,
+            "off": {
+              "0": 45827,
+              "1": 45703
+            },
+            "k_floor": 1.9127791304347828,
+            "S_cur_model": 1.9767652173913044,
+            "S_opt_ub": 1.9767652173912629,
+            "S_opt_lb": 1.9767652173912629,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 21005.833333333332,
+                "best": 21005.833333333332,
+                "lb": 21005.833333333332,
+                "exact": true
+              },
+              "1.5": {
+                "current": 11422.5,
+                "best": 11422.5,
+                "lb": 11422.5,
+                "exact": true
+              },
+              "2.0": {
+                "current": -556.6666666666642,
+                "best": -556.6666666666642,
+                "lb": -556.6666666666642,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.100519614351421e-14,
+            "S_reduction_ub": 2.100519614351421e-14
+          },
+          {
+            "resource": "co2ddr:((3, 3), (3, 19))",
+            "resource_kind": "co2ddr",
+            "n_items": 208,
+            "items_by_stream": {
+              "1": 104,
+              "0": 104
+            },
+            "items_reaching_other_streams": 0,
+            "off": {
+              "0": 47360,
+              "1": 45703
+            },
+            "k_floor": 1.9767652173913044,
+            "S_cur_model": 1.9767652173913044,
+            "S_opt_ub": 1.9767652173913044,
+            "S_opt_lb": 1.9767652173913044,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 21005.833333333332,
+                "best": 21005.833333333332,
+                "lb": 21005.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 11422.5,
+                "best": 11422.5,
+                "lb": 11422.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -556.6666666666642,
+                "best": -556.6666666666642,
+                "lb": -556.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 0.0,
+            "S_reduction_ub": 0.0
+          }
+        ],
+        "S_reduction_top5_max": 0.000316722972993997,
+        "S_reduction_ub_top5_max": 0.000316722972993997,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 21005.833333333332,
+          "1.5": 11422.5,
+          "2.0": -556.6666666666642
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 20990.833333333332,
+          "1.5": 11407.5,
+          "2.0": -571.6666666666642
+        }
+      },
+      "slack": [
+        {
+          "t": 0,
+          "stream": 1,
+          "live": [
+            0,
+            1
+          ],
+          "1.1": {
+            "slack": [
+              2395.8333333333358,
+              2395.8333333333358
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          },
+          "1.5": {
+            "slack": [
+              11979.166666666668,
+              11979.166666666668
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          },
+          "2.0": {
+            "slack": [
+              23958.333333333332,
+              23958.333333333332
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": false,
+      "release_in_segs": 0,
+      "a": 45478,
+      "critical_wait_over_a": 0.9372443818989401,
+      "critical_wait_total": 42624,
+      "cross_stream_wait": 5644,
+      "cross_stream_share": 0.13241366366366367,
+      "wait_share_by_class": {
+        "compute": 0.005067567567567568,
+        "d2d": 0.9941582207207207,
+        "onchip": 0.0007742117117117117
+      },
+      "cross_wait_share_by_class": {
+        "compute": 0.005067567567567568,
+        "onchip": 0.0007742117117117117,
+        "d2d": 0.12657188438438438
+      },
+      "wait_share_by_resource_kind": {
+        "ch2ch": 0.9941582207207207,
+        "tensorcore": 0.005067567567567568,
+        "co2co": 0.0007742117117117117
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "ch2ch": 0.9386516557456352,
+        "tensorcore": 0.03658912001407274,
+        "co2co": 0.017766832314525704,
+        "vectorunit": 0.005629095386780422,
+        "co2ddr": 0.0013632965389858832,
+        "ddr2co": 0.0
+      },
+      "wait_top_resources": [
+        [
+          "ch2ch:((3, 2), (1, 14))",
+          42172
+        ],
+        [
+          "tensorcore@(3, 11, 0)",
+          216
+        ],
+        [
+          "ch2ch:((1, 14), (3, 2))",
+          203
+        ],
+        [
+          "co2co:((2, 11), (2, 15))",
+          33
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 44803,
+          "1": 45478
+        },
+        "release": {
+          "0": 0,
+          "1": 0
+        },
+        "first_activity": {
+          "1": 0,
+          "0": 0
+        },
+        "latency": {
+          "0": 44803,
+          "1": 45478
+        },
+        "stretch": {
+          "0": 1.8700382608695654,
+          "1": 1.8982121739130435
+        },
+        "S_max": 1.8982121739130435,
+        "argmax_stream": 1,
+        "makespan": 45478,
+        "beat": 22739.0,
+        "met": {
+          "1.1": {
+            "0": false,
+            "1": false
+          },
+          "1.5": {
+            "0": false,
+            "1": false
+          },
+          "2.0": {
+            "0": true,
+            "1": true
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": true
+        },
+        "pair_overlap": {
+          "0-1": 44803
+        },
+        "overlap_ge2": 44803,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.0,
+        "reorder_gain_ub_over_a_top5_max": 0.0,
+        "delete_gain_over_a_top5_max": 0.016469501737103653,
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 2), (1, 14))",
+            "wait_excl": 42172,
+            "n_items": 158,
+            "current_max_f_plus_q": 45478,
+            "schrage_edf": 45478,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 45478,
+            "longest_path_avoiding_resource": 44729,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "tensorcore@(3, 11, 0)",
+            "wait_excl": 216,
+            "n_items": 4,
+            "current_max_f_plus_q": 45478,
+            "schrage_edf": 45478,
+            "exact_nonpreemptive": 45478,
+            "jackson_preemptive_lb": 45478,
+            "longest_path_avoiding_resource": 44865,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "ch2ch:((1, 14), (3, 2))",
+            "wait_excl": 203,
+            "n_items": 230,
+            "current_max_f_plus_q": 45478,
+            "schrage_edf": 45478,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 45478,
+            "longest_path_avoiding_resource": 44865,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2co:((2, 11), (2, 15))",
+            "wait_excl": 33,
+            "n_items": 190,
+            "current_max_f_plus_q": 45478,
+            "schrage_edf": 45478,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 45478,
+            "longest_path_avoiding_resource": 45320,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 2), (1, 14))",
+            "resource_kind": "ch2ch",
+            "n_items": 158,
+            "items_by_stream": {
+              "1": 79,
+              "0": 79
+            },
+            "items_reaching_other_streams": 157,
+            "off": {
+              "0": 44667,
+              "1": 44729
+            },
+            "k_floor": 1.8669495652173913,
+            "S_cur_model": 1.8982121739130435,
+            "S_opt_ub": 1.898212173913002,
+            "S_opt_lb": 1.898212173913002,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19123.833333333332,
+                "best": 19123.833333333332,
+                "lb": 19123.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 9540.5,
+                "best": 9540.5,
+                "lb": 9540.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -2438.6666666666642,
+                "best": -2438.6666666666642,
+                "lb": -2438.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1874446751326642e-14,
+            "S_reduction_ub": 2.1874446751326642e-14
+          },
+          {
+            "resource": "tensorcore@(3, 11, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 4,
+            "items_by_stream": {
+              "1": 2,
+              "0": 2
+            },
+            "items_reaching_other_streams": 3,
+            "off": {
+              "0": 44803,
+              "1": 44865
+            },
+            "k_floor": 1.8726260869565219,
+            "S_cur_model": 1.8982121739130435,
+            "S_opt_ub": 1.898212173913002,
+            "S_opt_lb": 1.898212173913002,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19123.833333333332,
+                "best": 19123.833333333332,
+                "lb": 19123.833333333332,
+                "exact": true
+              },
+              "1.5": {
+                "current": 9540.5,
+                "best": 9540.5,
+                "lb": 9540.5,
+                "exact": true
+              },
+              "2.0": {
+                "current": -2438.6666666666642,
+                "best": -2438.6666666666642,
+                "lb": -2438.6666666666642,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1874446751326642e-14,
+            "S_reduction_ub": 2.1874446751326642e-14
+          },
+          {
+            "resource": "ch2ch:((1, 14), (3, 2))",
+            "resource_kind": "ch2ch",
+            "n_items": 230,
+            "items_by_stream": {
+              "0": 115,
+              "1": 115
+            },
+            "items_reaching_other_streams": 230,
+            "off": {
+              "0": 44803,
+              "1": 44865
+            },
+            "k_floor": 1.8726260869565219,
+            "S_cur_model": 1.8982121739130435,
+            "S_opt_ub": 1.898212173913002,
+            "S_opt_lb": 1.898212173913002,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19123.833333333332,
+                "best": 19123.833333333332,
+                "lb": 19123.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 9540.5,
+                "best": 9540.5,
+                "lb": 9540.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -2438.6666666666642,
+                "best": -2438.6666666666642,
+                "lb": -2438.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1874446751326642e-14,
+            "S_reduction_ub": 2.1874446751326642e-14
+          },
+          {
+            "resource": "co2co:((2, 11), (2, 15))",
+            "resource_kind": "co2co",
+            "n_items": 190,
+            "items_by_stream": {
+              "1": 95,
+              "0": 95
+            },
+            "items_reaching_other_streams": 179,
+            "off": {
+              "0": 44803,
+              "1": 45320
+            },
+            "k_floor": 1.891617391304348,
+            "S_cur_model": 1.8982121739130435,
+            "S_opt_ub": 1.898212173913002,
+            "S_opt_lb": 1.898212173913002,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19123.833333333332,
+                "best": 19123.833333333332,
+                "lb": 19123.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 9540.5,
+                "best": 9540.5,
+                "lb": 9540.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -2438.6666666666642,
+                "best": -2438.6666666666642,
+                "lb": -2438.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1874446751326642e-14,
+            "S_reduction_ub": 2.1874446751326642e-14
+          }
+        ],
+        "S_reduction_top5_max": 2.1874446751326642e-14,
+        "S_reduction_ub_top5_max": 2.1874446751326642e-14,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 19123.833333333332,
+          "1.5": 9540.5,
+          "2.0": -2438.6666666666642
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 19123.833333333332,
+          "1.5": 9540.5,
+          "2.0": -2438.6666666666642
+        }
+      },
+      "slack": [
+        {
+          "t": 0,
+          "stream": 1,
+          "live": [
+            0,
+            1
+          ],
+          "1.1": {
+            "slack": [
+              2395.8333333333358,
+              2395.8333333333358
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          },
+          "1.5": {
+            "slack": [
+              11979.166666666668,
+              11979.166666666668
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          },
+          "2.0": {
+            "slack": [
+              23958.333333333332,
+              23958.333333333332
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "ok": true,
+      "checks": {
+        "check1_chain_end_equals_a": true,
+        "check2_chain_intervals_sum_to_a": true,
+        "check3_all_s_ge_r": true,
+        "check4_activity_graph_longest_path_equals_a": true
+      },
+      "release_row_on_chain": false,
+      "release_in_segs": 0,
+      "a": 46320,
+      "critical_wait_over_a": 0.9343264248704664,
+      "critical_wait_total": 43278,
+      "cross_stream_wait": 42002,
+      "cross_stream_share": 0.970516197606174,
+      "wait_share_by_class": {
+        "d2d": 0.9733813947040066,
+        "onchip": 0.011299043393872174,
+        "compute": 0.01531956190212117
+      },
+      "cross_wait_share_by_class": {
+        "d2d": 0.9498359443597209,
+        "onchip": 0.005360691344331993,
+        "compute": 0.01531956190212117
+      },
+      "wait_share_by_resource_kind": {
+        "ch2ch": 0.9733813947040066,
+        "tensorcore": 0.01531956190212117,
+        "co2co": 0.011299043393872174
+      },
+      "chain_time_by_resource_kind_over_a": {
+        "ch2ch": 0.9349309153713299,
+        "tensorcore": 0.03592400690846287,
+        "co2co": 0.02227979274611399,
+        "vectorunit": 0.005526770293609672,
+        "co2ddr": 0.0013385146804835925,
+        "ddr2co": 0.0
+      },
+      "wait_top_resources": [
+        [
+          "ch2ch:((3, 2), (1, 14))",
+          41822
+        ],
+        [
+          "tensorcore@(1, 10, 0)",
+          663
+        ],
+        [
+          "ch2ch:((1, 14), (3, 2))",
+          285
+        ],
+        [
+          "co2co:((0, 9), (0, 10))",
+          257
+        ],
+        [
+          "co2co:((0, 6), (0, 7))",
+          232
+        ]
+      ],
+      "measures": {
+        "C": {
+          "0": 45109,
+          "1": 46320
+        },
+        "release": {
+          "0": 0,
+          "1": 0
+        },
+        "first_activity": {
+          "0": 0,
+          "1": 0
+        },
+        "latency": {
+          "0": 45109,
+          "1": 46320
+        },
+        "stretch": {
+          "0": 1.882810434782609,
+          "1": 1.9333565217391306
+        },
+        "S_max": 1.9333565217391306,
+        "argmax_stream": 1,
+        "makespan": 46320,
+        "beat": 23160.0,
+        "met": {
+          "1.1": {
+            "0": false,
+            "1": false
+          },
+          "1.5": {
+            "0": false,
+            "1": false
+          },
+          "2.0": {
+            "0": true,
+            "1": true
+          }
+        },
+        "all_met": {
+          "1.1": false,
+          "1.5": false,
+          "2.0": true
+        },
+        "pair_overlap": {
+          "0-1": 45109
+        },
+        "overlap_ge2": 45109,
+        "release_respected": true
+      },
+      "makespan_bound": {
+        "reorder_gain_over_a_top5_max": 0.0,
+        "reorder_gain_ub_over_a_top5_max": 0.0,
+        "delete_gain_over_a_top5_max": 0.017508635578583766,
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 2), (1, 14))",
+            "wait_excl": 41822,
+            "n_items": 158,
+            "current_max_f_plus_q": 46320,
+            "schrage_edf": 50644,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 46320,
+            "longest_path_avoiding_resource": 46235,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "tensorcore@(1, 10, 0)",
+            "wait_excl": 663,
+            "n_items": 4,
+            "current_max_f_plus_q": 46320,
+            "schrage_edf": 46320,
+            "exact_nonpreemptive": 46320,
+            "jackson_preemptive_lb": 46320,
+            "longest_path_avoiding_resource": 46272,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "ch2ch:((1, 14), (3, 2))",
+            "wait_excl": 285,
+            "n_items": 230,
+            "current_max_f_plus_q": 46320,
+            "schrage_edf": 46320,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 46320,
+            "longest_path_avoiding_resource": 45509,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2co:((0, 9), (0, 10))",
+            "wait_excl": 257,
+            "n_items": 38,
+            "current_max_f_plus_q": 46320,
+            "schrage_edf": 46320,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 46320,
+            "longest_path_avoiding_resource": 46088,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          },
+          {
+            "resource": "co2co:((0, 6), (0, 7))",
+            "wait_excl": 232,
+            "n_items": 44,
+            "current_max_f_plus_q": 46320,
+            "schrage_edf": 46320,
+            "exact_nonpreemptive": null,
+            "jackson_preemptive_lb": 46320,
+            "longest_path_avoiding_resource": 45812,
+            "reorder_gain_over_a": 0.0,
+            "reorder_gain_ub_over_a": 0.0
+          }
+        ]
+      },
+      "smax_bound": {
+        "top5": [
+          {
+            "resource": "ch2ch:((3, 2), (1, 14))",
+            "resource_kind": "ch2ch",
+            "n_items": 158,
+            "items_by_stream": {
+              "1": 79,
+              "0": 79
+            },
+            "items_reaching_other_streams": 155,
+            "off": {
+              "0": 45024,
+              "1": 46235
+            },
+            "k_floor": 1.929808695652174,
+            "S_cur_model": 1.9333565217391306,
+            "S_opt_ub": 1.933356521739089,
+            "S_opt_lb": 1.933356521739089,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19965.833333333332,
+                "best": 19965.833333333332,
+                "lb": 19965.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 10382.5,
+                "best": 10382.5,
+                "lb": 10382.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -1596.6666666666642,
+                "best": -1596.6666666666642,
+                "lb": -1596.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1591664680839704e-14,
+            "S_reduction_ub": 2.1591664680839704e-14
+          },
+          {
+            "resource": "tensorcore@(1, 10, 0)",
+            "resource_kind": "tensorcore",
+            "n_items": 4,
+            "items_by_stream": {
+              "0": 2,
+              "1": 2
+            },
+            "items_reaching_other_streams": 4,
+            "off": {
+              "0": 45061,
+              "1": 46272
+            },
+            "k_floor": 1.9313530434782609,
+            "S_cur_model": 1.9333565217391306,
+            "S_opt_ub": 1.933356521739089,
+            "S_opt_lb": 1.933356521739089,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19965.833333333332,
+                "best": 19965.833333333332,
+                "lb": 19965.833333333332,
+                "exact": true
+              },
+              "1.5": {
+                "current": 10382.5,
+                "best": 10382.5,
+                "lb": 10382.5,
+                "exact": true
+              },
+              "2.0": {
+                "current": -1596.6666666666642,
+                "best": -1596.6666666666642,
+                "lb": -1596.6666666666642,
+                "exact": true
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1591664680839704e-14,
+            "S_reduction_ub": 2.1591664680839704e-14
+          },
+          {
+            "resource": "ch2ch:((1, 14), (3, 2))",
+            "resource_kind": "ch2ch",
+            "n_items": 230,
+            "items_by_stream": {
+              "1": 115,
+              "0": 115
+            },
+            "items_reaching_other_streams": 226,
+            "off": {
+              "0": 45090,
+              "1": 45509
+            },
+            "k_floor": 1.899506086956522,
+            "S_cur_model": 1.9333565217391306,
+            "S_opt_ub": 1.933356521739089,
+            "S_opt_lb": 1.933356521739089,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19965.833333333332,
+                "best": 19965.833333333332,
+                "lb": 19965.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 10382.5,
+                "best": 10382.5,
+                "lb": 10382.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -1596.6666666666642,
+                "best": -1596.6666666666642,
+                "lb": -1596.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1591664680839704e-14,
+            "S_reduction_ub": 2.1591664680839704e-14
+          },
+          {
+            "resource": "co2co:((0, 9), (0, 10))",
+            "resource_kind": "co2co",
+            "n_items": 38,
+            "items_by_stream": {
+              "0": 19,
+              "1": 19
+            },
+            "items_reaching_other_streams": 38,
+            "off": {
+              "0": 44877,
+              "1": 46088
+            },
+            "k_floor": 1.923673043478261,
+            "S_cur_model": 1.9333565217391306,
+            "S_opt_ub": 1.933356521739089,
+            "S_opt_lb": 1.933356521739089,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19965.833333333332,
+                "best": 19965.833333333332,
+                "lb": 19965.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 10382.5,
+                "best": 10382.5,
+                "lb": 10382.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -1596.6666666666642,
+                "best": -1596.6666666666642,
+                "lb": -1596.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1591664680839704e-14,
+            "S_reduction_ub": 2.1591664680839704e-14
+          },
+          {
+            "resource": "co2co:((0, 6), (0, 7))",
+            "resource_kind": "co2co",
+            "n_items": 44,
+            "items_by_stream": {
+              "1": 22,
+              "0": 22
+            },
+            "items_reaching_other_streams": 43,
+            "off": {
+              "0": 44858,
+              "1": 45812
+            },
+            "k_floor": 1.912153043478261,
+            "S_cur_model": 1.9333565217391306,
+            "S_opt_ub": 1.933356521739089,
+            "S_opt_lb": 1.933356521739089,
+            "exact_everywhere": true,
+            "Lmax": {
+              "1.1": {
+                "current": 19965.833333333332,
+                "best": 19965.833333333332,
+                "lb": 19965.833333333332,
+                "exact": false
+              },
+              "1.5": {
+                "current": 10382.5,
+                "best": 10382.5,
+                "lb": 10382.5,
+                "exact": false
+              },
+              "2.0": {
+                "current": -1596.6666666666642,
+                "best": -1596.6666666666642,
+                "lb": -1596.6666666666642,
+                "exact": false
+              }
+            },
+            "model_matches_S_max": true,
+            "S_reduction": 2.1591664680839704e-14,
+            "S_reduction_ub": 2.1591664680839704e-14
+          }
+        ],
+        "S_reduction_top5_max": 2.1591664680839704e-14,
+        "S_reduction_ub_top5_max": 2.1591664680839704e-14,
+        "all_models_match": true,
+        "Lmax_current": {
+          "1.1": 19965.833333333332,
+          "1.5": 10382.5,
+          "2.0": -1596.6666666666642
+        },
+        "Lmax_best_top5_min": {
+          "1.1": 19965.833333333332,
+          "1.5": 10382.5,
+          "2.0": -1596.6666666666642
+        }
+      },
+      "slack": [
+        {
+          "t": 0,
+          "stream": 1,
+          "live": [
+            0,
+            1
+          ],
+          "1.1": {
+            "slack": [
+              2395.8333333333358,
+              2395.8333333333358
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          },
+          "1.5": {
+            "slack": [
+              11979.166666666668,
+              11979.166666666668
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          },
+          "2.0": {
+            "slack": [
+              23958.333333333332,
+              23958.333333333332
+            ],
+            "range": 0.0,
+            "cv": 0.0
+          }
+        }
+      ]
+    }
+  ],
+  "smax_models_match": true,
+  "prio_detail": {
+    "default": {
+      "S_max": 1.9603859970416284,
+      "stretch": {
+        "0": 1.9338170035923081,
+        "1": 1.9370430372613932
+      },
+      "makespan": 46386.0,
+      "beat": 23193.0,
+      "n_seeds": 3
+    },
+    "orders": {
+      "prio_01": {
+        "S_max": 1.921673593012608,
+        "stretch": {
+          "0": 1.8892160315559623,
+          "1": 1.921673593012608
+        },
+        "makespan": 45470.0,
+        "beat": 22735.0,
+        "n_seeds": 3
+      },
+      "prio_10": {
+        "S_max": 1.9247024019158978,
+        "stretch": {
+          "0": 1.9247024019158978,
+          "1": 1.8922448404592516
+        },
+        "makespan": 45541.666666666664,
+        "beat": 22770.833333333332,
+        "n_seeds": 3
+      }
+    },
+    "best_order": "prio_01",
+    "best": {
+      "S_max": 1.921673593012608,
+      "stretch": {
+        "0": 1.8892160315559623,
+        "1": 1.921673593012608
+      },
+      "makespan": 45470.0,
+      "beat": 22735.0,
+      "n_seeds": 3
+    },
+    "best_over_default": {
+      "S_max": 0.9802526624412538,
+      "stretch": {
+        "0": 0.9769363016492802,
+        "1": 0.99206551225082
+      },
+      "makespan": 0.9802526624412539,
+      "beat": 0.9802526624412539
+    }
+  },
+  "artifact_commit": "299089ef266c54c6a1fa8c2f52df66e6c970b52a",
+  "template_python_seed": 123,
+  "release_impl": "(b) in-memory backend copy e4_backend.event_driver_e4",
+  "command": [
+    "e4_grid.py",
+    "--jobs",
+    "12"
+  ],
+  "assumption_no_sram_capacity_check": true,
+  "T_nofault": {
+    "0": 20479.0,
+    "1": 20479.0
+  },
+  "S_max_vs_nofault_T_mean": 2.2650520044924067,
+  "T_T3": {
+    "0": 23958.333333333332,
+    "1": 23958.333333333332
+  },
+  "Tmin_T3": 23958.333333333332,
+  "T_ratio_T3": 1.0,
+  "stretch_mean_T3": {
+    "0": 1.9098713043478261,
+    "1": 1.913057391304348
+  },
+  "S_max_mean_T3": 1.9361113043478262,
+  "S_max_seeds_T3": [
+    1.9767652173913044,
+    1.8982121739130435,
+    1.9333565217391306
+  ],
+  "all_met_share_T3": {
+    "1.1": 0.0,
+    "1.5": 0.0,
+    "2.0": 1.0
+  },
+  "prio_S_max_mean_T3": {
+    "prio_01": 1.8978782608695652,
+    "prio_10": 1.9008695652173913
+  },
+  "prio_best_order_T3": "prio_01",
+  "prio_best_over_default_T3": 0.9802526624412538,
+  "prio_detail_T3": {
+    "default": {
+      "S_max": 1.9361113043478262,
+      "stretch": {
+        "0": 1.9098713043478261,
+        "1": 1.913057391304348
+      },
+      "makespan": 46386.0,
+      "beat": 23193.0,
+      "n_seeds": 3
+    },
+    "orders": {
+      "prio_01": {
+        "S_max": 1.8978782608695652,
+        "stretch": {
+          "0": 1.8658226086956524,
+          "1": 1.8978782608695652
+        },
+        "makespan": 45470.0,
+        "beat": 22735.0,
+        "n_seeds": 3
+      },
+      "prio_10": {
+        "S_max": 1.9008695652173913,
+        "stretch": {
+          "0": 1.9008695652173913,
+          "1": 1.8688139130434784
+        },
+        "makespan": 45541.666666666664,
+        "beat": 22770.833333333332,
+        "n_seeds": 3
+      }
+    },
+    "best_order": "prio_01",
+    "best": {
+      "S_max": 1.8978782608695652,
+      "stretch": {
+        "0": 1.8658226086956524,
+        "1": 1.8978782608695652
+      },
+      "makespan": 45470.0,
+      "beat": 22735.0,
+      "n_seeds": 3
+    },
+    "best_over_default": {
+      "S_max": 0.9802526624412538,
+      "stretch": {
+        "0": 0.9769363016492804,
+        "1": 0.9920655122508198
+      },
+      "makespan": 0.9802526624412539,
+      "beat": 0.9802526624412539
+    }
+  },
+  "S_max_vs_nofault_T_mean_T3": 2.2785892061828665,
+  "T_nofault_T3": {
+    "0": 20357.333333333332,
+    "1": 20357.333333333332
+  },
+  "T_seeds": {
+    "0": {
+      "1": 24300,
+      "2": 23650,
+      "3": 23925,
+      "4": 23526,
+      "5": 23295,
+      "6": 23274
+    },
+    "1": {
+      "1": 24300,
+      "2": 23650,
+      "3": 23925,
+      "4": 23526,
+      "5": 23295,
+      "6": 23274
+    }
+  },
+  "T_basis": "6 seeds (user decision 2026-11-02); Delta releases and graph-level bounds used the 3-seed T",
+  "serial_ref": {
+    "latency": {
+      "0": 23661.666666666668,
+      "1": 23661.666666666668
+    },
+    "stretch": {
+      "0": 1.0,
+      "1": 1.0
+    },
+    "S_max": 1.0,
+    "makespan": 47323.333333333336,
+    "beat": 23661.666666666668,
+    "rule": "analytic: each stream alone on the same hardware state (6-seed T_i), back to back"
+  }
+}

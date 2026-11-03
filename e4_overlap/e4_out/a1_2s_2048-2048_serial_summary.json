@@ -12,10 +12,10 @@
   ],
   "stagger": "serial",
   "T": {
-    "0": 20357.333333333332,
-    "1": 20357.333333333332
+    "0": 20479.0,
+    "1": 20479.0
   },
-  "Tmin": 20357.333333333332,
+  "Tmin": 20479.0,
   "hardware": "nofault",
   "chunking": "none",
   "release_mean": {
@@ -23,21 +23,19 @@
     "1": 20606.0
   },
   "latency_mean": {
-    "0": 20606.0,
-    "1": 20523.0
+    "0": 20479.0,
+    "1": 20479.0
   },
   "stretch_mean": {
-    "0": 1.0122150903851193,
-    "1": 1.0081379355514803
+    "0": 1.0,
+    "1": 1.0
   },
-  "S_max_mean": 1.017978779145926,
+  "S_max_mean": 1.0,
   "S_max_seeds": [
-    1.0139343725438827,
-    1.0130501702908044,
-    1.0269517946030915
+    1.0
   ],
-  "makespan_mean": 41129.0,
-  "beat_mean": 20564.5,
+  "makespan_mean": 40958.0,
+  "beat_mean": 20479.0,
   "overlap_ge2_mean": 0.0,
   "pair_overlap_mean": {
     "0-1": 0.0
@@ -85,12 +83,9 @@
     "1.5": 0.0,
     "2.0": 0.0
   },
-  "prio_S_max_mean": {
-    "prio_01": 1.0086291590254126,
-    "prio_10": 1.011969478648153
-  },
-  "prio_best_order": "prio_01",
-  "prio_best_over_default": 0.990815505870999,
+  "prio_S_max_mean": null,
+  "prio_best_order": null,
+  "prio_best_over_default": null,
   "per_seed_analysis": [
     {
       "ok": true,
@@ -1413,8 +1408,8 @@
   "assumption_no_sram_capacity_check": true,
   "check3": {
     "latency_rel_diff": {
-      "0": 0.012215090385119264,
-      "1": 0.00813793555148028
+      "0": 0.006201474681380927,
+      "1": 0.002148542409297329
     },
     "cross_stream_share": [
       0.0,
@@ -1434,10 +1429,40 @@
       ]
     },
     "within_1pct": false,
-    "pass": true
+    "pass": true,
+    "within_noise_stop": true,
+    "rule": "user decision 2026-11-02: pass = cross-stream blocking 0; latency differences recorded only"
   },
   "T_ratio": 1.0,
-  "prio_detail": {
+  "prio_detail": null,
+  "T_T3": {
+    "0": 20357.333333333332,
+    "1": 20357.333333333332
+  },
+  "Tmin_T3": 20357.333333333332,
+  "T_ratio_T3": 1.0,
+  "stretch_mean_T3": {
+    "0": 1.0122150903851193,
+    "1": 1.0081379355514803
+  },
+  "S_max_mean_T3": 1.017978779145926,
+  "S_max_seeds_T3": [
+    1.0139343725438827,
+    1.0130501702908044,
+    1.0269517946030915
+  ],
+  "all_met_share_T3": {
+    "1.1": 1.0,
+    "1.5": 1.0,
+    "2.0": 1.0
+  },
+  "prio_S_max_mean_T3": {
+    "prio_01": 1.0086291590254126,
+    "prio_10": 1.011969478648153
+  },
+  "prio_best_order_T3": "prio_01",
+  "prio_best_over_default_T3": 0.990815505870999,
+  "prio_detail_T3": {
     "default": {
       "S_max": 1.017978779145926,
       "stretch": {
@@ -1489,6 +1514,124 @@
       },
       "makespan": 0.9893748936273675,
       "beat": 0.9893748936273675
+    }
+  },
+  "T_seeds": {
+    "0": {
+      "1": 20547,
+      "2": 19642,
+      "3": 20883,
+      "4": 20153,
+      "5": 20255,
+      "6": 21394
+    },
+    "1": {
+      "1": 20547,
+      "2": 19642,
+      "3": 20883,
+      "4": 20153,
+      "5": 20255,
+      "6": 21394
+    }
+  },
+  "T_basis": "6 seeds (user decision 2026-11-02); Delta releases and graph-level bounds used the 3-seed T",
+  "serial_ref": {
+    "latency": {
+      "0": 20479.0,
+      "1": 20479.0
+    },
+    "stretch": {
+      "0": 1.0,
+      "1": 1.0
+    },
+    "S_max": 1.0,
+    "makespan": 40958.0,
+    "beat": 20479.0,
+    "rule": "analytic: each stream alone on the same hardware state (6-seed T_i), back to back"
+  },
+  "serial_simulated": {
+    "latency_mean": {
+      "0": 20606.0,
+      "1": 20523.0
+    },
+    "stretch_mean": {
+      "0": 1.006201474681381,
+      "1": 1.0021485424092973
+    },
+    "S_max_mean": 1.0119309211061738,
+    "S_max_seeds": [
+      1.0079105425069583,
+      1.0070315933395186,
+      1.0208506274720446
+    ],
+    "makespan_mean": 41129.0,
+    "beat_mean": 20564.5,
+    "all_met_share": {
+      "1.1": 1.0,
+      "1.5": 1.0,
+      "2.0": 1.0
+    },
+    "prio_S_max_mean": {
+      "prio_01": 1.0026368475023195,
+      "prio_10": 1.0059573221348699
+    },
+    "prio_detail": {
+      "default": {
+        "S_max": 1.0119309211061738,
+        "stretch": {
+          "0": 1.006201474681381,
+          "1": 1.0021485424092973
+        },
+        "makespan": 41129.0,
+        "beat": 20564.5,
+        "n_seeds": 3
+      },
+      "orders": {
+        "prio_01": {
+          "S_max": 1.0026368475023195,
+          "stretch": {
+            "0": 0.9996093559255823,
+            "1": 0.9874017286000293
+          },
+          "makespan": 40692.0,
+          "beat": 20346.0,
+          "n_seeds": 3
+        },
+        "prio_10": {
+          "S_max": 1.0059573221348699,
+          "stretch": {
+            "0": 1.0059573221348699,
+            "1": 0.9900222992659146
+          },
+          "makespan": 40875.666666666664,
+          "beat": 20437.833333333332,
+          "n_seeds": 3
+        }
+      },
+      "best_order": "prio_01",
+      "best": {
+        "S_max": 1.0026368475023195,
+        "stretch": {
+          "0": 0.9996093559255823,
+          "1": 0.9874017286000293
+        },
+        "makespan": 40692.0,
+        "beat": 20346.0,
+        "n_seeds": 3
+      },
+      "best_over_default": {
+        "S_max": 0.990815505870999,
+        "stretch": {
+          "0": 0.9934485101426769,
+          "1": 0.9852848024168007
+        },
+        "makespan": 0.9893748936273675,
+        "beat": 0.9893748936273675
+      }
+    },
+    "latency_rel_diff": {
+      "0": 0.006201474681380927,
+      "1": 0.002148542409297329
     }
   }
 }
