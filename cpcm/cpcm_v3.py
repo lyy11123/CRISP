@@ -60,7 +60,7 @@ STATE_KEY = ("energy", "hops", "comm_dist", "max_link_load", "max_tc_load", "max
 
 
 # ------------------------------------------------------------------ child
-def child(name, part, nparts, every, seeds, sink_path):
+def child(name, part, nparts, every, seeds, sink_path, keep_graph=False):
     model, task = PLAN[name][:2]
     task_path = os.path.join(WORK, "models", model, "py", task + ".py")
     for sub in SRC_SUBDIRS:
@@ -113,7 +113,7 @@ def child(name, part, nparts, every, seeds, sink_path):
             "max_link_load": float(max(st[2].values())) if st[2] else 0.0,
             "max_tc_load": float(max(st[3].values())) if st[3] else 0.0,
             "max_vu_load": float(max(st[4].values())) if st[4] else 0.0,
-            "events": g.n, "cpcm_T": sc.T, "backend": bk,
+            "events": g.n, "cpcm_T": sc.T, "backend": bk, **({"graph": g} if keep_graph else {}),
             "prep_s": t1 - t0, "compile_s": t2 - t1, "cpcm_s": t3 - t2, "backend_s": bwall})
 
     def anneal(self):
@@ -287,9 +287,10 @@ def main():
     ap.add_argument("--every", type=int)
     ap.add_argument("--seeds", type=int, nargs="*")
     ap.add_argument("--sink")
+    ap.add_argument("--keep-graph", action="store_true", help="store compiled graphs (V3 diagnostic; use with no --seeds)")
     a = ap.parse_args()
     if a.cmd == "child":
-        child(a.name, a.part, a.nparts, a.every, a.seeds, a.sink)
+        child(a.name, a.part, a.nparts, a.every, a.seeds or [], a.sink, a.keep_graph)
         return
     os.makedirs(OUT, exist_ok=True)
     t0 = time.time()

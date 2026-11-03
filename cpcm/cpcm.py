@@ -269,8 +269,11 @@ class Schedule:
         return self
 
 
-def simulate(g, mode="bb", prio=None, release=None):
-    """Forward pass in mode "bb" or "hop". release: optional {event id: earliest ready time} for source events."""
+def simulate(g, mode="bb", prio=None, release=None, rng=None):
+    """Forward pass in mode "bb" or "hop". release: optional {event id: earliest ready time} for source events.
+    rng: DIAGNOSTIC ONLY (V3, user 2026-11-03): a random.Random that replaces the event-id tie rule of bb mode by
+    random ties (compute order, events of equal remaining length, branches of equal key), like the backend's
+    shuffles. CPCM itself is the deterministic pass (rng None)."""
     if mode not in ("bb", "hop"):
         raise CPCMError(f"unknown mode {mode}")
     sc = Schedule(g, mode)
@@ -319,6 +322,8 @@ def simulate(g, mode="bb", prio=None, release=None):
         if not ready:
             continue
         ready.sort()
+        if rng is not None:
+            rng.shuffle(ready)
         comms = []
         for e in ready:
             if kind[e] == COMP:
@@ -353,12 +358,16 @@ def simulate(g, mode="bb", prio=None, release=None):
                         if k > m:
                             m = k
                     if m >= L:
-                        keyed.append((-m, e))
+                        keyed.append((-m, rng.random() if rng is not None else e, e))
                 keyed.sort()
-                for _, e in keyed:
+                for _, _, e in keyed:
                     brs = [b for b in ev_br[e] if br_hi[b] - pos[b] == L]
                     if len(brs) > 1:
-                        brs.sort(key=lambda b: (not hop_suf3[pos[b]], b))
+                        if rng is not None:
+                            rng.shuffle(brs)
+                            brs.sort(key=lambda b: not hop_suf3[pos[b]])
+                        else:
+                            brs.sort(key=lambda b: (not hop_suf3[pos[b]], b))
                     for b in brs:
                         h = pos[b]
                         if br_hi[b] - h != L:       # trimmed by a shared head issued just before
