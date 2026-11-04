@@ -4,7 +4,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 论文方案、判定关口和结论记录在 claude.ai 上的在线方案文档里，不在本仓库。**项目说明、规则和 artifact 的已知事实写在 [`CLAUDE.md`](CLAUDE.md)，任何工具或 agent 开始工作前都要先读它。**
 
-## 目录与状态（2026-11-02）
+## 目录与状态（2026-11-04）
 
 | 位置 | 内容 | 状态 |
 |---|---|---|
@@ -13,7 +13,8 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `e2_attribution/` | E2：关键等待归因、单资源重排与删除上限 | 完成 |
 | `e3_warmstart/` | E3：故障后热启动 SA、迁移量与下界紧度 | 完成（含扩展，44 个“任务 × 故障”组合） |
 | `e4_overlap/` | E4a：多流重叠下的链路冲突与仲裁收益上限；E4b：按跳截止时间仲裁原型 | 完成（汇总见 `E4A_SUMMARY.md`、`E4B_SUMMARY.md`） |
-| `cpcm/` | CPCM：依赖感知的调度级延迟估计（第 2 步） | 进行中：实现方案待用户确认 |
+| `cpcm/` | CPCM：依赖感知的调度级延迟估计（第 2 步） | 完成（V0–V7，汇总见 `CPCM_SUMMARY.md`） |
+| `cpcm_sa/` | CPCM 接入 SA 映射搜索（第 3 步） | 第 1 阶段试点完成（252 次运行），是否进入第 2 阶段待用户决定；见 `PROGRESS.md` 最后一条 |
 
 每个实验文件夹里：
 - `<实验>_HANDOFF.md`：交接说明（任务定义、步骤、自检、停止条件），执行时以它为准；
@@ -25,9 +26,9 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 为控制体积，下列内容不进仓库（见 `.gitignore`），只留在产生它们的机器上（主机：本地 Windows，`E:\58Institute\PhD_TERM3\CRISP`）：
 
-- `*.pkl`、`*.pkl.gz`：捕获的映射、事件图、修复后的事件对象（E3/E4 合计约 630 MB）；
-- `e*/work/`：各实验的 artifact 工作副本（从 `third_party` 复制，可重建，见各实验 `PROGRESS.md` 第 1 步）；
-- `e4_overlap/e4_out/sims/`、`*_out/_tmp/`：仿真缓存与临时文件；
+- `*.pkl`、`*.pkl.gz`：捕获的映射、事件图、修复后的事件对象（仅 E3/E4 就约 630 MB）；
+- `e*/work/`、`cpcm/work/`、`cpcm_sa/work/`：各实验的 artifact 工作副本（从 `third_party` 复制，可重建，见各实验 `PROGRESS.md` 第 1 步）；
+- `e4_overlap/e4_out/sims/`、`*_out/_tmp/`、`cpcm_sa/out/` 下的 `logs/`、`_smoke*/`、`_tmp/`：仿真缓存、日志与临时文件；
 - `third_party` 中 `make generate_exp` 生成的 `cfg/`、`py/`、`results/`（artifact 自带的 `.gitignore` 已排除）。
 
 需要这些文件的分析（如 `e2_attribution.py --from-dump`、E3/E4 的续跑与重算）只能在主机上做，或在新机器上按 `PROGRESS.md` 中记录的命令行重新生成。重新生成前先估计耗时，超过 1 小时先问用户。
