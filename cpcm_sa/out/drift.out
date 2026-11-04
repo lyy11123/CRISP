@@ -1,0 +1,41 @@
+[cpcm_sa] ffn_A1_g0_l0: exit 0, 65 s, ok
+[cpcm_sa] ffn_A1_g1_l0: exit 0, 87 s, ok
+[cpcm_sa] ffn_A2_g0_s123: exit 0, 138 s, ok
+[cpcm_sa] mha_A1_g1_l0: exit 0, 141 s, ok
+[cpcm_sa] ffn_A2_g1_s123: exit 0, 165 s, ok
+[cpcm_sa] mha_A1_g0_l0: exit 0, 172 s, ok
+[cpcm_sa] mha_A2_g1_s123: exit 0, 203 s, ok
+[cpcm_sa] mha_A2_g0_s123: exit 0, 229 s, ok
+{'cfg': 'mha', 'arm': 'A1', 'g': 0, 'x': 0, 'rejected': 884, 'reverted_differs': np.int64(824), 'better_than_true_but_rejected': np.int64(255), 'E_rel_median': np.float64(0.03284327499524513), 'E_rel_max': np.float64(0.12191955559301286), 'E_rel_end': np.float64(0.061436022411059776), 'last_accept': 606}
+{'cfg': 'mha', 'arm': 'A1', 'g': 1, 'x': 0, 'rejected': 790, 'reverted_differs': np.int64(552), 'better_than_true_but_rejected': np.int64(144), 'E_rel_median': np.float64(0.0009165110707066884), 'E_rel_max': np.float64(0.0669305822322339), 'E_rel_end': np.float64(0.0669305822322339), 'last_accept': 768}
+{'cfg': 'mha', 'arm': 'A2', 'g': 0, 'x': 123, 'rejected': 948, 'reverted_differs': 941, 'better_than_true_but_rejected': 450, 'E_rel_median': 0.15600866033641997, 'E_rel_max': 0.4487841544071523, 'E_rel_end': 0.31080792100095644, 'last_accept': 830}
+{'cfg': 'mha', 'arm': 'A2', 'g': 1, 'x': 123, 'rejected': 908, 'reverted_differs': 899, 'better_than_true_but_rejected': 340, 'E_rel_median': 0.16115254615299623, 'E_rel_max': 0.17455702267509526, 'E_rel_end': 0.1614940609887565, 'last_accept': 278}
+{'cfg': 'ffn', 'arm': 'A1', 'g': 0, 'x': 0, 'rejected': 464, 'reverted_differs': np.int64(382), 'better_than_true_but_rejected': np.int64(138), 'E_rel_median': np.float64(0.01588355988454736), 'E_rel_max': np.float64(0.029984694675231086), 'E_rel_end': np.float64(0.014844914760003153), 'last_accept': 706}
+{'cfg': 'ffn', 'arm': 'A1', 'g': 1, 'x': 0, 'rejected': 844, 'reverted_differs': np.int64(725), 'better_than_true_but_rejected': np.int64(277), 'E_rel_median': np.float64(0.0022787490514926826), 'E_rel_max': np.float64(0.03261463541973769), 'E_rel_end': np.float64(0.0), 'last_accept': 999}
+{'cfg': 'ffn', 'arm': 'A2', 'g': 0, 'x': 123, 'rejected': 873, 'reverted_differs': 843, 'better_than_true_but_rejected': 362, 'E_rel_median': 0.08934880666592865, 'E_rel_max': 0.31105754983300304, 'E_rel_end': 0.09200132642341981, 'last_accept': 735}
+{'cfg': 'ffn', 'arm': 'A2', 'g': 1, 'x': 123, 'rejected': 822, 'reverted_differs': 785, 'better_than_true_but_rejected': 344, 'E_rel_median': 0.07663488287536258, 'E_rel_max': 0.12343933085627479, 'E_rel_end': 0.08742918256821558, 'last_accept': 922}
+Traceback (most recent call last):
+  File "E:\58Institute\PhD_TERM3\CRISP\cpcm_sa\cpcm_sa.py", line 1269, in <module>
+    main()
+    ~~~~^^
+  File "E:\58Institute\PhD_TERM3\CRISP\cpcm_sa\cpcm_sa.py", line 1258, in main
+    drift_cmd(a.jobs)
+    ~~~~~~~~~^^^^^^^^
+  File "E:\58Institute\PhD_TERM3\CRISP\cpcm_sa\cpcm_sa.py", line 1125, in drift_cmd
+    json.dump(out, f, indent=1)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\YiyangLiu\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 181, in dump
+    for chunk in iterable:
+                 ^^^^^^^^
+  File "C:\Users\YiyangLiu\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 433, in _iterencode
+    yield from _iterencode_list(o, _current_indent_level)
+  File "C:\Users\YiyangLiu\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 328, in _iterencode_list
+    yield from chunks
+  File "C:\Users\YiyangLiu\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 409, in _iterencode_dict
+    yield from chunks
+  File "C:\Users\YiyangLiu\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 442, in _iterencode
+    o = _default(o)
+  File "C:\Users\YiyangLiu\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 182, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type int64 is not JSON serializable

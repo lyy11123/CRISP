@@ -1012,7 +1012,10 @@ def summarise(configs, arms):
                     continue
                 s = d["selected"]
                 runs.append({"g": g, "x": x, "mean": bmean(s["backend"]), "mn": spread(s["backend"])[0],
-                             "mx": spread(s["backend"])[1], "own": s["own_cost"], "T_pre": s["T_pre"],
+                             "mx": spread(s["backend"])[1],
+                             # own cost (handoff section 3): SA energy for A0 / A1, T for the CPCM arms. Not E: E is
+                             # normalised by each run's T0, which differs between g0 and g1
+                             "own": (s["T_sel"], s["own_cost"]) if arm in CPCM_ARMS else s["own_cost"], "T_pre": s["T_pre"],
                              "T_bc": s["T_bc"], "d": d})
             if not runs:
                 continue
@@ -1050,7 +1053,8 @@ def report15(configs, arms):
         noise += [(r["mx"] - r["mn"]) / r["mean"] for r in (bb, oc)]
         s1 = [load_run(cfg, arm, g, x, base) for g, x in variants(arm)]
         m1 = [bmean(d["selected"]["backend"]) for d in s1]
-        o1 = min(s1, key=lambda d: d["selected"]["own_cost"])
+        o1 = min(s1, key=lambda d: (d["selected"]["T_sel"], d["selected"]["own_cost"]) if arm in CPCM_ARMS
+                 else d["selected"]["own_cost"])
         l1, l15 = [last_steps(d) for d in s1], [last_steps(r["d"]) for r in s["runs"]]
         rv = collections.Counter()
         for r in s["runs"]:
