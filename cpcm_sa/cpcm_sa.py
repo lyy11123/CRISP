@@ -1122,7 +1122,7 @@ def drift_cmd(jobs):
                     "E_rel_max": max(rel), "E_rel_end": rel[-1], "last_accept": last})
         print(out[-1])
     with open(os.path.join(OUT, "drift.json"), "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=1)
+        json.dump(out, f, indent=1, default=float)
 
 
 def analyse(configs, arms):
