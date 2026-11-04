@@ -1220,6 +1220,80 @@ def report15(configs, arms):
     return res
 
 
+E3_REF = {"ffn_f4": {"R0": 316969.0, "FULL": 228941.7}, "ffn_f5": {"R0": 270742.0, "FULL": 232402.0},
+          "mha_f4": {"R0": 26807.3, "FULL": 20534.3}, "mha_f5": {"R0": 18980.0, "FULL": 19234.0}}
+
+
+def report2(configs, arms):
+    """Stage 2 table (handoff 10.3): the three metrics, triple, T vs backend, per-step split, regime; self-checks 1-4
+    and 9.3 on the runs with checks on."""
+    _artifact_path()
+    S = summarise(configs, arms)
+    tab, noise, by_cfg = [], {}, collections.defaultdict(list)
+    chk = {"check1": [], "check2_n": 0, "check2_bad": 0, "check4_n": 0, "check4_off": 0, "check4_T": 0,
+           "revert_n": 0, "revert_E": 0, "revert_T": 0, "revert_state": 0}
+    keys = ["t_pre", "t_move", "t_target", "t_bcast", "t_energy", "t_revert", "t_snapshot"]
+    for (cfg, arm), s in S.items():
+        bb, oc = s["best_backend"], s["best_own"]
+        by_cfg[cfg] += [(r["mx"] - r["mn"]) / r["mean"] for r in (bb, oc)]
+        l15 = [last_steps(r["d"]) for r in s["runs"]]
+        n_steps = len(s["runs"][0]["d"]["rows"])
+        for r in s["runs"]:
+            d = r["d"]
+            if base_arm(arm) == "A0" and "template_out" in d:
+                t = d["template_out"][0]
+                chk["check1"].append({"cfg": cfg, "arm": arm, "run": f"g{r['g']}_{r['x']}", "mean": r["mean"], "min": r["mn"],
+                                      "max": r["mx"], "template": t, "rel": (r["mean"] - t) / t})
+            hp = platform(cfg) if d.get("check2") else None
+            for c in d.get("check2") or []:
+                chk["check2_n"] += 1
+                chk["check2_bad"] += cpcm_sim(pickle.loads(c["state"]), hp)[1].T != c["T_rec"]
+            for c in d.get("check4") or []:
+                chk["check4_n"] += 1
+                chk["check4_off"] += not c["on_fresh_cp"]
+                chk["check4_T"] += c["T_fresh"] != c["T_cached"]
+            rv = d.get("check_revert") or {}
+            for k, v in (("n", "revert_n"), ("E_mismatch", "revert_E"), ("T_mismatch", "revert_T"), ("state_mismatch", "revert_state")):
+                chk[v] += int(rv.get(k, 0))
+        t = {"cfg": cfg, "regime": REGIME[cfg], "arm": arm, "n": s["n"], "steps": n_steps,
+             "best_backend": round(bb["mean"], 1), "min": bb["mn"], "max": bb["mx"], "run": f"g{bb['g']}_{bb['x']}",
+             "best_backend_triple": triple(bb["d"]["selected"]["backend"]),
+             "best_own": round(oc["mean"], 1), "best_own_run": f"g{oc['g']}_{oc['x']}",
+             "best_own_triple": triple(oc["d"]["selected"]["backend"]),
+             "median": round(s["median"], 1), "worst": round(max(r["mean"] for r in s["runs"]), 1),
+             "last_accept_median": statistics.median(x[0] for x in l15), "last_best_median": statistics.median(x[1] for x in l15),
+             "Tmax_median": statistics.median(r["d"]["meta"]["Tmax"] for r in s["runs"]),
+             "err_Tbc_vs_backend_median": round(statistics.median((r["T_bc"] - r["mean"]) / r["mean"] for r in s["runs"]), 4),
+             "err_Tbc_vs_backend_maxabs": round(max(abs(r["T_bc"] - r["mean"]) / r["mean"] for r in s["runs"]), 4),
+             "err_Tsel_vs_Tbc_median": round(statistics.median(abs(r["d"]["selected"]["T_sel"] - r["T_bc"]) / r["T_bc"] for r in s["runs"]
+                                                               if r["d"]["selected"]["T_sel"] is not None), 4) if arm in CPCM_ARMS else None,
+             "ms_per_step": {k: round(1000 * statistics.median(sum(x.get(k, 0.0) for x in r["d"]["rows"]) / len(r["d"]["rows"])
+                                                               for r in s["runs"]), 1) for k in keys},
+             "sa_wall_median": round(statistics.median(r["d"]["sa_wall"] for r in s["runs"]), 1),
+             "eval_wall_median": round(statistics.median(r["d"]["selected"]["eval_wall"] for r in s["runs"]), 1)}
+        tab.append(t)
+    for t in tab:
+        a1 = next((u for u in tab if u["cfg"] == t["cfg"] and u["arm"] == "A1"), None)
+        if a1:
+            for k in ("best_backend", "best_own", "median"):
+                t[k + "_vs_A1"] = round(t[k] / a1[k] - 1, 4)
+        if t["cfg"] in E3_REF:
+            t["vs_E3_R0"] = round(t["best_backend"] / E3_REF[t["cfg"]]["R0"] - 1, 4)
+            t["vs_E3_FULL"] = round(t["best_backend"] / E3_REF[t["cfg"]]["FULL"] - 1, 4)
+    res = {"stage": STAGE, "noise_by_config": {c: statistics.median(v) for c, v in by_cfg.items()},
+           "noise_all": statistics.median(x for v in by_cfg.values() for x in v), "E3": E3_REF, "checks": chk, "table": tab}
+    with open(os.path.join(OUT, "report2.json"), "w", encoding="utf-8") as f:
+        json.dump(res, f, indent=1, default=float)
+    with open(os.path.join(OUT, "report2.csv"), "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=list(dict.fromkeys(k for t in tab for k in t)))
+        w.writeheader()
+        w.writerows(tab)
+    print({k: v for k, v in res.items() if k != "table"})
+    for t in tab:
+        print(t)
+    return res
+
+
 def drift_cmd(jobs):
     """Pre-fix drift of A1 / A2 (handoff 9.4): 2 runs per config x arm under CPCM_SA_STAGE=drift."""
     todo = [(c, a, *variants(a)[i], False) for c in ("mha", "ffn") for a in ("A1", "A2") for i in (0, 7)]
@@ -1368,7 +1442,7 @@ def main():
         diag_child(cfg, arm, int(g), int(x), out)
         return
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["run", "reeval", "check3", "diag", "analyse", "report15", "drift"])
+    ap.add_argument("cmd", choices=["run", "reeval", "check3", "diag", "analyse", "report15", "report2", "drift"])
     ap.add_argument("--configs", nargs="*", default=list(CONFIGS))
     ap.add_argument("--arms", nargs="*", default=ARMS)
     ap.add_argument("--jobs", type=int, default=12)
@@ -1381,6 +1455,8 @@ def main():
         reeval(a.configs, a.arms, a.jobs)
     elif a.cmd == "report15":
         report15(a.configs, a.arms)
+    elif a.cmd == "report2":
+        report2(a.configs, a.arms)
     elif a.cmd == "drift":
         drift_cmd(a.jobs)
     elif a.cmd == "check3":
