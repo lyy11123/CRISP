@@ -54,7 +54,15 @@ sys.path.insert(0, os.path.join(ROOT, "e3_warmstart"))
 import e3_warmstart as e3  # noqa: E402
 
 WORK = os.path.join(HERE, "work", "artifact")
-OUT = os.path.join(HERE, "out")
+# stage 1.5 (handoff section 9), from the environment so children inherit it:
+#   ""     stage 1 as run (artifact revert, T without the final broadcast)
+#   drift  stage 1 rules, plus E / T of the reverted state recorded after every rejection (measurement only)
+#   b1     exact revert                 b2  exact revert + T, CP, W(e) on the graph with the final broadcast
+STAGE = os.environ.get("CPCM_SA_STAGE", "")
+EXACT_REVERT = STAGE in ("b1", "b2")
+BROADCAST_T = STAGE == "b2"
+OUT_ROOT = os.path.join(HERE, "out")
+OUT = os.path.join(OUT_ROOT, STAGE) if STAGE else OUT_ROOT
 COMMIT_FILE = os.path.join(ROOT, "third_party", "isca2026-busybarn-artifact.COMMIT")
 SUF = "_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0"
 F5 = {"failed_nodes": [], "failed_links": [[[3, 15], [3, 14]], [[3, 14], [3, 15]]]}  # E3 ffn F5 (summary json)
@@ -353,14 +361,77 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
         heur = Heur(self)
         tm = collections.Counter()
         c2, c4 = [], []
+        crev = {"n": 0, "E_mismatch": 0, "T_mismatch": 0, "state_mismatch": 0}
+        exact = EXACT_REVERT and arm != "A0"
         if self.LP_flag or self.mem_datatags:
             raise RuntimeError("template uses LP_flag / mem_datatags: not covered")
 
+        def t_eval():
+            """CPCM on the current SA state: (graph, schedule, event dict evaluated). With BROADCAST_T the template's
+            final add_broadcast is applied as final_eval applies it (seed BCAST_SEED) to a temporary event dict: it
+            only adds communications, each producer's issue_set entry and comm id, and platform link counters, so
+            the producers are shallow-copied and the counters and RNG restored afterwards."""
+            ev0, hp = self.state[7], self.hardware_platform
+            if not BROADCAST_T:
+                return (*cpcm_sim(ev0, hp), ev0)
+            loads, counts = dict(hp.link_loads_dict), dict(hp.link_loads_count)
+            rng = random.getstate(), np.random.get_state()
+            ev = dict(ev0)
+            for dt in ctx["broadcast_datatags"]:
+                for prod in self.state[6][dt].generated_tag_splitted_dict:
+                    c = copy.copy(ev0[prod])
+                    c.issue_set = set(c.issue_set)
+                    c.commid_allocator = copy.deepcopy(c.commid_allocator)
+                    ev[prod] = c
+            random.seed(BCAST_SEED)
+            np.random.seed(BCAST_SEED)
+            add_broadcast(data_tags=ctx["broadcast_datatags"],
+                          ddr_chiplets=ctx["layers_regions"][ctx["initialization_layer_tag"]],
+                          beha_dict=self.state[5], data_dict=self.state[6], hardware_platform=hp, event_dict=ev,
+                          dijkstra_routing=ctx["dijkstra_routing"], alpha=ctx["alpha"], beta=ctx["beta"],
+                          gamma=ctx["gamma"])
+            g, sc = cpcm_sim(ev, hp)
+            hp.link_loads_dict.update(loads)
+            hp.link_loads_count.update(counts)
+            random.setstate(rng[0])
+            np.random.set_state(rng[1])
+            return g, sc, ev
+
         def evaluate():
             """CPCM on the current SA state; sets st (graph, schedule; analysis lazily)."""
-            g, sc = cpcm_sim(self.state[7], self.hardware_platform)
-            st.update(g=g, sc=sc, an=None)
+            g, sc, ev = t_eval()
+            st.update(g=g, sc=sc, an=None, ev=ev)
             return sc.T
+
+        def before_move():
+            """Exact revert: everything a rejected move can change, and the CPCM result of the current state."""
+            hp = self.hardware_platform
+            return {"blob": pickle.dumps(self.state, protocol=pickle.HIGHEST_PROTOCOL),
+                    "loads": dict(hp.link_loads_dict), "counts": dict(hp.link_loads_count),
+                    "st": {k: st[k] for k in ("g", "sc", "an", "ev") if k in st}}
+
+        def exact_revert(pre):
+            hp = self.hardware_platform
+            self.state = pickle.loads(pre["blob"])
+            hp.link_loads_dict.update(pre["loads"])
+            hp.link_loads_count.update(pre["counts"])
+            st.update(pre["st"])
+
+        def fingerprint():
+            """Check 9.3: tags and order, dependencies, issues, sources, routes, comm-id allocators, locations, the
+            SA totals and the platform's counters."""
+            hp, s_ = self.hardware_platform, self.state
+            evs = []
+            for t, e in s_[7].items():
+                row = [t, sorted(map(str, e.dependency_set)), sorted(map(str, e.issue_set))]
+                if e.event_type == "communication":
+                    row += [e.source_location, str(e.target_location), e.comm_bytes, str(e.path_list), str(e.paths)]
+                else:
+                    a = e.commid_allocator
+                    row += [e.comp_location, sorted(a.used_ids), sorted(a.recycled), a.next_id]
+                evs.append(row)
+            return (evs, {t: b.location for t, b in s_[5].items()}, s_[0], s_[1], dict(s_[2]), dict(s_[3]), dict(s_[4]),
+                    dict(hp.link_loads_dict), dict(hp.link_loads_count))
 
         def energy_cp():
             T = evaluate()
@@ -398,7 +469,7 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
         def targeted(variant, heuristic, check_now=False):
             fresh = None
             if check_now:      # check 4: a fresh CPCM pass of the state the pick is made in (not timed)
-                fg, fsc = cpcm_sim(self.state[7], self.hardware_platform)
+                fg, fsc, _ = t_eval()
                 fresh = (fsc.T, {fg.tag[r["event"]] for r in cpcm.Analysis(fsc).critical_path()})
             t0 = time.perf_counter()
             e, info = pick(variant)
@@ -407,7 +478,7 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
             if fresh is not None:
                 info["check4"] = {"T_fresh": fresh[0], "T_cached": st["sc"].T, "on_fresh_cp": tag in fresh[1],
                                   "n_cp_events": len(fresh[1])}
-            ev = self.state[7][tag]
+            ev = self.state[7][tag] if tag in self.state[7] else st["ev"][tag]   # broadcast: evaluated dict only
             info.update(event=str(tag), W=W(e))
             ddr_nodes = {k[:-1] for k in self.hardware_platform.ddr_dict}
             if ev.event_type == "computation":
@@ -436,7 +507,8 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
                             prim = lambda c: heur.hop(src, c)
                         else:
                             tgt = ev.target_location
-                            prim = lambda c: heur.hop(c, tgt)
+                            prim = (lambda c: sum(heur.hop(c, n) for n in tgt)) if isinstance(tgt, set) \
+                                else (lambda c: heur.hop(c, tgt))
                         dest = heur.comp_dest(b, primary=prim)
                     else:
                         dest = random.choice(comp_cands(self, b))
@@ -521,14 +593,18 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
             Ec, Tc = energy()
             dEs, worse = [], []
             while len(dEs) < CAL_PROBES or (len(worse) < CAL_MIN_WORSE and len(dEs) < CAL_MAX_PROBES):
+                pre = before_move() if exact else None
                 move()
                 E1, T1 = energy()
                 dEs.append(E1 - Ec)
                 # worsening: dE > 0; CPCM arms: T increases (a change of the tie key alone is not a worsening)
                 if E1 - Ec > 0 and (not cp_arm or T1 > Tc):
                     worse.append(abs(E1 - Ec))
-                self.revert()
-                Ec, Tc = energy()
+                if exact:
+                    exact_revert(pre)
+                else:
+                    self.revert()
+                    Ec, Tc = energy()
             dE50 = statistics.median(worse) if worse else None
             if dE50:
                 Tmax = -dE50 / math.log(0.5)
@@ -555,11 +631,15 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
         best = {"E": E, "T": Tcur, "step": 0, "snap": snapshot() if arm != "A0" else None}
         mon = {}
         if not cp_arm:
-            mon[0] = cpcm_sim(self.state[7], self.hardware_platform)[1].T
+            mon[0] = t_eval()[1].T
         wall0 = time.time()
         n4 = 0
         for step in range(1, steps + 1):
             T = Tmax * math.exp(Tfactor * step / steps)
+            t0 = time.perf_counter()
+            pre = before_move() if exact else None
+            t_pre = time.perf_counter() - t0
+            fp0 = fingerprint() if exact and checks else None
             t0 = time.perf_counter()
             tgt0 = tm["target"]
             info = move(checks and n4 < CHECK4_N)
@@ -575,12 +655,24 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
                    "t_energy": t2 - t1, "action": info.get("action"), "targeted": bool(info.get("targeted"))}
             if info.get("targeted"):
                 row.update(pick_event=info["event"], pick_W=info["W"], pick_n=info.get("n"), pick_res=info.get("res"))
+            row["t_pre"] = t_pre
             if dE > 0.0 and math.exp(-dE / T) < random.random():
                 t3 = time.perf_counter()
-                self.revert()
+                exact_revert(pre) if exact else self.revert()
                 row["t_revert"] = time.perf_counter() - t3
                 row["accepted"] = False
-                if arm in TARGETED:     # targeting reads the schedule of the current (reverted, re-routed) state
+                if exact and checks:    # check 9.3: E of the restored state, recomputed, against the recorded value
+                    keep = {k: st[k] for k in ("g", "sc", "an", "ev") if k in st}
+                    E_re, T_re = energy()
+                    st.update(keep)
+                    crev["n"] += 1
+                    crev["E_mismatch"] += E_re != prevE
+                    crev["T_mismatch"] += T_re != prevT
+                    crev["state_mismatch"] += fingerprint() != fp0
+                if STAGE == "drift":    # measurement only: E / T of the reverted state; the loop keeps the old value
+                    E_re, T_re = energy()
+                    row.update(E_reverted=E_re, T_reverted=T_re)
+                elif not exact and arm in TARGETED:     # targeting reads the schedule of the current (reverted, re-routed) state
                     t3 = time.perf_counter()
                     row["T_reverted"] = evaluate()
                     row["t_refresh"] = time.perf_counter() - t3
@@ -593,13 +685,14 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
                     t3 = time.perf_counter()
                     best.update(E=E, T=Tcur, step=step, snap=snapshot())
                     row["t_snapshot"] = time.perf_counter() - t3
-                c2_due = (step >= c2[-1]["step"] + 10 if c2 else True) if os.environ.get("CPCM_SA_CHECK2_ANY")                     else step >= CHECK2_STEPS[min(len(c2), len(CHECK2_STEPS) - 1)]
+                c2_due = (step >= c2[-1]["step"] + 10 if c2 else True) if (STAGE or os.environ.get("CPCM_SA_CHECK2_ANY"))                     else step >= CHECK2_STEPS[min(len(c2), len(CHECK2_STEPS) - 1)]
                 if checks and len(c2) < len(CHECK2_STEPS) and c2_due:   # CHECK2_ANY: first accepted states, >= 10 apart
-                    T_rec = Tcur if cp_arm else cpcm_sim(self.state[7], self.hardware_platform)[1].T
+                    ev_c2 = st["ev"] if cp_arm else t_eval()[2]
+                    T_rec = Tcur if cp_arm else t_eval()[1].T
                     c2.append({"step": step, "T_rec": T_rec,
-                               "state": pickle.dumps(self.state[7], protocol=pickle.HIGHEST_PROTOCOL)})
+                               "state": pickle.dumps(ev_c2, protocol=pickle.HIGHEST_PROTOCOL)})
             if not cp_arm and step % MONITOR_EVERY == 0:
-                mon[step] = cpcm_sim(self.state[7], self.hardware_platform)[1].T
+                mon[step] = t_eval()[1].T
             row["best_E"] = best["E"]
             rows.append(row)
         sa_wall = time.time() - wall0
@@ -616,7 +709,7 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
             sink["snaptest"] = {"T_pre": (fe["T_pre"], full["T_pre"]), "T_bc": (fe["T_bc"], full["T_bc"]),
                                 "routes_equal": fe["e3map"]["routes"] == full["e3map"]["routes"],
                                 "backend": (fe["backend"], full["backend"])}
-        sink.update(rows=rows, monitor=mon, sa_wall=sa_wall, check2=c2, check4=c4,
+        sink.update(rows=rows, monitor=mon, sa_wall=sa_wall, check2=c2, check4=c4, check_revert=crev,
                     selected={"own_cost": sel["E"], "T_sel": sel["T"], "step": sel["step"], **fe})
         with gzip.open(snap_path, "wb") as f:     # the platform holds lambdas: only its routing-history counters
             pickle.dump((sel["snap"][0], {"link_loads_dict": sel["snap"][1], "link_loads_count": sel["snap"][2]}),
@@ -654,8 +747,8 @@ def run(configs, arms, jobs, only_first=False):
     for cfg in configs:
         for arm in arms:
             vs = variants(arm)
-            for i, (g, x) in enumerate(vs[:1] if only_first else vs):
-                todo.append((cfg, arm, g, x, i == 0))
+            for i, (g, x) in enumerate(vs[:(2 if STAGE else 1)] if only_first else vs):
+                todo.append((cfg, arm, g, x, i < (2 if STAGE else 1)))   # stage 1.5: checks on 2 runs per arm
     todo.sort(key=lambda t: (t[1] not in CPCM_ARMS, t[0] != "mha"))   # long ones first
     with ThreadPoolExecutor(jobs) as ex:
         res = list(ex.map(lambda t: run_one(*t), todo))
@@ -692,9 +785,9 @@ def platform(cfg):
     return _PLAT[cfg]
 
 
-def load_run(cfg, arm, g, x):
+def load_run(cfg, arm, g, x, base=None):
     _artifact_path()
-    with gzip.open(os.path.join(OUT, "runs", run_name(cfg, arm, g, x) + ".pkl.gz"), "rb") as f:
+    with gzip.open(os.path.join(base or OUT, "runs", run_name(cfg, arm, g, x) + ".pkl.gz"), "rb") as f:
         return pickle.load(f)
 
 
@@ -707,8 +800,16 @@ def check3_child_hook():
 
     def stream_mapping(*args, **kw):
         g, sc = cpcm_sim(kw["event_dict"], kw["hardware_platform"])
+        ctx = _find_context()
+        ev, hp = copy.deepcopy((kw["event_dict"], kw["hardware_platform"]))
+        random.seed(BCAST_SEED)
+        np.random.seed(BCAST_SEED)
+        sys.modules["add_communication"].add_broadcast(   # E3's wrapper: the captured broadcast routes come back
+            data_tags=ctx["broadcast_datatags"], ddr_chiplets=ctx["layers_regions"][ctx["initialization_layer_tag"]],
+            beha_dict=kw["beha_dict"], data_dict=kw["data_dict"], hardware_platform=hp, event_dict=ev,
+            dijkstra_routing=ctx["dijkstra_routing"], alpha=ctx["alpha"], beta=ctx["beta"], gamma=ctx["gamma"])
         with open(os.environ["CPCM_SA_SINK"], "wb") as f:
-            pickle.dump({"T": sc.T, "n": g.n, "log": e3._spec()["_log"]}, f)
+            pickle.dump({"T": sc.T, "T_bc": cpcm_sim(ev, hp)[1].T, "n": g.n, "log": e3._spec()["_log"]}, f)
         raise SystemExit(0)
     Stream_Mapping.stream_mapping = stream_mapping
     return inner
@@ -741,8 +842,10 @@ def check3(configs, arms, jobs):
             r = pickle.load(f)
         rec = d["selected"]
         rt = r["log"].get("routes", [{}])[0]
+        T_sa = r["T_bc"] if BROADCAST_T else r["T"]      # what the SA recorded as its best T
         return {"cfg": cfg, "arm": arm, "T_inject": r["T"], "T_pre_final_eval": rec["T_pre"], "T_sel_in_SA": rec["T_sel"],
-                "equal": r["T"] == rec["T_pre"] and (rec["T_sel"] is None or r["T"] == rec["T_sel"]),
+                "T_bc_inject": r["T_bc"], "T_bc_final_eval": rec["T_bc"],
+                "equal": r["T"] == rec["T_pre"] and r["T_bc"] == rec["T_bc"] and (rec["T_sel"] is None or T_sa == rec["T_sel"]),
                 "restored": rt.get("restored"), "rerouted": rt.get("rerouted")}
 
     with ThreadPoolExecutor(jobs) as ex:
@@ -927,6 +1030,101 @@ def _artifact_path():
             sys.path.append(p)
 
 
+def last_steps(d):
+    rows = d["rows"]
+    return max((r["step"] for r in rows if r["accepted"]), default=0), d["selected"]["step"]
+
+
+def triple(bk):
+    return [round(statistics.mean(v[i] for v in bk.values()), 1) for i in range(3)]
+
+
+def report15(configs, arms):
+    """Stage 1.5 table: selected mappings with the backend triple, change vs A1 of this stage and vs the same arm of
+    stage 1 (10 seeds there too), last accepted / last best-refreshing step, check 9.3 counters."""
+    S = summarise(configs, arms)
+    base = OUT_ROOT
+    tab, noise = [], []
+    for (cfg, arm), s in S.items():
+        bb, oc = s["best_backend"], s["best_own"]
+        noise += [(r["mx"] - r["mn"]) / r["mean"] for r in (bb, oc)]
+        s1 = [load_run(cfg, arm, g, x, base) for g, x in variants(arm)]
+        m1 = [bmean(d["selected"]["backend"]) for d in s1]
+        o1 = min(s1, key=lambda d: d["selected"]["own_cost"])
+        l1, l15 = [last_steps(d) for d in s1], [last_steps(r["d"]) for r in s["runs"]]
+        rv = collections.Counter()
+        for r in s["runs"]:
+            rv.update(r["d"].get("check_revert") or {})
+        tab.append({"cfg": cfg, "arm": arm, "n": s["n"],
+                    "best_backend": round(bb["mean"], 1), "min": bb["mn"], "max": bb["mx"], "run": f"g{bb['g']}_{bb['x']}",
+                    "best_backend_triple": triple(bb["d"]["selected"]["backend"]),
+                    "best_own": round(oc["mean"], 1), "best_own_run": f"g{oc['g']}_{oc['x']}",
+                    "best_own_triple": triple(oc["d"]["selected"]["backend"]),
+                    "median": round(s["median"], 1), "worst": round(max(r["mean"] for r in s["runs"]), 1),
+                    "stage1_best_backend": round(min(m1), 1), "stage1_best_own": round(bmean(o1["selected"]["backend"]), 1),
+                    "stage1_median": round(statistics.median(m1), 1),
+                    "last_accept_median": statistics.median(x[0] for x in l15),
+                    "last_best_median": statistics.median(x[1] for x in l15),
+                    "last_best_max": max(x[1] for x in l15),
+                    "stage1_last_accept_median": statistics.median(x[0] for x in l1),
+                    "stage1_last_best_median": statistics.median(x[1] for x in l1),
+                    "Tmax_median": statistics.median(r["d"]["meta"]["Tmax"] for r in s["runs"]),
+                    "stage1_Tmax_median": statistics.median(d["meta"]["Tmax"] for d in s1),
+                    "accept_per_100_median": [round(statistics.median(
+                        sum(1 for x in r["d"]["rows"][i:i + 100] if x["accepted"]) for r in s["runs"]), 1)
+                        for i in range(0, 1000, 100)],
+                    "Tbc_over_Tpre_median": round(statistics.median(r["T_bc"] / r["T_pre"] for r in s["runs"]), 3),
+                    "Tsel_eq_Tbc": sum(1 for r in s["runs"] if r["d"]["selected"]["T_sel"] == r["T_bc"]),
+                    "Tsel_eq_Tpre": sum(1 for r in s["runs"] if r["d"]["selected"]["T_sel"] == r["T_pre"]),
+                    "err_Tbc_vs_backend_median": round(statistics.median((r["T_bc"] - r["mean"]) / r["mean"] for r in s["runs"]), 4),
+                    "check_revert": dict(rv),
+                    "sa_wall_median": round(statistics.median(r["d"]["sa_wall"] for r in s["runs"]), 1)})
+    for t in tab:
+        a1 = next(u for u in tab if u["cfg"] == t["cfg"] and u["arm"] == "A1")
+        for k in ("best_backend", "best_own", "median"):
+            t[k + "_vs_A1"] = round(t[k] / a1[k] - 1, 4)
+            t[k + "_vs_stage1"] = round(t[k] / t["stage1_" + k] - 1, 4)
+    res = {"stage": STAGE, "noise_median": statistics.median(noise), "table": tab}
+    with open(os.path.join(OUT, "report15.json"), "w", encoding="utf-8") as f:
+        json.dump(res, f, indent=1, default=str)
+    print("noise", res["noise_median"])
+    for t in tab:
+        print(t)
+    return res
+
+
+def drift_cmd(jobs):
+    """Pre-fix drift of A1 / A2 (handoff 9.4): 2 runs per config x arm under CPCM_SA_STAGE=drift."""
+    todo = [(c, a, *variants(a)[i], False) for c in ("mha", "ffn") for a in ("A1", "A2") for i in (0, 7)]
+    with ThreadPoolExecutor(jobs) as ex:
+        list(ex.map(lambda t: run_one(*t), todo))
+    out = []
+    for c, a, g, x, _ in todo:
+        d = load_run(c, a, g, x)
+        recE = trueE = None
+        n = diff = fake = 0
+        rel = []
+        last = 0
+        for r in d["rows"]:
+            if recE is None:
+                recE = trueE = r["E_new"] - r["dE"]
+            if r["accepted"]:
+                recE = trueE = r["E_new"]
+                last = r["step"]
+            else:
+                n += 1
+                fake += r["E_new"] < trueE
+                diff += r["E_reverted"] != recE
+                rel.append((r["E_reverted"] - recE) / recE)
+                trueE = r["E_reverted"]
+        out.append({"cfg": c, "arm": a, "g": g, "x": x, "rejected": n, "reverted_differs": diff,
+                    "better_than_true_but_rejected": fake, "E_rel_median": statistics.median(rel),
+                    "E_rel_max": max(rel), "E_rel_end": rel[-1], "last_accept": last})
+        print(out[-1])
+    with open(os.path.join(OUT, "drift.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=1)
+
+
 def analyse(configs, arms):
     _artifact_path()
     S = summarise(configs, arms)
@@ -1043,7 +1241,7 @@ def main():
         diag_child(cfg, arm, int(g), int(x), out)
         return
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["run", "reeval", "check3", "diag", "analyse"])
+    ap.add_argument("cmd", choices=["run", "reeval", "check3", "diag", "analyse", "report15", "drift"])
     ap.add_argument("--configs", nargs="*", default=list(CONFIGS))
     ap.add_argument("--arms", nargs="*", default=ARMS)
     ap.add_argument("--jobs", type=int, default=12)
@@ -1054,6 +1252,10 @@ def main():
         run(a.configs, a.arms, a.jobs, a.first)
     elif a.cmd == "reeval":
         reeval(a.configs, a.arms, a.jobs)
+    elif a.cmd == "report15":
+        report15(a.configs, a.arms)
+    elif a.cmd == "drift":
+        drift_cmd(a.jobs)
     elif a.cmd == "check3":
         check3(a.configs, a.arms, a.jobs)
     elif a.cmd == "diag":
