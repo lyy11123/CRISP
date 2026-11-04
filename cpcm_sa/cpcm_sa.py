@@ -59,19 +59,35 @@ WORK = os.path.join(HERE, "work", "artifact")
 #   drift  stage 1 rules, plus E / T of the reverted state recorded after every rejection (measurement only)
 #   b1     exact revert                 b2  exact revert + T, CP, W(e) on the graph with the final broadcast
 STAGE = os.environ.get("CPCM_SA_STAGE", "")
-EXACT_REVERT = STAGE in ("b1", "b2")
-BROADCAST_T = STAGE == "b2"
+#   c      as b2 with the broadcast-route cache (handoff 10.1), plus exact-T samples (validation 10.2, runs read only)
+#   s2     stage 2 (handoff 10.3): exact revert + T with the cached broadcast
+EXACT_REVERT = STAGE in ("b1", "b2", "c", "s2")
+BROADCAST_T = STAGE in ("b2", "c", "s2")
+BC_CACHE = STAGE in ("c", "s2")
+LIVE_EXACT_EVERY = 25 if STAGE == "c" else 0
 OUT_ROOT = os.path.join(HERE, "out")
 OUT = os.path.join(OUT_ROOT, STAGE) if STAGE else OUT_ROOT
 COMMIT_FILE = os.path.join(ROOT, "third_party", "isca2026-busybarn-artifact.COMMIT")
-SUF = "_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0"
+SUF = "_bw256_co4x4_bw256_t128x64_failpattern0"
 F5 = {"failed_nodes": [], "failed_links": [[[3, 15], [3, 14]], [[3, 14], [3, 15]]]}  # E3 ffn F5 (summary json)
-CONFIGS = {"ffn": ("intra_mapping_gpt_decode", "ffn", None),
-           "mha": ("intra_mapping_gpt_decode", "mha", None),
-           "ffn_f5": ("intra_mapping_gpt_decode", "ffn", F5)}
+F4_FFN = {"failed_nodes": [], "failed_links": [[[3, 2], [1, 14]], [[1, 14], [3, 2]]]}    # E3 summary json
+F4_MHA = {"failed_nodes": [], "failed_links": [[[2, 2], [0, 14]], [[0, 14], [2, 2]]]}    # E3 summary json
+F5_MHA = {"failed_nodes": [], "failed_links": [[[0, 14], [0, 10]], [[0, 10], [0, 14]]]}  # E3: MHA's F5 is its F3 link
+GPT = "intra_mapping_gpt_decode"
+# name -> (model folder, operator, faults, die group); regime as CPCM_SUMMARY section 1
+CONFIGS = {"ffn": (GPT, "ffn", None, "ch2x2"), "mha": (GPT, "mha", None, "ch2x2"),
+           "ffn_f5": (GPT, "ffn", F5, "ch2x2"), "ffn_f4": (GPT, "ffn", F4_FFN, "ch2x2"),
+           "mha_f4": (GPT, "mha", F4_MHA, "ch2x2"), "mha_f5": (GPT, "mha", F5_MHA, "ch2x2"),
+           "ffn14": (GPT, "ffn", None, "ch1x4"), "opt": ("intra_mapping_ch", "ffn", None, "ch2x2"),
+           "moe": ("intra_mapping_qwen3moe_decode", "ffn", None, "ch2x2")}
+REGIME = {"opt": "compute", "ffn": "balanced", "mha": "balanced", "ffn14": "balanced", "moe": "comm",
+          "ffn_f4": "balanced+fault", "ffn_f5": "balanced+fault", "mha_f4": "balanced+fault", "mha_f5": "balanced+fault"}
 ARMS = ["A0", "A1", "A2", "A3", "A3CB", "A3h"]
-CPCM_ARMS = {"A2", "A3", "A3CB", "A3h"}
-TARGETED = {"A3", "A3CB", "A3h"}
+# aliases: p scan of A3h, A0 / A1 on the same wall clock as A3h
+BASE_ARM = {"A3hp25": "A3h", "A3hp75": "A3h", "A0w": "A0", "A1w": "A1"}
+ARM_P = {"A3hp25": 0.25, "A3hp75": 0.75}
+CPCM_ARMS = {"A2", "A3", "A3CB", "A3h", "A3hp25", "A3hp75"}
+TARGETED = {"A3", "A3CB", "A3h", "A3hp25", "A3hp75"}
 SA_SEEDS = [123, 1, 2, 3, 4, 5, 6]       # A2+: g0/g1 x these 7 seeds (A0/A1: g0/g1 x lossratio0-6, seed 123)
 BACKEND_SEEDS = list(range(1, 11))     # user 2026-11-04: 10 seeds (was 1-5; A0/A1 re-evaluated, see reeval)
 BCAST_SEED = 0
@@ -86,18 +102,22 @@ CHECK1_EXEMPT = {("ffn", 0, 4), ("ffn", 1, 2), ("mha", 1, 2), ("ffn_f5", 1, 4)}
 E3_F5 = {"R0_mean_3seeds": 270742.0, "FULL_best_mean_3seeds": 232402.0, "FULL_best_variant": "g1_l6"}
 
 
+def base_arm(arm):
+    return BASE_ARM.get(arm, arm)
+
+
 def variants(arm):
-    return [(g, x) for g in (0, 1) for x in (range(7) if arm in ("A0", "A1") else SA_SEEDS)]
+    return [(g, x) for g in (0, 1) for x in (range(7) if base_arm(arm) in ("A0", "A1") else SA_SEEDS)]
 
 
 def run_name(cfg, arm, g, x):
-    return f"{cfg}_{arm}_g{g}_{'l' if arm in ('A0', 'A1') else 's'}{x}"
+    return f"{cfg}_{arm}_g{g}_{'l' if base_arm(arm) in ('A0', 'A1') else 's'}{x}"
 
 
 def task_of(cfg, arm, g, x):
-    model, op, _ = CONFIGS[cfg]
-    l = x if arm in ("A0", "A1") else 0           # A2+ do not use the loss ratio: lossratio0 file
-    return model, f"{op}_sq2048_greedy{g}_lossratio{l}{SUF}"
+    model, op, _, ch = CONFIGS[cfg]
+    l = x if base_arm(arm) in ("A0", "A1") else 0  # A2+ do not use the loss ratio: lossratio0 file
+    return model, f"{op}_sq2048_greedy{g}_lossratio{l}_{ch}{SUF}"
 
 
 # ------------------------------------------------------------------ child: helpers on the annealer
@@ -256,7 +276,7 @@ class Heur:
 def child(cfg, arm, g, x, sink_path, snap_path, checks):
     model, task = task_of(cfg, arm, g, x)
     faults = CONFIGS[cfg][2]
-    seed = 123 if arm in ("A0", "A1") else x
+    seed = 123 if base_arm(arm) in ("A0", "A1") else x
     task_path = os.path.join(WORK, "models", model, "py", task + ".py")
     for sub in SRC_SUBDIRS:
         p = os.path.join(WORK, sub)
@@ -303,7 +323,7 @@ def child(cfg, arm, g, x, sink_path, snap_path, checks):
         return out
     ed_mod.event_driver = event_driver
 
-    Stream_Mapping.StreamOptimization.anneal = make_anneal(arm, seed, sink, sink_path, snap_path, checks,
+    Stream_Mapping.StreamOptimization.anneal = make_anneal(base_arm(arm), ARM_P.get(arm, P), seed, sink, sink_path, snap_path, checks,
                                                            add_broadcast, orig_ed)
     os.makedirs(os.path.join(os.path.dirname(task_path), "..", "results"), exist_ok=True)
     runpy.run_path(task_path, run_name="__main__")
@@ -350,7 +370,76 @@ def final_eval(snap, ctx, add_broadcast, event_driver):
     return {"T_pre": t_pre, "T_bc": t_bc, "backend": bk, "backend_wall": wall, "e3map": m}
 
 
-def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, event_driver):
+class BcCache:
+    """Broadcast-route cache (handoff 10.1): the template's final broadcast is rebuilt per evaluation on a temporary
+    event dict (new communications, producers shallow-copied, comm ids from a copy of each allocator, so the tags and
+    dict order are those add_broadcast gives); a message keeps its route while its producer stays on the same node.
+    Routes that must be recomputed use the artifact's Dijkstra (random seeded BCAST_SEED, as the final evaluation)
+    with the platform's counters plus the kept broadcast routes' loads, in add_broadcast's order; the counters and
+    the RNG are restored. An empty cache therefore gives exactly add_broadcast's routes."""
+
+    def __init__(self, ctx, hp):
+        self.ctx = ctx
+        self.routes = {}
+        self.ddrs = {d[:-1] for d in hp.ddr_dict if d[0] in ctx["layers_regions"][ctx["initialization_layer_tag"]]}
+        self.recomputed = 0
+
+    def graph(self, beha, data, ev0, hp):
+        from data_notation import type_bytes
+        from event_notation import communication_notation
+        ctx = self.ctx
+        ev, pending, seen = dict(ev0), [], set()
+        for dt in ctx["broadcast_datatags"]:
+            for prod, splits in data[dt].generated_tag_splitted_dict.items():
+                c = copy.copy(ev0[prod])
+                c.issue_set = set(c.issue_set)
+                a = c.commid_allocator = copy.copy(c.commid_allocator)
+                a.used_ids, a.recycled = set(a.used_ids), list(a.recycled)
+                ev[prod] = c
+                loc = ev0[prod].comp_location[:-1]
+                for sp in splits:
+                    tag = (1,) + prod[1:] + (a.allocate(),)
+                    nb = int(np.prod([e_ - s_ + 1 for (s_, e_) in sp]) * type_bytes[data[dt].data_type])
+                    e = communication_notation(comm_name=beha[prod].beha_name, comm_tag=tag, source_location=loc,
+                                               target_location=self.ddrs, comm_bytes=nb)
+                    e.dependency_set.add(prod)
+                    c.issue_set.add(tag)
+                    ev[tag] = e
+                    key = (dt, prod, sp)
+                    seen.add(key)
+                    r = self.routes.get(key)
+                    if r is not None and r[0] == loc:
+                        e.paths, e.path_list = r[1], r[2]
+                    else:
+                        pending.append((key, e, loc))
+        if pending:
+            loads, counts = dict(hp.link_loads_dict), dict(hp.link_loads_count)
+            rng = random.getstate(), np.random.get_state()
+            todo = {k for k, _, _ in pending}
+            for k, r in self.routes.items():
+                if k not in todo:
+                    for link, w in r[3]:
+                        hp.link_loads_dict[link] += w
+                        hp.link_loads_count[link] += 1
+            random.seed(BCAST_SEED)
+            np.random.seed(BCAST_SEED)
+            for key, e, loc in pending:
+                t = e.event_tag
+                e.paths = hp.record_dijkstra_multicast_path(comm_pairs=[[t, loc, self.ddrs, e.comm_bytes]],
+                                                            alpha=ctx["alpha"], beta=ctx["beta"], gamma=ctx["gamma"])[2][t]
+                e.path_list = e.get_paths(e.paths)
+                w = [((r_, l_), hp.current_link_loads(e.comm_bytes, hp.links_dict[(r_, l_)]))
+                     for r_, leaves in e.paths.items() for l_ in leaves]
+                self.routes[key] = (loc, e.paths, e.path_list, w)
+            self.recomputed += len(pending)
+            hp.link_loads_dict.update(loads)
+            hp.link_loads_count.update(counts)
+            random.setstate(rng[0])
+            np.random.set_state(rng[1])
+        return ev
+
+
+def make_anneal(arm, P, seed, sink, sink_path, snap_path, checks, add_broadcast, event_driver):
     cp_arm = arm in CPCM_ARMS
 
     def anneal(self):
@@ -363,17 +452,29 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
         c2, c4 = [], []
         crev = {"n": 0, "E_mismatch": 0, "T_mismatch": 0, "state_mismatch": 0}
         exact = EXACT_REVERT and arm != "A0"
+        bc = BcCache(ctx, self.hardware_platform) if BC_CACHE else None
+        live = []
         if self.LP_flag or self.mem_datatags:
             raise RuntimeError("template uses LP_flag / mem_datatags: not covered")
 
         def t_eval():
-            """CPCM on the current SA state: (graph, schedule, event dict evaluated). With BROADCAST_T the template's
-            final add_broadcast is applied as final_eval applies it (seed BCAST_SEED) to a temporary event dict: it
-            only adds communications, each producer's issue_set entry and comm id, and platform link counters, so
-            the producers are shallow-copied and the counters and RNG restored afterwards."""
+            """CPCM on the current SA state: (graph, schedule, event dict evaluated)."""
             ev0, hp = self.state[7], self.hardware_platform
             if not BROADCAST_T:
                 return (*cpcm_sim(ev0, hp), ev0)
+            if BC_CACHE:
+                t0 = time.perf_counter()
+                ev = bc.graph(self.state[5], self.state[6], ev0, hp)
+                tm["bcast"] += time.perf_counter() - t0
+                return (*cpcm_sim(ev, hp), ev)
+            return t_eval_exact()
+
+        def t_eval_exact():
+            """With BROADCAST_T the template's final add_broadcast is applied as final_eval applies it (seed
+            BCAST_SEED) to a temporary event dict: it only adds communications, each producer's issue_set entry and
+            comm id, and platform link counters, so the producers are shallow-copied and the counters and RNG
+            restored afterwards."""
+            ev0, hp = self.state[7], self.hardware_platform
             loads, counts = dict(hp.link_loads_dict), dict(hp.link_loads_count)
             rng = random.getstate(), np.random.get_state()
             ev = dict(ev0)
@@ -408,7 +509,8 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
             hp = self.hardware_platform
             return {"blob": pickle.dumps(self.state, protocol=pickle.HIGHEST_PROTOCOL),
                     "loads": dict(hp.link_loads_dict), "counts": dict(hp.link_loads_count),
-                    "st": {k: st[k] for k in ("g", "sc", "an", "ev") if k in st}}
+                    "st": {k: st[k] for k in ("g", "sc", "an", "ev") if k in st},
+                    "bc": dict(bc.routes) if bc else None}
 
         def exact_revert(pre):
             hp = self.hardware_platform
@@ -416,6 +518,8 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
             hp.link_loads_dict.update(pre["loads"])
             hp.link_loads_count.update(pre["counts"])
             st.update(pre["st"])
+            if bc:
+                bc.routes = dict(pre["bc"])
 
         def fingerprint():
             """Check 9.3: tags and order, dependencies, issues, sources, routes, comm-id allocators, locations, the
@@ -585,6 +689,7 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
         cal = None
         if arm != "A0":
             saved = (self.state, self.hardware_platform, self.movements)
+            bc_saved = dict(bc.routes) if bc else None
             self.state, self.hardware_platform = copy.deepcopy((self.state, self.hardware_platform))
             heur.a = self
             random.seed(seed + CAL_SEED_OFFSET)
@@ -612,6 +717,8 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
             cal = {"dE": dEs, "n_worse": len(worse), "dE50": dE50, "Tmax": Tmax, "Tmin": Tmin,
                    "wall": time.perf_counter() - t0}
             self.state, self.hardware_platform, self.movements = saved
+            if bc:
+                bc.routes = bc_saved
             heur.a = self
             if cp_arm:
                 st["T0"] = st["T0"]   # unchanged
@@ -647,12 +754,14 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
             if "check4" in info:
                 c4.append({"step": step, "tag": str(info["tag"]), "action": info["action"], **info.pop("check4")})
                 n4 += 1
+            bc0 = tm["bcast"]
             E_new, T_new = energy()
             t2 = time.perf_counter()
             dE = E_new - prevE
             row = {"step": step, "temp": T, "E_new": E_new, "T_new": T_new, "dE": dE,
                    "t_move": (t1 - t0) - (tm["target"] - tgt0), "t_target": tm["target"] - tgt0,
-                   "t_energy": t2 - t1, "action": info.get("action"), "targeted": bool(info.get("targeted"))}
+                   "t_energy": (t2 - t1) - (tm["bcast"] - bc0), "t_bcast": tm["bcast"] - bc0,
+                   "action": info.get("action"), "targeted": bool(info.get("targeted"))}
             if info.get("targeted"):
                 row.update(pick_event=info["event"], pick_W=info["W"], pick_n=info.get("n"), pick_res=info.get("res"))
             row["t_pre"] = t_pre
@@ -693,6 +802,8 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
                                "state": pickle.dumps(ev_c2, protocol=pickle.HIGHEST_PROTOCOL)})
             if not cp_arm and step % MONITOR_EVERY == 0:
                 mon[step] = t_eval()[1].T
+            if LIVE_EXACT_EVERY and cp_arm and step % LIVE_EXACT_EVERY == 0:   # validation: cached vs exact T
+                live.append({"step": step, "T_cached": Tcur, "T_exact": t_eval_exact()[1].T})
             row["best_E"] = best["E"]
             rows.append(row)
         sa_wall = time.time() - wall0
@@ -709,7 +820,8 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
             sink["snaptest"] = {"T_pre": (fe["T_pre"], full["T_pre"]), "T_bc": (fe["T_bc"], full["T_bc"]),
                                 "routes_equal": fe["e3map"]["routes"] == full["e3map"]["routes"],
                                 "backend": (fe["backend"], full["backend"])}
-        sink.update(rows=rows, monitor=mon, sa_wall=sa_wall, check2=c2, check4=c4, check_revert=crev,
+        sink.update(rows=rows, monitor=mon, sa_wall=sa_wall, check2=c2, check4=c4, check_revert=crev, live_exact=live,
+                    bc_recomputed=bc.recomputed if bc else None,
                     selected={"own_cost": sel["E"], "T_sel": sel["T"], "step": sel["step"], **fe})
         with gzip.open(snap_path, "wb") as f:     # the platform holds lambdas: only its routing-history counters
             pickle.dump((sel["snap"][0], {"link_loads_dict": sel["snap"][1], "link_loads_count": sel["snap"][2]}),
@@ -724,7 +836,7 @@ def make_anneal(arm, seed, sink, sink_path, snap_path, checks, add_broadcast, ev
 
 
 # ------------------------------------------------------------------ parent
-def run_one(cfg, arm, g, x, checks):
+def run_one(cfg, arm, g, x, checks, env=None):
     name = run_name(cfg, arm, g, x)
     sink = os.path.join(OUT, "runs", name + ".pkl.gz")
     snap = os.path.join(OUT, "snaps", name + ".pkl.gz")
@@ -736,10 +848,17 @@ def run_one(cfg, arm, g, x, checks):
     t0 = time.time()
     with open(os.path.join(OUT, "logs", name + ".log"), "w", encoding="utf-8") as lf:
         rc = subprocess.call([sys.executable, os.path.abspath(__file__), "child", cfg, arm, str(g), str(x),
-                              sink, snap, "1" if checks else "0"], cwd=HERE, stdout=lf, stderr=subprocess.STDOUT)
+                              sink, snap, "1" if checks else "0"], cwd=HERE, stdout=lf, stderr=subprocess.STDOUT,
+                             env=dict(os.environ, **(env or {})))
     ok = rc == 0 and os.path.exists(sink)
     print(f"[cpcm_sa] {name}: exit {rc}, {time.time() - t0:.0f} s, {'ok' if ok else 'FAILED'}", flush=True)
     return name, "ok" if ok else "failed", time.time() - t0
+
+
+def wall_steps(cfg, arm):
+    """Same wall clock (handoff 10.3): steps of A0w / A1w = 1,000 x (A3h SA wall) / (A0 or A1 SA wall), medians."""
+    med = lambda a: statistics.median(load_run(cfg, a, g, x)["sa_wall"] for g, x in variants(a))
+    return round(1000 * med("A3h") / med(base_arm(arm)))
 
 
 def run(configs, arms, jobs, only_first=False):
@@ -750,8 +869,11 @@ def run(configs, arms, jobs, only_first=False):
             for i, (g, x) in enumerate(vs[:(2 if STAGE else 1)] if only_first else vs):
                 todo.append((cfg, arm, g, x, i < (2 if STAGE else 1)))   # stage 1.5: checks on 2 runs per arm
     todo.sort(key=lambda t: (t[1] not in CPCM_ARMS, t[0] != "mha"))   # long ones first
+    envs = {(c, a): {"CPCM_SA_STEPS": str(wall_steps(c, a))} for c, a, *_ in todo if a in ("A0w", "A1w")}
+    if envs:
+        print("[cpcm_sa] same-wall steps", {f"{k[0]} {k[1]}": v["CPCM_SA_STEPS"] for k, v in envs.items()}, flush=True)
     with ThreadPoolExecutor(jobs) as ex:
-        res = list(ex.map(lambda t: run_one(*t), todo))
+        res = list(ex.map(lambda t: run_one(*t, envs.get((t[0], t[1]))), todo))
     bad = [r for r in res if r[1] == "failed"]
     print(f"[cpcm_sa] {len(res)} runs, {len(bad)} failed: {[b[0] for b in bad]}", flush=True)
 
@@ -767,7 +889,7 @@ def platform(cfg):
         import read_cfg
         import WAMIS_HD
         faults = CONFIGS[cfg][2]
-        c = read_cfg.cfg_to_dict(os.path.join(WORK, "models", CONFIGS[cfg][0], "cfg", "config" + SUF + ".cfg"))
+        c = read_cfg.cfg_to_dict(os.path.join(WORK, "models", CONFIGS[cfg][0], "cfg", "config_" + CONFIGS[cfg][3] + SUF + ".cfg"))
         if faults:
             c["failures"]["failed_nodes"] = [tuple(n) for n in faults["failed_nodes"]]
             c["failures"]["failed_links"] = [(tuple(a), tuple(b)) for a, b in faults["failed_links"]]
@@ -842,7 +964,8 @@ def check3(configs, arms, jobs):
             r = pickle.load(f)
         rec = d["selected"]
         rt = r["log"].get("routes", [{}])[0]
-        T_sa = r["T_bc"] if BROADCAST_T else r["T"]      # what the SA recorded as its best T
+        # what the SA recorded as its best T; with the cache it may differ from the full broadcast (reported separately)
+        T_sa = rec["T_sel"] if BC_CACHE else r["T_bc"] if BROADCAST_T else r["T"]
         return {"cfg": cfg, "arm": arm, "T_inject": r["T"], "T_pre_final_eval": rec["T_pre"], "T_sel_in_SA": rec["T_sel"],
                 "T_bc_inject": r["T_bc"], "T_bc_final_eval": rec["T_bc"],
                 "equal": r["T"] == rec["T_pre"] and r["T_bc"] == rec["T_bc"] and (rec["T_sel"] is None or T_sa == rec["T_sel"]),
