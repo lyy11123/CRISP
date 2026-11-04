@@ -11,6 +11,7 @@ Rules are stage 2's (CPCM_SA_STAGE=s2): exact revert + T with the cached broadca
 import argparse
 import gzip
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -32,8 +33,17 @@ def env_for(out_root=None, **extra):
 
 
 def sa(cmd, configs, arms, workers, env, first=False):
+    """Returns the exit code, nonzero also when any run failed (cpcm_sa.py run itself exits 0 in that case)."""
     args = [sys.executable, "cpcm_sa.py", cmd, "--configs", *configs, "--arms", *arms, "--jobs", str(workers)]
-    return subprocess.call(args + (["--first"] if first else []), cwd=SA, env=env)
+    p = subprocess.Popen(args + (["--first"] if first else []), cwd=SA, env=env, text=True,
+                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    failed = 0
+    for line in p.stdout:
+        print(line, end="", flush=True)
+        m = re.search(r"\d+ runs, (\d+) failed", line)
+        if m:
+            failed = int(m.group(1))
+    return p.wait() or failed
 
 
 def link_out(out):
@@ -126,6 +136,8 @@ def main():
         raise SystemExit(f"validation of earlier runs failed: exit {rc}")
     rc = sa("run", cfgs, ARMS, a.workers, env)
     print(f"[colab] run exit {rc}, {(time.time() - t0) / 3600:.2f} h")
+    if rc:
+        raise SystemExit("[colab] some runs FAILED: see $OUT/s2/logs, then run this cell again to retry them")
     report(a.nb, env)
     shutil.copy(os.path.join(ROOT, "BUNDLE_INFO.json"), a.out)
 
