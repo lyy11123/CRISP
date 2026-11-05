@@ -15,7 +15,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 ## 当前阶段
 
-判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。现在是第 3 步：CPCM 接入 SA 映射搜索，按 `cpcm_sa\CPCM_SA_HANDOFF.md` 第 10 节做广播路由缓存与第 2 阶段。E4c（请求随机到达、goodput、P99、SLO）以后再议。
+判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。现在是第 4 步：EIR 分级故障修复主实验，按 `eir\EIR_HANDOFF.md` 执行，先做本地隔离冷烟测试。E4c（请求随机到达、goodput、P99、SLO）以后再议。
 
 研究方案、判定标准和结论记录在 claude.ai 上的方案文档里，不在本目录。本目录里每个实验都有一份交接说明 `<实验文件夹>\<实验>_HANDOFF.md`，执行时以它为准。
 
@@ -29,11 +29,12 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `e3_warmstart\` | E3：故障后热启动 SA、迁移量与下界紧度 |
 | `e4_overlap\` | E4a：多流重叠下的链路冲突与仲裁收益上限；E4b：按跳截止时间仲裁原型与异构截止时间（均已完成） |
 | `cpcm\` | CPCM 的设计、实现与验证（V0–V7 完成，汇总 `CPCM_SUMMARY.md`） |
-| `cpcm_sa\` | 第 3 步：CPCM 接入 SA 映射搜索（第 1 阶段与修正复测完成，进行广播缓存与第 2 阶段） |
+| `cpcm_sa\` | 第 3 步：CPCM 接入 SA 映射搜索（已完成，汇总 `CPCM_SA_SUMMARY.md`） |
+| `eir\` | 第 4 步：EIR 分级故障修复主实验（进行中） |
 
 ## 规则
 
-- 只做当前任务交接说明里写的事。CPCM 按 `cpcm\` 下经用户确认的方案实现；不要自行开始实现 DSTU 或 EIR，也不要扩大范围；想扩就先问用户。
+- 只做当前任务交接说明里写的事。EIR 按 `eir\EIR_HANDOFF.md` 实现；不要自行开始实现 DSTU，也不要扩大范围；想扩就先问用户。
 - 不修改 `third_party\` 里的源码文件（`make generate_exp` 生成的 `cfg\`、`py\`、`results\` 除外）；需要改行为时在内存中替换函数。会覆盖 `results\` 的实验，在各自文件夹下的 artifact 工作副本里运行。
 - 一个进程只跑一个任务脚本，任务脚本在模块级建立全局状态。
 - 每个实验文件夹维护 `PROGRESS.md`：每完成一步在末尾追加一条（状态、自检、关键数字、对源码的新发现、待用户决定的问题），不改写旧条目。只写确认过的事实，推测要标明。
