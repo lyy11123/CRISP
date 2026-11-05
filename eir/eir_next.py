@@ -48,7 +48,133 @@ def free_gb():
 
 
 def l1_out(fid):
-    return OUT if fid == "F8a" else MAIN
+    return MAIN if fid in ("F4a", "F5") else OUT
+
+
+# ---------------------------------------------------------------- phase C (handoff sections 5, 8)
+C_FAULTS = ("CRandom", "CCluster", "CEdge", "CScratch")
+C_METHODS = ("L2Lsync", "L2Impact", "L2Gsync")
+C_SEEDS = {"ffn": ALL_SEEDS, "mha": [123] + list(range(1, 10))}
+C_RANDOM_SEED = 20261105
+C_RULES = {"CRandom": f"each die: random.Random({C_RANDOM_SEED}).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+           "CCluster": "connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+           "CEdge": "3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+           "CScratch": "the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only"}
+
+
+def _grid(n):
+    return (n[0] // 2) * 4 + n[1] // 4, (n[0] % 2) * 4 + n[1] % 4
+
+
+def _node_at(y, x):
+    return (y // 4) * 2 + x // 4, (y % 4) * 4 + x % 4
+
+
+def choose_c(op):
+    """The four instances of one task from its fault-free A3h mapping (F4a's L1 state has the same behaviour places, R0 and L1 move none,
+    and the pre job's link busy times). Deterministic: rules in C_RULES, written with the instance."""
+    import pickle
+    s = pickle.loads(eir.read_sink(eir.job_l1(MAIN, "a3h", op, "F4a")["sink"])["L1_snap"]["blob"])
+    load = collections.Counter()
+    for k, v in list(s[3].items()) + list(s[4].items()):
+        load[tuple(k[:-1])] += float(v)
+    busy = eir.read_sink(job_pre_w(op)["sink"])["busy"]
+    cores = [(d, c) for d in range(4) for c in range(16)]
+    loaded = [n for n in cores if load[n] > 0]
+    out = {}
+    rng = random.Random(C_RANDOM_SEED)
+    out["CRandom"] = {"failed_pes": [rng.choice([n for n in loaded if n[0] == d]) for d in range(4)], "failed_links": [], "failed_nodes": []}
+    # ---- cluster
+    def nbrs(n):
+        y, x = _grid(n)
+        return [m for m in (_node_at(y + dy, x + dx) for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)) if 0 <= y + dy < 8 and 0 <= x + dx < 8) if m[0] == n[0]]
+    tri = set()
+    for b in loaded:
+        ns = [m for m in nbrs(b) if load[m] > 0]
+        for i, a in enumerate(ns):
+            for c in ns[i + 1:]:
+                tri.add(tuple(sorted((a, b, c))))
+    best = max(sorted(tri), key=lambda t: sum(load[n] for n in t))
+    und = collections.Counter()
+    for k, v in busy.items():
+        und[tuple(sorted(map(tuple, k[:2])))] += v
+    onchip = [k for k in sorted(und) if k[0][0] == k[1][0] and k[0][1] < 16 and k[1][1] < 16 and (k[0] in best or k[1] in best)]
+    l = max(onchip, key=lambda k: und[k])
+    out["CCluster"] = {"failed_pes": list(best), "failed_links": [[l[0], l[1]], [l[1], l[0]]], "failed_nodes": [], "link_busy_both": und[l]}
+    # ---- edge
+    lines = []
+    for i in range(6):
+        lines += [[_node_at(y, i + j) for j in range(3)] for y in (0, 7)] + [[_node_at(i + j, x) for j in range(3)] for x in (0, 7)]
+    lines = sorted(tuple(sorted(t)) for t in lines if all(load[n] > 0 for n in t))
+    best = max(lines, key=lambda t: sum(load[n] for n in t))
+    ports = {tuple(k[0]): v for k, v in busy.items() if k[0][1] >= 16}
+    port = max(sorted(ports), key=lambda p: ports[p])
+    out["CEdge"] = {"failed_pes": list(best), "failed_links": [], "failed_nodes": [port], "port_busy": ports[port]}
+    # ---- scratch
+    d2d = [k for k in sorted(und) if k[0][0] != k[1][0] and k[0][1] < 16 and k[1][1] < 16]
+    l = max(d2d, key=lambda k: und[k])
+    (y0, x0), (y1, x1) = _grid(l[0]), _grid(l[1])
+    if x0 == x1:
+        lines = [tuple(_node_at(y + j, x0) for j in range(3)) for y in range(6)]
+    else:
+        lines = [tuple(_node_at(y0, x + j) for j in range(3)) for x in range(6)]
+    lines = sorted(tuple(sorted(t)) for t in lines if all(load[n] > 0 for n in t) and (l[0] in t or l[1] in t))
+    best = max(lines, key=lambda t: sum(load[n] for n in t))
+    out["CScratch"] = {"failed_pes": list(best), "failed_links": [[l[0], l[1]], [l[1], l[0]]], "failed_nodes": [], "link_busy_both": und[l]}
+    for fid, x in out.items():
+        x.update(kind="k=4 composite: " + fid[1:], e3_fault=None, chosen_on="a3h", rule=C_RULES[fid], pe_load=[load[tuple(n)] for n in x["failed_pes"]],
+                 random_seed=C_RANDOM_SEED if fid == "CRandom" else None, same_as=None)
+    return out
+
+
+def select_c():
+    t = eir.load_faults()
+    for op in OPS:
+        for fid, x in choose_c(op).items():
+            row = json.loads(json.dumps(x))
+            if fid in t[op] and t[op][fid] != row:
+                raise SystemExit(f"{op} {fid}: already in faults.json with other contents")
+            t[op][fid] = row
+            print(op, fid, row["failed_pes"], row["failed_links"], row["failed_nodes"], row["pe_load"])
+    tmp = eir.FAULTS_JSON + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(t, f, indent=1, ensure_ascii=False)
+    os.replace(tmp, eir.FAULTS_JSON)
+
+
+def c_rep_jobs():
+    return [job_rep(o, f, m, sd) for o in OPS for f in C_FAULTS for m in C_METHODS for sd in C_SEEDS[o]]
+
+
+def c_full_jobs():
+    return [eir.job_full(OUT, o, f, "A3h", g, x) for o in OPS for f in C_FAULTS for g, x in eir.cs.variants("A3h")]
+
+
+def c_smoke(workers):
+    """Do the instances build? l1 (kept: the real one) and, isolated, s = 5 of every method with checks."""
+    if run_logged("c_l1", [job_l1(o, f) for o in OPS for f in C_FAULTS], workers):
+        raise SystemExit("l1 failed")
+    out = os.path.join(eir.HERE, "out", "_smoke_c")
+    jobs = []
+    for o in OPS:
+        for f in C_FAULTS:
+            for m in C_METHODS:
+                j = job_rep(o, f, m, 123, steps=5, checks=True)
+                jobs.append(dict(j, name="c_" + j["name"], sink=os.path.join(out, os.path.basename(j["sink"]))))
+    bad = eir.run_phases([jobs], out, workers)
+    ok = not bad
+    for j in jobs:
+        d = eir.read_sink(j["sink"])
+        s = d["search"]
+        la = s["local_audit"] or {}
+        r = {"T_L1": d["T_L1_check"], "viol": len(d["record"]["fault_violations"]), "revert_bad": sum(s["check_revert"][k] for k in ("E_mismatch", "T_mismatch", "state_mismatch")),
+             "stale": s["stale_final"] + s["read_watch"].get("stale_after_proposal", 0) + s["read_watch"].get("rebound_stale", 0), "outside": la.get("beha_not_movable", 0) + la.get("beha_dest_outside", 0),
+             "cov": s["local"] and (s["local"]["n_cores"], round(s["local"]["beha_share"], 2))}
+        ok = ok and r["viol"] == 0 and r["revert_bad"] == 0 and r["stale"] == 0 and r["outside"] == 0
+        print(j["name"], r, flush=True)
+    print("C_SMOKE PASSED" if ok else "C_SMOKE FAILED", flush=True)
+    if not ok:
+        raise SystemExit(1)
 
 
 def job_pre_w(op):
@@ -221,7 +347,7 @@ def select(workers):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["select", "prep", "prior", "repair", "full", "seeds", "check_log"])
+    ap.add_argument("cmd", choices=["select", "prep", "prior", "repair", "full", "seeds", "check_log", "select_c", "c_smoke", "c_repair", "c_full"])
     ap.add_argument("--workers", type=int, default=14)
     ap.add_argument("--share", default="all", choices=["1", "2", "all"])
     a = ap.parse_args()
@@ -243,6 +369,21 @@ def main():
         jobs = {"1": s1, "2": s2, "all": s1 + s2}[a.share]
         print(f"[next] repair share {a.share}: {len(jobs)} jobs, FFN {sum(j['op'] == 'ffn' for j in jobs)}, MHA {sum(j['op'] == 'mha' for j in jobs)}", flush=True)
         if run_logged(f"repair_{a.share}_w{a.workers}", jobs, a.workers):
+            raise SystemExit(1)
+    elif a.cmd == "select_c":
+        select_c()
+    elif a.cmd == "c_smoke":
+        c_smoke(a.workers)
+    elif a.cmd == "c_repair":
+        jobs = c_rep_jobs()
+        random.Random(C_RANDOM_SEED).shuffle(jobs)
+        print(f"[next] c_repair: {len(jobs)} jobs", flush=True)
+        if run_logged(f"c_repair_w{a.workers}", jobs, a.workers):
+            raise SystemExit(1)
+    elif a.cmd == "c_full":
+        jobs = c_full_jobs()
+        random.Random(C_RANDOM_SEED).shuffle(jobs)
+        if run_logged(f"c_full_w{a.workers}", jobs, a.workers):
             raise SystemExit(1)
     elif a.cmd == "check_log":
         check_log(a.workers)

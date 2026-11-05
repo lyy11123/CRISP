@@ -339,6 +339,124 @@ def report_a():
     print("\n".join(L))
 
 
+C_PAIRS = [("L2Impact", "L2Lsync"), ("L2Lsync", "L2Gsync"), ("L2Impact", "L2Gsync")]
+C_NAMES = [("L2Lsync", "L2L+sync"), ("L2Impact", "L2Impact"), ("L2Gsync", "L2G+sync")]
+
+
+def full_c_check(op, fid):
+    """FULL does not call fault_violations: behaviours on failed PEs / nodes, routes and sources on failed parts, after the fact."""
+    f = eir.fault_of(op, fid)
+    n_ = {tuple(x) for x in f["failed_nodes"]}
+    p_ = {tuple(x) for x in f.get("failed_pes", [])}
+    l_ = {(tuple(a), tuple(b)) for a, b in f["failed_links"]}
+    bad = 0
+    for g, x in eir.cs.variants("A3h"):
+        j = eir.job_full(en.OUT, op, fid, "A3h", g, x)
+        m = eir.read_sink(j["sink"])["selected"]["e3map"]
+        bad += sum(tuple(loc[:-1]) in n_ | p_ for loc in m["beha_loc"].values())
+        for routes in m["routes"].values():
+            for src, tree, _ in routes:
+                bad += tuple(src) in n_ | p_
+                for r, leaves in tree:
+                    for l in leaves:
+                        bad += (tuple(r), tuple(l)) in l_ or tuple(r) in n_ or tuple(l) in n_
+    return bad
+
+
+def report_c():
+    """Phase C (handoff sections 5, 8). The statistics are phase A's: paired by SA seed, bootstrap and Wilcoxon of boot_stats."""
+    L = ["# EIR 下一阶段 阶段 C：k = 4 复合故障\n",
+         f"只报数字。A3h 起点，s = 100，后端 10 个种子，广播种子 0。FFN {len(en.C_SEEDS['ffn'])} 个 SA 种子，MHA {len(en.C_SEEDS['mha'])} 个。L2-Impact 规则冻结，K = 同组合几何 L2-Local 的核数。**局限：每类模式每个任务只有 1 个实例，只能说明趋势。** 实例和选择规则在 `faults.json`。决策耗时含 14 个并行的争用。\n"]
+    res, stats, viol = [], [], collections.Counter()
+    for op in en.OPS:
+        pre = eir.read_sink(eir.job_pre(en.MAIN, "a3h", op)["sink"])
+        pre_b = bk(pre["record"]["backend"])
+        for fid in en.C_FAULTS:
+            f = eir.fault_of(op, fid)
+            l1 = eir.read_sink(en.job_l1(op, fid)["sink"])
+            c = {"op": op, "fault": fid, "pre": pre_b, "T_pre": pre["T"], "methods": {}, "pes": f["failed_pes"], "links": f["failed_links"], "nodes": f["failed_nodes"]}
+            L.append(f"\n## {op} {fid}（PE {f['failed_pes']}；链路 {[x[0] for x in f['failed_links'][:1]] + [x[1] for x in f['failed_links'][:1]]}；DDR {f['failed_nodes']}；故障前后端 {f0(pre_b)}，T̂ {f0(pre['T'])}）\n")
+            L.append("| 方案 | 种子数 | 后端 | 范围 | 相对故障前 | 行为搬动 | DDR 读源 MB | 唯一块 MB | t_决策 s | T̂ | T̂ 误差 | 撤销比例 | 进 ε 的种子 |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+            lim = pre["T"] * (1 + eir.EPS)
+            for lev in ("R0", "L1"):
+                r = l1[lev]
+                v = [t[0] for t in r["backend"].values()]
+                mg = r["migration_vs_start"]
+                c["methods"][lev] = {"mean": bk(r["backend"]), "T": r["T"], "moved": mg["moved_behas_share"], "ddr_mb": mg["ddr_read_moved_bytes"] / 1e6, "uniq_mb": mg["unique_block_bytes"] / 1e6, "in_eps": r["T"] <= lim}
+                viol["R0L1"] += len(r["fault_violations"])
+                L.append(f"| {lev} | 1 | {f0(bk(r['backend']))} | [{f0(min(v))}, {f0(max(v))}] | {pc(bk(r['backend']), pre_b):+.1f}% | {100 * mg['moved_behas_share']:.1f}% | {mg['ddr_read_moved_bytes'] / 1e6:.1f} | {mg['unique_block_bytes'] / 1e6:.1f} | {l1['t_R0'] + (l1['t_L1'] if lev == 'L1' else 0):.1f} | {f0(r['T'])} | {pc(r['T'], bk(r['backend'])):+.2f}% | — | {'是' if r['T'] <= lim else '否'} |")
+            for m, name in C_NAMES:
+                runs = {sd: eir.read_sink(en.job_rep(op, fid, m, sd)["sink"]) for sd in en.C_SEEDS[op] if os.path.exists(en.job_rep(op, fid, m, sd)["sink"])}
+                if not runs:
+                    continue
+                per = {sd: bk(d["record"]["backend"]) for sd, d in runs.items()}
+                allv = [t[0] for d in runs.values() for t in d["record"]["backend"].values()]
+                mg = lambda k: mean(d["record"]["migration_vs_start"][k] for d in runs.values())
+                n_prop = sum(eir.CAL_PROPOSALS + d["spec"]["steps"] for d in runs.values())
+                ill = sum(d["search"]["n_illegal"] + d["search"]["cal_illegal"] for d in runs.values())
+                w = collections.Counter()
+                for d in runs.values():
+                    w.update(d["search"]["read_watch"])
+                    la = d["search"]["local_audit"] or {}
+                    viol["fault"] += len(d["record"]["fault_violations"])
+                    viol["outside"] += la.get("beha_not_movable", 0) + la.get("beha_dest_outside", 0)
+                    viol["stale"] += d["search"]["stale_final"]
+                viol["stale"] += w.get("stale_after_proposal", 0) + w.get("rebound_stale", 0)
+                viol["n"] += len(runs)
+                any_ = next(iter(runs.values()))["search"]
+                T_all = {sd: d["record"]["T"] for sd, d in runs.items()}
+                x = {"seed_backend": per, "mean": mean(per.values()), "median": median(per.values()), "min": min(allv), "max": max(allv), "T": mean(T_all.values()), "moved": mg("moved_behas_share"), "ddr_mb": mg("ddr_read_moved_bytes") / 1e6,
+                     "uniq_mb": mg("unique_block_bytes") / 1e6, "t_decision": mean(d["timing"]["t_decision"] for d in runs.values()), "revoked": ill / n_prop, "in_eps": sum(v <= lim for v in T_all.values()), "n": len(runs),
+                     "T_err": mean(pc(T_all[sd], per[sd]) for sd in runs), "local": any_["local"], "watch": dict(w)}
+                if m == "L2Impact":
+                    i = any_["impact"]
+                    x["impact"] = {k: i[k] for k in ("K", "n_cand", "n_g1", "n_g2", "chosen_g1", "chosen_g2", "overlap_geo", "n_unaligned_W", "n_events")}
+                    x["geo_cov"] = i["geo_cov"]
+                c["methods"][m] = x
+                L.append(f"| {name} | {x['n']} | {f0(x['mean'])} | [{f0(x['min'])}, {f0(x['max'])}] | {pc(x['mean'], pre_b):+.1f}% | {100 * x['moved']:.1f}% | {x['ddr_mb']:.1f} | {x['uniq_mb']:.1f} | {x['t_decision']:.1f} | {f0(x['T'])} | {x['T_err']:+.2f}% | {'—' if m == 'L2Gsync' else format(100 * x['revoked'], '.1f') + '%'} | {x['in_eps']} / {x['n']} |")
+            rows = next_full(op, fid)
+            if rows:
+                ft = full_three(rows, pre_b)
+                c["full"] = ft
+                viol["full"] += full_c_check(op, fid) if len(rows) == 14 else 0
+                L.append(f"\nFULL-A3h（{ft['n']} 次）：按后端最优 {f0(ft['best'])}（{ft['best_rel']:+.1f}%，{ft['best_run']}）；单次中位数 {f0(ft['median'])}（{ft['median_rel']:+.1f}%）；按 T̂ 自选 {f0(ft['by_T'])}（{ft['by_T_rel']:+.1f}%，{ft['by_T_run']}）。")
+            res.append(c)
+    L.append("\n## 汇总：相对故障前\n")
+    L.append("| 任务 | 模式 | R0 | L1 | L2L+sync | L2Impact | L2G+sync | FULL 最优 | FULL 中位数 | FULL 按 T̂ 自选 | 停止规则选中（只有 s = 100） |\n|---|---|---|---|---|---|---|---|---|---|---|")
+    for c in res:
+        ms, pb = c["methods"], c["pre"]
+        cell = lambda m: format(pc(ms[m]["mean"], pb), "+.1f") + "%" if m in ms else "—"
+        ft = c.get("full")
+        stop = "R0" if ms["R0"]["in_eps"] else "L1" if ms["L1"]["in_eps"] else ("L2G+sync s=100" + (f"（进 ε {ms['L2Gsync']['in_eps']} / {ms['L2Gsync']['n']}）" if "L2Gsync" in ms else ""))
+        L.append(f"| {c['op']} | {c['fault']} | {cell('R0')} | {cell('L1')} | {cell('L2Lsync')} | {cell('L2Impact')} | {cell('L2Gsync')} | {format(ft['best_rel'], '+.1f') + '%' if ft else '—'} | {format(ft['median_rel'], '+.1f') + '%' if ft else '—'} | {format(ft['by_T_rel'], '+.1f') + '%' if ft else '—'} | {stop} |")
+    L.append("\n停止规则按 `EIR_SUMMARY.md` 第 8 节：跨级看 T̂ 是否回到故障前 2% 以内；这里 L2 只有 s = 100 一档，所以 L2 内部的档位判断没有发生。\n")
+    L.append("## K 与几何覆盖\n")
+    L.append("| 任务 | 模式 | K（几何核数） | L2Impact 实际核数 | 行为覆盖（L2Impact / 几何） | DDR 端口（L2Impact / 几何） | 候选核 | 第 1 组（候选 / 选中） | 第 2 组（候选 / 选中） | 与几何重合 | W 未对齐 tag |\n|---|---|---|---|---|---|---|---|---|---|---|")
+    for c in res:
+        x = c["methods"].get("L2Impact")
+        if not x:
+            continue
+        i, lc, g = x["impact"], x["local"], x["geo_cov"]
+        L.append(f"| {c['op']} | {c['fault']} | {i['K']} | {lc['n_cores']} | {100 * lc['beha_share']:.0f}% / {100 * g['beha_share']:.0f}% | {lc['n_ddr_ports']} / {g['n_ddr_ports']} | {i['n_cand']} | {i['n_g1']} / {i['chosen_g1']} | {i['n_g2']} / {i['chosen_g2']} | {i['overlap_geo']} | {i['n_unaligned_W']} / {i['n_events']} |")
+    L.append("\n## 配对统计\n")
+    L.append(f"差 = 前者 − 后者（后端 10 个种子均值），负数表示前者更好。区间是中位差的 95% 百分位 bootstrap（{BOOT_N} 次重采样，`numpy.default_rng({BOOT_SEED})`），p 是 Wilcoxon 符号秩（双侧，只作参照）。MHA 每组合 10 个种子。\n")
+    L.append("| 任务 | 模式 | 比较 | n | 中位差 | 中位差 / 故障前 | 胜 / 负 / 平 | 95% 区间 | 区间不含 0 | Wilcoxon p |\n|---|---|---|---|---|---|---|---|---|---|")
+    for c in res:
+        for a, b in C_PAIRS:
+            if a not in c["methods"] or b not in c["methods"]:
+                continue
+            pa, pb = c["methods"][a]["seed_backend"], c["methods"][b]["seed_backend"]
+            st = boot_stats([pa[sd] - pb[sd] for sd in pa if sd in pb], c["pre"])
+            stats.append({"op": c["op"], "fault": c["fault"], "a": a, "b": b, **st})
+            L.append(f"| {c['op']} | {c['fault']} | {a} − {b} | {st['n']} | {st['median']:+,.0f} | {st['rel']:+.1f}% | {st['win']} / {st['loss']} / {st['tie']} | [{st['lo']:+,.0f}, {st['hi']:+,.0f}] | {'是' if st['excl0'] else '否'} | {'—' if st['p'] is None else format(st['p'], '.3f')} |")
+    L.append(f"\n自检：修复运行 {viol['n']} 次；故障违规 {viol['fault'] + viol['R0L1']}；行为或落点在集合外 {viol['outside']}；`+sync` 过时（结束、每次提议、回弹）{viol['stale']}；FULL 事后查到落在失效元件上 {viol['full']}。\n")
+    with open(os.path.join(en.OUT, "report_c.md"), "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(L))
+    with open(os.path.join(en.OUT, "report_c.json"), "w", encoding="utf-8") as f:
+        json.dump({"combos": res, "stats": stats, "viol": viol}, f, indent=0, default=str)
+    print("\n".join(L))
+
+
 def diag():
     """Next handoff point 6, read only: FFN F4a, F8a, L2Impact and L2L+sync. Counts from the stored rows (20 seeds); what the
     rows alone cannot tell comes from the step log of the 15 new seeds (row["diag"], added without changing the search)."""
@@ -435,4 +553,4 @@ def diag():
 
 
 if __name__ == "__main__":
-    {"prior": prior, "a": report_a, "diag": diag}[sys.argv[1]]()
+    {"prior": prior, "a": report_a, "diag": diag, "c": report_c}[sys.argv[1]]()
