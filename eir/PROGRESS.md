@@ -354,3 +354,11 @@ E3 的 F4、F5 在 A3h 映射上：种子 1 下 CB 都是 0（不在关键链上
 **待用户决定**：放不放行阶段 C。L2-Impact 的规则是否要改（例如 FFN 上偏角落、定向移动几乎只有权重移动的现象，第 18 步，单种子）。
 
 **复现**：artifact commit `299089ef266c54c6a1fa8c2f52df66e6c970b52a`；SA 种子 123、1、2、3、4；后端种子 1–10；广播种子 0；s = 100。命令（`eir\` 下）：`python eir_next.py select`；`prep --workers 4`；`prior --workers 14`；`repair --share 1 --workers 14`；`repair --share 2 --workers 18`；`full --workers 14`；`repair --share all --workers 14`；`python report_next.py prior`；`python report_next.py a`；`python smoke_next.py`。原方法 F8a 的 20 次是第 19 步跑的（默认路径没有变，不需要重跑），它们的决策耗时含 14 或 18 个并行的争用。
+
+## 2026-11-05 第 21 步：补种子的准备（主对话转述用户同意“先补种子”）（Claude Code）
+
+**范围**：新 SA 种子 5–19，s = 100，后端 10 个种子，其他不变。FFN F4a、F5、F8a × 5 个方法 × 15 = 225 次，MHA F4a × L2Impact、L2L+sync × 15 = 30 次，输出 `out\next\`。不开始阶段 C、B，不改 L2-Impact 规则。
+
+**统计和关口判据先于运行写进 `report_next.py` 并随本次提交**，之后不看结果再改：中位差、中位差 / 故障前、胜负平、10,000 次 bootstrap 的 95% 百分位区间（`default_rng(20261105)`）、Wilcoxon 符号秩 p。关口：L2Impact − L2L+sync 在 3 个 FFN 组合中至少 2 个中位差 ≤ −2% 且区间不含 0。
+
+**为诊断加的只读步级日志（`+sync` 方法才有）**：主对话要的“定向返回 None 回退到随机的次数”和 top-K 组成，从存下的 rows 算不出（rows 只有动作和接受），所以在 15 个新种子的运行里记录 `row["diag"]`，不用随机数，不改状态。`eir_next.py check_log` 重跑 6 次已存运行（FFN F4a L2Impact、L2L+sync、L2G+sync，MHA F4a L2Impact、L2L+sync，种子 123；FFN F8a L2Impact，种子 1）：去掉日志后每步记录、T̂、行为位置、路由全同。原 5 个种子没有这份日志，诊断的 (a) 用 20 个种子的 rows，其余用 15 个种子。L2L、L2G 不进日志分支。

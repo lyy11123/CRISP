@@ -582,6 +582,7 @@ class Heur(cs.Heur):
     def __init__(self, ann, local):
         super().__init__(ann)
         self.local = local
+        self.cand_log = None       # sync methods: one row per comp_dest call (read only, for the diagnosis)
 
     def comp_dest(self, beha, primary=None):
         if self.local is None:
@@ -590,10 +591,15 @@ class Heur(cs.Heur):
         load = lambda c: self.dev_load(kind, c)
         cands = [c for c in cs.comp_cands(self.a, beha) if tuple(c[:-1]) in self.local.nodes]
         if not cands:
+            if self.cand_log is not None:
+                self.cand_log.append({"n": 0, "idle": 0, "load": None})
             return None
         half = self.light_half(cands, load)
         key = lambda c: ((primary(c[:-1]) if primary else 0), self.nbr_cost(beha, c[:-1]), load(c), c)
-        return random.choice(sorted(half, key=key)[:self.TOP_MOVE])
+        chosen = random.choice(sorted(half, key=key)[:self.TOP_MOVE])
+        if self.cand_log is not None:
+            self.cand_log.append({"n": len(set(cands)), "idle": len({c for c in cands if load(c) == 0}), "load": float(load(chosen))})
+        return chosen
 
     def ddr_dest(self, d, sp):
         if self.local is None:
@@ -640,6 +646,7 @@ class Moves:
         self.a = eng.a
         self.heur = Heur(eng.a, local)
         self.ddr_nodes = {tuple(k[:-1]) for k in eng.hp.ddr_dict}
+        self.diag = None         # sync methods: what this proposal's branches did (read only, no random numbers)
 
     def _comp_move(self, b, primary=None, action="comp"):
         dest = self.heur.comp_dest(b, primary)
@@ -671,26 +678,61 @@ class Moves:
             return True
         return any(t in loc.behas for t in ev.dependency_set) or any(t in loc.behas for t in ev.issue_set)
 
+    def _classify(self, top):
+        """Diagnosis: the kinds of the events the targeted draw picks from (no random numbers, no change to the state)."""
+        a, g, eng = self.a, self.eng.g, self.eng
+        out = collections.Counter(n=len(top))
+        for e in top:
+            tag = g.tag[e]
+            ev = a.state[7][tag] if tag in a.state[7] else eng.ev[tag]
+            if ev.event_type == "computation":
+                out["comp"] += 1
+            elif tuple(ev.source_location) in self.ddr_nodes:
+                out["ddr_read"] += 1
+                ws = cs.weight_split_of(a, tag)
+                if ws is not None and (self.local is None or ws in self.local.splits):
+                    out["ddr_read_ws_in_set"] += 1
+            else:
+                out["core_comm"] += 1
+        return dict(out)
+
     def targeted(self):
         eng, a = self.eng, self.a
         an, g = eng.analysis(), eng.g
         evs = {r["event"] for r in an.critical_path()}
+        if self.diag is not None:
+            cp = collections.Counter()
+            for e in evs:
+                tag = g.tag[e]
+                ev = a.state[7][tag] if tag in a.state[7] else eng.ev[tag]
+                cp["comp" if ev.event_type == "computation" else "ddr_read" if tuple(ev.source_location) in self.ddr_nodes else "core_comm"] += 1
+            self.diag["cp"] = dict(cp)
         if self.local is not None:
             evs = {e for e in evs if self._eligible(g.tag[e])}
+            if self.diag is not None:
+                self.diag["eligible"] = len(evs)
             if not evs:
                 return None
         top = sorted(evs, key=lambda e: (-eng.W(e), e))[:K]
+        if self.diag is not None:
+            self.diag["top"] = self._classify(top)
         e = random.choice(top)
         tag = g.tag[e]
         ev = a.state[7][tag] if tag in a.state[7] else eng.ev[tag]
         info = {"event": str(tag), "W": eng.W(e), "n": len(evs)}
         if ev.event_type == "computation":
+            if self.diag is not None:
+                self.diag["chosen"] = "comp"
             r = self._comp_move(tag)
             return None if r is None else {**info, **r}
         ws = cs.weight_split_of(a, tag) if tuple(ev.source_location) in self.ddr_nodes else None
+        if self.diag is not None:
+            self.diag["chosen"] = "ddr_read_ws_in_set" if ws is not None and (self.local is None or ws in self.local.splits) else "ddr_read_ws_out" if ws is not None else "ddr_read_no_ws" if tuple(ev.source_location) in self.ddr_nodes else "core_comm"
         if ws is not None and (self.local is None or ws in self.local.splits):
             r = self._weight_move(*ws)
             if r is not None or self.local is None:
+                if self.diag is not None:
+                    self.diag["weight_returned"] = r is not None
                 return {**info, **(r or {})}
         ok = (lambda t: True) if self.local is None else (lambda t: t in self.local.behas)
         prods = sorted((t for t in ev.dependency_set if t in a.state[5] and ok(t)), key=str)
@@ -747,13 +789,20 @@ class Moves:
         return {"action": "rand_swap", "beha": b1, "beha2": b2}
 
     def propose(self):
+        if self.sync:
+            self.diag = {}
+            self.heur.cand_log = self.diag["cands"] = []
         if random.random() < P:
+            if self.diag is not None:
+                self.diag["drawn"] = True
             r = self.targeted()
             if r is not None:
                 r["targeted"] = True
                 return r
             if self.local is None:
                 raise RuntimeError("targeted move failed without a local set")
+            if self.diag is not None:
+                self.diag["fallback"] = True
         return self.rand()
 
 
@@ -1203,6 +1252,8 @@ def search(eng, method, steps, seed, seeds_nodes, checks, checkpoints=None, impa
         row = {"step": step, "temp": temp, "action": (info or {}).get("action"), "targeted": bool((info or {}).get("targeted"))}
         if sync and info is not None:
             row.update({k: info[k] for k in ("landing", "landing_ddr") if k in info})
+        if sync:
+            row["diag"] = moves.diag
         if info is None or illegal:   # nothing proposed or proposal out of bounds: undone, the step is spent
             if info is not None:
                 eng.revert(pre)

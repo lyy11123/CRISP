@@ -7,6 +7,8 @@ F8a to faults.json). A3h start, 2x2 FFN and MHA.
   python eir_next.py repair --share 1|2 --workers 14|18
   python eir_next.py repair --share all --workers N    whatever is left
   python eir_next.py full --workers N           FULL-A3h at F4a, F8a
+  python eir_next.py seeds --workers 14         15 more SA seeds: FFN F4a, F5, F8a x 5 methods, MHA F4a x L2Impact, L2Lsync
+  python eir_next.py check_log --workers 6      the step log changes nothing: reruns stored +sync runs, compares every step
 
 Each run appends one row to out/next/runs.jsonl (workers, jobs, wall, memory). The pre and l1 of F4a and F5 are out/main's.
 """
@@ -28,6 +30,8 @@ FAULTS = ("F4a", "F5", "F8a")
 STEPS = 100
 NEW_METHODS = ("L2Lsync", "L2Impact", "L2Gsync")
 OLD_METHODS = ("L2L", "L2G")
+EXTRA_SEEDS = list(range(5, 20))      # user 2026-11-05: 20 seeds in all
+ALL_SEEDS = eir.SA_SEEDS + EXTRA_SEEDS
 MEM_FLOOR_GB = 3.0      # handoff section 2: free memory must not go below this
 START_GATE_GB = 4.5     # no new process below this (a process peaks around 1 GB, see PROGRESS)
 
@@ -70,6 +74,36 @@ def repair_jobs():
     jobs = [job_rep(o, "F8a", m, sd) for o in OPS for m in OLD_METHODS for sd in eir.SA_SEEDS]
     jobs += [job_rep(o, f, m, sd) for o in OPS for f in FAULTS for m in NEW_METHODS for sd in eir.SA_SEEDS]
     return jobs
+
+
+def seed_jobs():
+    jobs = [job_rep("ffn", f, m, sd) for f in FAULTS for m in OLD_METHODS + NEW_METHODS for sd in EXTRA_SEEDS]
+    return jobs + [job_rep("mha", "F4a", m, sd) for m in ("L2Impact", "L2Lsync") for sd in EXTRA_SEEDS]
+
+
+def strip_log(rows):
+    return [{k: v for k, v in r.items() if k != "diag"} for r in rows]
+
+
+def check_log(workers):
+    """The read-only step log: stored runs (before the log) rerun with it. Rows without the log, T, places and routes must be equal."""
+    base = [job_rep(o, "F4a", m, 123) for o, m in (("ffn", "L2Impact"), ("ffn", "L2Lsync"), ("ffn", "L2Gsync"), ("mha", "L2Impact"), ("mha", "L2Lsync"))] + [job_rep("ffn", "F8a", "L2Impact", 1)]
+    out = os.path.join(eir.HERE, "out", "_smoke_next", "check_log")
+    jobs = [dict(j, name="log_" + j["name"], sink=os.path.join(out, os.path.basename(j["sink"]))) for j in base]
+    for j in jobs:
+        if os.path.exists(j["sink"]):
+            os.remove(j["sink"])
+    bad = eir.run_phases([jobs], out, workers)
+    ok = not bad
+    for b, j in zip(base, jobs):
+        o, n = eir.read_sink(b["sink"]), eir.read_sink(j["sink"])
+        r = {"rows": strip_log(n["search"]["rows"]) == strip_log(o["search"]["rows"]), "T": n["record"]["T"] == o["record"]["T"], "beha": n["record"]["beha_loc"] == o["record"]["beha_loc"],
+             "routes": n["record"]["routes"] == o["record"]["routes"], "has_log": all("diag" in x for x in n["search"]["rows"])}
+        ok = ok and all(r.values())
+        print(b["name"], r, flush=True)
+    print("CHECK_LOG PASSED" if ok else "CHECK_LOG FAILED", flush=True)
+    if not ok:
+        raise SystemExit(1)
 
 
 def full_jobs():
@@ -187,7 +221,7 @@ def select(workers):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["select", "prep", "prior", "repair", "full"])
+    ap.add_argument("cmd", choices=["select", "prep", "prior", "repair", "full", "seeds", "check_log"])
     ap.add_argument("--workers", type=int, default=14)
     ap.add_argument("--share", default="all", choices=["1", "2", "all"])
     a = ap.parse_args()
@@ -209,6 +243,14 @@ def main():
         jobs = {"1": s1, "2": s2, "all": s1 + s2}[a.share]
         print(f"[next] repair share {a.share}: {len(jobs)} jobs, FFN {sum(j['op'] == 'ffn' for j in jobs)}, MHA {sum(j['op'] == 'mha' for j in jobs)}", flush=True)
         if run_logged(f"repair_{a.share}_w{a.workers}", jobs, a.workers):
+            raise SystemExit(1)
+    elif a.cmd == "check_log":
+        check_log(a.workers)
+    elif a.cmd == "seeds":
+        jobs = seed_jobs()
+        random.Random(20261105).shuffle(jobs)
+        print(f"[next] seeds: {len(jobs)} jobs, FFN {sum(j['op'] == 'ffn' for j in jobs)}, MHA {sum(j['op'] == 'mha' for j in jobs)}", flush=True)
+        if run_logged(f"seeds_w{a.workers}", jobs, a.workers):
             raise SystemExit(1)
     elif a.cmd == "full":
         if run_logged(f"full_w{a.workers}", full_jobs(), a.workers):
