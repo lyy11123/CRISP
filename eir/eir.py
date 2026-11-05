@@ -13,6 +13,8 @@ Jobs (kind):
   full_e3  E3's best FULL state rebuilt (verified identical, PROGRESS step 2), backend seeds = FULL-BusyBarn
   full   search from scratch on the faulty platform (cpcm_sa's A3h = FULL-A3h)
   verify E3's R0 / FULL states rebuilt and compared with E3's records (handoff 3.1)
+  select E3's choose_fault on the A3h start itself: F4a, F5a (handoff 12.1)
+  ctrl   L2-Global's rules on the healthy platform from the fault-free start (handoff 12.2)
 
 Usage (from eir/):
   python eir.py prepare                  faults.json and inputs/ (needs E3's and stage 2's files; local only)
@@ -67,7 +69,9 @@ COMBOS = [("e3", op, f) for op in ("ffn", "mha", "ffn14") for f in FIDS] + \
          [("a3h", op, f) for op in ("ffn", "mha") for f in ("F4", "F5")]
 METHODS = ["W", "L2G", "L2L"]
 SA_SEEDS = [123, 1, 2, 3, 4]
-MAIN_STEPS, HARD_STEPS, HARD_FAULTS = (30, 100), (300,), ("F4", "F5")
+MAIN_STEPS, HARD_STEPS, HARD_FAULTS = (30, 100), (300,), ("F4", "F5", "F4a", "F5a")
+CTRL_STEPS = (30, 100, 300)
+CTRL_STARTS = [("a3h", "ffn"), ("a3h", "mha"), ("e3", "ffn"), ("e3", "mha"), ("e3", "ffn14")]
 L1_N, L1_MAX_ATTEMPTS, L1_ALTS = 10, 300, 3
 EPS = 0.02
 CAL_PROPOSALS, CAL_ACCEPT, TMIN_RATIO, CAL_SEED_OFFSET = 15, 0.10, 1e-4, 100003
@@ -89,6 +93,12 @@ def load_faults():
 
 def fault_of(op, fid):
     return load_faults()[op][fid]
+
+
+def a_combos():
+    """Handoff 12.1: F4a, F5a of the A3h starts that differ from E3's coordinates (after `eir.py select`)."""
+    t = load_faults()
+    return [("a3h", op, f) for op in A3H_RUNS for f in ("F4a", "F5a") if f in t[op] and not t[op][f].get("same_as")]
 
 
 def full_cfg(op, fid):
@@ -1081,6 +1091,10 @@ def child(spec):
             child_l1(eng, spec, sink, t_r0_inject)
         elif kind == "rep":
             child_rep(eng, spec, sink)
+        elif kind == "select":
+            child_select(eng, sink)
+        elif kind == "ctrl":
+            child_ctrl(eng, spec, sink)
         elif kind == "full_e3":
             pre = read_sink(spec["pre_sink"])
             sink["bc_seed"] = eng.seed_broadcast()
@@ -1108,6 +1122,42 @@ def child_pre(eng, spec, sink):
     rec = eng.finalize()
     sizes = {(d, sp): split_bytes_of(a, d, sp) for d in a.offlinedata_list for sp in a.offlinedata_split_dict[d]}
     sink.update(T=T, record=rec, busy=busy, cb_links=cb_links, sizes=sizes, ddr_nodes=sorted(map(tuple, hp.ddr_set)))
+
+
+def child_select(eng, sink):
+    """E3's rule on this start. E3 used the template RNG's final evaluation; here backend seeds 1, 2, 3, seed 1 decides
+    and the other two show how stable the choice is."""
+    sink["bc_seed"] = eng.seed_broadcast()
+    e2 = e3._e2()
+    sink["choice"] = {}
+    for sd in (1, 2, 3):
+        eng.finalize(seeds=[sd])
+        ev_k, hp_k, pre, out = eng.last_cap
+        cap = e2._extract(ev_k, hp_k, pre, out, f"seed{sd}")
+        p = {"final": cap}
+        sink["choice"][sd] = {f: {k: v for k, v in e3.choose_fault(p, f).items() if k in ("failed_links", "kind", "busy", "busy_over_a", "critical_wait", "critical_wait_over_a")}
+                              for f in ("F4", "F5")}
+        sink["choice"][sd]["latency"] = out[0]
+
+
+def child_ctrl(eng, spec, sink):
+    pre = read_sink(spec["pre_sink"])
+    sink["bc_seed"] = eng.seed_broadcast()
+    T = eng.t_eval()
+    if T != pre["T"]:
+        raise RuntimeError(f"fault-free state rebuilt with T {T}, pre job had {pre['T']}")
+    fp0 = eng.fingerprint() if spec["steps"] == 0 else None
+    n0 = eng.ncpcm
+    res = search(eng, "L2G", spec["steps"], spec["seed"], [], spec.get("checks", False))
+    sink["search"] = res
+    if spec["steps"] == 0:
+        sink["s0_state_equal"] = eng.fingerprint() == fp0
+    rec = eng.finalize()
+    sink["record"] = {**rec, "migration_vs_start": migration_metrics(pre["record"], rec, pre["ddr_nodes"], pre["sizes"])}
+    sink["timing"] = {"t_calibration": res["t_calibration"], "t_L2_search": res["t_L2_search"], "t_finalize": res["t_restore_best"] + rec["t_finalize"],
+                      "t_backend_offline": rec["t_backend"]}
+    sink["timing"]["t_decision"] = sum(sink["timing"][k] for k in ("t_calibration", "t_L2_search", "t_finalize"))
+    sink["cpcm_calls"] = {"L2": eng.ncpcm - n0}
 
 
 def link_stats(pre, faults):
@@ -1342,6 +1392,17 @@ def job_rep(out, start, op, fid, method, steps, seed, checks=False):
             "l1_sink": job_l1(out, start, op, fid)["sink"], "sink": os.path.join(out, "rep", name + ".pkl.gz")}
 
 
+def job_select(out, op):
+    name = f"select_a3h_{op}"
+    return {"kind": "select", "name": name, "start": "a3h", "op": op, "sink": os.path.join(out, "select", name + ".pkl.gz")}
+
+
+def job_ctrl(out, start, op, steps, seed, checks=False):
+    name = f"ctrl_{start}_{op}_s{steps}_r{seed}"
+    return {"kind": "ctrl", "name": name, "start": start, "op": op, "steps": steps, "seed": seed, "checks": checks,
+            "pre_sink": job_pre(out, start, op)["sink"], "sink": os.path.join(out, "ctrl", name + ".pkl.gz")}
+
+
 def job_full_e3(out, op, fid):
     name = f"fulle3_{op}_{fid}"
     return {"kind": "full_e3", "name": name, "start": "e3", "op": op, "fault": fid,
@@ -1367,6 +1428,14 @@ PARTS = {"ffn": {"ops": ["ffn"], "starts": ["e3"]}, "mha": {"ops": ["mha"], "sta
 
 
 def plan(out, part):
+    if part == "afault":
+        combos = a_combos()
+        return [[job_pre(out, s, o) for s, o in sorted({c[:2] for c in combos})],
+                [job_l1(out, *c) for c in combos],
+                [job_rep(out, *c, m, st, sd) for c in combos for m in METHODS for st in steps_of(c[2]) for sd in SA_SEEDS]]
+    if part == "ctrl":
+        return [[job_pre(out, s, o) for s, o in CTRL_STARTS],
+                [job_ctrl(out, s, o, st, sd) for s, o in CTRL_STARTS for st in CTRL_STEPS for sd in SA_SEEDS]]
     p = PARTS[part]
     combos = [c for c in COMBOS if c[1] in p["ops"] and c[0] in p["starts"]]
     pres = sorted({(s, o) for s, o, _ in combos})
@@ -1434,6 +1503,33 @@ def prepare():
                              "e3_mean": fu["best_mean"], "e3_total_sa_wall_14": fu["total_sa_wall_14"]}, f,
                             protocol=pickle.HIGHEST_PROTOCOL)
     print("faults.json and inputs/ written")
+
+
+def select(out, workers):
+    """F4a, F5a into faults.json, marked same_as when E3's F4 / F5 are the same link (handoff 12.1)."""
+    jobs = [job_select(out, op) for op in A3H_RUNS]
+    with ThreadPoolExecutor(workers) as ex:
+        res = list(ex.map(lambda j: run_job(j, out), jobs))
+    if any(r[1] == "failed" for r in res):
+        raise SystemExit("select failed")
+    t = load_faults()
+    report = {}
+    links = lambda x: {frozenset((tuple(a), tuple(b))) for a, b in x}
+    for op in A3H_RUNS:
+        d = read_sink(job_select(out, op)["sink"])["choice"]
+        report[op] = d
+        for f in ("F4", "F5"):
+            c = d[1][f]
+            fl = [[list(a), list(b)] for a, b in c["failed_links"]]
+            same = next((g for g in FIDS if t[op][g]["failed_links"] and links(t[op][g]["failed_links"]) == links(fl)), None)
+            t[op][f + "a"] = {"failed_nodes": [], "failed_links": fl, "failed_pes": [], "kind": c["kind"], "e3_fault": None,
+                              "chosen_on": "a3h", "same_as": same, "stable_over_seeds_123": all(links(d[s][f]["failed_links"]) == links(fl) for s in (2, 3)),
+                              **{k: c[k] for k in ("busy_over_a", "critical_wait_over_a") if k in c}}
+    tmp = FAULTS_JSON + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(t, f, indent=1, ensure_ascii=False)
+    os.replace(tmp, FAULTS_JSON)
+    print(json.dumps({op: {f: t[op][f + "a"] for f in ("F4", "F5")} for op in A3H_RUNS}, indent=0, ensure_ascii=False, default=str))
 
 
 def verify(jobs_n):
@@ -1517,16 +1613,18 @@ def main():
         with open(sys.argv[2], encoding="utf-8") as f:
             return child(json.load(f))
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["prepare", "verify", "run", "report"])
+    ap.add_argument("cmd", choices=["prepare", "verify", "select", "run", "report"])
     ap.add_argument("--jobs", type=int, default=12)
     ap.add_argument("--workers", type=int, default=7)
-    ap.add_argument("--part", default="all", choices=sorted(PARTS))
+    ap.add_argument("--part", default="all", choices=sorted(PARTS) + ["afault", "ctrl"])
     ap.add_argument("--out", default=os.path.join(HERE, "out", "main"))
     a = ap.parse_args()
     if a.cmd == "prepare":
         prepare()
     elif a.cmd == "verify":
         verify(a.jobs)
+    elif a.cmd == "select":
+        select(os.path.abspath(a.out), a.workers)
     elif a.cmd == "run":
         out = os.path.abspath(a.out)
         t0 = time.time()

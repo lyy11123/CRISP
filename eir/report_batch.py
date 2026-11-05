@@ -1,6 +1,6 @@
 """Batch report of the EIR main run: numbers only (handoff sections 7, 8).
 
-  python report_batch.py ffn|mha|ffn14|a3h [--out out/main]
+  python report_batch.py ffn|mha|ffn14|a3h|afault|ctrl [--out out/main]
 Writes <out>/report_<batch>.md and .json. FULL-BusyBarn = E3's FULL state with 10 seeds (job full_e3); FFN and MHA at
 F4, F5 also show stage 2's A0 (backend-best of 14). FULL-A3h = stage 2 (FFN, MHA at F4, F5) or this run (1x4 FFN).
 """
@@ -13,7 +13,8 @@ import eir
 
 cs = eir.cs
 mean = statistics.mean
-BATCH = {"ffn": [("e3", "ffn")], "mha": [("e3", "mha")], "ffn14": [("e3", "ffn14")], "a3h": [("a3h", "ffn"), ("a3h", "mha")]}
+BATCH = {"ffn": [("e3", "ffn")], "mha": [("e3", "mha")], "ffn14": [("e3", "ffn14")], "a3h": [("a3h", "ffn"), ("a3h", "mha")],
+         "afault": [("a3h", "ffn"), ("a3h", "mha")]}
 
 
 def bk_stats(b):
@@ -38,8 +39,8 @@ def full_refs(out, op, fid):
          "FULL_BB_variant": fb["e3"]["variant"] if fb else None,
          "FULL_BB_mig": fb["record"]["migration_vs_start"] if fb else None,
          "FULL_BB_violations": len(fb["record"]["fault_violations"]) if fb else None}
-    if (op, fid) in {("ffn", "F4"), ("ffn", "F5"), ("mha", "F4"), ("mha", "F5")}:
-        cfg = f"{op}_{fid.lower()}"
+    if (op, fid.rstrip("a")) in {("ffn", "F4"), ("ffn", "F5"), ("mha", "F4"), ("mha", "F5")}:    # F4a, F5a: another link
+        cfg = f"{op}_{fid.rstrip('a').lower()}"
         r["FULL_A0_s2"] = s2_best(cfg, "A0")
         r["FULL_A3h"] = s2_best(cfg, "A3h")
     elif op == "ffn14" and fid in ("F4", "F5"):
@@ -58,12 +59,55 @@ def pc(a, b):
     return 100 * (a / b - 1)
 
 
+def ctrl_table(out):
+    """Handoff 12.2: (start, op, s) -> 10-seed mean over the 5 SA seeds, with spread, migration and timing."""
+    t = {}
+    for start, op in eir.CTRL_STARTS:
+        for st in eir.CTRL_STEPS:
+            runs = [eir.read_sink(j["sink"]) for j in (eir.job_ctrl(out, start, op, st, sd) for sd in eir.SA_SEEDS) if os.path.exists(j["sink"])]
+            if not runs:
+                continue
+            per = [bk_stats(x["record"]["backend"]) for x in runs]
+            allv = [v[0] for x in runs for v in x["record"]["backend"].values()]
+            mg = lambda f: mean(x["record"]["migration_vs_start"][f] for x in runs)
+            t[(start, op, st)] = {"mean": mean(p["mean"] for p in per), "min": min(allv), "max": max(allv), "T": mean(x["record"]["T"] for x in runs),
+                                  "triple": [mean(p["triple"][i] for p in per) for i in range(3)], "n": len(runs),
+                                  "mig": {f: mg(f) for f in ("moved_behas_share", "ddr_read_moved_bytes", "unique_block_bytes")},
+                                  "t_decision": mean(x["timing"]["t_decision"] for x in runs), "T_err": mean(pc(x["record"]["T"], p["mean"]) for x, p in zip(runs, per)),
+                                  "cpcm": mean(x["cpcm_calls"]["L2"] for x in runs), "viol": sum(len(x["record"]["fault_violations"]) for x in runs)}
+    return t
+
+
+def write_ctrl(out):
+    t = ctrl_table(out)
+    L = ["# EIR 无故障对照（12.2）\n", "健康平台，从故障前映射出发，L2-Global 的规则。延迟为后端 10 个种子均值，再对 5 个 SA 种子取平均。\n",
+         "| 起点 | 任务 | s | 故障前后端 | 后端 | 范围 | 三元组 | 相对故障前 | 行为搬动 | DDR 读源字节 | 唯一块字节 | t_决策 s | T̂ 误差 |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    for (start, op, st), x in t.items():
+        pre = bk_stats(eir.read_sink(eir.job_pre(out, start, op)["sink"])["record"]["backend"])["mean"]
+        L.append(f"| {start} | {op} | {st} | {f0(pre)} | {f0(x['mean'])} | [{f0(x['min'])}, {f0(x['max'])}] | {' / '.join(f0(v) for v in x['triple'])} | {pc(x['mean'], pre):+.1f}% | {100 * x['mig']['moved_behas_share']:.1f}% | "
+                 f"{f0(x['mig']['ddr_read_moved_bytes'])} | {f0(x['mig']['unique_block_bytes'])} | {x['t_decision']:.1f} | {x['T_err']:+.2f}% |")
+    L.append(f"\n自检：{sum(x['n'] for x in t.values())} 次；故障违规 {sum(x['viol'] for x in t.values())}。\n")
+    p = os.path.join(out, "report_ctrl.md")
+    with open(p, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(L))
+    with open(os.path.join(out, "report_ctrl.json"), "w", encoding="utf-8") as f:
+        json.dump({str(k): v for k, v in t.items()}, f, indent=0)
+    return p
+
+
+def combos_of(batch):
+    if batch == "afault":
+        return eir.a_combos()
+    return [c for c in eir.COMBOS if c[:2] in BATCH[batch]]
+
+
 def collect(out, batch):
     res = []
+    ctrl = ctrl_table(out)
     for start, op in BATCH[batch]:
         pre = eir.read_sink(eir.job_pre(out, start, op)["sink"])
         bk_pre = bk_stats(pre["record"]["backend"])
-        for s_, o_, fid in eir.COMBOS:
+        for s_, o_, fid in combos_of(batch):
             if (s_, o_) != (start, op):
                 continue
             d = eir.read_sink(eir.job_l1(out, start, op, fid)["sink"])
@@ -105,7 +149,7 @@ def collect(out, batch):
                         "t_decision": tt("t_decision"), "t_backend": tt("t_backend_offline"), "cpcm_L2": mean(x["cpcm_calls"]["L2"] for x in runs),
                         "cpcm_L1": runs[0]["cpcm_calls"]["L1"], "Tmax": mean(x["search"]["Tmax"] for x in runs),
                         "revoked_share": ill / prop, "local": runs[0]["search"]["local"], "viol": sum(len(x["record"]["fault_violations"]) for x in runs),
-                        "n": len(runs), "local_outside": (sum((x["search"]["local_audit"] or {}).get("beha_not_movable", 0) + (x["search"]["local_audit"] or {}).get("beha_dest_outside", 0) for x in runs))}
+                        "ctrl": ctrl.get((start, op, st), {}).get("mean"), "n": len(runs), "local_outside": (sum((x["search"]["local_audit"] or {}).get("beha_not_movable", 0) + (x["search"]["local_audit"] or {}).get("beha_dest_outside", 0) for x in runs))}
             c["stop_level"] = stop_level(c)
             res.append(c)
     return res
@@ -137,14 +181,16 @@ def write_md(out, batch, res):
         L.append(f"| {c['start']} | {c['op']} | {c['fault']} | {f0(c['T_pre'])} | {f0(c['pre']['mean'])} | {f0(fb['mean'])+' ['+f0(fb['min'])+', '+f0(fb['max'])+']' if fb else '—'} | {c['FULL_BB_variant'] or '—'} | "
                  f"{f0(a0['mean']) if a0 else '—'} | {f0(a3['mean']) if a3 else '—'} | {l1['attempts']} / {l1['accepted']} / {l1['reason']} | {c['n_changed_routes_R0']} / {c['n_changed_routes_L1']} | {c['stop_level'] or '无'} |")
     L.append("\n## 延迟与改进\n")
-    L.append("| 任务 | 故障 | 方法 | 后端 | 范围 | 自身代价最优 | 三元组 | 相对故障前 | 相对 FULL-BB | 相对 FULL-A3h | 相对上一级 | T̂ | T̂ 对后端误差 |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+    if batch == "afault":
+        L.append("FULL-A3h 是第 2 阶段在 E3 的 F4、F5 位置上的结果，这里的故障位置不同，只作参照。净代价 = 修复后延迟 − 同起点同步数的无故障继续搜索延迟。\n")
+    L.append("| 任务 | 故障 | 方法 | 后端 | 范围 | 自身代价最优 | 三元组 | 相对故障前 | 相对 FULL-BB | 相对 FULL-A3h | 相对上一级 | 净代价 | T̂ | T̂ 对后端误差 |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
     for c in res:
         ref = c["FULL_BB"]["mean"] if c["FULL_BB"] else None
         a3 = c.get("FULL_A3h")
         for lev, x in c["levels"].items():
             prev = None if lev == "R0" else c["levels"]["R0"]["mean"] if lev == "L1" else c["levels"]["L1"]["mean"]
             L.append(f"| {c['op']} | {c['fault']} | {lev} | {f0(x['mean'])} | [{f0(x['min'])}, {f0(x['max'])}] | {f0(x.get('own_best'))} | {' / '.join(f0(v) for v in x['triple'])} | {pc(x['mean'], c['pre']['mean']):+.1f}% | "
-                     f"{'—' if ref is None else format(pc(x['mean'], ref), '+.1f') + '%'} | {'—' if not a3 else format(pc(x['mean'], a3['mean']), '+.1f') + '%'} | {'—' if prev is None else format(pc(x['mean'], prev), '+.1f') + '%'} | {f0(x['T'])} | {x['T_err']:+.2f}% |")
+                     f"{'—' if ref is None else format(pc(x['mean'], ref), '+.1f') + '%'} | {'—' if not a3 else format(pc(x['mean'], a3['mean']), '+.1f') + '%'} | {'—' if prev is None else format(pc(x['mean'], prev), '+.1f') + '%'} | {'—' if not x.get('ctrl') else f0(x['mean'] - x['ctrl']) + ' (' + format(pc(x['mean'], x['ctrl']), '+.1f') + '%)'} | {f0(x['T'])} | {x['T_err']:+.2f}% |")
     L.append("\n## 迁移量（相对起点 / 相对 R0）\n")
     L.append("| 任务 | 故障 | 方法 | 行为位置变化比例 | DDR 读源重定位字节 | 唯一权重块字节 |\n|---|---|---|---|---|---|")
     for c in res:
@@ -178,10 +224,13 @@ def write_md(out, batch, res):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("batch", choices=sorted(BATCH))
+    ap.add_argument("batch", choices=sorted(BATCH) + ["ctrl"])
     ap.add_argument("--out", default=os.path.join(eir.HERE, "out", "main"))
     a = ap.parse_args()
     out = os.path.abspath(a.out)
+    if a.batch == "ctrl":
+        print(write_ctrl(out))
+        return
     print(write_md(out, a.batch, collect(out, a.batch)))
 
 
