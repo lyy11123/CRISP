@@ -17,6 +17,9 @@ Jobs (kind):
   ctrl   L2-Global's rules on the healthy platform from the fault-free start (handoff 12.2)
   reload check: a saved final state loaded in a new process gives the same T and state (smoke3.py)
 
+Next stage (EIR_NEXT_HANDOFF.md, driver eir_next.py): methods L2Lsync, L2Gsync, L2Impact in `rep` use the corrected DDR rule
+(section 3) and the impact-ranked set (4.1). The methods L2G, L2L, W do not reach any of that code.
+
 Usage (from eir/):
   python eir.py prepare                  faults.json and inputs/ (needs E3's and stage 2's files; local only)
   python eir.py verify --jobs 12
@@ -80,6 +83,9 @@ P, K = cs.P, cs.K
 # local-set rule, fixed by the user 2026-11-05 ("本地开跑，C、R=2", PROGRESS.md): seeds = failed parts + relocations
 LOCAL_R = 2
 SEED_RULE = "fault_relocated"
+# next stage: which methods use the corrected DDR rule, and which local set a method has (no entry: no set)
+SYNC_METHODS = ("L2Lsync", "L2Gsync", "L2Impact")
+LOCAL_METHODS = {"L2L": "geo", "L2Lsync": "geo", "L2Impact": "impact"}
 BACKEND_SEEDS = list(range(1, int(os.environ.get("EIR_BACKEND_SEEDS", "10")) + 1))
 cs.BACKEND_SEEDS = BACKEND_SEEDS
 BCAST_SEED = cs.BCAST_SEED
@@ -136,6 +142,7 @@ class Engine:
         self.faults = faults
         self.g = self.sc = self.an = self.ev = None
         self.ncpcm = 0
+        self.sync = False       # corrected DDR rule on: the fingerprint then also covers generated_split_location
 
     # ---- evaluation
     def t_eval(self):
@@ -195,8 +202,11 @@ class Engine:
                 a = e.commid_allocator
                 row += [e.comp_location, sorted(a.used_ids), sorted(a.recycled), a.next_id]
             evs.append(row)
-        return (evs, {t: b.location for t, b in s[5].items()}, s[0], s[1], dict(s[2]), dict(s[3]), dict(s[4]),
-                dict(hp.link_loads_dict), dict(hp.link_loads_count), {k: (r[0], str(r[1])) for k, r in self.bc.routes.items()})
+        fp = (evs, {t: b.location for t, b in s[5].items()}, s[0], s[1], dict(s[2]), dict(s[3]), dict(s[4]),
+              dict(hp.link_loads_dict), dict(hp.link_loads_count), {k: (r[0], str(r[1])) for k, r in self.bc.routes.items()})
+        if self.sync:
+            fp += ({d: {sp: list(x) for sp, x in t.generated_split_location.items()} for d, t in s[6].items()},)
+        return fp
 
     # ---- broadcast routes of the injected state
     def seed_broadcast(self):
@@ -280,6 +290,39 @@ def placement(a):
             if ws is not None:
                 out[ws].add(tuple(e.source_location))
     return dict(out)
+
+
+def sync_locations(a):
+    """Corrected DDR rule, entry (next handoff section 3): generated_split_location of a weight becomes where it is really
+    read from. A split whose sources are all among its locations is left alone: its other locations are real copies (the
+    input activation sits on every port). T does not read these lists (asserted by search)."""
+    out = {"splits": 0, "synced": 0, "multi_copy": 0}
+    for (d, sp), srcs in placement(a).items():
+        t = a.state[6][d]
+        locs = {tuple(x) for x in t.generated_split_location[sp]}
+        out["splits"] += 1
+        out["multi_copy"] += len(locs) > 1
+        if not set(srcs) <= locs:
+            t.generated_split_location[sp] = sorted(srcs)
+            out["synced"] += 1
+    return out
+
+
+def sync_after_weight(a, d, sp, dest):
+    """After a weight move: all reads of the split now come from dest. A single copy moved; on a multi-copy split dest is
+    one of its real copies and the location list stays (a port not listed yet gets added)."""
+    t, node = a.state[6][d], tuple(dest[:-1])
+    locs = t.generated_split_location[sp]
+    if len(locs) > 1:
+        if node not in {tuple(x) for x in locs}:
+            locs.append(node)
+    else:
+        t.generated_split_location[sp] = [node]
+
+
+def stale_locations(a):
+    """Weights read from a DDR that their location list does not name (0 under the corrected rule)."""
+    return sum(not set(srcs) <= {tuple(x) for x in a.state[6][d].generated_split_location[sp]} for (d, sp), srcs in placement(a).items())
 
 
 def split_bytes_of(a, d, sp):
@@ -385,15 +428,20 @@ def changed_endpoints(ref_routes, now_routes):
 class LocalSet:
     """Fixed local neighbourhood, computed once at L2 entry; no expansion during the search."""
 
-    def __init__(self, ann, seeds, R):
+    def __init__(self, ann, seeds, R, nodes=None):
+        """nodes: the cores given directly (L2-Impact, seeds and R unused); the DDR ports, behaviours and splits follow
+        from them by the same rules as for a geometric set."""
         hp = ann.hardware_platform
         s = ann.state
         self.R = R
-        seeds = {ddr_corner(tuple(n), hp) for n in seeds}
-        xy = [e3._grid_xy(n, hp) for n in seeds]
         cores = sorted({tuple(k[:-1]) for d in ("tensorcore", "vectorunit") for k in hp.modules_dict[d]})
-        self.nodes = {n for n in cores
-                      if any(abs(e3._grid_xy(n, hp)[0] - y) + abs(e3._grid_xy(n, hp)[1] - x) <= R for y, x in xy)}
+        if nodes is not None:
+            self.nodes = {tuple(n) for n in nodes}
+        else:
+            seeds = {ddr_corner(tuple(n), hp) for n in seeds}
+            xy = [e3._grid_xy(n, hp) for n in seeds]
+            self.nodes = {n for n in cores
+                          if any(abs(e3._grid_xy(n, hp)[0] - y) + abs(e3._grid_xy(n, hp)[1] - x) <= R for y, x in xy)}
         self.behas = {t for t, b in s[5].items() if tuple(b.location[:-1]) in self.nodes}
         self.ddr_ports = {tuple(k[:-1]) for k in hp.ddr_dict if ddr_corner(tuple(k[:-1]), hp) in self.nodes}
         self.splits = set()
@@ -413,6 +461,119 @@ class LocalSet:
         return {"R": self.R, "beha_share": len(self.behas) / self.n_behas, "core_share": len(self.nodes) / self.n_cores,
                 "n_behas": len(self.behas), "n_cores": len(self.nodes), "n_ddr_ports": len(self.ddr_ports),
                 "n_splits": len(self.splits), "splits_share": len(self.splits) / max(1, self.n_splits)}
+
+
+def changed_tags(ref_routes, now_routes):
+    """Tags of the communications changed_endpoints() counts as changed (same matching)."""
+    canon = lambda src, tree: (tuple(src), tuple(sorted((tuple(r), tuple(sorted(map(tuple, ls)))) for r, ls in tree)))
+    pool = {k: [canon(x[0], x[1]) for x in v] for k, v in ref_routes.items()}
+    out = []
+    for k, v in now_routes.items():
+        for src, tree, tag in v:
+            c = canon(src, tree)
+            if c in pool.get(k, []):
+                pool[k].remove(c)
+            else:
+                out.append(tag)
+    return out
+
+
+def impact_select(eng, base, pre, pre_w):
+    """L2-Impact's cores (next handoff 4.1), once, at the L1 state, no parameter.
+
+    Candidates: endpoints of the communications changed between the fault-free mapping and the L1 state, the relocated
+    objects, the behaviours producing and consuming all of these, and the DDR reads into those behaviours, as cores.
+    Group 1 = the fault-direct cores (rule C's seeds), group 2 = the other candidates. Within a group by score: over the
+    events of the core, max(0, W_L1 - W_pre) + phi (phi summed over resources). Ties: CB of the links ending at the core,
+    core id. A computation belongs to its core; a communication to its source and, if unicast, its target (a DDR port
+    counts as its corner core; a broadcast reaches every port, so only the source, the same reason as changed_endpoints).
+    The first K cores, K = the core count of the geometric L2-Local of this combination."""
+    a, hp = eng.a, eng.hp
+    if pre_w["T"] != pre["T"]:
+        raise RuntimeError(f"pre rerun T {pre_w['T']}, reference pre T {pre['T']}")
+    eng.t_eval()
+    an, g, ev = eng.analysis(), eng.g, eng.ev
+    an.critical_path()
+    cores = {tuple(k[:-1]) for d in ("tensorcore", "vectorunit") for k in hp.modules_dict[d]}
+    ddr = {tuple(k[:-1]) for k in hp.ddr_dict}
+    to_core = lambda n: ddr_corner(tuple(n), hp)
+    geo = LocalSet(a, base["seed_nodes"], LOCAL_R)
+    K = len(geo.nodes)
+    g1 = {to_core(n) for n in base["seed_parts"]["fault_and_relocated"]} & cores
+    now_routes = base["L1"]["routes"]
+    ends, n_changed = changed_endpoints(pre["record"]["routes"], now_routes)
+    cand = {to_core(n) for n in ends}
+    tags = changed_tags(pre["record"]["routes"], now_routes)
+    missing = 0
+    behas = set()
+    is_comp = lambda x: x in ev and ev[x].event_type == "computation"
+
+    def neighbours(t):
+        """Computation behaviours around an event: directly, or through a communication."""
+        e, out = ev[t], set()
+        for x in list(e.dependency_set) + list(e.issue_set):
+            if is_comp(x):
+                out.add(x)
+            elif x in ev:
+                out |= {y for y in list(ev[x].dependency_set) + list(ev[x].issue_set) if is_comp(y) and y != t}
+        return out
+
+    for t in tags:
+        if t not in ev:
+            missing += 1
+            continue
+        behas |= {x for x in list(ev[t].dependency_set) + list(ev[t].issue_set) if is_comp(x)}
+    for t, old, new in base["log"].get("relocated") or []:
+        cand |= {to_core(old[:-1]), to_core(new[:-1])}
+        behas.add(t)
+        behas |= neighbours(t)
+    for d, sp, dead, new in base["log"].get("ddr_data_moved") or []:
+        cand |= {to_core(n) for n in dead}
+        if len(new) == 1:      # really moved; several = a copy dropped (the same reading as child_l1's seeds)
+            cand.add(to_core(new[0]))
+        for t in a.state[6][d].used_splitted_tag_dict.get(sp, ()):
+            if t in ev and ev[t].event_type == "communication":
+                behas |= {x for x in ev[t].issue_set if is_comp(x)}
+    for b in behas:
+        cand.add(to_core(ev[b].comp_location[:-1]))
+        for x in ev[b].dependency_set:
+            if x in ev and ev[x].event_type == "communication" and tuple(ev[x].source_location) in ddr:
+                cand.add(to_core(ev[x].source_location))
+    cand = (cand | g1) & cores
+    g2 = cand - g1
+    phi = collections.Counter()
+    for dq in an.phi.values():
+        for b, v in dq.items():
+            phi[b] += v
+    W_pre = pre_w["W_by_tag"]
+    score, unaligned = collections.Counter(), 0
+    for e in range(g.n):
+        tag = g.tag[e]
+        x = ev[tag]
+        if tag not in W_pre:
+            unaligned += 1
+        v = max(0, eng.W(e) - W_pre.get(tag, 0)) + phi[e]
+        if x.event_type == "computation":
+            where = {to_core(x.comp_location[:-1])}
+        else:
+            where = {to_core(x.source_location)}
+            if not isinstance(x.target_location, set):
+                where.add(to_core(x.target_location))
+        for c in where:
+            score[c] += v
+    cb = collections.Counter()
+    for q, v in an.blocking().items():
+        if g.res_name[q][0] == "link":
+            for n in g.res_name[q][1][:2]:
+                cb[to_core(n)] += v
+    order = lambda grp: sorted(grp, key=lambda c: (-score[c], -cb[c], c))
+    rank = order(g1) + order(g2)
+    nodes = rank[:K]
+    return {"K": K, "nodes": sorted(nodes), "rank": rank, "n_cand": len(cand), "n_g1": len(g1), "n_g2": len(g2),
+            "chosen_g1": sum(c in g1 for c in nodes), "chosen_g2": sum(c in g2 for c in nodes),
+            "overlap_geo": len(set(nodes) & geo.nodes), "geo_nodes": sorted(geo.nodes), "geo_cov": geo.coverage(),
+            "score": {c: score[c] for c in rank}, "cb": {c: cb[c] for c in rank}, "n_changed": n_changed, "tags_changed": len(tags),
+            "tags_missing_in_graph": missing, "n_events": g.n, "n_unaligned_W": unaligned, "n_behas_around": len(behas)}
 
 
 class Heur(cs.Heur):
@@ -474,8 +635,8 @@ class Moves:
     """A3h's proposal (cs.make_anneal's targeted + heuristic_random). With local None the random-number use and every
     choice are the same as there; with a local set every branch draws only inside it."""
 
-    def __init__(self, eng, local):
-        self.eng, self.local = eng, local
+    def __init__(self, eng, local, sync=False):
+        self.eng, self.local, self.sync = eng, local, sync
         self.a = eng.a
         self.heur = Heur(eng.a, local)
         self.ddr_nodes = {tuple(k[:-1]) for k in eng.hp.ddr_dict}
@@ -492,6 +653,8 @@ class Moves:
         if dest is None:
             return None
         cs.mv_weight(self.a, d, sp, dest)
+        if self.sync:
+            sync_after_weight(self.a, d, sp, dest)
         return {"action": action, "split": (d, sp), "dest": dest}
 
     def _eligible(self, tag):
@@ -601,14 +764,64 @@ def read_table(a):
     return c
 
 
+def reads_by_key(a):
+    """read_table's key -> tags."""
+    ddr = {tuple(k[:-1]) for k in a.hardware_platform.ddr_dict}
+    out = collections.defaultdict(list)
+    for t, e in a.state[7].items():
+        if e.event_type == "communication" and tuple(e.source_location) in ddr:
+            out[(tuple(sorted(map(str, e.issue_set))), e.comm_bytes, tuple(e.source_location))].append(t)
+    return out
+
+
+def has_real_copy(a, tag, node):
+    """(the data split this read carries, or None; whether its location list names the DDR). Under the corrected rule the
+    list holds the real copies. An offline weight by cs.weight_split_of; otherwise (the input activation, which is on every
+    port and is not in offlinedata_list) any data listing the tag, a split of the read's size first."""
+    ws = cs.weight_split_of(a, tag)
+    if ws is None:
+        nb = a.state[7][tag].comm_bytes
+        hits = [(split_bytes_of(a, d, sp) != nb, str(d), str(sp), d, sp) for d, t in a.state[6].items()
+                for sp, tags in t.used_splitted_tag_dict.items() if tag in tags and sp in t.generated_split_location]
+        if hits:
+            ws = min(hits, key=lambda h: h[:3])[3:]
+    return ws, ws is not None and tuple(node) in {tuple(x) for x in a.state[6][ws[0]].generated_split_location[ws[1]]}
+
+
+def rebound_reads(a, before):
+    """After a behaviour move: live reads of the same consumers and size that changed DDR. rebound_stale = the new source
+    is not among the split's locations; rebound_other = no data split found for the read."""
+    now = read_table(a)
+    added, removed = now - before, before - now
+    gone = {k[:2] for k in removed}
+    out = collections.Counter()
+    hits = [k for k in added if k[:2] in gone]
+    if hits:
+        idx = reads_by_key(a)
+        for k in hits:
+            ws, real = has_real_copy(a, idx[k][0], k[2])
+            out["rebound"] += added[k]
+            out["rebound_real_copy" if real else "rebound_other" if ws is None else "rebound_stale"] += added[k]
+    return out
+
+
 class LocalAudit:
     """State-level check of every proposal under a local set (check 3): whatever branch produced it, behaviours that
-    changed place must be movable and land on allowed devices, and DDR sources that newly appear must be allowed."""
+    changed place must be movable and land on allowed devices, and DDR sources that newly appear must be allowed.
+    sync (corrected rule, next handoff section 3): a new source outside the set is allowed, and counted, when every consumer
+    of that read is in the set and the data has a real copy on that DDR; the rest stays ddr_source_outside."""
 
-    def __init__(self, a, local):
-        self.a, self.local = a, local
+    def __init__(self, a, local, sync=False):
+        self.a, self.local, self.sync = a, local, sync
         self.n = 0
         self.count = collections.Counter()
+
+    def _allowed(self, k, idx):
+        s = self.a.state
+        for t in idx[k]:
+            if not set(s[7][t].issue_set) <= self.local.behas or not has_real_copy(self.a, t, k[2])[1]:
+                return False
+        return True
 
     def before(self):
         s = self.a.state
@@ -626,8 +839,14 @@ class LocalAudit:
                     out["beha_not_movable"] += 1
                 if tuple(b.location[:-1]) not in loc.nodes:
                     out["beha_dest_outside"] += 1
+        idx = None
         for k, v in read_table(self.a).items():
             if v > reads0.get(k, 0) and k[2] not in loc.ddr_ports:
+                if self.sync:
+                    idx = idx or reads_by_key(self.a)
+                    if self._allowed(k, idx):
+                        self.count["ddr_outside_allowed"] += 1
+                        continue
                 out["ddr_source_outside"] += 1
         self.count.update(out)
         return out
@@ -859,20 +1078,38 @@ class L1:
 
 
 # ---------------------------------------------------------------- L2 / W search (handoff sections 3.2, 4, 5)
-def search(eng, method, steps, seed, seeds_nodes, checks, checkpoints=None):
+def search(eng, method, steps, seed, seeds_nodes, checks, checkpoints=None, impact=None):
     """From the current state (the L1 output). L2G / L2L: E = T/T0 + (0.01/T0) dist/dist0, kept state = smallest E.
     W: BusyBarn's energy with the artifact's random move, kept state = smallest energy. Same exact revert, same 10%
     calibration, same seeds.
 
     checkpoints: optional step numbers inside this one cooling schedule (`steps` unchanged). At the end of each, the best
     state so far is recorded (best_E, best_T, best_step, snap, t_search = search seconds so far, no calibration). It
-    only reads `best`: no random numbers, no change to the state, and the result has the key only when asked for."""
+    only reads `best`: no random numbers, no change to the state, and the result has the key only when asked for.
+
+    Methods in SYNC_METHODS: the corrected DDR rule. impact: impact_select's result, for L2Impact's set. Their rows and result
+    carry more keys (landing cores, counters); the other methods take none of these branches."""
     if checkpoints and not all(0 < c <= steps for c in checkpoints):
         raise ValueError(f"checkpoints {checkpoints} outside 1..{steps}")
     a, hp = eng.a, eng.hp
-    local = LocalSet(a, seeds_nodes, LOCAL_R) if method == "L2L" else None
-    moves = Moves(eng, local) if method != "W" else None
-    audit = LocalAudit(a, local) if local is not None else None
+    sync = method in SYNC_METHODS
+    sync_entry = None
+    if sync:
+        T_a = eng.t_eval()
+        sync_entry = sync_locations(a)
+        T_b = eng.t_eval()
+        if T_a != T_b:
+            raise RuntimeError(f"syncing the locations changed T: {T_a} -> {T_b}")
+        sync_entry.update(T=T_b, stale_after=stale_locations(a))
+        eng.sync = True
+    kind = LOCAL_METHODS.get(method)
+    if kind == "impact":
+        local = LocalSet(a, None, "impact", nodes=impact["nodes"])
+    else:
+        local = LocalSet(a, seeds_nodes, LOCAL_R) if kind == "geo" else None
+    moves = Moves(eng, local, sync) if method != "W" else None
+    audit = LocalAudit(a, local, sync) if local is not None else None
+    watch = collections.Counter()
     orig_move = type(a).move
     st = {"T0": None, "d0": None}
     tm = collections.Counter()
@@ -894,9 +1131,17 @@ def search(eng, method, steps, seed, seeds_nodes, checks, checkpoints=None):
             orig_move(a)
             return {"action": "rand"}, False
         pre_a = audit.before() if audit else None
+        reads0 = read_table(a) if sync else None
         info = moves.propose()
         if info is None:
             return None, False
+        if sync:
+            watch["proposals"] += 1
+            if "split" in info:
+                info["landing_ddr"] = tuple(info["dest"][:-1])
+            else:
+                watch.update(rebound_reads(a, reads0))
+                info["landing"] = [tuple(a.state[7][b].comp_location[:-1]) for b in (info.get("beha"), info.get("beha2")) if b is not None]
         if audit:
             bad = audit.check(pre_a)
             if bad:
@@ -952,6 +1197,8 @@ def search(eng, method, steps, seed, seeds_nodes, checks, checkpoints=None):
         fp0 = eng.fingerprint() if checks else None
         info, illegal = propose()
         row = {"step": step, "temp": temp, "action": (info or {}).get("action"), "targeted": bool((info or {}).get("targeted"))}
+        if sync and info is not None:
+            row.update({k: info[k] for k in ("landing", "landing_ddr") if k in info})
         if info is None or illegal:   # nothing proposed or proposal out of bounds: undone, the step is spent
             if info is not None:
                 eng.revert(pre)
@@ -993,7 +1240,8 @@ def search(eng, method, steps, seed, seeds_nodes, checks, checkpoints=None):
             "local": local.coverage() if local else None,
             "local_behas": set(local.behas) if local else None, "local_nodes": set(local.nodes) if local else None,
             "local_audit": ({"n": audit.n, **audit.count} if audit else None),
-            **({"checkpoints": ck_rows} if checkpoints else {})}
+            **({"checkpoints": ck_rows} if checkpoints else {}),
+            **({"sync_entry": sync_entry, "read_watch": dict(watch), "stale_final": stale_locations(a), "impact": impact} if sync else {})}
 
 
 # ---------------------------------------------------------------- child
@@ -1109,7 +1357,7 @@ def child(spec):
         elif kind == "rep":
             child_rep(eng, spec, sink)
         elif kind == "select":
-            child_select(eng, sink)
+            child_select(eng, sink, spec.get("fids", ("F4", "F5")))
         elif kind == "ctrl":
             child_ctrl(eng, spec, sink)
         elif kind == "reload":
@@ -1138,12 +1386,14 @@ def child_pre(eng, spec, sink):
             busy[g.res_name[q][1]] = sum(sc.a_f[x] - sc.a_s[x] for x in seq)
     cb = an.blocking()
     cb_links = {g.res_name[q][1]: v for q, v in cb.items() if g.res_name[q][0] == "link"}
+    if spec.get("store_w"):       # L2-Impact aligns the waits by tag
+        sink["W_by_tag"] = {g.tag[e]: eng.W(e) for e in range(g.n)}
     rec = eng.finalize()
     sizes = {(d, sp): split_bytes_of(a, d, sp) for d in a.offlinedata_list for sp in a.offlinedata_split_dict[d]}
     sink.update(T=T, record=rec, busy=busy, cb_links=cb_links, sizes=sizes, ddr_nodes=sorted(map(tuple, hp.ddr_set)))
 
 
-def child_select(eng, sink):
+def child_select(eng, sink, fids=("F4", "F5")):
     """E3's rule on this start. E3 used the template RNG's final evaluation; here backend seeds 1, 2, 3, seed 1 decides
     and the other two show how stable the choice is."""
     sink["bc_seed"] = eng.seed_broadcast()
@@ -1154,8 +1404,8 @@ def child_select(eng, sink):
         ev_k, hp_k, pre, out = eng.last_cap
         cap = e2._extract(ev_k, hp_k, pre, out, f"seed{sd}")
         p = {"final": cap}
-        sink["choice"][sd] = {f: {k: v for k, v in e3.choose_fault(p, f).items() if k in ("failed_links", "kind", "busy", "busy_over_a", "critical_wait", "critical_wait_over_a")}
-                              for f in ("F4", "F5")}
+        sink["choice"][sd] = {f: {k: v for k, v in e3.choose_fault(p, f).items() if k in ("failed_nodes", "failed_links", "kind", "busy", "busy_over_a", "critical_wait", "critical_wait_over_a", "top_ports")}
+                              for f in fids}
         sink["choice"][sd]["latency"] = out[0]
 
 
@@ -1169,6 +1419,7 @@ def keep_final(eng, spec, sink):
 def child_reload(eng, spec, sink):
     """Check: a saved final state, loaded in a new process on the same faulty platform, gives the same T and state."""
     d = read_sink(spec["from_sink"])
+    eng.sync = d["spec"].get("method") in SYNC_METHODS
     eng.load(d["final_snap"])
     sink["T"] = eng.t_eval()
     sink["T_saved"] = d["record"]["T"]
@@ -1263,7 +1514,8 @@ def child_rep(eng, spec, sink):
         raise RuntimeError(f"L1 state reloaded with T {sink['T_L1_check']}, expected {base['T_L1']}")
     fp_l1 = eng.fingerprint() if spec["steps"] == 0 else None
     n0 = eng.ncpcm
-    res = search(eng, spec["method"], spec["steps"], spec["seed"], base["seed_nodes"], spec.get("checks", False), spec.get("checkpoints"))
+    impact = impact_select(eng, base, pre, read_sink(spec["pre_w_sink"])) if spec["method"] == "L2Impact" else None
+    res = search(eng, spec["method"], spec["steps"], spec["seed"], base["seed_nodes"], spec.get("checks", False), spec.get("checkpoints"), impact)
     sink["search"] = res
     keep_final(eng, spec, sink)
     if spec["steps"] == 0:
@@ -1647,10 +1899,36 @@ def report(out):
     print(f"{out}/report.json: {len(rows)} rows")
 
 
+def _log_peak_memory(name, path):
+    """Next stage only (env EIR_MEM_LOG): at exit, append this process's peak working set to a file (Windows)."""
+    import atexit
+    import ctypes
+    from ctypes import wintypes
+
+    class PMC(ctypes.Structure):
+        _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD), ("PeakWorkingSetSize", ctypes.c_size_t), ("WorkingSetSize", ctypes.c_size_t),
+                    ("QuotaPeakPagedPoolUsage", ctypes.c_size_t), ("QuotaPagedPoolUsage", ctypes.c_size_t), ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+                    ("QuotaNonPagedPoolUsage", ctypes.c_size_t), ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
+
+    def log():
+        pmc = PMC()
+        pmc.cb = ctypes.sizeof(PMC)
+        kernel32, psapi = ctypes.WinDLL("kernel32"), ctypes.WinDLL("psapi")
+        kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+        psapi.GetProcessMemoryInfo.argtypes = [wintypes.HANDLE, ctypes.POINTER(PMC), wintypes.DWORD]
+        if psapi.GetProcessMemoryInfo(kernel32.GetCurrentProcess(), ctypes.byref(pmc), pmc.cb):
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(json.dumps({"name": name, "peak_wset": pmc.PeakWorkingSetSize, "peak_commit": pmc.PeakPagefileUsage}) + "\n")
+    atexit.register(log)
+
+
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "child":
         with open(sys.argv[2], encoding="utf-8") as f:
-            return child(json.load(f))
+            sp_ = json.load(f)
+        if os.environ.get("EIR_MEM_LOG"):
+            _log_peak_memory(sp_["name"], os.environ["EIR_MEM_LOG"])
+        return child(sp_)
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["prepare", "verify", "select", "run", "report"])
     ap.add_argument("--jobs", type=int, default=12)
