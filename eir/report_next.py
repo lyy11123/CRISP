@@ -197,12 +197,12 @@ def full_table(op, fid):
 def report_a():
     res = []
     L = ["# EIR 下一阶段 阶段 A：L2-Impact 与消融\n",
-         "只报数字。A3h 起点，s = 100，5 个 SA 种子（123、1、2、3、4），后端 10 个种子，广播种子 0。原 L2-Local、原 L2-Global 在 F4a、F5 上复用 `out\\main`，F8a 上新跑。净代价的对照是 `out\\main` 的无故障继续搜索（s = 100，**旧规则**）。决策耗时含并行争用，不作论文数据。\n"]
+         "只报数字。A3h 起点，s = 100，后端 10 个种子，广播种子 0。SA 种子：FFN 三个组合的 5 个方法和 MHA F4a 的 L2Impact、L2L+sync 是 20 个（123、1、2、3、4、5–19），其余 5 个，见“种子数”列。原 L2-Local、原 L2-Global 的原 5 个种子在 F4a、F5 上复用 `out\\main`，其余新跑。净代价的对照是 `out\\main` 的无故障继续搜索（s = 100，**旧规则**）。决策耗时含并行争用，不作论文数据。\n"]
     rows_all = []
     for op, fid in COMBOS:
         pre = eir.read_sink(eir.job_pre(en.MAIN, "a3h", op)["sink"])
         pre_b = bk(pre["record"]["backend"])
-        ctrl_runs = [eir.read_sink(eir.job_ctrl(en.MAIN, "a3h", op, en.STEPS, sd)["sink"]) for sd in SEEDS]
+        ctrl_runs = [eir.read_sink(eir.job_ctrl(en.MAIN, "a3h", op, en.STEPS, sd)["sink"]) for sd in SEEDS5]
         ct = mean(bk(x["record"]["backend"]) for x in ctrl_runs)
         l1 = eir.read_sink(eir.job_l1(en.l1_out(fid), "a3h", op, fid)["sink"])
         full = full_table(op, fid) if fid in ("F4a", "F8a") else None
@@ -394,6 +394,8 @@ def diag():
                  "corners": sum(c[1] in corners for c in nodes), "idle_in_set": sum(c in idle_all for c in nodes), "idle_all": len(idle_all),
                  "land_n": len(lands), "land_tensor_pct_median": median(pct(tens, c) for c in lands) if lands else None, "land_vector_pct_median": median(pct(vect, c) for c in lands) if lands else None,
                  "land_idle_share": sum(c in idle_all for c in lands) / len(lands) if lands else None,
+                 "tensor_load_set": median(tens[c] for c in nodes), "tensor_load_all": median(tens[c] for c in all_cores), "vector_load_set": median(vect[c] for c in nodes), "vector_load_all": median(vect[c] for c in all_cores),
+                 "chosen_load_median": median(c["load"] for c in cands if c["load"] is not None) if cands else None,
                  "comp_dest_calls": len(cands), "comp_dest_none": sum(v == 0 for v in n_c), "cands_median": median(n_c) if n_c else None, "idle_cands_median": median(idle_c) if idle_c else None,
                  "calls_with_idle_cand": sum(v > 0 for v in idle_c) / len(idle_c) if idle_c else None,
                  "top": dict(top), "cp": dict(cp), "chosen": dict(chosen), "weight_returned": weight_ret, "chosen_n": sum(chosen.values())}
@@ -410,6 +412,11 @@ def diag():
     for k, x in res.items():
         fid, m = k.split("_")
         L.append(f"| {fid} | {m} | {x['K']} | {fmt(x['tensor_pct_median'])}% | {fmt(x['vector_pct_median'])}% | {x['corners']} | {x['idle_in_set']} / {x['idle_all']} | {x['land_n']} | {fmt(x['land_tensor_pct_median'])}% / {fmt(x['land_vector_pct_median'])}% | {fmt(None if x['land_idle_share'] is None else 100 * x['land_idle_share'])}% | {x['comp_dest_calls']} / {x['comp_dest_none']} | {fmt(x['cands_median'], '.1f')} | {fmt(x['idle_cands_median'], '.1f')} | {fmt(None if x['calls_with_idle_cand'] is None else 100 * x['calls_with_idle_cand'])}% |")
+    L.append("\n百分位有大量并列（很多核负载相同），所以另列绝对负载：\n")
+    L.append("| 故障 | 方法 | 张量负载中位数（集合 / 全图） | 向量负载中位数（集合 / 全图） | comp_dest 选中目标的当时负载中位数 |\n|---|---|---|---|---|")
+    for k, x in res.items():
+        fid, m = k.split("_")
+        L.append(f"| {fid} | {m} | {fmt(x['tensor_load_set'])} / {fmt(x['tensor_load_all'])} | {fmt(x['vector_load_set'])} / {fmt(x['vector_load_all'])} | {fmt(x['chosen_load_median'])} |")
     L.append("\n## (c) 两种解释（15 个新种子的步级日志）\n")
     L.append("关键路径 = 每次定向抽到时、集合过滤之前的关键路径事件；top-K = 过滤之后按 W 取的前 K 个（K = 5）。“抽中”是实际随机选中的那个事件。\n")
     L.append("| 故障 | 方法 | 关键路径事件：计算 / DDR 读 / 核间通信 | top-K 事件数 | top-K 中 DDR 读占比 | DDR 读中 ws 在集合内占比 | top-K 中计算占比 | 抽中事件数 | 抽中 DDR 读且 ws 在集合内 | 其中权重移动直接返回（到 consumer/producer 之前） | 占抽中的比例 |\n|---|---|---|---|---|---|---|---|---|---|---|")
