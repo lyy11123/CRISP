@@ -461,3 +461,29 @@ E3 的 F4、F5 在 A3h 映射上：种子 1 下 CB 都是 0（不在关键链上
 - 固定 ε = 2% 规则：`EIR_SUMMARY.md` 第 8 节，每个任务单独走（跨级看 T̂，L2 内部相邻档位改进小于 2% 或已进 ε 即停），两任务都停后一起部署。
 - 窗口 H：10 s、60 s、600 s、3,600 s、86,400 s；r = 1、8；时钟 0.5、1 ns；搜索时间 × 1、× 0.1；T_switch 0、1 ms、100 ms、10 s 只作敏感性，没有依据。
 - 累计完成量取 10 个种子配对（FFN 种子 i 配 MHA 种子 i）的中位数和范围。
+
+## 2026-11-05 第 26 步：阶段 B 运行和报告（Claude Code）
+
+**更正第 24 步**：第 24 步表头写“L2 为种子中位数”不对。`report_next.py c` 主表的 L2 是种子均值（R0、L1 单次）。同一批数据的中位数见 `out/next/report_b.md` 的“FULL 三行与 L2G+sync”（例如 FFN CEdge L2G+sync 均值 +10.0%、中位数 +9.5%，MHA CScratch 均值 +9.0%、中位数 +10.3%）。旧条目不改。
+
+**命令**：`python -u eir_next.py b_smoke --workers 6`（冷烟 PASSED，修 `handoff_view` 后删掉缓存重跑过），`python -u eir_next.py b_ck --workers 14`，`python -u serial_b.py`，`python report_b.py`。
+
+**检查点**：60 次 all ok，墙钟 2,675 s，最低空闲内存 3.41 GB，门控等待 5 次。自检：T ≠ best_T 0，最后一档 ≠ 记录 0，违规 0，过时 0，best_T 不单调 0。
+
+**串行抽测**：12 项，全程 1,140 s，开始前和每项之前查过没有其他 python 进程。FFN t_R0 1.3 s、t_L1 1.2 s、s=100 搜索 5.8–6.2 s、FULL SA 42.1 s；MHA 4.3 s、3.6 s、25.6–30.9 s、257.2 s。
+
+**结果**：见 `EIR_NEXT_SUMMARY.md` 第 3、4 节。窗口决策对固定 ε（L2G+sync，主用，r = 1）：10 s 1.000，60 s 1.106，600 s 0.976，3,600 s 1.003，86,400 s 1.006。不是一致更好。
+
+**对第 25 步规则的实现说明**：主用版 `t_search/T_R0` 按 min(t_search, H) 封顶，否则 H 短于搜索时间时会多算。规则从 L1 开始，不选“停在 R0”，所以停机版窗口短于 L1 耗时时是 0，如实报。
+
+**后续改动 report_b.py**：为 KV 增加默认 M = 0 的参数，改后 `report_b.json` 与改前完全相同（已比对）。
+
+## 2026-11-05 第 27 步：事后追加：KV 解析估算、T̂ 低估计数、FULL 三行（主对话转述的要求）（Claude Code）
+
+不属于第 25 步的规则，脚本 `report_kv.py`，追加在 `report_b.md` 的标记之后。不重跑仿真，不改 artifact。外部解析估算，不是仿真结果。
+
+**核实**：`mha.py` batch 16、hidden 6144、`bf16`，单层 805,306,368 B；`head_num = 64`、循环 `heads = 8`，`end_to_end.py` 里 `mha[0] * 8`，所以单任务 96 MiB。`sram_capacity` 16,777,216，`sram_number` 1，每核一个；`mem_enable` 由 cfg 里有 `sram_cfg` 决定，这份 cfg 为真。8 个头是否对应 8 个独立 Die 组，模板不能确认，是假设。FULL 的 ρ 用 `selected.e3map` 实测，94.4–97.9%（按 T̂ 自选）。
+
+**结果**：敏感性 2,400 格，最大 M（单任务 2 GiB）决策改变 0 格，窗口决策累计完成量最大变化 0.025%，固定 ε 最大 4.15%（H = 10 s、× 0.1，窗口刚好略长于搜索时间）。只有 F4a。
+
+**待用户决定的问题**：无。
