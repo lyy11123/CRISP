@@ -17,7 +17,7 @@ Jobs (kind):
 Usage (from eir/):
   python eir.py prepare                  faults.json and inputs/ (needs E3's and stage 2's files; local only)
   python eir.py verify --jobs 12
-  python eir.py run --part all --out out/main --workers 14
+  python eir.py run --part ffn|mha|ffn14|a3h --out out/main --workers 14
   python eir.py report --out out/main
 """
 import argparse
@@ -72,9 +72,9 @@ L1_N, L1_MAX_ATTEMPTS, L1_ALTS = 10, 300, 3
 EPS = 0.02
 CAL_PROPOSALS, CAL_ACCEPT, TMIN_RATIO, CAL_SEED_OFFSET = 15, 0.10, 1e-4, 100003
 P, K = cs.P, cs.K
-# local-set rule, fixed after the smoke test (PROGRESS.md): which events' endpoints seed the neighbourhood, and R
-LOCAL_R = int(os.environ.get("EIR_LOCAL_R", "2"))
-SEED_RULE = os.environ.get("EIR_SEED_RULE", "fault_relocated")
+# local-set rule, fixed by the user 2026-11-05 ("本地开跑，C、R=2", PROGRESS.md): seeds = failed parts + relocations
+LOCAL_R = 2
+SEED_RULE = "fault_relocated"
 BACKEND_SEEDS = list(range(1, int(os.environ.get("EIR_BACKEND_SEEDS", "10")) + 1))
 cs.BACKEND_SEEDS = BACKEND_SEEDS
 BCAST_SEED = cs.BCAST_SEED
@@ -1360,9 +1360,10 @@ def full_todo():
     return [("ffn14", "F4", "A3h"), ("ffn14", "F5", "A3h")]
 
 
-# Colab notebooks: each holds whole operators, so that its pre / l1 files are its own
-PARTS = {"a": {"ops": ["ffn"], "starts": ["e3", "a3h"]}, "b": {"ops": ["mha"], "starts": ["e3", "a3h"]},
-         "c": {"ops": ["ffn14"], "starts": ["e3"]}, "all": {"ops": ["ffn", "mha", "ffn14"], "starts": ["e3", "a3h"]}}
+# batches of the main run, reported one by one
+PARTS = {"ffn": {"ops": ["ffn"], "starts": ["e3"]}, "mha": {"ops": ["mha"], "starts": ["e3"]},
+         "ffn14": {"ops": ["ffn14"], "starts": ["e3"]}, "a3h": {"ops": ["ffn", "mha"], "starts": ["a3h"]},
+         "all": {"ops": ["ffn", "mha", "ffn14"], "starts": ["e3", "a3h"]}}
 
 
 def plan(out, part):
@@ -1371,9 +1372,9 @@ def plan(out, part):
     pres = sorted({(s, o) for s, o, _ in combos})
     phases = [[job_pre(out, s, o) for s, o in pres],
               [job_l1(out, s, o, f) for s, o, f in combos] +
-              [job_full_e3(out, o, f) for o in p["ops"] for f in FIDS],
+              [job_full_e3(out, o, f) for o in p["ops"] for f in FIDS if "e3" in p["starts"]],
               [job_rep(out, s, o, f, m, st, sd) for s, o, f in combos for m in METHODS for st in steps_of(f) for sd in SA_SEEDS]
-              + [job_full(out, o, f, arm, g, x) for o, f, arm in full_todo() if o in p["ops"]
+              + [job_full(out, o, f, arm, g, x) for o, f, arm in full_todo() if o in p["ops"] and "e3" in p["starts"]
                  for g, x in cs.variants(arm)]]
     return phases
 
