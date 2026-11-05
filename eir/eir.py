@@ -15,6 +15,7 @@ Jobs (kind):
   verify E3's R0 / FULL states rebuilt and compared with E3's records (handoff 3.1)
   select E3's choose_fault on the A3h start itself: F4a, F5a (handoff 12.1)
   ctrl   L2-Global's rules on the healthy platform from the fault-free start (handoff 12.2)
+  reload check: a saved final state loaded in a new process gives the same T and state (smoke3.py)
 
 Usage (from eir/):
   python eir.py prepare                  faults.json and inputs/ (needs E3's and stage 2's files; local only)
@@ -858,10 +859,16 @@ class L1:
 
 
 # ---------------------------------------------------------------- L2 / W search (handoff sections 3.2, 4, 5)
-def search(eng, method, steps, seed, seeds_nodes, checks):
+def search(eng, method, steps, seed, seeds_nodes, checks, checkpoints=None):
     """From the current state (the L1 output). L2G / L2L: E = T/T0 + (0.01/T0) dist/dist0, kept state = smallest E.
     W: BusyBarn's energy with the artifact's random move, kept state = smallest energy. Same exact revert, same 10%
-    calibration, same seeds."""
+    calibration, same seeds.
+
+    checkpoints: optional step numbers inside this one cooling schedule (`steps` unchanged). At the end of each, the best
+    state so far is recorded (best_E, best_T, best_step, snap, t_search = search seconds so far, no calibration). It
+    only reads `best`: no random numbers, no change to the state, and the result has the key only when asked for."""
+    if checkpoints and not all(0 < c <= steps for c in checkpoints):
+        raise ValueError(f"checkpoints {checkpoints} outside 1..{steps}")
     a, hp = eng.a, eng.hp
     local = LocalSet(a, seeds_nodes, LOCAL_R) if method == "L2L" else None
     moves = Moves(eng, local) if method != "W" else None
@@ -932,6 +939,13 @@ def search(eng, method, steps, seed, seeds_nodes, checks):
     t0 = time.perf_counter()
     last_accept = 0
     n_illegal = 0
+    ck_steps, ck_rows = set(checkpoints or ()), []
+
+    def mark(step):
+        if step in ck_steps:
+            ck_rows.append({"step": step, "best_E": best["E"], "best_T": best["T"], "best_step": best["step"], "snap": best["snap"],
+                            "t_search": time.perf_counter() - t0})
+
     for step in range(1, steps + 1):
         temp = Tmax * math.exp(-math.log(Tmax / Tmin) * step / steps) if Tmax > 0 else 0.0
         pre = eng.before()
@@ -945,6 +959,7 @@ def search(eng, method, steps, seed, seeds_nodes, checks):
                 row["illegal"] = info["illegal"]
             row["accepted"] = False
             rows.append(row)
+            mark(step)
             continue
         E_new, T_new = energy()
         dE = E_new - E
@@ -967,6 +982,7 @@ def search(eng, method, steps, seed, seeds_nodes, checks):
             if E < best["E"]:
                 best.update(E=E, T=Tcur, step=step, snap=eng.snapshot())
         rows.append(row)
+        mark(step)
     tm["t_L2_search"] = time.perf_counter() - t0
     t0 = time.perf_counter()
     eng.load(best["snap"])
@@ -976,7 +992,8 @@ def search(eng, method, steps, seed, seeds_nodes, checks):
             "E_start": E0, "T_start": T0, "n_illegal": n_illegal, "check_revert": crev, **tm,
             "local": local.coverage() if local else None,
             "local_behas": set(local.behas) if local else None, "local_nodes": set(local.nodes) if local else None,
-            "local_audit": ({"n": audit.n, **audit.count} if audit else None)}
+            "local_audit": ({"n": audit.n, **audit.count} if audit else None),
+            **({"checkpoints": ck_rows} if checkpoints else {})}
 
 
 # ---------------------------------------------------------------- child
@@ -1095,6 +1112,8 @@ def child(spec):
             child_select(eng, sink)
         elif kind == "ctrl":
             child_ctrl(eng, spec, sink)
+        elif kind == "reload":
+            child_reload(eng, spec, sink)
         elif kind == "full_e3":
             pre = read_sink(spec["pre_sink"])
             sink["bc_seed"] = eng.seed_broadcast()
@@ -1140,6 +1159,24 @@ def child_select(eng, sink):
         sink["choice"][sd]["latency"] = out[0]
 
 
+def keep_final(eng, spec, sink):
+    """The deployed mapping, complete: load it into an engine on the same platform and T comes back (child_reload)."""
+    sink["final_snap"] = eng.snapshot()
+    if spec.get("checks"):
+        sink["final_fp"] = eng.fingerprint()
+
+
+def child_reload(eng, spec, sink):
+    """Check: a saved final state, loaded in a new process on the same faulty platform, gives the same T and state."""
+    d = read_sink(spec["from_sink"])
+    eng.load(d["final_snap"])
+    sink["T"] = eng.t_eval()
+    sink["T_saved"] = d["record"]["T"]
+    sink["T_equal"] = sink["T"] == sink["T_saved"]
+    if "final_fp" in d:
+        sink["fp_equal"] = eng.fingerprint() == d["final_fp"]
+
+
 def child_ctrl(eng, spec, sink):
     pre = read_sink(spec["pre_sink"])
     sink["bc_seed"] = eng.seed_broadcast()
@@ -1148,8 +1185,9 @@ def child_ctrl(eng, spec, sink):
         raise RuntimeError(f"fault-free state rebuilt with T {T}, pre job had {pre['T']}")
     fp0 = eng.fingerprint() if spec["steps"] == 0 else None
     n0 = eng.ncpcm
-    res = search(eng, "L2G", spec["steps"], spec["seed"], [], spec.get("checks", False))
+    res = search(eng, "L2G", spec["steps"], spec["seed"], [], spec.get("checks", False), spec.get("checkpoints"))
     sink["search"] = res
+    keep_final(eng, spec, sink)
     if spec["steps"] == 0:
         sink["s0_state_equal"] = eng.fingerprint() == fp0
     rec = eng.finalize()
@@ -1225,8 +1263,9 @@ def child_rep(eng, spec, sink):
         raise RuntimeError(f"L1 state reloaded with T {sink['T_L1_check']}, expected {base['T_L1']}")
     fp_l1 = eng.fingerprint() if spec["steps"] == 0 else None
     n0 = eng.ncpcm
-    res = search(eng, spec["method"], spec["steps"], spec["seed"], base["seed_nodes"], spec.get("checks", False))
+    res = search(eng, spec["method"], spec["steps"], spec["seed"], base["seed_nodes"], spec.get("checks", False), spec.get("checkpoints"))
     sink["search"] = res
+    keep_final(eng, spec, sink)
     if spec["steps"] == 0:
         sink["s0_state_equal"] = eng.fingerprint() == fp_l1
     rec = eng.finalize()

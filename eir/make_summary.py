@@ -108,7 +108,110 @@ def ctrl_table():
         print(f"| {a} | {o} | {s} | {n0(p)} | {n0(y['mean'])} | {pc(y['mean'], p):+.1f}% | {100 * g['moved_behas_share']:.1f}% | {g['ddr_read_moved_bytes'] / 1e6:.1f} | {g['unique_block_bytes'] / 1e6:.1f} | {y['t_decision']:.1f} | {y['T_err']:+.2f}% |")
 
 
+# ---------------------------------------------------------------- final stop rule, checked offline on the existing runs
+EPS, TIER_GAIN, OLD_GAIN = 0.02, 0.02, 0.02
+TIERS = (30, 100, 300)
+
+
+def final_rule(c, m):
+    """Across levels: go on until T is within EPS of the fault-free T. Inside L2, tiers 30 -> 100 -> 300: stop within
+    EPS, or when the adjacent tiers' T improves by less than TIER_GAIN. Returns (level, reason). T = mean over SA seeds."""
+    lv, lim = c["levels"], c["T_pre"] * (1 + EPS)
+    for k in ("R0", "L1"):
+        if lv[k]["T"] <= lim:
+            return k, "进 ε"
+    tiers = [s for s in TIERS if f"{m}_{s}" in lv]
+    prev = None
+    for s in tiers:
+        T = lv[f"{m}_{s}"]["T"]
+        if T <= lim:
+            return f"{m}_{s}", "进 ε"
+        if prev is not None and (prev - T) / prev < TIER_GAIN:
+            return f"{m}_{s}", f"档改进 {100 * (prev - T) / prev:+.1f}%"
+        prev = T
+    return f"{m}_{tiers[-1]}", "预算用尽"
+
+
+def old_rule(c, m):
+    """Abolished rule on the chain R0 -> L1 -> L2 s=30 -> 100 -> 300: stay at a level when the next one improves T by
+    less than OLD_GAIN."""
+    lv = c["levels"]
+    chain = ["R0", "L1"] + [f"{m}_{s}" for s in TIERS if f"{m}_{s}" in lv]
+    for a_, b_ in zip(chain, chain[1:]):
+        if (lv[a_]["T"] - lv[b_]["T"]) / lv[a_]["T"] < OLD_GAIN:
+            return a_
+    return chain[-1]
+
+
+def rule_rows(r):
+    rows = []
+    for c in r:
+        lv, pre = c["levels"], c["pre"]["mean"]
+        top = max(s for s in TIERS if f"L2G_{s}" in lv)
+        for m in ("L2G", "L2L"):
+            k, why = final_rule(c, m)
+            o = old_rule(c, m)
+            rows.append({"c": c, "m": m, "k": k, "why": why, "o": o, "top": top, "T": lv[k]["T"], "b": lv[k]["mean"], "rel": pc(lv[k]["mean"], pre),
+                         "ob": lv[o]["mean"], "orel": pc(lv[o]["mean"], pre)})
+    return rows
+
+
+def rule_table(rows):
+    L = ["| 任务 | 故障 | 路径 | T̂ 故障前 | 后端故障前 | 选中 | 停止原因 | T̂ | 后端 | 相对故障前 | 最高档 | 旧规则停在 | 旧规则后端 | 旧规则相对故障前 |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    for x in rows:
+        c = x["c"]
+        L.append(f"| {c['op']} | {c['fault']} | {x['m']} | {n0(c['T_pre'])} | {n0(c['pre']['mean'])} | {NAME(x['k'])} | {x['why']} | {n0(x['T'])} | {n0(x['b'])} | {x['rel']:+.1f}% | s={x['top']} | {NAME(x['o'])} | {n0(x['ob'])} | {x['orel']:+.1f}% |")
+    return "\n".join(L)
+
+
+def rule_counts(rows):
+    n = len(rows)
+    diff = [x for x in rows if x["k"] != x["o"]]
+    worse = [x for x in rows if x["ob"] > x["b"]]
+    outs = [x for x in rows if x["why"] != "进 ε"]
+    gaps = [pc(x["ob"], x["b"]) for x in rows]
+    inside = [x for x in rows if x["why"] == "进 ε"]
+    over = [x for x in inside if x["rel"] > 100 * EPS]
+    return (f"T̂ 进 ε 的 {len(inside)} 条里，后端相对故障前仍超过 2% 的 {len(over)} 条（T̂ 对后端有偏差，进 ε 不保证后端也在 2% 以内）。"
+f"共 {n} 条路径（{n // 2} 个组合 × L2G、L2L）。两条规则选的级别不同的 {len(diff)} 条；旧规则的后端延迟高于定稿规则的 {len(worse)} 条。"
+            f"旧规则相对定稿规则的后端差值：中位 {med(gaps):+.1f}%，最小 {min(gaps):+.1f}%，最大 {max(gaps):+.1f}%。"
+            f"定稿规则没有进 ε 就停下（档改进不足或预算用尽）的 {len(outs)} 条：" + ("、".join(f"{x['c']['op']} {x['c']['fault']} {x['m']}" for x in outs) or "无") + "。")
+
+
+def stop_rule_section(a3, af, ff, mh, f14):
+    ra, rb = rule_rows(a3 + af), rule_rows(ff + mh + f14)
+    ex = next(x for x in ra if x["c"]["op"] == "ffn" and x["c"]["fault"] == "F5" and x["m"] == "L2G")
+    return "\n".join([
+        "## 8. 定稿停止规则（用户 2026-11-05 拍板，只用已有数据离线检验）", "",
+        "**规则**", "",
+        "- **跨级**：T̂ 回到故障前 ε = 2% 以内才停，否则继续升级。L1 改进小或为 0 不是停止理由。",
+        "- **L2 内部**：按步数档 30 → 100 → 300 判断，已进 ε，或相邻两档 T̂ 改进 < 2% 即停。",
+        "- **废除**“相邻两级改进 < 2% 即停”的跨级规则。", "",
+        "**检验方法与局限**", "",
+        "- 现有 s = 30、100、300 是三次独立降温的运行（`search()` 里温度含 `step / steps`），这里是把它们当独立预算离线检验，不是在线连续检查点。所以相邻档的 T̂ 可能反而上升（“档改进”为负）；在线检查点里最优值单调，不会出现。",
+        "- 判停都用 T̂（5 个 SA 种子的均值，R0、L1 是单次）；后端延迟只用来看结果，判停时看不到。实际部署只有一次搜索，单次的判停结果可能与这里的均值不同。",
+        "- “档改进 < 2%”时选中的是刚跑完的这一档，不回退到上一档。",
+        "- 旧规则的算法：链 R0 → L1 → L2 s=30 → s=100 → s=300，下一级 T̂ 改进 < 2% 就停在当前级。把步数档也算作“级”，这对旧规则是有利的算法。",
+        "- 没有 s = 300 的组合最高只到 s = 100（表中“最高档”列）：这些组合“预算用尽”不代表 s = 300 也停不下来。", "",
+        f"**为什么废除**：例如 A3h FFN F5，L1 没有候选路径（改进 0），旧规则停在 {NAME(ex['o'])}，后端 {n0(ex['ob'])}，相对故障前 {ex['orel']:+.1f}%；"
+        f"L2G s=100 的后端 {n0(ex['c']['levels']['L2G_100']['mean'])}，{pc(ex['c']['levels']['L2G_100']['mean'], ex['c']['pre']['mean']):+.1f}%；定稿规则选 {NAME(ex['k'])}，{ex['rel']:+.1f}%。", "",
+        "### 8.1 A3h 起点（F4、F5、F4a、F5a）", "", rule_table(ra), "", rule_counts(ra), "",
+        "### 8.2 BusyBarn 起点（E3 位置）", "", rule_table(rb), "", rule_counts(rb), ""])
+
+
 a3, af, ff, mh, f14 = load("a3h"), load("afault"), load("ffn"), load("mha"), load("ffn14")
+if "--write-rule" in sys.argv:
+    # replaces the section between the markers of EIR_SUMMARY.md; the rest of that file is edited by hand
+    p = os.path.join(HERE, "EIR_SUMMARY.md")
+    with open(p, encoding="utf-8") as f:
+        s = f.read()
+    b, e = "<!-- STOP_RULE_BEGIN -->\n", "<!-- STOP_RULE_END -->"
+    if s.count(b) != 1 or s.count(e) != 1:
+        raise SystemExit("markers not found in EIR_SUMMARY.md")
+    s = s[:s.index(b) + len(b)] + stop_rule_section(a3, af, ff, mh, f14) + s[s.index(e):]
+    with open(p, "w", encoding="utf-8", newline="\n") as f:
+        f.write(s)
+    raise SystemExit(0)
 print("<!-- A3H_MAIN -->")
 for c in a3:
     main_table(c)
