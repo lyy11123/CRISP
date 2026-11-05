@@ -15,7 +15,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `e4_overlap/` | E4a：多流重叠下的链路冲突与仲裁收益上限；E4b：按跳截止时间仲裁原型 | 完成（汇总见 `E4A_SUMMARY.md`、`E4B_SUMMARY.md`） |
 | `cpcm/` | CPCM：依赖感知的调度级延迟估计（第 2 步） | 完成（V0–V7，汇总见 `CPCM_SUMMARY.md`） |
 | `cpcm_sa/` | CPCM 接入 SA 映射搜索（第 3 步） | 完成（本地 952 次 + Colab 224 次，汇总见 `CPCM_SA_SUMMARY.md`） |
-| `eir/` | EIR 分级故障修复主实验（第 4 步） | 完成（1,240 次，汇总见 `EIR_SUMMARY.md`）；下一阶段增量实验待用户确认 |
+| `eir/` | EIR 分级故障修复主实验（第 4 步） | 完成（1,240 次，汇总见 `EIR_SUMMARY.md`）；下一阶段增量实验进行中（`EIR_NEXT_HANDOFF.md`） |
 
 每个实验文件夹里：
 - `<实验>_HANDOFF.md`：交接说明（任务定义、步骤、自检、停止条件），执行时以它为准；

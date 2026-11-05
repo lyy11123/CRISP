@@ -15,7 +15,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 ## 当前阶段
 
-判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。第 4 步 EIR 主实验已完成（1,240 次，`eir\EIR_SUMMARY.md`），论文 EIR 主表以 A3h 起点为核心，BusyBarn 起点保留用于对比外部映射器起点和 FULL-BusyBarn。现在在评估下一阶段的增量实验（A：L2-Impact 与消融；B：双阶段窗口决策；C：k = 4 复合故障，新增实验都在 A3h 起点的 2×2 FFN、MHA 上），用户确认方案和耗时之前不开跑大批量。全量串行计时推迟到算法冻结后、写论文前统一做。E4c（请求随机到达、goodput、P99、SLO）以后再议。
+判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。第 4 步 EIR 主实验已完成（1,240 次，`eir\EIR_SUMMARY.md`），论文 EIR 主表以 A3h 起点为核心，BusyBarn 起点保留用于对比外部映射器起点和 FULL-BusyBarn。现在是下一阶段的增量实验（A：L2-Impact 与消融；C：k = 4 复合故障；B：双阶段窗口决策，按 A → 回报 → C → B 推进，都在 A3h 起点的 2×2 FFN、MHA 上），按 `eir\EIR_NEXT_HANDOFF.md` 执行。全量串行计时推迟到算法冻结后、写论文前统一做。E4c（请求随机到达、goodput、P99、SLO）以后再议。
 
 研究方案、判定标准和结论记录在 claude.ai 上的方案文档里，不在本目录。本目录里每个实验都有一份交接说明 `<实验文件夹>\<实验>_HANDOFF.md`，执行时以它为准。
 
@@ -30,11 +30,11 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `e4_overlap\` | E4a：多流重叠下的链路冲突与仲裁收益上限；E4b：按跳截止时间仲裁原型与异构截止时间（均已完成） |
 | `cpcm\` | CPCM 的设计、实现与验证（V0–V7 完成，汇总 `CPCM_SUMMARY.md`） |
 | `cpcm_sa\` | 第 3 步：CPCM 接入 SA 映射搜索（已完成，汇总 `CPCM_SA_SUMMARY.md`） |
-| `eir\` | 第 4 步：EIR 分级故障修复主实验（已完成，汇总 `EIR_SUMMARY.md`）；下一阶段增量实验待用户确认 |
+| `eir\` | 第 4 步：EIR 分级故障修复主实验（已完成，汇总 `EIR_SUMMARY.md`）；下一阶段增量实验进行中（`EIR_NEXT_HANDOFF.md`） |
 
 ## 规则
 
-- 只做当前任务交接说明里写的事。EIR 按 `eir\EIR_HANDOFF.md` 实现；下一阶段增量实验要等用户确认后再写交接说明和开跑；不要自行开始实现 DSTU，也不要扩大范围；想扩就先问用户。
+- 只做当前任务交接说明里写的事。EIR 按 `eir\EIR_HANDOFF.md` 实现；下一阶段增量实验按 `eir\EIR_NEXT_HANDOFF.md`，阶段 A 做完要回报，用户放行后才继续；不要自行开始实现 DSTU，也不要扩大范围；想扩就先问用户。
 - 不修改 `third_party\` 里的源码文件（`make generate_exp` 生成的 `cfg\`、`py\`、`results\` 除外）；需要改行为时在内存中替换函数。会覆盖 `results\` 的实验，在各自文件夹下的 artifact 工作副本里运行。
 - 一个进程只跑一个任务脚本，任务脚本在模块级建立全局状态。
 - 每个实验文件夹维护 `PROGRESS.md`：每完成一步在末尾追加一条（状态、自检、关键数字、对源码的新发现、待用户决定的问题），不改写旧条目。只写确认过的事实，推测要标明。
