@@ -191,6 +191,26 @@ def report_a():
         ds = [v for p in ps for v in p["diffs"]]
         if ds:
             L.append(f"| {a} − {b} | {len(ds)} | {sum(v < 0 for v in ds)} / {sum(v > 0 for v in ds)} / {sum(v == 0 for v in ds)} | {median(ds):+,.0f} | {sum(p['median'] < 0 for p in ps)} / {len(ps)} |")
+    # ---- process noise: the same search rerun (rep_v1)
+    L.append("\n## 同一状态换进程的后端差（噪声参照）\n")
+    L.append("`out/next/rep_v1/` 是修正“权重移动后全量同步”之前的 90 次 `+sync` 运行。修正后重跑，每步记录、T̂、行为位置和路由是否全同见下表最后一列；全同时，后端的差只来自后端依赖对象地址的已知特性。差 = |重跑 − 第一版|，都是 10 个后端种子的均值。\n")
+    L.append("| 任务 | 运行数 | 差的中位数 | 差的最大值 | 中位数 / 故障前 | 最大值 / 故障前 | 记录、T̂、位置、路由全同 |\n|---|---|---|---|---|---|---|")
+    noise = {}
+    for op in en.OPS:
+        ds, same = [], 0
+        for fid in en.FAULTS:
+            for m in en.NEW_METHODS:
+                for sd in SEEDS:
+                    j = en.job_rep(op, fid, m, sd)
+                    v1 = os.path.join(en.OUT, "rep_v1", os.path.basename(j["sink"]))
+                    if os.path.exists(v1):
+                        d2, d1 = eir.read_sink(j["sink"]), eir.read_sink(v1)
+                        ds.append(abs(bk(d2["record"]["backend"]) - bk(d1["record"]["backend"])))
+                        same += (d2["search"]["rows"] == d1["search"]["rows"] and d2["record"]["T"] == d1["record"]["T"] and d2["record"]["beha_loc"] == d1["record"]["beha_loc"]
+                                 and d2["record"]["routes"] == d1["record"]["routes"])
+        pre_b = next(c["pre"] for c in res if c["op"] == op)
+        noise[op] = {"n": len(ds), "median": median(ds), "max": max(ds), "share_zero": sum(v == 0 for v in ds) / len(ds)}
+        L.append(f"| {op} | {len(ds)} | {median(ds):,.0f} | {max(ds):,.0f} | {100 * median(ds) / pre_b:.2f}% | {100 * max(ds) / pre_b:.2f}% | {same} / {len(ds)} |")
     # ---- vs FULL
     L.append("\n## 与 FULL-A3h 的差距（F4a、F8a）\n")
     L.append("FULL-A3h 取 14 次中后端最优；它在故障平台上从头搜索，故障前参照不同，见 `CLAUDE.md` E3 的说明。\n")
@@ -206,7 +226,7 @@ def report_a():
     with open(os.path.join(en.OUT, "report_a.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(L))
     with open(os.path.join(en.OUT, "report_a.json"), "w", encoding="utf-8") as f:
-        json.dump({"combos": res, "pairs": pairs}, f, indent=0, default=str)
+        json.dump({"combos": res, "pairs": pairs, "noise": noise}, f, indent=0, default=str)
     print("\n".join(L))
 
 

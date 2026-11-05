@@ -77,11 +77,13 @@ def full_jobs():
 
 
 def shares(jobs):
-    """Two shares of the jobs not finished yet, equal in size and in the FFN : MHA and method mix; fixed shuffle so the running
-    order mixes short and long jobs in both."""
-    todo = [j for j in jobs if not (os.path.exists(j["sink"]) and eir.sink_ok(j["sink"], j))]
+    """Two fixed shares of the repairs outside the prior (section 4.2), equal in size and in the FFN : MHA and method mix; a fixed
+    shuffle mixes short and long jobs in both. Fixed = does not depend on what has finished, so each share can be resumed."""
+    prior = {eir.rep_name("a3h", o, "F4a", m, STEPS, 123) for o in OPS for m in ("L2Impact", "L2Lsync")}
     by = collections.defaultdict(list)
-    for j in todo:
+    for j in jobs:
+        if j["name"] in prior:
+            continue
         by[(j["op"], j["method"], j["fault"])].append(j)
     a, b = [], []
     flip = 0

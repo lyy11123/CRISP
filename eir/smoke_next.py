@@ -74,7 +74,7 @@ def main():
              "revert_mismatch": sum(s["check_revert"][k] for k in ("E_mismatch", "T_mismatch", "state_mismatch")), "revert_n": s["check_revert"]["n"],
              "n_illegal": s["n_illegal"], "cal_illegal": s["cal_illegal"], "audit": la, "violations": len(d["record"]["fault_violations"]),
              "local": s["local"], "accepted": sum(r["accepted"] for r in s["rows"]), "T_final": d["record"]["T"], "reload_T_equal": dr["T_equal"], "reload_fp_equal": dr.get("fp_equal")}
-        x["PASS"] = (s["sync_entry"]["T"] == d["T_L1_check"] and s["sync_entry"]["stale_after"] == 0 and s["stale_final"] == 0 and w.get("rebound_stale", 0) == 0
+        x["PASS"] = (s["sync_entry"]["T"] == d["T_L1_check"] and s["sync_entry"]["stale_after"] == 0 and s["stale_final"] == 0 and w.get("rebound_stale", 0) == 0 and w.get("stale_after_proposal", 0) == 0
                      and x["revert_mismatch"] == 0 and la.get("beha_not_movable", 0) == 0 and la.get("beha_dest_outside", 0) == 0 and x["violations"] == 0 and dr["T_equal"] and dr.get("fp_equal") is True)
         if j["method"] == "L2Impact":
             im = s["impact"]

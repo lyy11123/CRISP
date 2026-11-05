@@ -655,6 +655,9 @@ class Moves:
         cs.mv_weight(self.a, d, sp, dest)
         if self.sync:
             sync_after_weight(self.a, d, sp, dest)
+            # update_offlinedata moves every tag listed under the split, also a recycled tag now carrying another split's read
+            # (CLAUDE.md, used_splitted_tag_dict): that split's list follows too
+            sync_locations(self.a)
         return {"action": action, "split": (d, sp), "dest": dest}
 
     def _eligible(self, tag):
@@ -1137,6 +1140,7 @@ def search(eng, method, steps, seed, seeds_nodes, checks, checkpoints=None, impa
             return None, False
         if sync:
             watch["proposals"] += 1
+            watch["stale_after_proposal"] += stale_locations(a)
             if "split" in info:
                 info["landing_ddr"] = tuple(info["dest"][:-1])
             else:
