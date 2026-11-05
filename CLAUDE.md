@@ -15,7 +15,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 ## 当前阶段
 
-判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。第 4 步 EIR 主实验已完成（1,240 次，`eir\EIR_SUMMARY.md`），论文 EIR 主表以 A3h 起点为核心，BusyBarn 起点保留用于对比外部映射器起点和 FULL-BusyBarn。现在是下一阶段的增量实验（A：L2-Impact 与消融；C：k = 4 复合故障；B：双阶段窗口决策，按 A → 回报 → C → B 推进，都在 A3h 起点的 2×2 FFN、MHA 上），按 `eir\EIR_NEXT_HANDOFF.md` 执行。全量串行计时推迟到算法冻结后、写论文前统一做。E4c（请求随机到达、goodput、P99、SLO）以后再议。
+判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。第 4 步 EIR 主实验已完成（1,240 次，`eir\EIR_SUMMARY.md`），论文 EIR 主表以 A3h 起点为核心，BusyBarn 起点保留用于对比外部映射器起点和 FULL-BusyBarn。下一阶段增量实验 A（L2-Impact 与消融）已完成，L2-Global（+sync）是主力修复方法；现在跑 C（k = 4 复合故障），然后 B（双阶段窗口决策），都在 A3h 起点的 2×2 FFN、MHA 上，按 `eir\EIR_NEXT_HANDOFF.md` 执行。全量串行计时推迟到算法冻结后、写论文前统一做。E4c（请求随机到达、goodput、P99、SLO）以后再议。
 
 研究方案、判定标准和结论记录在 claude.ai 上的方案文档里，不在本目录。本目录里每个实验都有一份交接说明 `<实验文件夹>\<实验>_HANDOFF.md`，执行时以它为准。
 
