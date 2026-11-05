@@ -204,10 +204,9 @@ def write_md(out, batch, res):
             lc = x.get("local")
             L.append(f"| {c['op']} | {c['fault']} | {lev} | {x['t_R0']:.1f} | {x['t_L1']:.1f} | {x['t_cal']:.1f} | {x['t_L2']:.1f} | {x['t_fin']:.2f} | {x['t_decision']:.1f} | {x['t_backend']:.0f} | {x.get('cpcm_L1', '—')} / {f0(x.get('cpcm_L2'))} | "
                      f"{'—' if 'Tmax' not in x else format(x['Tmax'], '.2e')} | {'—' if not lc else format(100 * lc['beha_share'], '.0f') + '%'} | {'—' if not lc else format(100 * lc['core_share'], '.0f') + '%'} | {'—' if not lc else format(100 * x['revoked_share'], '.1f') + '%'} |")
-    if batch == "a3h":
+    if batch in ("a3h", "afault"):
         L.append("\n## 故障链路在故障前 A3h 映射上的状态（2.2）\n")
-        L.append("忙碌率和 CB 都来自故障前状态的 CPCM 推演（广播种子 0），不是后端种子 1；忙碌率的分母是 T̂。F4a、F5a 是按后端种子 1 选的，所以数字可能与选择时不同。
-")
+        L.append("忙碌率和 CB 都来自故障前状态的 CPCM 推演（广播种子 0），不是后端种子 1；忙碌率的分母是 T̂。F4a、F5a 是按后端种子 1 选的，所以数字可能与选择时不同。\n")
         L.append("| 任务 | 故障 | 链路 | 忙碌率 | CB | CB 排名 / 有 CB 的链路数 |\n|---|---|---|---|---|---|")
         for c in res:
             for ls in c["link_stats"]:
