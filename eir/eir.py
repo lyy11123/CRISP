@@ -1584,6 +1584,37 @@ def child_rep(eng, spec, sink):
     sink["timing"]["t_decision"] = sum(sink["timing"][k] for k in ("t_R0", "t_L1", "t_calibration", "t_L2_search", "t_finalize"))
     sink["cpcm_calls"] = {"L1": base["cpcm_L1"], "L2": eng.ncpcm - n0}
     sink["proposals"] = {"calibration": CAL_PROPOSALS, "steps": spec["steps"]}
+    if spec.get("ck_backend"):
+        ck_backend(eng, base, pre, res, sink)
+
+
+def handoff_view(a):
+    """Phase B's stage-to-stage endpoints, read from the state. ifmap_reads: (target, bytes) of the DDR reads that carry no
+    offline weight (the input activation). output_locs: where the last MHA_p behaviour runs (empty in FFN, whose output
+    goes through add_broadcast)."""
+    ddr = {tuple(k[:-1]) for k in a.hardware_platform.ddr_dict}
+    reads = [(_plain(e.target_location), e.comm_bytes) for t, e in a.state[7].items()
+             if e.event_type == "communication" and tuple(e.source_location) in ddr and cs.weight_split_of(a, t) is None]
+    tags = [t for t, b in a.state[5].items() if b.beha_name.startswith("MHA_p_")]
+    return {"ifmap_reads": reads, "output_locs": [_plain(a.state[5][max(tags)].location)] if tags else []}
+
+
+def ck_backend(eng, base, pre, res, sink):
+    """Phase B: the backend at every checkpoint, after the run's own record. Each checkpoint's best state is loaded and
+    finalized as the end of a run is; search's rows and result were written before and do not change."""
+    ddr_nodes = pre["ddr_nodes"]
+    rows = []
+    for c in res["checkpoints"]:
+        eng.load(c["snap"])
+        rec = eng.finalize()
+        rows.append({"step": c["step"], "best_T": c["best_T"], "best_step": c["best_step"], "t_search": c["t_search"], "T": rec["T"],
+                     "backend": rec["backend"], "t_backend": rec["t_backend"], "t_finalize": rec["t_finalize"],
+                     "fault_violations": len(rec["fault_violations"]), "stale": stale_locations(eng.a),
+                     "migration_vs_start": migration_metrics(pre["record"], rec, ddr_nodes, pre["sizes"]),
+                     "migration_vs_R0": migration_metrics(base["R0"], rec, ddr_nodes, pre["sizes"]),
+                     "handoff": handoff_view(eng.a)})
+    sink["ck"] = rows
+    sink["link_time"] = {_plain(k): (float(v.working_time(data_bytes=0)), float(v.working_time(data_bytes=256))) for k, v in eng.hp.links_dict.items()}
 
 
 def child_full(spec):

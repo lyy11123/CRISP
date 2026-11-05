@@ -150,6 +150,43 @@ def c_full_jobs():
     return [eir.job_full(OUT, o, f, "A3h", g, x) for o in OPS for f in C_FAULTS for g, x in eir.cs.variants("A3h")]
 
 
+B_FAULT = "F4a"       # the shared physical link (0,13)-(2,1), section 6
+B_METHODS = ("L2Lsync", "L2Impact", "L2Gsync")
+B_SEEDS = [123] + list(range(1, 10))
+B_CK = (30, 100, 300)
+B_OUT = os.path.join(OUT, "b")
+
+
+def b_job(op, method, seed, out=B_OUT, steps=300, ck=B_CK, checks=False):
+    j = job_rep(op, B_FAULT, method, seed, out=out, steps=steps, checks=checks)
+    return dict(j, checkpoints=list(ck), ck_backend=True)
+
+
+def b_jobs():
+    return [b_job(o, m, sd) for o in OPS for m in B_METHODS for sd in B_SEEDS]
+
+
+def b_smoke(workers):
+    """s = 20 with checkpoints 5, 10, 20 and checks. T at a checkpoint must equal the best_T search saw; the last checkpoint
+    must equal the run's own record in T."""
+    out = os.path.join(eir.HERE, "out", "_smoke_b")
+    jobs = [b_job(o, m, 123, out=out, steps=20, ck=(5, 10, 20), checks=True) for o in OPS for m in B_METHODS]
+    bad = eir.run_phases([jobs], out, workers)
+    ok = not bad
+    for j in jobs:
+        d = eir.read_sink(j["sink"])
+        s = d["search"]
+        rows = d["ck"]
+        h = rows[-1]["handoff"]
+        r = {"T_eq_best": [x["T"] == x["best_T"] for x in rows], "last_eq_record": rows[-1]["T"] == d["record"]["T"], "viol": [x["fault_violations"] for x in rows], "stale": [x["stale"] for x in rows],
+             "revert_bad": sum(s["check_revert"][k] for k in ("E_mismatch", "T_mismatch", "state_mismatch")), "t_search": [round(x["t_search"], 2) for x in rows],
+             "reads": len(h["ifmap_reads"]), "read_bytes": sum(b for _, b in h["ifmap_reads"]), "out_locs": h["output_locs"], "n_links": len(d["link_time"]), "link_sample": list(d["link_time"].items())[:2],
+             "mig_keys": list(rows[-1]["migration_vs_R0"])[:12]}
+        ok = ok and all(r["T_eq_best"]) and r["last_eq_record"] and not any(r["viol"]) and not any(r["stale"]) and r["revert_bad"] == 0
+        print(j["name"], r, flush=True)
+    print("B_SMOKE PASSED" if ok else "B_SMOKE FAILED", flush=True)
+
+
 def c_smoke(workers):
     """Do the instances build? l1 (kept: the real one) and, isolated, s = 5 of every method with checks."""
     if run_logged("c_l1", [job_l1(o, f) for o in OPS for f in C_FAULTS], workers):
@@ -347,7 +384,7 @@ def select(workers):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["select", "prep", "prior", "repair", "full", "seeds", "check_log", "select_c", "c_smoke", "c_repair", "c_full"])
+    ap.add_argument("cmd", choices=["select", "prep", "prior", "repair", "full", "seeds", "check_log", "select_c", "c_smoke", "c_repair", "c_full", "b_smoke", "b_ck"])
     ap.add_argument("--workers", type=int, default=14)
     ap.add_argument("--share", default="all", choices=["1", "2", "all"])
     a = ap.parse_args()
@@ -372,6 +409,13 @@ def main():
             raise SystemExit(1)
     elif a.cmd == "select_c":
         select_c()
+    elif a.cmd == "b_smoke":
+        b_smoke(a.workers)
+    elif a.cmd == "b_ck":
+        jobs = b_jobs()
+        print(f"[next] b_ck: {len(jobs)} jobs", flush=True)
+        if run_logged(f"b_ck_w{a.workers}", jobs, a.workers):
+            raise SystemExit(1)
     elif a.cmd == "c_smoke":
         c_smoke(a.workers)
     elif a.cmd == "c_repair":
