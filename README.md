@@ -16,7 +16,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `cpcm/` | CPCM：依赖感知的调度级延迟估计（第 2 步） | 完成（V0–V7，汇总见 `CPCM_SUMMARY.md`） |
 | `cpcm_sa/` | CPCM 接入 SA 映射搜索（第 3 步） | 完成（本地 952 次 + Colab 224 次，汇总见 `CPCM_SA_SUMMARY.md`） |
 | `eir/` | EIR 分级故障修复主实验（第 4 步） | 完成（1,240 次，汇总见 `EIR_SUMMARY.md`）；下一阶段增量实验 A、C、B 已完成（汇总见 `EIR_NEXT_SUMMARY.md`） |
-| `dstu/` | DSTU：CPCM 截止时间代替理想值 | 阶段 1 完成（汇总见 `DSTU_SUMMARY.md`）；阶段 2 只有评估，未开工 |
+| `dstu/` | DSTU：CPCM 截止时间代替理想值 | 阶段 1、2 完成（汇总见 `DSTU_SUMMARY.md`、`STAGE2_SUMMARY.md`） |
 
 每个实验文件夹里：
 - `<实验>_HANDOFF.md`：交接说明（任务定义、步骤、自检、停止条件），执行时以它为准；
@@ -51,7 +51,7 @@ git pull --rebase origin main                    # 每次开始前
 
 ### 工作规则（摘自 `CLAUDE.md`，以它为准）
 
-- 只做当前交接说明里写的事；CPCM 按 `cpcm/` 下经用户确认的方案实现，DSTU 按 `dstu/DSTU_HANDOFF.md`，阶段 2 用户放行后才写代码；不要扩大范围。
+- 只做当前交接说明里写的事；CPCM 按 `cpcm/` 下经用户确认的方案实现，DSTU 按 `dstu/DSTU_HANDOFF.md`，阶段 2 之后的新实验用户放行后才写代码；不要扩大范围。
 - 不修改 `third_party/` 里的源码；需要改行为时在内存中替换函数。
 - 一个进程只跑一个任务脚本；记录 artifact commit、随机种子和命令行。
 - 单次运行预计超过 1 小时，先告诉用户。
