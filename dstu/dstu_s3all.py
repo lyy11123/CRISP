@@ -361,7 +361,7 @@ def ns(jobs):
         fn = "a2_2s_mha-ffn_d0_hop.json" if hw == "nofault" else f"a2_2s_mha-ffn_{hw}_d0_hop.json"
         with open(os.path.join(E4A_HOP, fn), encoding="utf-8") as f:
             h = json.load(f)
-        o = "".join(map(str, sorted(range(2), key=lambda i: rk[hw][i], reverse=True)))
+        o = "".join(map(str, sorted(range(2), key=lambda i: rk[hw][i])))
         v = h["per_variant"][f"prio_{o}"]["latency_seeds"]
         ref.append({"hw": hw, "order": o, "rank": str(rk[hw]), "same_seeds": sum(all(float(v[str(i)][j]) == rs[j]["C"][i] for i in range(2)) for j in range(3)),
                     **{f"rel_C{i}": statistics.mean(rs[j]["C"][i] for j in range(3)) / statistics.mean(v[str(i)]) - 1 for i in range(2)},
