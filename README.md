@@ -16,7 +16,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `cpcm/` | CPCM：依赖感知的调度级延迟估计（第 2 步） | 完成（V0–V7，汇总见 `CPCM_SUMMARY.md`） |
 | `cpcm_sa/` | CPCM 接入 SA 映射搜索（第 3 步） | 完成（本地 952 次 + Colab 224 次，汇总见 `CPCM_SA_SUMMARY.md`） |
 | `eir/` | EIR 分级故障修复主实验（第 4 步） | 完成（1,240 次，汇总见 `EIR_SUMMARY.md`）；下一阶段增量实验 A、C、B 已完成（汇总见 `EIR_NEXT_SUMMARY.md`） |
-| `dstu/` | DSTU：全链路切块 + 按跳优先级仲裁；CPCM 用于选切和前向试算 | 阶段 1、2、2C 与块开销敏感性完成（汇总见 `DSTU_SUMMARY.md`、`STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`）；全链路设定 3 进行中 |
+| `dstu/` | DSTU：全链路切块 + 按跳优先级仲裁；CPCM 用于选切和前向试算 | 阶段 1、2、2C、块开销敏感性与全链路设定 3 完成（汇总见 `DSTU_SUMMARY.md`、`STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`、`SETTING3_ALL_SUMMARY.md`） |
 
 每个实验文件夹里：
 - `<实验>_HANDOFF.md`：交接说明（任务定义、步骤、自检、停止条件），执行时以它为准；
