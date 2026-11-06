@@ -58,6 +58,10 @@ CM_ROWS = [("a2_2s_mha-ffn_F4_d0", "k1.5"), ("a2_2s_mha-ffn_F5_d0", "k1.5"), ("a
            ("a1_3s_512-2048-8192_nofault_long_first", "k1.1")]
 
 
+def dumps(x, **kw):
+    return json.dumps(x, default=str, **kw)
+
+
 def log(m):
     print(f"[dstu2] {m}", flush=True)
 
@@ -712,7 +716,7 @@ def stage_2a(jobs):
         if not (x["chunk_stats"]["bytes_conserved"] and x["chunk_stats"]["tree_conserved"]):
             audit["chunk_bad"] += 1
     checks = {"chain_alone": ck, "audit": dict(audit), "ffn_before_mha_end": bad_dep, "max_rel_chain": max(abs(c["rel_chain"]) for c in ck)}
-    log("checks " + json.dumps(D.round_all(checks)))
+    log("checks " + dumps(D.round_all(checks)))
     if bad_dep or audit["n_mismatch"] or audit["chunk_bad"] or checks["max_rel_chain"] > 0.04:
         write_json("stage2a_checks.json", checks)
         raise D.DstuError("2A self-check")
@@ -741,7 +745,7 @@ def stage_2a(jobs):
     S = summary_2a(table)
     write_json("stage2a.json", {"summary": S, "checks": checks, "enum": en, "wall": time.time() - t0, "command": sys.argv, "artifact_commit": E._artifact_commit(), "seeds": B.SEEDS})
     log(f"2A done {time.time() - t0:.0f} s")
-    log(json.dumps(D.round_all(S["all"]), ensure_ascii=False))
+    log(dumps(D.round_all(S["all"]), ensure_ascii=False))
 
 
 def summary_2a(table):
@@ -823,7 +827,7 @@ def pilot(jobs):
     audit = sum(x["audit"]["n_mismatch"] for x in res.values())
     out = {"rows": rows, "pool_B_kept": keep, "wall": time.time() - t0, "audit_mismatch": audit, "command": sys.argv}
     write_json("pilot.json", out)
-    log(json.dumps(D.round_all(out)))
+    log(dumps(D.round_all(out)))
 
 
 def select(phi, msgs, budget, pool_b, level):
@@ -887,7 +891,7 @@ def stage_2b(jobs, pool_b):
         plan_items += seeded(f"m_{c['name']}_256d2d", run_spec(c, UNI["256d2d"], measure=i_))
         for bud in BUDGETS:
             for lvn, lv in levels:
-                tags = [("res", s["phi_res"])] + ([] if J >= 0.9 else [("wait", s["phi_wait"])])
+                tags = [("res", s["phi_res"]), ("wait", s["phi_wait"])]  # identical plans are reused through fh(o); J is a diagnostic
                 seen = {}
                 for tg, phi in tags:
                     o, u = select(phi, msgs, bud, pool_b, lv)
@@ -929,7 +933,7 @@ def stage_2b(jobs, pool_b):
         o, u = select_random(msgs, bud, False, None, SEL_SEED)
         a1m[(c["name"], "rand0")] = {"name": f"s_{c['name']}_{fh(o)}", "blocks": u, "n_msgs": len(o), "budget": bud, "u64": u64}
         plan_items += seeded(a1m[(c["name"], "rand0")]["name"], run_spec(c, dict(BASE, override=o)))
-    log(f"2B: {len(plan_items)} processes; jaccard {json.dumps(D.round_all(jac_rows))}")
+    log(f"2B: {len(plan_items)} processes; jaccard {dumps(D.round_all(jac_rows))}")
     res = run_all(jobs, plan_items)
     table = []
     for c in cfgs:
@@ -983,7 +987,7 @@ def stage_2b(jobs, pool_b):
         rep.append({"config": c["name"], "L": L["L"], "L_e4b_P4": rf["L"], "M": L["M"], "M_e4b": rf["M"]})
     out = {"pool_b": pool_b, "jaccard_top30": jac_rows, "jaccard_checks": jr, "counterfactual": cf, "audit_mismatch": audit, "chunk_bad": chunk_bad, "pairs": pairs, "rep": rep, "wall": time.time() - t0, "command": sys.argv, "artifact_commit": E._artifact_commit()}
     write_json("stage2b.json", out)
-    log(json.dumps(D.round_all({k: out[k] for k in ("audit_mismatch", "chunk_bad", "pairs", "counterfactual", "rep", "wall")}), ensure_ascii=False))
+    log(dumps(D.round_all({k: out[k] for k in ("audit_mismatch", "chunk_bad", "pairs", "counterfactual", "rep", "wall")}), ensure_ascii=False))
     if audit or chunk_bad:
         raise D.DstuError("2B self-check")
 
@@ -1029,7 +1033,7 @@ def stage_greedy(jobs, pool_b):
                      "pred_J2_0": x["J0"][1], "pred_J2": x["J"][1], "pred_C0": x["C0"], "pred_C": x["C"], "be_L0": s0["L"], "be_L": s1["L"], "be_gain": s0["L"] - s1["L"], "be_seeds0": s0["seeds_L"], "be_seeds": s1["seeds_L"],
                      "be_C0_base": s0["C0"], "be_C0": s1["C0"], "be_C1_base": s0["C1"], "be_C1": s1["C1"], "extra_vs_base": s1["extra_occupancy"] - s0["extra_occupancy"], "wall": x["wall"]})
     write_json("greedy.json", {"rows": rows, "pool_b": pool_b, "wall": time.time() - t0, "command": sys.argv})
-    log(json.dumps(D.round_all(rows)))
+    log(dumps(D.round_all(rows)))
 
 
 def stage_cm(jobs):
@@ -1067,7 +1071,7 @@ def stage_cm(jobs):
         rows.append(row)
     write_csv("cm_ablation.csv", rows)
     write_json("cm_ablation.json", {"rows": rows, "wall": time.time() - t0, "command": sys.argv, "seeds": B.SEEDS, "audit_mismatch": sum(q["audit"]["n_mismatch"] for v in res.values() for q in v["runs"])})
-    log(json.dumps(D.round_all(rows)))
+    log(dumps(D.round_all(rows)))
     if bad:
         raise D.DstuError(f"C-M self-check (property): {bad}")
 
@@ -1093,7 +1097,7 @@ def check():
         res.append({"hw": hw, "msgs": len(msgs), "d2d": len(dd), "nond2d": len(nd), "cost_d2d_64": sum(blocks(b, K64) - blocks(b, K256) for b in dd), "cost_nond2d_256": sum(blocks(b, K256) - 1 for b in nd), "cost_nond2d_64": sum(blocks(b, K64) - 1 for b in nd),
                     "max_b": max(b for b, _ in msgs.values())})
     for r in res:
-        log(json.dumps(r))
+        log(dumps(r))
     write_json("check.json", res)
     if any(r.get("isomorphic") is False or r.get("bytes") is False or r.get("tree") is False for r in res):
         raise D.DstuError("chunk_by is not isomorphic to E.chunk_events")
@@ -1125,7 +1129,7 @@ def main():
             for m in METHODS_2A:
                 ranks[(r["hw"], r["X"], r["rx"], r["M"][m], r["F"])] += 1
         en = enum_2a(rows)
-        log(json.dumps(D.round_all({"agg": agg, "T": {h: info[h]["T"] for h in HWS}, "That": {h: info[h]["That"] for h in HWS}, "rows": len(rows), "ranks_to_run": len(ranks), "ties": sorted(str(k) for k in ranks if k[3] == 1 or k[4] == 1), "enum": en})))
+        log(dumps(D.round_all({"agg": agg, "T": {h: info[h]["T"] for h in HWS}, "That": {h: info[h]["That"] for h in HWS}, "rows": len(rows), "ranks_to_run": len(ranks), "ties": sorted(str(k) for k in ranks if k[3] == 1 or k[4] == 1), "enum": en})))
     elif a.cmd == "2a":
         stage_2a(a.jobs)
     elif a.cmd == "pilot":
