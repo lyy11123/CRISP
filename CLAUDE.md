@@ -31,7 +31,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `cpcm\` | CPCM 的设计、实现与验证（V0–V7 完成，汇总 `CPCM_SUMMARY.md`） |
 | `cpcm_sa\` | 第 3 步：CPCM 接入 SA 映射搜索（已完成，汇总 `CPCM_SA_SUMMARY.md`） |
 | `eir\` | 第 4 步：EIR 分级故障修复主实验（已完成，汇总 `EIR_SUMMARY.md`）；下一阶段增量实验 A、C、B 已完成（汇总 `EIR_NEXT_SUMMARY.md`） |
-| `dstu\` | DSTU 阶段 1 已完成（汇总 `DSTU_SUMMARY.md`）；阶段 2 评估 `STAGE2_EVAL.md`，未开工 |
+| `dstu\` | DSTU 阶段 1 已完成（汇总 `DSTU_SUMMARY.md`）；阶段 2 进行中（`DSTU_HANDOFF.md` 第 9 节） |
 
 ## 规则
 
