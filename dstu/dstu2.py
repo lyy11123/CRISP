@@ -39,6 +39,7 @@ from dstu import B, E, cpcm
 
 OUT = os.path.join(D.OUT, "stage2")
 SIMS = os.path.join(OUT, "sims")
+SCRIPT = os.path.abspath(__file__)
 LIMIT = 3600  # section 9.5: one process over 1 h stops the run
 TH = 0.04
 K256, K64 = 256 * 1024, 64 * 1024
@@ -380,7 +381,7 @@ def agg_child(spec):
     hp0 = E.build_platform(E.CFG, spec["faults"])
     out = {}
     for name, k in spec["streams"].items():
-        ev, _ = D._events([k], BASE, hp0)
+        ev, _ = D._events([k], spec.get("plan", BASE), hp0)
         by = sum(int(e.comm_bytes) for e in ev.values() if e.event_type == "communication")
         g = D._graph(ev, hp0)
         sc = cpcm.simulate(g, "hop")
@@ -542,7 +543,7 @@ def _call(name, spec, cmd):
     t0 = time.time()
     with open(os.path.join(logs, f"{name}.log"), "w", encoding="utf-8") as lf:
         try:
-            rc = subprocess.call([sys.executable, os.path.abspath(__file__), cmd, sp], cwd=D.HERE, stdout=lf, stderr=subprocess.STDOUT, timeout=LIMIT)
+            rc = subprocess.call([sys.executable, SCRIPT, cmd, sp], cwd=D.HERE, stdout=lf, stderr=subprocess.STDOUT, timeout=LIMIT)
         except subprocess.TimeoutExpired:
             raise D.DstuError(f"{name}: over {LIMIT} s (section 9.5)")
     if rc != 0 or not os.path.exists(sink):
