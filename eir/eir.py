@@ -1417,6 +1417,9 @@ def child(spec):
             child_ctrl(eng, spec, sink)
         elif kind == "reload":
             child_reload(eng, spec, sink)
+        elif kind == "that_diag":      # read-only T̂ diagnosis (that_diag.py); no other path changes
+            import that_diag_child
+            that_diag_child.child(eng, spec, sink, read_sink, e3._e2(), cs, cs.cpcm, SYNC_METHODS)
         elif kind == "full_e3":
             pre = read_sink(spec["pre_sink"])
             sink["bc_seed"] = eng.seed_broadcast()
