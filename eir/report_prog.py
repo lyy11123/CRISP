@@ -207,6 +207,54 @@ def main():
                     thr[f"r{r}|x{scale}|H{H}|{c}"] = first
                 L.append(f"| {r} | ×{scale} | {H:,} s | " + " | ".join(cells) + " |")
     res["threshold"] = thr
+    # ---- pair level, chains A against B, and where the median crosses 1
+    L.append("\n### 表 3b：配对层面（全网格，T_switch ≤ 0.1 s 的 360 格 × 10 对 = 3,600 对）\n")
+    L.append("| 链 | 对手 | 胜 | 负 | 平 | 最差一对的比值 |\n|---|---|---|---|---|---|")
+    pair = {}
+    for ch in CHAINS:
+        for c in CMP:
+            rows = [v["vs"][c] for k, v in C.items() if k.startswith(ch + "|") and "|sw10.0|" not in k]
+            x = {"w": sum(v["w"] for v in rows), "l": sum(v["l"] for v in rows), "worst": min(v["worst"] for v in rows)}
+            x["t"] = 10 * len(rows) - x["w"] - x["l"]
+            pair[f"{ch}_{c}"] = x
+            L.append(f"| {ch} | {c} | {x['w']} | {x['l']} | {x['t']} | {x['worst']:.3f} |")
+    res["pair"] = pair
+    same = sum(C[k]["N"] == C["B" + k[1:]]["N"] for k in C if k.startswith("A|"))
+    L.append(f"\n链 A 与链 B 累计完成量中位数相同的格数：{same} / 480。")
+    res["A_eq_B"] = same
+    L.append("\n### 表 3c：配对比值中位数跌破 1 的 T_switch（链 A，时钟 0.5 ns，搜索 × 1，r = 1，二分到 1%，0.1–10 s 之间；“>10”= 10 s 仍不输，“<0.1”= 0.1 s 已输）\n")
+    L.append("| 方法 | H | 固定 ε | 窗口决策 | 事后最优单次 | R0 |\n|---|---|---|---|---|---|")
+    cross = {}
+
+    def med_ratio(m, H, c, sw):
+        T0 = rb.best_T0(D, 1, 0.0, 0.5)
+        rt = []
+        for sd in rb.SEEDS:
+            n = chain_n("A", m, sd, 1, 0.5, 1.0, sw, H, T0)
+            o = H / T0 if c == "R0" else ctx(m, sd, 1, 0.5, 1.0, sw, H)[1][c]
+            rt.append(n / o if o else float("inf"))
+        return st.median(rt)
+
+    for m in rb.METHODS:
+        for H in rb.HS[1:]:
+            cells = []
+            for c in ("固定 ε", "窗口决策", "事后最优单次", "R0"):
+                lo, hi = 0.1, 10.0
+                if med_ratio(m, H, c, lo) < 1:
+                    cells.append("<0.1")
+                elif med_ratio(m, H, c, hi) >= 1:
+                    cells.append(">10")
+                else:
+                    while hi / lo > 1.01:
+                        mid = (lo * hi) ** 0.5
+                        if med_ratio(m, H, c, mid) < 1:
+                            hi = mid
+                        else:
+                            lo = mid
+                    cells.append(f"{hi:.2f} s")
+                cross[f"{m}|H{H}|{c}"] = cells[-1]
+            L.append(f"| {rb.LABEL[m]} | {H:,} s | " + " | ".join(cells) + " |")
+    res["cross"] = cross
     # ---- migration
     L.append("\n### 表 4：累计迁移量（10 对种子中位数，r = 1；范围见 JSON）\n")
     L.append("逐次切换的字节累加，用保存的检查点状态算相邻两次部署之间的实际差异，不是上界。ρ_MHA 累加 = 相邻两次部署之间搬动的 MHA 行为占比相加，可以超过 100%（同一行为被搬多次）。KV 按单任务 96 MiB 累加，是外部解析估算。一次部署的 ρ 相对 R0。\n")
