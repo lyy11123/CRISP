@@ -24,6 +24,7 @@ Commands (cwd dstu/):
   python dstu.py smoke --jobs 14    a1 512+8192, no fault, d0, k in {1.1, 1.5, 2.0}: self-checks 1-3, 5; wall estimate
   python dstu.py s1 --jobs 14       setting 1
   python dstu.py s2 --jobs 14       setting 2
+  python dstu.py s3 --jobs 14       setting 3 (E4b's draws; self-check 1 on draw 0 of each group x hardware)
 Writes dstu/out/ (sims/, solo/, logs/ and _tmp/ stay out of git). E4b's files are only read.
 """
 import argparse
@@ -412,9 +413,22 @@ def load_platforms():
     return S1, S1.platforms(st), T
 
 
-def solo_step(jobs):
-    """CPCM on every stream of settings 1-2 (cached), self-checks 4 and 6."""
-    S1, plats, T = load_platforms()
+def load_s3():
+    import e4b_s1 as S1
+    import e4b_s3 as S3
+    st, _ = S1.load()
+    with open(os.path.join(B.OUT, "setting3.json"), encoding="utf-8") as f:
+        s3 = json.load(f)
+    T = {}
+    for kk, v in s3["T"].items():
+        k, cz = kk.rsplit("|", 1)
+        T[(k, None if cz == "None" else cz)] = v
+    return S1, [p + (None,) for p in S3.platforms(st)], T
+
+
+def solo_step(jobs, s3=False):
+    """CPCM on every stream of settings 1-2 (s3: setting 3; cached), self-checks 4 and 6."""
+    S1, plats, T = load_s3() if s3 else load_platforms()
     items = {}
     for g, hw, cz, keys, fa, alias in plats:
         for k in keys:
@@ -430,7 +444,7 @@ def solo_step(jobs):
                      "T_rand_min": min(Tr), "T_rand_max": max(Tr),
                      "compile_s": s["times"]["compile"], "forward_s": s["times"]["forward"],
                      "backward_s": s["times"]["backward"], "rand40_s": s["times"]["rand40"], **s["check4"]})
-    write_csv("solo_table.csv", rows)
+    write_csv("solo_table_s3.csv" if s3 else "solo_table.csv", rows)
     errs = [abs(r["err_T_hat"]) for r in rows]
     bad4 = [r["stream"] for r in rows if r["bad_monotone"] or r["bad_sink"] or r["bad_block_D"] or r["occupancy_mismatch"]]
     summ = {"n_streams": len(rows), "err_T_hat_abs_median": statistics.median(errs), "err_T_hat_abs_max": max(errs),
@@ -440,7 +454,7 @@ def solo_step(jobs):
             "err_T_rand_median": statistics.median(r["err_T_rand"] for r in rows),
             "check4_bad": bad4, "occupancy_checked": sum(r["occupancy_checked"] for r in rows),
             "chunked_messages": sum(r["chunked_messages"] for r in rows)}
-    write_json("solo_summary.json", {**summ, "rows": rows, "rand_seed": RAND_SEED, "n_rand": N_RAND,
+    write_json("solo_summary_s3.json" if s3 else "solo_summary.json", {**summ, "rows": rows, "rand_seed": RAND_SEED, "n_rand": N_RAND,
                                      "artifact_commit": E._artifact_commit(), "command": sys.argv})
     log("solo " + json.dumps({k: v if not isinstance(v, float) else round(v, 5) for k, v in summ.items()}))
     if bad4:
@@ -482,6 +496,25 @@ def build_cfgs(setting, plats, T, solo, ideal, only=None):
     """One entry per (configuration, deadlines) with everything the runs need."""
     import e4b_s1 as S1
     out = []
+    if setting == 3:
+        import e4b_s3 as S3
+        dr = S3.draws()
+        for g, hw, cz, keys, fa, alias in plats:
+            n = len(keys)
+            Tc = {i: T[(k, cz)] for i, k in enumerate(keys)}
+            Tmin = min(Tc.values())
+            for j in range(S3.N):
+                x = dr[(g, j)]
+                rel = {i: int(round(x["u"][i] * 0.5 * Tmin * i)) for i in Tc}
+                kk = {i: x["k"][i] for i in Tc}
+                That = {i: solo[(s, cz)]["T_hat"] for i, s in enumerate(keys)}
+                Trnd = {i: solo[(s, cz)]["T_rand_mean"] for i, s in enumerate(keys)}
+                out.append({"name": f"s3_{g}_{hw}_j{j:02d}", "tg": "s3", "label": {"draw": j}, "group": g, "hw": hw, "chunk": cz,
+                            "order": "random", "streams": keys, "faults": fa, "n": n, "T": Tc, "release": rel, "k": kk,
+                            "d": {i: rel[i] + kk[i] * Tc[i] for i in Tc}, "That": That, "Trnd": Trnd,
+                            "dhat": {i: rel[i] + kk[i] * That[i] for i in Tc}, "dr": {i: rel[i] + kk[i] * Trnd[i] for i in Tc},
+                            "seeds": B.SEEDS})
+        return out
     for g, hw, cz, keys, fa, alias in plats:
         if alias:
             continue
@@ -566,11 +599,13 @@ def stat(rs, c):
 
 
 def ref_table(setting):
-    fn = "setting1c_table.csv" if setting == 1 else "setting2_table.csv"
+    fn = {1: "setting1c_table.csv", 2: "setting2_table.csv", 3: "setting3_table.csv"}[setting]
     t = {}
     with open(os.path.join(B.OUT, fn), encoding="utf-8") as f:
         for r in csv.DictReader(f):
-            if setting == 1:
+            if setting == 3:
+                key = (r["config"], "s3", r["policy"])
+            elif setting == 1:
                 key = (r["config"], f"k{float(r['k']):g}" if float(r["k"]) != 2.0 else "k2.0", r["policy"])
             else:
                 key = (r["config"], f"kl{float(r['k_long']):g}_ks{float(r['k_short']):g}", r["policy"])
@@ -766,14 +801,15 @@ def round_all(x):
 
 def setting(n, jobs):
     t0 = time.time()
-    S1, plats, T, solo = solo_step(jobs)
+    S1, plats, T, solo = solo_step(jobs, s3=n == 3)
     ideal = load_ideal(plats)
     cfgs = build_cfgs(n, plats, T, solo, ideal)
     tab = ref_table(n)
     log(f"setting {n}: {len(cfgs)} rows")
-    rep = rep_items(cfgs)
+    cfgs1 = [c for c in cfgs if c["label"].get("draw") in (None, 0)]  # setting 3: draw 0 only (PROGRESS)
+    rep = rep_items(cfgs1)
     res = run_all(jobs, rep)
-    ck1 = check1(cfgs, res, tab)
+    ck1 = check1(cfgs1, res, tab)
     write_csv(f"setting{n}_check1.csv", ck1)
     mx = max(ck1, key=lambda r: abs(r["rel_S"]))
     ckl = {"processes": len(rep), "rows": len(ck1), "max_abs_rel_S": abs(mx["rel_S"]), "at": f"{mx['config']} {mx['policy']}",
@@ -862,7 +898,7 @@ def smoke(jobs):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["solo", "smoke", "s1", "s2", "child", "solo-child"])
+    ap.add_argument("cmd", choices=["solo", "smoke", "s1", "s2", "s3", "child", "solo-child"])
     ap.add_argument("spec", nargs="?")
     ap.add_argument("--jobs", type=int, default=14)
     a = ap.parse_args()
@@ -876,6 +912,8 @@ def main():
         smoke(a.jobs)
     elif a.cmd == "s1":
         setting(1, a.jobs)
+    elif a.cmd == "s3":
+        setting(3, a.jobs)
     else:
         setting(2, a.jobs)
 
