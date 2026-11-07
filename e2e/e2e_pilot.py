@@ -48,6 +48,15 @@ C.REGIME["pf_mha"] = "prefill"
 C.REGIME["pf_ffn"] = "prefill"
 ARMS = ["A1", "A2", "A3h"]
 OPS = {"mha": "pf_mha", "ffn": "pf_ffn"}
+# B3: the other operators, reachable only with E2E_B3=1 so that OPS of the pilot's report and read-only stay as they were
+C.CONFIGS["pf_ln"] = (PREFILL, "ln", None, "ch2x2")
+C.CONFIGS["pf_proj"] = (PREFILL, "proj", None, "ch2x2")
+C.CONFIGS["dc_ln"] = (C.GPT, "ln", None, "ch2x2")
+C.CONFIGS["dc_proj"] = (C.GPT, "proj", None, "ch2x2")
+for _c in ("pf_ln", "pf_proj", "dc_ln", "dc_proj"):
+    C.REGIME[_c] = "b3"
+if os.environ.get("E2E_B3"):
+    OPS.update(ln="pf_ln", proj="pf_proj", dln="dc_ln", dproj="dc_proj")
 DECODE_OUT = os.path.join(ROOT, "cpcm_sa", "out", "s2")
 GATE_GB, GATE_RAMP_S = 4.0, 20   # a pf_mha run peaks near 0.8 GB, so free memory stays above 3 GB
 
