@@ -135,3 +135,9 @@ decode MHA 两个映射完成（新增块 104，C4 的 T̂ 约 0.5 s，按跳后
 **B3**：LN、投影能直接生成并跑通（30 步冒烟 16 次，0 失败）。decode 的 FFN 含 1 个 LN，prefill 的不含；decode 只读 K、V 形状的离线权重 [96, 2048]、[2048, 96]，不读 QKᵀ、S；prefill 写的 K 是 decode 读的 16 倍（batch）；`compute_inter_time` 确实没有 batch。B4 清单和估算在汇总里。
 
 **B2** 的按跳后端 cProfile 还在跑，结果另记。
+
+## 2026-11-08 B 第 3 步：B2 结果，B0–B3 完成（Claude Code）
+
+prefill FFN A3h 开 cProfile：C4 的 T̂ 1171 s（不开 242 s），`cpcm._loop` 自身 61.6%，第 524 行生成器 4.67 亿次；按跳后端 3226 s（不开 669 s），主循环自身 43.0%，`sorted` 累计 15.5%，`max` 累计 15.8%，`shuffle` 累计 11.6%。T 相同：True；按跳后端延迟相同：False。没有优化。
+
+B0–B3 完成，汇总 `B_PREP_SUMMARY.md`。B4 未放行，等用户定工作负载和选优规则。第 7 节的 prefill MHA 按跳后端还在跑（A1 从 11-07 19:20:31，A3h 从 21:25:37），12 小时上限不变。
