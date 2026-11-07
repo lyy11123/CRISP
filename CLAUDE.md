@@ -15,7 +15,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 ## 当前阶段
 
-判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。第 4 步 EIR 主实验已完成（1,240 次，`eir\EIR_SUMMARY.md`），论文 EIR 主表以 A3h 起点为核心，BusyBarn 起点保留用于对比外部映射器起点和 FULL-BusyBarn。下一阶段增量实验 A（L2-Impact 与消融）、C（k = 4 复合故障）、B（双阶段时间轴与窗口决策，含 KV 解析估算）已于 2026-11-05 完成（`eir\EIR_NEXT_SUMMARY.md`）：L2-Global（+sync）是主力修复方法；窗口决策不一致优于固定 ε；事后追加的渐进部署在 T_switch ≤ 0.1 s 时不输于单次部署（中位数），FFN 上 T̂ 低估主要来自确定性平局规则。EIR 于 2026-11-06 封版。DSTU 阶段 1（CPCM 截止时间代替理想值，设定 1–3）已于 2026-11-06 完成（`dstu\DSTU_SUMMARY.md`）：各流自己的图上 CPCM 几乎不丢收益，合并图丢掉大部分；流级 C4 总体与事件级 C-S 打平或更稳，但有反例子集。阶段 2（2A 子期限、2B 选择性切块）、2C（全链路 256 KB 复测）、块开销敏感性与聚合代价键核查已完成（`dstu\STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`）；全链路设定 3 与“不切”对照已于 2026-11-07 完成（`dstu\SETTING3_ALL_SUMMARY.md`），DSTU 收尾（全链路设定 2、非零开销选切对照，`dstu\DSTU_HANDOFF.md` 第 13 节）已于 2026-11-07 放行。端到端、规模扩展和联合串接只做了只读评估，用户确认后才跑；串行计时放在它们之后。全量串行计时推迟到算法冻结后、写论文前统一做。E4c（请求随机到达、goodput、P99、SLO）以后再议。
+判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。第 4 步 EIR 主实验已完成（1,240 次，`eir\EIR_SUMMARY.md`），论文 EIR 主表以 A3h 起点为核心，BusyBarn 起点保留用于对比外部映射器起点和 FULL-BusyBarn。下一阶段增量实验 A（L2-Impact 与消融）、C（k = 4 复合故障）、B（双阶段时间轴与窗口决策，含 KV 解析估算）已于 2026-11-05 完成（`eir\EIR_NEXT_SUMMARY.md`）：L2-Global（+sync）是主力修复方法；窗口决策不一致优于固定 ε；事后追加的渐进部署在 T_switch ≤ 0.1 s 时不输于单次部署（中位数），FFN 上 T̂ 低估主要来自确定性平局规则。EIR 于 2026-11-06 封版。DSTU 阶段 1（CPCM 截止时间代替理想值，设定 1–3）已于 2026-11-06 完成（`dstu\DSTU_SUMMARY.md`）：各流自己的图上 CPCM 几乎不丢收益，合并图丢掉大部分；流级 C4 总体与事件级 C-S 打平或更稳，但有反例子集。阶段 2（2A 子期限、2B 选择性切块）、2C（全链路 256 KB 复测）、块开销敏感性与聚合代价键核查已完成（`dstu\STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`）；全链路设定 3 与“不切”对照已于 2026-11-07 完成（`dstu\SETTING3_ALL_SUMMARY.md`），DSTU 收尾（全链路设定 2、非零开销选切对照）已于 2026-11-07 完成（`dstu\FINAL_RUNS_SUMMARY.md`）。端到端、规模扩展、硬件配置（WATOS Config 3 Die 级等效）、补齐 prefill + decode 和新负载故障子集只做了只读评估，用户确认后才跑；串行计时放在它们之后。全量串行计时推迟到算法冻结后、写论文前统一做。E4c（请求随机到达、goodput、P99、SLO）以后再议。
 
 研究方案、判定标准和结论记录在 claude.ai 上的方案文档里，不在本目录。本目录里每个实验都有一份交接说明 `<实验文件夹>\<实验>_HANDOFF.md`，执行时以它为准。
 
@@ -31,7 +31,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `cpcm\` | CPCM 的设计、实现与验证（V0–V7 完成，汇总 `CPCM_SUMMARY.md`） |
 | `cpcm_sa\` | 第 3 步：CPCM 接入 SA 映射搜索（已完成，汇总 `CPCM_SA_SUMMARY.md`） |
 | `eir\` | 第 4 步：EIR 分级故障修复主实验（已完成，汇总 `EIR_SUMMARY.md`）；下一阶段增量实验 A、C、B 已完成（汇总 `EIR_NEXT_SUMMARY.md`） |
-| `dstu\` | DSTU 阶段 1、2、2C 与块开销敏感性已完成（汇总 `DSTU_SUMMARY.md`、`STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`、`SETTING3_ALL_SUMMARY.md`） |
+| `dstu\` | DSTU 阶段 1、2、2C 与块开销敏感性已完成（汇总 `DSTU_SUMMARY.md`、`STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`、`SETTING3_ALL_SUMMARY.md`、`FINAL_RUNS_SUMMARY.md`） |
 
 ## 规则
 
