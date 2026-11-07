@@ -17,6 +17,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 | `cpcm_sa/` | CPCM 接入 SA 映射搜索（第 3 步） | 完成（本地 952 次 + Colab 224 次，汇总见 `CPCM_SA_SUMMARY.md`） |
 | `eir/` | EIR 分级故障修复主实验（第 4 步） | 完成（1,240 次，汇总见 `EIR_SUMMARY.md`）；下一阶段增量实验 A、C、B 已完成（汇总见 `EIR_NEXT_SUMMARY.md`） |
 | `dstu/` | DSTU：全链路切块 + 按跳优先级仲裁；CPCM 用于选切和前向试算 | 阶段 1、2、2C、块开销敏感性、全链路设定 1–3 与非零开销选切对照完成（汇总见 `DSTU_SUMMARY.md`、`STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`、`SETTING3_ALL_SUMMARY.md`、`FINAL_RUNS_SUMMARY.md`） |
+| `e2e/` | 端到端阶段：完整 prefill + decode、故障、联合实验、硬件、规模、补齐模型 | 进行中（交接 `E2E_HANDOFF.md`） |
 
 每个实验文件夹里：
 - `<实验>_HANDOFF.md`：交接说明（任务定义、步骤、自检、停止条件），执行时以它为准；
