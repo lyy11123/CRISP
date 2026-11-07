@@ -49,6 +49,7 @@ C.REGIME["pf_ffn"] = "prefill"
 ARMS = ["A1", "A2", "A3h"]
 OPS = {"mha": "pf_mha", "ffn": "pf_ffn"}
 DECODE_OUT = os.path.join(ROOT, "cpcm_sa", "out", "s2")
+GATE_GB, GATE_RAMP_S = 4.0, 20   # a pf_mha run peaks near 0.8 GB, so free memory stays above 3 GB
 
 
 def peak():
@@ -123,14 +124,27 @@ def run(ops, jobs, first=False, arms=ARMS, tag=""):
             mins.append(free_gb())
     threading.Thread(target=watch, daemon=True).start()
     t0 = time.time()
+    if tag == "_mha_cpcm":      # parent session 2026-11-07: 14 processes with the memory gate instead of the 6 in run_pilot.sh
+        jobs = 14
+    lock, waits = threading.Lock(), [0]
+
+    def gated(t):
+        """Memory gate (as eir_next): start a run only with GATE_GB free, one start per GATE_RAMP_S so its memory shows up."""
+        if not os.path.exists(os.path.join(C.OUT, "runs", C.run_name(*t[:4]) + ".pkl.gz")):
+            with lock:
+                while free_gb() < GATE_GB:
+                    waits[0] += 1
+                    time.sleep(30)
+                time.sleep(GATE_RAMP_S)
+        return run_one(*t)
     with ThreadPoolExecutor(jobs) as ex:
-        res = list(ex.map(lambda t: run_one(*t), todo))
+        res = list(ex.map(gated, todo))
     stop.set()
     bad = [r[0] for r in res if r[1] == "failed"]
     print(f"[e2e] {len(res)} runs, {len(bad)} failed: {bad}; {time.time() - t0:.0f} s; min free {min(mins):.1f} GB", flush=True)
     os.makedirs(C.OUT, exist_ok=True)
     with open(os.path.join(C.OUT, f"run_meta{'_first' if first else ''}{tag}.json"), "w", encoding="utf-8") as f:
-        json.dump({"runs": len(res), "failed": bad, "wall_s": time.time() - t0, "jobs": jobs, "min_free_gb": min(mins), "start_free_gb": mins[0]}, f, indent=1)
+        json.dump({"runs": len(res), "failed": bad, "wall_s": time.time() - t0, "jobs": jobs, "gate_waits_30s": waits[0], "min_free_gb": min(mins), "start_free_gb": mins[0]}, f, indent=1)
 
 
 # ------------------------------------------------------------------ thread settings
