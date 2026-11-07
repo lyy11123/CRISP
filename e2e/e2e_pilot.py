@@ -251,6 +251,7 @@ def readonly_child(spec_path, out):
     add_broadcast(data_tags=ctx["broadcast_datatags"], ddr_chiplets=ctx["layers_regions"][ctx["initialization_layer_tag"]], beha_dict=beha, data_dict=data, hardware_platform=hp,
                   event_dict=events, dijkstra_routing=ctx["dijkstra_routing"], alpha=ctx["alpha"], beta=ctx["beta"], gamma=ctx["gamma"])
     res = {k: spec[k] for k in ("op", "phase", "arm", "run_name")}
+    print(f"[segment {time.strftime('%H:%M:%S')}] state and broadcast ready", flush=True)
     g = D._graph(events, hp)
     sc = cpcm.simulate(g, "bb")
     by = sorted(int(e.comm_bytes) for e in events.values() if e.event_type == "communication")
@@ -260,6 +261,7 @@ def readonly_child(spec_path, out):
     ev, cst = S.chunk_by(E.merged_events([pickle.dumps(events, protocol=pickle.HIGHEST_PROTOCOL)]), hp, S.UNI["256all"])
     res.update(blocks_added=cst["blocks_added"], messages_chunked=cst["messages_chunked"], events_chunked=len(ev), comm_events_chunked=sum(1 for e in ev.values() if e.event_type == "communication"),
                bytes_conserved=cst["bytes_conserved"], tree_conserved=cst["tree_conserved"], extra_occupancy=cst["extra_occupancy"], base_occupancy=cst["base_occupancy"])
+    print(f"[segment {time.strftime('%H:%M:%S')}] chunked, starting T for C4", flush=True)
     # T for C4 (dstu_oh.solo_child, o = 0): CPCM hop mode on the stream's own graph, tail data
     t0 = time.perf_counter()
     g2 = D._graph(ev, hp)
@@ -271,6 +273,12 @@ def readonly_child(spec_path, out):
     t3 = time.perf_counter()
     res.update(c4_compile_s=t1 - t0, c4_hop_sim_s=t2 - t1, c4_tail_s=t3 - t2, c4_total_s=t3 - t0, T_hop_chunked=s2.T, activities_chunked=len(s2.a_s))
     res["peak_wset_gb_before_backend"] = peak() / 2 ** 30
+    print(f"[segment {time.strftime('%H:%M:%S')}] T for C4 done, starting hop backend", flush=True)
+    if os.environ.get("E2E_RO_SKIP_BACKEND"):     # partial numbers while the full process runs: no hop backend
+        res["peak_wset_gb"] = res["peak_wset_gb_before_backend"]
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(res, f, indent=1, default=float)
+        return
     # backend per hop, policy P1, one seed
     hpb = C.copy.deepcopy(hp)
     audit, released = [], {}
@@ -278,11 +286,15 @@ def readonly_child(spec_path, out):
     t0 = time.time()
     event_driver_e4b(ev, hpb, release={0: 0}, policy=P1(), released=released, audit=audit)
     res["hop_backend_wall_s"] = time.time() - t0
+    print(f"[segment {time.strftime('%H:%M:%S')}] hop backend done", flush=True)
     res["hop_backend_latency"] = max(e.end_time for e in ev.values())
     res["hop_audit_mismatch"] = sum(1 for a in audit if a[2] != a[3])
     res["peak_wset_gb"] = peak() / 2 ** 30
     with open(out, "w", encoding="utf-8") as f:
         json.dump(res, f, indent=1, default=float)
+
+
+RO_FLOOR_GB, RO_KILL_GB, RO_EST_GB, RO_RAMP_S, RO_LIMIT_S = 3.0, 3.3, 4.0, 30, 7200
 
 
 def readonly(jobs):
@@ -304,15 +316,67 @@ def readonly(jobs):
             n = C.run_name(op, arm, int(g[1:]), int(x))
             specs.append(dict(op=op, phase="decode", arm=arm, cfg=op, run_name=n, run=os.path.join(DECODE_OUT, "runs", n + ".pkl.gz"), snap=os.path.join(DECODE_OUT, "snaps", n + ".pkl.gz")))
 
-    def one(s):
-        p = os.path.join(d, f"{s['phase']}_{s['op']}_{s['arm']}")
-        with open(p + "_spec.json", "w", encoding="utf-8") as f:
-            json.dump(s, f)
-        with open(p + ".log", "w", encoding="utf-8") as lf:
-            rc = subprocess.call([sys.executable, os.path.abspath(__file__), "readonly_child", p + "_spec.json", p + ".json"], cwd=HERE, stdout=lf, stderr=subprocess.STDOUT)
-        print(f"[readonly] {s['phase']} {s['op']} {s['arm']}: exit {rc}", flush=True)
-    with ThreadPoolExecutor(jobs) as ex:
-        list(ex.map(one, specs))
+    # one process per mapping; free memory is watched during the run, not only at start
+    logp = os.path.join(d, "driver.log")
+
+    def say(msg):
+        line = f"[readonly {time.strftime('%H:%M:%S')}] {msg}"
+        print(line, flush=True)
+        with open(logp, "a", encoding="utf-8") as f:
+            f.write(line + chr(10))
+    q = [s for s in sorted(specs, key=lambda s: s["op"] != "ffn") if not os.path.exists(os.path.join(d, f"{s['phase']}_{s['op']}_{s['arm']}.json"))]
+    est = {"ffn": RO_EST_GB, "mha": RO_EST_GB}
+    live, alerted, peak_seen, min_free = [], set(), {}, free_gb()
+    say(f"{len(q)} mappings to do, free {min_free:.1f} GB, floor {RO_FLOOR_GB} GB, jobs at most {jobs}")
+    while q or live:
+        fr = free_gb()
+        min_free = min(min_free, fr)
+        for item in list(live):
+            s, pr, t0, lf = item
+            name = f"{s['phase']}_{s['op']}_{s['arm']}"
+            if pr.poll() is not None:
+                lf.close()
+                live.remove(item)
+                path = os.path.join(d, name + ".json")
+                if os.path.exists(path):
+                    r = json.load(open(path, encoding="utf-8"))
+                    est[s["op"]] = max(r["peak_wset_gb"], est[s["op"]] if est[s["op"]] != RO_EST_GB else 0)
+                    say(f"{name}: done, {time.time() - t0:.0f} s, peak {r['peak_wset_gb']:.2f} GB, min free so far {min_free:.1f} GB")
+                else:
+                    say(f"{name}: FAILED exit {pr.returncode}")
+            elif time.time() - t0 > RO_LIMIT_S and name not in alerted:
+                alerted.add(name)
+                say(f"ALERT {name}: over 2 hours, still running")
+        if fr < RO_KILL_GB and live:
+            s, pr, t0, lf = live[-1]
+            pr.kill()
+            pr.wait()
+            lf.close()
+            live.pop()
+            q.insert(0, s)
+            est[s["op"]] = max(est[s["op"]], RO_EST_GB) * 1.5
+            say(f"KILL {s['phase']}_{s['op']}_{s['arm']}: free {fr:.1f} GB below {RO_KILL_GB} GB; requeued, estimate now {est[s['op']]:.1f} GB")
+        elif q and len(live) < jobs and fr - est[q[0]["op"]] >= RO_KILL_GB:
+            # the first mapping of each op runs alone among same-op unknowns, so its peak is measured before others start
+            if est[q[0]["op"]] != RO_EST_GB or not any(x[0]["op"] == q[0]["op"] for x in live):
+                s = q.pop(0)
+                name = f"{s['phase']}_{s['op']}_{s['arm']}"
+                p = os.path.join(d, name)
+                with open(p + "_spec.json", "w", encoding="utf-8") as f:
+                    json.dump(s, f)
+                lf = open(p + ".log", "w", encoding="utf-8")
+                live.append((s, subprocess.Popen([sys.executable, os.path.abspath(__file__), "readonly_child", p + "_spec.json", p + ".json"], cwd=HERE, stdout=lf, stderr=subprocess.STDOUT), time.time(), lf))
+                say(f"{name}: start, free {fr:.1f} GB, {len(live)} live")
+                time.sleep(RO_RAMP_S)
+        elif q and not live and fr - est[q[0]["op"]] < RO_KILL_GB:
+            say(f"ALERT waiting: free {fr:.1f} GB, need {est[q[0]['op']] + RO_KILL_GB:.1f} GB for {q[0]['phase']}_{q[0]['op']}_{q[0]['arm']}")
+            time.sleep(600)
+        time.sleep(5)
+    say(f"finished, min free {min_free:.2f} GB")
+    missing = [s for s in specs if not os.path.exists(os.path.join(d, f"{s['phase']}_{s['op']}_{s['arm']}.json"))]
+    if missing:
+        say(f"ALERT missing: {[(s['phase'], s['op'], s['arm']) for s in missing]}")
+        return
     res = [json.load(open(os.path.join(d, f"{s['phase']}_{s['op']}_{s['arm']}.json"), encoding="utf-8")) for s in specs]
     with open(os.path.join(C.OUT, "readonly.json"), "w", encoding="utf-8") as f:
         json.dump(res, f, indent=1)
