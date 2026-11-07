@@ -51,7 +51,7 @@ git pull --rebase origin main                    # 每次开始前
 
 ### 工作规则（摘自 `CLAUDE.md`，以它为准）
 
-- 只做当前交接说明里写的事；CPCM 按 `cpcm/` 下经用户确认的方案实现，DSTU 按 `dstu/DSTU_HANDOFF.md`，第 12 节之后的新实验用户放行后才写代码；不要扩大范围。
+- 只做当前交接说明里写的事；CPCM 按 `cpcm/` 下经用户确认的方案实现，DSTU 按 `dstu/DSTU_HANDOFF.md`，第 13 节之后的新实验用户放行后才写代码；不要扩大范围。
 - 不修改 `third_party/` 里的源码；需要改行为时在内存中替换函数。
 - 一个进程只跑一个任务脚本；记录 artifact commit、随机种子和命令行。
 - 单次运行预计超过 1 小时，先告诉用户。
