@@ -23,7 +23,7 @@
 python e2e/w1_rerun/build_w1_bundle.py
 ```
 
-它写出 `e2e/w1_rerun/local_ref.json`（本机 2 个参照运行的 T̂、SA 轨迹摘要与后端结果），打包到 `e2e/w1_rerun/dist/w1_bundle.tar.gz`。输出最后一行有 `UNCOMMITTED CODE` 时先提交再打包。上传到 Google Drive 的 `我的云端硬盘/CRISP_colab/`。
+它写出 `e2e/w1_rerun/local_ref.json`（本机 2 个参照运行的 T̂、SA 轨迹摘要与后端结果），打包到 `e2e/w1_rerun/dist/w1_bundle.tar.gz`。输出最后一行有 `UNCOMMITTED CODE` 时先提交再打包。打包后自动做干净目录检查（`e2e/colab/check_bundle.py` 的同一做法：解包到空目录，`python -I`、不带 PYTHONPATH，跑冒烟和探针），不通过的包会改名为 `.FAILED`，不能上传。上传到 Google Drive 的 `我的云端硬盘/CRISP_colab/`。
 
 ## 每个笔记本的单元格
 

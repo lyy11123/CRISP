@@ -247,3 +247,4 @@ decode 读的是 prefill 写的 1/16（正好是 batch）。prefill 另写 Kᵀ�
 - 原因：压缩包缺 `e2_attribution\`。`cpcm_sa.final_eval` 经 `e3_warmstart._e2()` 导入 `e2_attribution`，所以每次运行都在最终评估时 `ModuleNotFoundError` 退出。本机在空目录解压旧包，用冒烟的设置复现了同一错误。探针不走最终评估，所以通过了。
 - 修复：`build_b4_bundle.py` 的 `CODE_DIRS` 加 `e2_attribution`（含 `_inject`）。`colab_b4.py` 在运行失败时打印子进程日志的最后 80 行；冒烟失败时保留 `e2e\out`，不删。指南已相应补一句。
 - 自检（本机，新包解压到空目录）：冒烟通过（10 s）。修复后的旧包上，dc_ln A1 l0、dc_proj A1 l0、dc_proj A3h s123、pf_mha_w1 A1 l0 各跑 15 步都通过；dc_ln A3h g0 s123 跑满 1,000 步，T̂、轨迹、选中步、后端都与 `local_ref.json` 相同。这些都在 Windows 上，Linux 仍以 Colab 为准。
+- 补充（同日，主会话转达）：打包改为按实际 import 链检查。`e2e\colab\check_bundle.py` 把包解到空的临时目录，用 `python -I`、去掉 PYTHONPATH，跑 dc_ln A3h、A1 的 15 步冒烟（含最终评估与后端）和探针 T̂，与 `local_ref.json` 比较；`build_b4_bundle.py` 打包后自动调用，不通过就把包改名为 `.FAILED`。新包（git 0e58ef6）检查通过：2 个冒烟 ok，探针 det 6,088,395、tie1 6,417,668、删去 128 条，都与本机相同。反向测试：去掉 `e2_attribution\` 的包，两个冒烟都报 `ModuleNotFoundError`，检查失败。W1 补跑的包用同一检查。
