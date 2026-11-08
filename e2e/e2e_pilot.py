@@ -184,6 +184,12 @@ def run(ops, jobs, first=False, arms=ARMS, tag=""):
             vs = C.variants(arm)
             for i, (g, x) in enumerate(vs[:2] if first else vs):
                 todo.append((OPS[op], arm, g, x, i < 2))
+    hold = os.path.join(C.OUT, "hold.txt")     # B4: configs on hold (one per line), not scheduled
+    if os.path.exists(hold):
+        held = {ln.strip() for ln in open(hold, encoding="utf-8") if ln.strip()}
+        skipped = [t for t in todo if t[0] in held]
+        todo = [t for t in todo if t[0] not in held]
+        print(f"[e2e] on hold, not scheduled: {sorted(held)} ({len(skipped)} runs)", flush=True)
     todo.sort(key=lambda t: t[1] == "A1")
     mins = [free_gb()]
     stop = threading.Event()
