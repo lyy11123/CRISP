@@ -43,7 +43,7 @@ def add_text(tar, name, text):
 
 def build(out):
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    dirty = subprocess.run(["git", "status", "--porcelain", "--"] + CODE_DIRS + ["e2e/w1_rerun/*.py"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--"] + [f"{d}/*.py" for d in CODE_DIRS] + ["e2e/w1_rerun/*.py"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
     with tarfile.open(out, "w:gz") as tar:
         for d in CODE_DIRS:
             for name in sorted(os.listdir(os.path.join(ROOT, d))):
