@@ -57,8 +57,57 @@ for _c in ("pf_ln", "pf_proj", "dc_ln", "dc_proj"):
     C.REGIME[_c] = "b3"
 if os.environ.get("E2E_B3"):
     OPS.update(ln="pf_ln", proj="pf_proj", dln="dc_ln", dproj="dc_proj")
+# B4: workload W1 (the final broadcast without the messages of QK^T and S), searched and evaluated; filtered in memory as B1
+C.CONFIGS["pf_mha_w1"] = (PREFILL, "mha", None, "ch2x2")
+C.CONFIGS["dc_mha_w1"] = (C.GPT, "mha", None, "ch2x2")
+C.REGIME["pf_mha_w1"] = C.REGIME["dc_mha_w1"] = "b4_w1"
+if os.environ.get("E2E_B4"):
+    OPS.update(ln="pf_ln", proj="pf_proj", dln="dc_ln", dproj="dc_proj", mha_w1="pf_mha_w1", dmha_w1="dc_mha_w1")
+W1_DROP = ("qkt", "s_softmax")      # B1: broadcast messages whose event name has one of these
+
+
+def w1_drop(events, added):
+    """B1's filter: remove the added broadcast messages of QK^T and S from events and from their producers' issue sets; check nothing dangles."""
+    drop = {t for t in added if any(k in events[t].event_name for k in W1_DROP)}
+    for t in drop:
+        for dep in events[t].dependency_set:
+            if events.get(dep) is not None:
+                events[dep].issue_set.discard(t)
+        del events[t]
+    tags = set(events)
+    bad = sum(1 for t in added - drop for x in events[t].dependency_set if x not in tags) + sum(1 for t in added - drop for x in events[t].issue_set if x not in tags)
+    bad += sum(1 for e in events.values() for x in e.issue_set if x in drop)
+    if bad:
+        raise RuntimeError(f"W1 filter left {bad} dangling references")
+    return drop
+
+
+def install_w1():
+    """Search and final evaluation see W1: the template's add_broadcast (final evaluation, exact-T checks) and the broadcast-route cache
+    (T during the search) build W0's broadcast with W0's routes and RNG use, then drop QK^T and S as B1 does."""
+    C._artifact_path()
+    import add_communication
+    orig = add_communication.add_broadcast
+
+    def add_broadcast(*a, **kw):
+        ev = kw["event_dict"]
+        before = set(ev)
+        out = orig(*a, **kw)
+        w1_drop(ev, set(ev) - before)
+        return out
+    add_communication.add_broadcast = add_broadcast
+    graph0 = C.BcCache.graph
+
+    def graph(self, beha, data, ev0, hp):
+        ev = graph0(self, beha, data, ev0, hp)
+        w1_drop(ev, set(ev) - set(ev0))
+        return ev
+    C.BcCache.graph = graph
 DECODE_OUT = os.path.join(ROOT, "cpcm_sa", "out", "s2")
 GATE_GB, GATE_RAMP_S = 4.0, 20   # a pf_mha run peaks near 0.8 GB, so free memory stays above 3 GB
+KILL_GB = 3.3                     # B4: in-run memory line
+ALERT_S = float(os.environ.get("E2E_ALERT_S", 1e9))   # B4: 3600 (single-process limit); the pilot ran without it
+LIVE = []                         # (name, Popen) of the running SA children
 
 
 def peak():
@@ -104,8 +153,17 @@ def run_one(cfg, arm, g, x, checks, env=None):
         os.makedirs(os.path.join(C.OUT, d), exist_ok=True)
     t0 = time.time()
     with open(os.path.join(C.OUT, "logs", name + ".log"), "w", encoding="utf-8") as lf:
-        rc = subprocess.call([sys.executable, os.path.abspath(__file__), "child", cfg, arm, str(g), str(x), sink, snap, "1" if checks else "0"],
-                             cwd=HERE, stdout=lf, stderr=subprocess.STDOUT, env=dict(os.environ, **(env or {})))
+        pr = subprocess.Popen([sys.executable, os.path.abspath(__file__), "child", cfg, arm, str(g), str(x), sink, snap, "1" if checks else "0"],
+                              cwd=HERE, stdout=lf, stderr=subprocess.STDOUT, env=dict(os.environ, **(env or {})))
+        LIVE.append((name, pr))
+        alerted = False
+        while pr.poll() is None:     # B4: alert once past the single-process limit (no kill; the user decides)
+            if not alerted and time.time() - t0 > ALERT_S:
+                alerted = True
+                print(f"[e2e] ALERT {name}: over {ALERT_S / 3600:.0f} hour(s), still running ({time.strftime('%H:%M:%S')})", flush=True)
+            time.sleep(5)
+        rc = pr.returncode
+        LIVE.remove((name, pr))
     ok = rc == 0 and os.path.exists(sink)
     print(f"[e2e] {name}: exit {rc}, {time.time() - t0:.0f} s, {'ok' if ok else 'FAILED'}", flush=True)
     return name, "ok" if ok else "failed", time.time() - t0
@@ -114,6 +172,8 @@ def run_one(cfg, arm, g, x, checks, env=None):
 def child():
     _, _, cfg, arm, g, x, sink, snap, checks = sys.argv
     atexit.register(write_peak, C.run_name(cfg, arm, int(g), int(x)))
+    if cfg.endswith("_w1"):
+        install_w1()
     C.child(cfg, arm, int(g), int(x), sink, snap, checks == "1")
 
 
@@ -130,7 +190,13 @@ def run(ops, jobs, first=False, arms=ARMS, tag=""):
 
     def watch():
         while not stop.wait(5):
-            mins.append(free_gb())
+            fr = free_gb()
+            mins.append(fr)
+            if fr < KILL_GB and LIVE:      # B4: stop the most recently started run; it is not cached, so a rerun starts it again
+                name, pr = LIVE[-1]
+                pr.kill()
+                print(f"[e2e] KILL {name}: free {fr:.1f} GB below {KILL_GB} GB ({time.strftime('%H:%M:%S')})", flush=True)
+                time.sleep(30)
     threading.Thread(target=watch, daemon=True).start()
     t0 = time.time()
     if tag == "_mha_cpcm":      # parent session 2026-11-07: 14 processes with the memory gate instead of the 6 in run_pilot.sh
