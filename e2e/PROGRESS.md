@@ -214,3 +214,12 @@ decode 读的是 prefill 写的 1/16（正好是 batch）。prefill 另写 Kᵀ�
 ## 2026-11-08 B4 第 2 步：KV 定义定为共享历史 KV，decode MHA 恢复（Claude Code）
 
 用户 2026-11-08（经主会话，交接 a63d4c2）：保持 artifact 原定义，decode 的历史 K、V 是没有 batch 维的离线权重，batch 内 16 个请求共用一份；不做每请求一份 KV，不写新模板。原因与字节核对见 B4 第 1 步（decode 每头读 Kᵀ、V 各 393,216 B，是 prefill 每头写回 6,291,456 B 的 1/16）。处理：删除 `out\b4\hold.txt`，W1 decode MHA 的 42 次按原 B4 清单与规则跑（第二批尚未开始，删除在它启动之前）；规则写定前的 2 次探针照常计入。`B4_SUMMARY.md` 写明这一定义。
+
+## 2026-11-08 按跳路径提速（第 3 节）完成
+
+- 状态：完成，汇总 `SPEEDUP_SUMMARY.md`。新实现 `fast_cpcm.py`、`fast_hop.py`（v2：同一 tick 第二轮起只重新提交上一轮的胜者，`shuffle` 仍对完整就绪表调用），回归 `run_speedup_all.sh`、`run_speedup_mha.sh`，结果 `out\speedup\final\`。
+- 自检：两边都换成 tag 哈希后逐位比较，0 项不一致。pilot 映射 27 项相同（decode 4 映射 C4 + 种子 1–4，prefill FFN A1 C4 + 种子 1–4，A3h C4 + 种子 1）；DSTU 18/18 相同（含 o = 50、200、1000 与 φ_res）。
+- 关键数字：prefill FFN 的 C4 从 569–572 s 降到 118–122 s（4.7–4.8×），按跳后端 3.0–4.1×；decode 后端 3.2–5.3×；DSTU 合计 574 s → 182 s。墙钟含与 B4 的争用。
+- prefill MHA 两个大映射（只跑新实现）：C4 T̂ 与 `out\readonly` 相同（11,977,646；11,551,661）。按跳后端延迟不同：A1 −0.15%，A3h +2.38%。readonly 用地址哈希，这次用 tag 哈希，同哈希下的逐位比较见上。后端墙钟 3,962、1,888 s（readonly 16,646、13,094 s，负载不同）。
+- 新发现：回归进程的内存峰值在 prefill MHA 上为 3.50、3.23 GB，超过 3 GB；readonly 运行为 1.42 GB。推测来自回归脚本同时持有的副本与 C4 图，未单独测 fast_hop 的内存。
+- 待用户决定：bb 模式 T̂ 的热点（`_loop` 35.6%，`sorted` 14.1%，排序键 lambda 7.1%）是否优化；C、D 的运行次数未定，汇总里只给每单位耗时。

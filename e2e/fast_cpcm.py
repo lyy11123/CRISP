@@ -6,6 +6,8 @@ Changes against cpcm._loop (hop branch), all with the same result:
 - per event the branches are kept by their next link (head); a round reads the heads instead of rescanning every branch. For each
   head the candidate is the branch with the most hops left, the first in ev_br order on ties, as the original's `seen` gives;
 - issuing on link q advances exactly the branches whose head is q (the original's loop over ev_br with hop_link[pos] == q).
+- from the second round of a tick on, only the events that won a link in the previous round are offered again (the others'
+  heads are all on busy links by then: same candidate times, no issue).
 Candidate keys, the link order (sorted ids), min() over the candidates, the loser times and the bookkeeping order are the original's.
 """
 import heapq
@@ -149,6 +151,7 @@ def _loop_hop(g, sc, st, prio, rng):
             if not cands:
                 break
             issued = False
+            won = set()
             for q in sorted(cands):
                 cs = cands[q]
                 fq = free[q]
@@ -163,6 +166,7 @@ def _loop_hop(g, sc, st, prio, rng):
                 free[q] = f
                 a = act(e, q, t, f, blast[b])
                 last[e] = a
+                won.add(e)
                 hd = heads[e]
                 for c in hd.pop(q):
                     p = pos[c] + 1
@@ -181,7 +185,9 @@ def _loop_hop(g, sc, st, prio, rng):
                     if x != e and f < cand.get(x, inf):
                         cand[x] = f
                 issued = True
-            live = [e for e in live if nleft[e]]
+            # the next round needs only the events that won a link now: the others keep their heads, all on links now busy
+            # (busy before, or just issued), so they would only get the same candidate times again and issue nothing
+            live = [e for e in live if nleft[e] and e in won]
             if not issued or not live:
                 break
         for e in comms:

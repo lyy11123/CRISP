@@ -119,7 +119,7 @@ def pilot(spec_path, out_path, seeds, parts, new_only):
         old = None if new_only else run_c4(cpcm.simulate, D, g)
         same = None if old is None else all(old[k] == new[k] for k in new if not k.endswith("_s"))
         res["c4"] = dict(old=old, new=new, identical=same, diff=None if old is None else [k for k in new if not k.endswith("_s") and old[k] != new[k]])
-        print(f"[c4] old {old and old['total_s']:.1f} s new {new['total_s']:.1f} s identical {same} T {new['T']}", flush=True)
+        print(f"[c4] old {old['total_s'] if old else float('nan'):.1f} s new {new['total_s']:.1f} s identical {same} T {new['T']}", flush=True)
     if "hop" in parts:
         rows = []
         for s in seeds:
@@ -127,7 +127,7 @@ def pilot(spec_path, out_path, seeds, parts, new_only):
             old = None if new_only else run_backend(event_driver_e4b, base, s, release={0: 0}, policy=P1())
             same = None if old is None else all(old[k] == new[k] for k in new if k != "wall_s")
             rows.append(dict(seed=s, old=old, new=new, identical=same, diff=None if old is None else [k for k in new if k != "wall_s" and old[k] != new[k]]))
-            print(f"[hop] seed {s}: old {old and old['wall_s']:.1f} s new {new['wall_s']:.1f} s identical {same} latency {new['latency']}", flush=True)
+            print(f"[hop] seed {s}: old {old['wall_s'] if old else float('nan'):.1f} s new {new['wall_s']:.1f} s identical {same} latency {new['latency']}", flush=True)
             json.dump(dict(res, hop=rows), open(out_path + ".part", "w"), indent=1, default=str)
         res["hop"] = rows
     res["peak_wset_gb"] = P.peak() / 2 ** 30

@@ -10,6 +10,9 @@ What the original does per tick, and how this file gets the same thing cheaper:
   what the stable sort gives. The first tick (the initial list need not be sorted) uses a real stable sort.
 - the ready list of each round is the previous round's list (in list order, before the shuffle) without the events whose path is
   used up, so it is not rebuilt from the whole list; `e in start_events` becomes a set lookup.
+- from the second round of a tick on, only the events that won a link in the previous round are offered again: the others keep
+  their heads, which are all on busy links by then, so they would only be deferred again to the same times (the shuffle still
+  gets the whole ready list);
 - candidates: one pass over the branches per event (first appearance of each first link, longest branch through it), in the
   original's order; with the default policy P1 the winner is found without building key tuples (same key, same tie rule).
 random.shuffle gets the same list (same length, same order) at the same point, so the random sequence is unchanged.
@@ -130,13 +133,19 @@ def event_driver_fast(events_dict, hardware_platform, release=None, policy=None,
         event_starttime_dict = {}
         last_issued = {}
         base = [e for e in group if e.event_type == "communication" and current_time == e.start_time and e.path_list and e in alive]
+        won = None          # events that won a link in the previous round (None: first round of the tick)
         while True:
             ready = [e for e in base if e.path_list]
             base = list(ready)
             random.shuffle(ready)
             policy.on_tick(current_time, ready)
             cands = {}
+            won_now = set()
             for e in ready:
+                # an event that won nothing in the previous round has the same heads, all on links now busy (each was busy or
+                # was just issued): it would only be deferred again to the same times, and it adds no link the others need
+                if won is not None and e not in won:
+                    continue
                 heads = {}
                 for br in e.path_list:
                     if not br:
@@ -202,6 +211,7 @@ def event_driver_fast(events_dict, hardware_platform, release=None, policy=None,
                 on_issue(e, link, current_time)
                 last_issued[e.event_tag] = link
                 issued_any = True
+                won_now.add(e)
                 pl = e.path_list
                 for br in pl[:]:
                     if br and br[0] == link:
@@ -238,6 +248,7 @@ def event_driver_fast(events_dict, hardware_platform, release=None, policy=None,
                     event_starttime_dict.pop(e.event_tag, None)
             if not issued_any:
                 break
+            won = won_now
         if event_starttime_dict:
             for event in group:
                 if event in alive and event.event_tag in event_starttime_dict:
