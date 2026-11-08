@@ -240,3 +240,10 @@ decode 读的是 prefill 写的 1/16（正好是 batch）。prefill 另写 Kᵀ�
 - 自检：E4 捕获的事件流里，没有读者且发往全部 DDR 端口的通信就是最终广播。mha512、mha2048、mha8192 各 72 条 qkt/s_softmax，与 B4 decode 的 W1 删去数相同；ffn 只有 4 条 `MLP_residual_matadd`，删 0 条。EIR 起点的广播路由数：FFN 4 条，MHA 104 条。
 - 关键数字：EIR 涉及 MHA 的运行 914 次，W0 记录合计约 257,000 进程秒（约 71 进程小时）。EIR 用 BusyBarn 后端，提速不适用。DSTU 的所有配置都含 MHA 流，全部补跑：W0 墙钟 24,183 s（14 个并行）；按提速中位 2.43 估约 10,000 s，约 39 进程小时。Colab 拟 6 个笔记本：prep 先跑，其余 5 个并行，最长约 6–8 h。并行数等 B4 的扫描结果。
 - 待用户决定：按 A3h 映射选的故障（F4a、F5a、F8a、C 的四种）在 W1 下坐标照旧还是按同一规则重选；DSTU 变体是否在 W1 下重选；FULL-BusyBarn 是否按原流程重跑 98 次。
+
+## 2026-11-08 B4 Colab 冒烟失败的修复
+
+- 状态：已修，压缩包已重建（git a3ff079），没有上传。
+- 原因：压缩包缺 `e2_attribution\`。`cpcm_sa.final_eval` 经 `e3_warmstart._e2()` 导入 `e2_attribution`，所以每次运行都在最终评估时 `ModuleNotFoundError` 退出。本机在空目录解压旧包，用冒烟的设置复现了同一错误。探针不走最终评估，所以通过了。
+- 修复：`build_b4_bundle.py` 的 `CODE_DIRS` 加 `e2_attribution`（含 `_inject`）。`colab_b4.py` 在运行失败时打印子进程日志的最后 80 行；冒烟失败时保留 `e2e\out`，不删。指南已相应补一句。
+- 自检（本机，新包解压到空目录）：冒烟通过（10 s）。修复后的旧包上，dc_ln A1 l0、dc_proj A1 l0、dc_proj A3h s123、pf_mha_w1 A1 l0 各跑 15 步都通过；dc_ln A3h g0 s123 跑满 1,000 步，T̂、轨迹、选中步、后端都与 `local_ref.json` 相同。这些都在 Windows 上，Linux 仍以 Colab 为准。

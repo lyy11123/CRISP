@@ -43,7 +43,7 @@ os.environ["OUT"] = "/content/drive/MyDrive/CRISP_colab/b4_check"
 !cd /content/crisp && python e2e/colab/colab_b4.py smoke
 ```
 
-一次 decode LN A3h 的 15 步运行、2 个后端种子，放在本地磁盘，不进结果。最后一行要是 `SMOKE PASSED`。
+一次 decode LN A3h 的 15 步运行、2 个后端种子，放在本地磁盘，不进结果。最后一行要是 `SMOKE PASSED`。失败时会打印子进程日志的最后 80 行，并保留 `/content/crisp/e2e/out`（不删），把输出发回来；之后要先 `!rm -rf /content/crisp/e2e/out` 才能跑单元格 3、4。
 
 **单元格 3：验证子集**（断线后重新执行单元格 1 和这一格即可续跑，已完成的跳过）
 
