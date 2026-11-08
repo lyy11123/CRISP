@@ -27,7 +27,7 @@ ROOT = os.path.dirname(E2E)
 DIST = os.path.join(HERE, "dist")
 WORK = os.path.join(E2E, "work", "artifact")
 MODELS = ["intra_mapping_gpt_decode", "intra_mapping_gpt_prefill"]
-CODE_DIRS = ["cpcm", "cpcm_sa", "e1_fidelity", "e3_warmstart"]
+CODE_DIRS = ["cpcm", "cpcm_sa", "e1_fidelity", "e2_attribution", "e3_warmstart"]   # e3_warmstart imports e2_attribution in the final evaluation
 sys.path.insert(0, HERE)
 import colab_b4 as CB  # noqa: E402
 
@@ -96,7 +96,7 @@ def main():
     ref = local_ref()
     os.makedirs(DIST, exist_ok=True)
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    dirty = subprocess.run(["git", "status", "--porcelain", "--", "cpcm", "cpcm_sa", "e1_fidelity", "e3_warmstart", "e2e/*.py", "e2e/colab/*.py"],
+    dirty = subprocess.run(["git", "status", "--porcelain", "--", "cpcm", "cpcm_sa", "e1_fidelity", "e2_attribution", "e3_warmstart", "e2e/*.py", "e2e/colab/*.py"],
                            cwd=ROOT, capture_output=True, text=True).stdout.strip()
     out = os.path.join(DIST, "b4_bundle.tar.gz")
     with tarfile.open(out, "w:gz") as tar:

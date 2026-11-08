@@ -84,6 +84,12 @@ def run_many(sub, todo, workers, extra=None):
         print(f"[colab] {sub} {name_of(t)}: {'ok' if ok else 'FAILED'} {time.time() - t0:.0f} s", flush=True)
         if not ok:
             print(p.stdout[-2000:], p.stderr[-2000:])
+            log = os.path.join(E2E, "out", sub, "logs", name_of(t) + ".log")     # the child's own output (traceback) is only here
+            if os.path.exists(log):
+                with open(log, encoding="utf-8", errors="replace") as f:
+                    print(f"[colab] last 80 lines of {log}:\n" + "".join(f.readlines()[-80:]), flush=True)
+            else:
+                print(f"[colab] no child log at {log}", flush=True)
         return dict(run=name_of(t), ok=ok, wall_s=time.time() - t0)
     t0 = time.time()
     with ThreadPoolExecutor(workers) as ex:
@@ -186,7 +192,10 @@ def main():
         os.makedirs(os.path.join(E2E, "out"), exist_ok=True)
         r = run_many("smoke", [SUBSET[2]], 1, dict(CPCM_SA_STEPS="15", E2E_BACKEND_SEEDS="2"))
         ok = r["runs"][0]["ok"]
-        shutil.rmtree(os.path.join(E2E, "out"))      # smoke results are not kept; run / scan link e2e/out to Drive
+        if ok:
+            shutil.rmtree(os.path.join(E2E, "out"))      # smoke results are not kept; run / scan link e2e/out to Drive
+        else:                                            # keep the logs; run / scan refuse a real non-empty e2e/out until it is removed
+            print(f"[colab] smoke output kept in {os.path.join(E2E, 'out')} (remove it before run / scan)")
         print(f"[colab] smoke {r['total_wall_s']:.0f} s, min available {r['min_available_gb']:.1f} GB")
         print("[colab] SMOKE PASSED" if ok else "[colab] SMOKE FAILED")
         return
