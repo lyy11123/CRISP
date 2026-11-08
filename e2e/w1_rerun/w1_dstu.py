@@ -60,7 +60,8 @@ PIPE = [("e4_overlap", "e4b_s1.py --jobs 14"), ("e4_overlap", "e4b_s1b.py --jobs
 # user 2026-11-09 (via the main session, option a): dstu_final's preparation check pins W0's count of "hard" setting-2 configurations
 # (exactly 1 forward, 0 reverse); that list only goes into the report, so the count is recorded, not a stop. Applied in memory to the
 # script's source when it runs as __main__ (LAUNCH); the tree's file is not changed. Every other part of the check stays.
-SRC_PATCH = {"dstu_final.py": ('chk["hard_forward"] != 1 or chk["hard_reverse"] != 0 or ', '')}
+SRC_PATCH = {"dstu_final.py": ('chk["hard_forward"] != 1 or chk["hard_reverse"] != 0 or ', ''),
+             "dstu_s3all.py": ('chk["hard_b_n"] != 13 or ', '')}    # W0-pinned result counts only (user option a, 2026-11-09)
 LAUNCH = r"""
 import sys, os
 path = os.path.abspath(sys.argv[1])
