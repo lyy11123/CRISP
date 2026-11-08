@@ -1,0 +1,906 @@
+{
+ "ffn": {
+  "F1": {
+   "failed_nodes": [
+    [
+     2,
+     13
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "e3_fault": "F1"
+  },
+  "F2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "e3_fault": "F2"
+  },
+  "F4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      3,
+      2
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      3,
+      2
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "e3_fault": "F4"
+  },
+  "F5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      3,
+      15
+     ],
+     [
+      3,
+      14
+     ]
+    ],
+    [
+     [
+      3,
+      14
+     ],
+     [
+      3,
+      15
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "e3_fault": "F5"
+  },
+  "F6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     2,
+     13
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "e3_fault": "F6"
+  },
+  "F7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "e3_fault": "F7"
+  },
+  "F8": {
+   "failed_nodes": [
+    [
+     3,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "e3_fault": "F8"
+  },
+  "F4a": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      13
+     ],
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     [
+      2,
+      1
+     ],
+     [
+      0,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "same_as": null,
+   "stable_over_seeds_123": true,
+   "busy_over_a": 0.7979495941905169
+  },
+  "F5a": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      7
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      7
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "same_as": null,
+   "stable_over_seeds_123": false,
+   "busy_over_a": 0.4566588900207012,
+   "critical_wait_over_a": 0.30235270923011204
+  },
+  "F8a": {
+   "failed_nodes": [
+    [
+     0,
+     18
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "same_as": null,
+   "stable_over_seeds_123": true,
+   "busy_over_a": 0.7641211842407912,
+   "busy_over_a_seeds_123": [
+    0.7641211842407912,
+    0.765334583960704,
+    0.7594174028052185
+   ],
+   "top_ports": [
+    [
+     "(0, 18)",
+     93018
+    ],
+    [
+     "(0, 23)",
+     92472
+    ],
+    [
+     "(1, 19)",
+     92472
+    ],
+    [
+     "(3, 17)",
+     92472
+    ]
+   ]
+  },
+  "CRandom": {
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     13
+    ]
+   ],
+   "failed_links": [],
+   "failed_nodes": [],
+   "kind": "k=4 composite: Random",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "rule": "each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "pe_load": [
+    18432.0,
+    9240.0,
+    27648.0,
+    18456.0
+   ],
+   "random_seed": 20261105,
+   "same_as": null
+  },
+  "CCluster": {
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     14
+    ]
+   ],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      14
+     ]
+    ],
+    [
+     [
+      0,
+      14
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_nodes": [],
+   "link_busy_both": 111576,
+   "kind": "k=4 composite: Cluster",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "rule": "connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "pe_load": [
+    27744.0,
+    27840.0,
+    27840.0
+   ],
+   "random_seed": null,
+   "same_as": null
+  },
+  "CEdge": {
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     0
+    ]
+   ],
+   "failed_links": [],
+   "failed_nodes": [
+    [
+     0,
+     18
+    ]
+   ],
+   "port_busy": 93018,
+   "kind": "k=4 composite: Edge",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "rule": "3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "pe_load": [
+    18624.0,
+    9408.0,
+    36888.0
+   ],
+   "random_seed": null,
+   "same_as": null
+  },
+  "CScratch": {
+   "failed_pes": [
+    [
+     2,
+     10
+    ],
+    [
+     2,
+     11
+    ],
+    [
+     3,
+     8
+    ]
+   ],
+   "failed_links": [
+    [
+     [
+      2,
+      11
+     ],
+     [
+      3,
+      8
+     ]
+    ],
+    [
+     [
+      3,
+      8
+     ],
+     [
+      2,
+      11
+     ]
+    ]
+   ],
+   "failed_nodes": [],
+   "link_busy_both": 172640,
+   "kind": "k=4 composite: Scratch",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "rule": "the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "pe_load": [
+    18624.0,
+    27648.0,
+    18625.0
+   ],
+   "random_seed": null,
+   "same_as": null
+  }
+ },
+ "mha": {
+  "F1": {
+   "failed_nodes": [
+    [
+     3,
+     13
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "e3_fault": "F1"
+  },
+  "F2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "e3_fault": "F2"
+  },
+  "F4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      2
+     ],
+     [
+      0,
+      14
+     ]
+    ],
+    [
+     [
+      0,
+      14
+     ],
+     [
+      2,
+      2
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "e3_fault": "F4"
+  },
+  "F5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      14
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      14
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "e3_fault": "F3"
+  },
+  "F6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     3,
+     13
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "e3_fault": "F6"
+  },
+  "F7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "e3_fault": "F7"
+  },
+  "F8": {
+   "failed_nodes": [
+    [
+     1,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "e3_fault": "F8"
+  },
+  "F4a": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      1
+     ],
+     [
+      0,
+      13
+     ]
+    ],
+    [
+     [
+      0,
+      13
+     ],
+     [
+      2,
+      1
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "same_as": null,
+   "stable_over_seeds_123": true,
+   "busy_over_a": 0.7946227644202297
+  },
+  "F5a": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      3,
+      2
+     ],
+     [
+      3,
+      1
+     ]
+    ],
+    [
+     [
+      3,
+      1
+     ],
+     [
+      3,
+      2
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "same_as": null,
+   "stable_over_seeds_123": false,
+   "busy_over_a": 0.41116901575269454,
+   "critical_wait_over_a": 0.07621698448418808
+  },
+  "F8a": {
+   "failed_nodes": [
+    [
+     2,
+     23
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "same_as": null,
+   "stable_over_seeds_123": true,
+   "busy_over_a": 0.554779106952505,
+   "busy_over_a_seeds_123": [
+    0.554779106952505,
+    0.5569228940015457,
+    0.5518703976435935
+   ],
+   "top_ports": [
+    [
+     "(2, 23)",
+     9368
+    ],
+    [
+     "(1, 22)",
+     8142
+    ],
+    [
+     "(3, 20)",
+     7123
+    ],
+    [
+     "(1, 20)",
+     7045
+    ]
+   ]
+  },
+  "CRandom": {
+   "failed_pes": [
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     15
+    ],
+    [
+     2,
+     12
+    ],
+    [
+     3,
+     14
+    ]
+   ],
+   "failed_links": [],
+   "failed_nodes": [],
+   "kind": "k=4 composite: Random",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "rule": "each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "pe_load": [
+    224.0,
+    160.0,
+    32.0,
+    2496.0
+   ],
+   "random_seed": 20261105,
+   "same_as": null
+  },
+  "CCluster": {
+   "failed_pes": [
+    [
+     1,
+     8
+    ],
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ]
+   ],
+   "failed_links": [
+    [
+     [
+      1,
+      12
+     ],
+     [
+      1,
+      13
+     ]
+    ],
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      12
+     ]
+    ]
+   ],
+   "failed_nodes": [],
+   "link_busy_both": 15789,
+   "kind": "k=4 composite: Cluster",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "rule": "connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "pe_load": [
+    6912.0,
+    2336.0,
+    2336.0
+   ],
+   "random_seed": null,
+   "same_as": null
+  },
+  "CEdge": {
+   "failed_pes": [
+    [
+     3,
+     13
+    ],
+    [
+     3,
+     14
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "failed_links": [],
+   "failed_nodes": [
+    [
+     2,
+     23
+    ]
+   ],
+   "port_busy": 9368,
+   "kind": "k=4 composite: Edge",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "rule": "3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "pe_load": [
+    2432.0,
+    2496.0,
+    2306.0
+   ],
+   "random_seed": null,
+   "same_as": null
+  },
+  "CScratch": {
+   "failed_pes": [
+    [
+     0,
+     7
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     1,
+     5
+    ]
+   ],
+   "failed_links": [
+    [
+     [
+      0,
+      7
+     ],
+     [
+      1,
+      4
+     ]
+    ],
+    [
+     [
+      1,
+      4
+     ],
+     [
+      0,
+      7
+     ]
+    ]
+   ],
+   "failed_nodes": [],
+   "link_busy_both": 20010,
+   "kind": "k=4 composite: Scratch",
+   "e3_fault": null,
+   "chosen_on": "a3h",
+   "rule": "the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "pe_load": [
+    640.0,
+    576.0,
+    930.0
+   ],
+   "random_seed": null,
+   "same_as": null
+  }
+ },
+ "ffn14": {
+  "F1": {
+   "failed_nodes": [
+    [
+     3,
+     8
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "e3_fault": "F1"
+  },
+  "F2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "e3_fault": "F2"
+  },
+  "F4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      7
+     ],
+     [
+      2,
+      4
+     ]
+    ],
+    [
+     [
+      2,
+      4
+     ],
+     [
+      1,
+      7
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "e3_fault": "F4"
+  },
+  "F5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      3,
+      4
+     ],
+     [
+      2,
+      7
+     ]
+    ],
+    [
+     [
+      2,
+      7
+     ],
+     [
+      3,
+      4
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "e3_fault": "F5"
+  },
+  "F6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     3,
+     8
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "e3_fault": "F6"
+  },
+  "F7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "e3_fault": "F7"
+  },
+  "F8": {
+   "failed_nodes": [
+    [
+     1,
+     17
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "e3_fault": "F8"
+  }
+ }
+}
