@@ -248,3 +248,11 @@ decode 读的是 prefill 写的 1/16（正好是 batch）。prefill 另写 Kᵀ�
 - 修复：`build_b4_bundle.py` 的 `CODE_DIRS` 加 `e2_attribution`（含 `_inject`）。`colab_b4.py` 在运行失败时打印子进程日志的最后 80 行；冒烟失败时保留 `e2e\out`，不删。指南已相应补一句。
 - 自检（本机，新包解压到空目录）：冒烟通过（10 s）。修复后的旧包上，dc_ln A1 l0、dc_proj A1 l0、dc_proj A3h s123、pf_mha_w1 A1 l0 各跑 15 步都通过；dc_ln A3h g0 s123 跑满 1,000 步，T̂、轨迹、选中步、后端都与 `local_ref.json` 相同。这些都在 Windows 上，Linux 仍以 Colab 为准。
 - 补充（同日，主会话转达）：打包改为按实际 import 链检查。`e2e\colab\check_bundle.py` 把包解到空的临时目录，用 `python -I`、去掉 PYTHONPATH，跑 dc_ln A3h、A1 的 15 步冒烟（含最终评估与后端）和探针 T̂，与 `local_ref.json` 比较；`build_b4_bundle.py` 打包后自动调用，不通过就把包改名为 `.FAILED`。新包（git 0e58ef6）检查通过：2 个冒烟 ok，探针 det 6,088,395、tie1 6,417,668、删去 128 条，都与本机相同。反向测试：去掉 `e2_attribution\` 的包，两个冒烟都报 `ModuleNotFoundError`，检查失败。W1 补跑的包用同一检查。
+
+## 2026-11-08 B4 Colab 验证（`colab_results\b4_check\`，用户在 Colab 上跑，压缩包 git 0e58ef6）
+
+- 状态：通过。环境：Linux，nproc 8，内存 51 GB，Python 3.13.18，numpy 2.4.6，networkx 3.7，simanneal 0.5.0。
+- 探针：W1 prefill MHA 的确定性 T̂ 6,088,395、种子 1 随机平局 T̂ 6,417,668、删去 128 条，都与本机逐位相同。编译 0.36 s（本机 0.16 s），前向 0.30 s（本机 0.17 s）。
+- 子集（9 次，4 个并行）：9/9 的 T_pre、T_bc、T_sel、选中步、自身代价和 SA 轨迹逐位相同。后端 10 种子均值 7/9 相同；dc_proj A1 g0 l0 差 −0.06%，pf_mha_w1 A1 g0 l0 差 −0.47%（后端按地址取哈希，已知）。单次墙钟：decode LN 35–40 s，decode 投影 60–80 s，pf_mha_w1 A1 560 s（本机 4 个并行 390 s，慢 1.44 倍）。总墙钟 656 s。单进程内存峰值 0.42–0.66 GB。
+- 并行数扫描（dc_proj A3h g0 s123，每档 T̂ 与轨迹都与本机相同）：4、7、8 个并行时单次中位 73、100、120 s，吞吐 0.055、0.070、0.066 次/秒，7 个最高。本机 B4（12 个并行）同一运行 80 s，所以 Colab 7 个并行约慢 1.25 倍；单次长运行按 pf_mha_w1 约慢 1.44 倍。最低可用内存 46.1 GB。
+- 据此更新 W1 补跑 EIR 的 Colab 估计（7 个并行，单次按本机 14 个并行记录的 1.25–1.45 倍）：main A3h 约 14.6 进程小时，2.6–3.0 h；main e3 约 20.3，3.6–4.2 h；FULL 约 20.6，3.7–4.3 h；next 约 15.7，2.8–3.2 h。4 个笔记本同时跑，墙钟约 4–4.5 h，加 prep 约 0.5–1 h。
