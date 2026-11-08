@@ -517,7 +517,7 @@ def pipe(wl, start, stop_at=None):
         wall = time.time() - t0
         log(f"{wl} [{i}] min free memory during the step {low[1]:.1f} GB", wl)
         tail = open(lf, encoding="utf-8", errors="replace").read().splitlines()[-3:]
-        if rc != 0 and cmd in SOFT_STOP and any("E4bError" in x for x in tail):
+        if rc != 0 and cmd in SOFT_STOP and any("E4bError" in x or x.startswith("[e4b] STOP:") for x in tail):
             log(f"{wl} [{i}] {cmd}: ended with the self-check stop (as under W0), {wall:.0f} s: {tail[-1][:300]}", wl)
         elif rc != 0:
             log(f"{wl} [{i}] {cmd}: FAILED (exit {rc}), {wall:.0f} s: {' | '.join(tail)[:500]}", wl)
