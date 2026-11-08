@@ -53,8 +53,8 @@ PIPE = [("e4_overlap", "e4b_s1.py --jobs 14"), ("e4_overlap", "e4b_s1b.py --jobs
         ("dstu", "dstu2.py check"), ("dstu", "dstu2.py 2a --jobs 14"), ("dstu", "dstu2.py pilot --jobs 14"),
         ("dstu", "dstu2.py 2b --jobs 14 POOL_B"), ("dstu", "dstu2.py greedy --jobs 14 POOL_B"), ("dstu", "dstu2.py cm --jobs 14"),
         ("dstu", "dstu2c.py solo --jobs 14"), ("dstu", "dstu2c.py a --jobs 14"), ("dstu", "dstu2c.py b --jobs 14"), ("dstu", "dstu2c.py s1 --jobs 14"),
-        ("dstu", "dstu_oh.py prep --jobs 14"), ("dstu", "dstu_oh.py run --jobs 14"), ("dstu", "dstu_oh.py key --jobs 14"),
-        ("dstu", "dstu_s3all.py solo --jobs 14"), ("dstu", "dstu_s3all.py run --jobs 14"), ("dstu", "dstu_s3all.py ns --jobs 14"),
+        ("dstu", "dstu_oh.py run --jobs 14"), ("dstu", "dstu_oh.py key --jobs 14"),
+        ("dstu", "dstu_s3all.py solo --jobs 14"), ("dstu", "dstu_s3all.py run --jobs 14"), ("dstu", "dstu_s3all.py ns --jobs 9"),
         ("dstu", "dstu_final.py check --jobs 14"), ("dstu", "dstu_final.py s2 --jobs 14"), ("dstu", "dstu_final.py sel --jobs 14"),
         ("dstu", "dstu_pair.py")]
 # E4b setting 1 ends with E4bError when a self-check flags (it did under W0 too: check 2 > 4%, check 3); its files are written first
