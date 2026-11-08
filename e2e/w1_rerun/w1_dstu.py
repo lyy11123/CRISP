@@ -57,6 +57,23 @@ PIPE = [("e4_overlap", "e4b_s1.py --jobs 14"), ("e4_overlap", "e4b_s1b.py --jobs
         ("dstu", "dstu_s3all.py solo --jobs 14"), ("dstu", "dstu_s3all.py run --jobs 14"), ("dstu", "dstu_s3all.py ns --jobs 9"),
         ("dstu", "dstu_final.py check --jobs 14"), ("dstu", "dstu_final.py s2 --jobs 14"), ("dstu", "dstu_final.py sel --jobs 14"),
         ("dstu", "dstu_pair.py")]
+# user 2026-11-09 (via the main session, option a): dstu_final's preparation check pins W0's count of "hard" setting-2 configurations
+# (exactly 1 forward, 0 reverse); that list only goes into the report, so the count is recorded, not a stop. Applied in memory to the
+# script's source when it runs as __main__ (LAUNCH); the tree's file is not changed. Every other part of the check stays.
+SRC_PATCH = {"dstu_final.py": ('chk["hard_forward"] != 1 or chk["hard_reverse"] != 0 or ', '')}
+LAUNCH = r"""
+import sys, os
+path = os.path.abspath(sys.argv[1])
+old, new = sys.argv[2], sys.argv[3]
+src = open(path, encoding="utf-8").read()
+if src.count(old) != 1:
+    raise SystemExit(f"source patch: {src.count(old)} occurrences in {path}")
+sys.argv = sys.argv[:1] + sys.argv[4:]
+sys.argv[0] = path
+g = {"__name__": "__main__", "__file__": path, "__builtins__": __builtins__}
+print(f"[w1dstu] source patch applied in memory to {os.path.basename(path)}: removed {old!r}", flush=True)
+exec(compile(src.replace(old, new), path, "exec"), g)
+"""
 # E4b setting 1 ends with E4bError when a self-check flags (it did under W0 too: check 2 > 4%, check 3); its files are written first
 SOFT_STOP = {"e4b_s1.py --jobs 14"}
 
@@ -503,7 +520,10 @@ def pipe(wl, start, stop_at=None):
         lf = os.path.join(HERE, "out", f"pipe_{wl}_{i:02d}.out")
         low = [0, 99.0]
         with open(lf, "w", encoding="utf-8") as f:
-            proc = subprocess.Popen([sys.executable] + cmd.split(), cwd=os.path.join(R, cwd), stdout=f, stderr=subprocess.STDOUT, env=env_of(wl))
+            argv = cmd.split()
+            if argv[0] in SRC_PATCH:
+                argv = ["-c", LAUNCH, argv[0], *SRC_PATCH[argv[0]], *argv[1:]]
+            proc = subprocess.Popen([sys.executable] + argv, cwd=os.path.join(R, cwd), stdout=f, stderr=subprocess.STDOUT, env=env_of(wl))
             while proc.poll() is None:
                 time.sleep(30)
                 fr = free_gb()
