@@ -89,4 +89,5 @@
   3. DSTU 在 W1 下按原流程重选变体（14 个变体按后端选）。
   4. FULL-BusyBarn 按原流程在 W1 下重跑（7 个故障 × 14 个 A1 变体）。
   5. 分配：DSTU（W1 与 W0-tag）在本机按原顺序跑，14 个左右并行，注意内存停线；EIR 放 Colab，`prep` 先跑并与本机逐位比较 2 个运行，通过后其余 4 个笔记本（main A3h、main e3、FULL、next）同时跑，每个 7 个并行。打包用 `check_bundle.py` 同样的干净目录自查。
-  6. 比较规则开跑前写进 `PROGRESS.md`；EIR 的 Colab 指南写好后报给用户上传。结果写 `w1_rerun\W1_RERUN_SUMMARY.md`。
+  6. 比较规则开跑前写进 `PROGRESS.md`；EIR 的 Colab 指南写好后报给用户上传。
+  7. DSTU 的上游一起重跑（用户 2026-11-08 定）：E4a 单流 Tᵢ、E4b solo、E4b 设定 1（1→1b→1c）、2、3，在 W1 与 W0-tag 下各跑一遍，DSTU 主表的基线列、Tᵢ、理想尾部数据和自检 1 都改用同口径的新结果；不改 `e4_overlap\` 源码和已有结果，新结果放 `e2e\w1_rerun\`。W1 下若某个序列长度换了胜出变体，按原流程重新捕获该流及其故障平台版本。本机约 10 小时。结果写 `w1_rerun\W1_RERUN_SUMMARY.md`。
