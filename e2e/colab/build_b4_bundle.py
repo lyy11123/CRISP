@@ -135,6 +135,11 @@ def main():
         add_text(tar, "BUNDLE_INFO.json", json.dumps({"built": time.strftime("%Y-%m-%d %H:%M:%S"), "git_head": head, "uncommitted_code": dirty,
                                                        "sha256_16": sha, "subset": [CB.name_of(t) for t in CB.SUBSET], "local_ref_built": ref["built"]}, indent=1))
     print(f"{out}: {os.path.getsize(out) / 1e6:.1f} MB, git {head[:7]}{' (UNCOMMITTED CODE: ' + dirty + ')' if dirty else ''}")
+    # clean-room check: unpack into an empty folder, python -I, no PYTHONPATH; a module imported but not packed fails here
+    import check_bundle
+    if not check_bundle.check(out):
+        os.replace(out, out + ".FAILED")
+        raise SystemExit(f"bundle check failed; the bundle was renamed to {out}.FAILED")
 
 
 if __name__ == "__main__":
