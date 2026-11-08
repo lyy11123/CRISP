@@ -233,3 +233,10 @@ decode 读的是 prefill 写的 1/16（正好是 batch）。prefill 另写 Kᵀ�
 - 新发现：decode LN 上 A3h 后端最优比 A1 慢 25.5%（4,774 对 3,804 周期），A2 快 20.3%。
 - 运行事故：`run_b4.sh` 最后一行 `tail -3 a b` 写法错误，使脚本退出码为 1，运行本身没有受影响。
 - Colab：压缩包 `e2e\colab\dist\b4_bundle.tar.gz` 已生成（4.7 MB，git e2ffcc5，代码无未提交改动），指南的改动和 `local_ref.json` 已提交，没有上传。
+
+## 2026-11-08 W1 补跑（第 4 节）第 0 步：只读清点
+
+- 状态：只读清点完成，清单 `w1_rerun\W1_RERUN_INVENTORY.md`，Colab 指南草稿 `w1_rerun\W1_COLAB_GUIDE.md`。没有写驱动代码，没有新运行，没有改 `eir\`、`dstu\`、`e4_overlap\`。
+- 自检：E4 捕获的事件流里，没有读者且发往全部 DDR 端口的通信就是最终广播。mha512、mha2048、mha8192 各 72 条 qkt/s_softmax，与 B4 decode 的 W1 删去数相同；ffn 只有 4 条 `MLP_residual_matadd`，删 0 条。EIR 起点的广播路由数：FFN 4 条，MHA 104 条。
+- 关键数字：EIR 涉及 MHA 的运行 914 次，W0 记录合计约 257,000 进程秒（约 71 进程小时）。EIR 用 BusyBarn 后端，提速不适用。DSTU 的所有配置都含 MHA 流，全部补跑：W0 墙钟 24,183 s（14 个并行）；按提速中位 2.43 估约 10,000 s，约 39 进程小时。Colab 拟 6 个笔记本：prep 先跑，其余 5 个并行，最长约 6–8 h。并行数等 B4 的扫描结果。
+- 待用户决定：按 A3h 映射选的故障（F4a、F5a、F8a、C 的四种）在 W1 下坐标照旧还是按同一规则重选；DSTU 变体是否在 W1 下重选；FULL-BusyBarn 是否按原流程重跑 98 次。
