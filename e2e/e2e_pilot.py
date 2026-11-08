@@ -23,7 +23,8 @@ import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from ctypes import wintypes
+if os.name == "nt":
+    from ctypes import wintypes
 
 THREAD_VARS = ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS")
 if os.environ.get("E2E_NO_THREAD_VARS") != "1":
@@ -111,6 +112,9 @@ LIVE = []                         # (name, Popen) of the running SA children
 
 
 def peak():
+    if os.name != "nt":      # Colab (Linux): peak resident set size of this process, bytes
+        import resource
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
     class PMC(ctypes.Structure):
         _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD), ("PeakWorkingSetSize", ctypes.c_size_t), ("WorkingSetSize", ctypes.c_size_t),
                     ("QuotaPeakPagedPoolUsage", ctypes.c_size_t), ("QuotaPagedPoolUsage", ctypes.c_size_t), ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
@@ -125,6 +129,11 @@ def peak():
 
 
 def free_gb():
+    if os.name != "nt":      # Colab (Linux): MemAvailable
+        with open("/proc/meminfo") as f:
+            for ln in f:
+                if ln.startswith("MemAvailable:"):
+                    return int(ln.split()[1]) / 2 ** 20
     class MS(ctypes.Structure):
         _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong), ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
                     ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong), ("ullTotalVirtual", ctypes.c_ulonglong),
@@ -174,6 +183,8 @@ def child():
     atexit.register(write_peak, C.run_name(cfg, arm, int(g), int(x)))
     if cfg.endswith("_w1"):
         install_w1()
+    if os.environ.get("E2E_BACKEND_SEEDS"):     # Colab smoke test only: fewer backend seeds
+        C.BACKEND_SEEDS = list(range(1, int(os.environ["E2E_BACKEND_SEEDS"]) + 1))
     C.child(cfg, arm, int(g), int(x), sink, snap, checks == "1")
 
 
