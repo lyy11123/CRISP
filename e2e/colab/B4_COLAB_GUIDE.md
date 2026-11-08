@@ -82,7 +82,7 @@ mkdir -p colab_results/b4_check && tar -xzf colab_results/results_b4.tar.gz -C c
 
 ## 需要知道的事
 
-- **未在 Linux 上试跑过**：本机只能在 Windows 上测试，`colab_b4.py` 的内存读数（`/proc/meminfo`）和 `e2e_pilot.py` 的 Linux 分支只在 Colab 上才会执行，所以单元格 1、2 不能省。
+- **单元格 1、2 不能省**：CPCM 和 SA 已在 Colab 上跑过 `cpcm_sa` 的补充实验，在 Linux 上验证过；但 e2e 的代码（`e2e_pilot.py`、W1 过滤、LN/投影模板生成的脚本、`e2e_pilot.py` 与 `colab_b4.py` 的 Linux 内存读数分支）和这个新的压缩包都还没有在 Linux 上跑过。
 - **比较口径**：T̂ 与 SA 轨迹不依赖对象地址，必须逐位相同；后端依赖对象地址（E0 起已知），只比均值，差异以本机后端的种子极差为参照。
 - **Colab 上的耗时不能进论文**：资源不固定，论文要用的耗时以后串行重测；这里的墙钟只用来定 Colab 上的并行数。
 - **Colab 时长限制**：断开后重新连接，执行单元格 1，再执行断开时的那一格。单元格 4 会从头重跑当前并行档（每档的目录在开始时清空）。
