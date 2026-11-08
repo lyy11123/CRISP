@@ -270,3 +270,17 @@ decode 读的是 prefill 写的 1/16（正好是 batch）。prefill 另写 Kᵀ�
 - **Colab 与本机的一致性**：`prep` 的 22 个作业先在本机跑，写 `local_ref.json`。Colab 的 `prep` 跑完后逐个比较：T̂（起点、R0、L1、最终）、路由、行为位置、搜索轨迹（每步的动作、T̂、是否接受）、删去条数，都必须逐位相同；后端和故障选择依赖对象地址，只报告均值差。全部相同才开其他 4 个笔记本，任何一项不同就停下来报告。
 - **W1 与 W0 的对照（写 `w1_rerun\W1_RERUN_SUMMARY.md`）**：逐表重算 `EIR_SUMMARY.md`、`EIR_NEXT_SUMMARY.md` 中涉及 MHA 的表，W0、W1 两列并列，给出差值。原文的每条结论句（例如哪种方法最好、是否进入 ε、停在哪一级）只报告在 W1 下是否仍成立，不另设新阈值。数字只报实测，推测另行标明。
 - **停线**：单进程超过 1 小时（驱动每分钟检查一次，并在作业结束时复核），任何作业失败，或 Colab 与本机比较不一致，都停下来报告。
+
+## 2026-11-09 W1 补跑比较规则（DSTU 与其上游部分；开跑前写定，之后不改）
+
+依据：`E2E_HANDOFF.md` 第 4 节“放行”第 1、3、5、7 条。代码 `e2e\w1_rerun\w1_dstu.py`（变体重选 `w1_variants.py`）。
+
+- **做法**：每种工作负载一棵独立的树，`w1_rerun\dstu_w1\` 与 `w1_rerun\dstu_w0tag\`。树里放 cpcm、e2_attribution、e3_warmstart、e4_overlap、dstu 的原样代码副本，以及 e4_overlap 的 artifact 工作副本。原脚本在树里按原顺序、原命令行运行，结果都写在树里；`e4_overlap\`、`dstu\` 只读。树内每个进程在导入时换上 tag 哈希、`fast_hop`、`fast_cpcm`（`_w1inject\sitecustomize.py`）；E4 的捕获子进程（模板运行）照 E4 原样。
+- **两种工作负载**：W1 与 W0-tag 唯一的差别是事件流（W1 删去 QKᵀ、S 的最终广播消息，MHA 每条流删 72 条、FFN 删 0 条，都核对过）。两者都用提速版后端和 tag 哈希。原 W0 结果保留不动；W0-tag 是对照口径。
+- **变体重选（W1）**：按 E4 的规则，即 14 个变体取模板自身一次最终评估的总延迟最小者（tag 哈希）。mha2048 2×2 由 l4 换成 l1，按原流程重新捕获（`E.capture`，再对 4 个故障平台做 `capture_r0`），然后过滤；mha512、mha8192 不变，直接过滤原捕获。1×4 不在 DSTU 中使用。W0-tag 不重选，用 E4 原来的流。
+- **故障坐标**：`grid1_state.json` 原样。
+- **上游重跑**（两种工作负载各一遍）：E4a 的单流运行（`single_<k>_hop` 18 个、`chunk_single_<k>_<cz>` 14 个，与 E4 原有的集合相同，per-hop 后端、种子 1–6），由它们生成 `hop_state.json` 的 T_hop；然后依次跑 E4b 设定 1、1b、1c、2、3（含 solo）。E4a 的网格配置不重跑。E4b 自检 1、2 原本拿 E4a 的网格结果做参照，这里的参照仍是 W0、地址哈希下的值，所以这两项只记录，不作停止条件；设定 1 在 W0 下也因自检停线而以 E4bError 结束，输出照常写出。
+- **DSTU**：原顺序为 `dstu.py` solo、s1、s2、s3 → `dstu2.py` check、2a、pilot、2b、greedy、cm（池 B 由本次 pilot 按原规则判定）→ `dstu2c.py` solo、a、b、s1 → `dstu_oh.py` prep、run、key → `dstu_s3all.py` solo、run、ns → `dstu_final.py` check、s2、sel → `dstu_pair.py`。原来作为单独命令跑过的 smoke 和 probe 不重跑。
+- **提速版的回归**：之前的提速回归只覆盖 DSTU 的策略。开跑前另在 W0-tag 树上，用 E4b W0 设定 1 的输入，比较原版与提速版后端在 E4b 策略 P1、fixed、P6、P7、P6n、P7n、P7m 上的完整输出（一个 3 流 F4 配置，一个切块 a2 配置，种子 1），必须逐位相同。
+- **W1 与 W0 的对照（写 `W1_RERUN_SUMMARY.md`）**：逐表重算 DSTU 各汇总（`DSTU_SUMMARY.md` 到 `FINAL_RUNS_SUMMARY.md`）和 E4b 中被 DSTU 引用的表。三列并列：W0 原值、W0-tag、W1。结论是否改变，以 W1 对 W0-tag 判定（同口径）；W0-tag 对 W0 的差别单独列出，作为哈希与后端实现造成的变化。原文每条结论句只报告是否仍成立，不另设新阈值。
+- **停线**：任何一步失败（设定 1 的自检停线除外），单进程超过 1 小时（脚本原有限制），可用内存低于 3 GB，或回归不一致，都停下来报告。
