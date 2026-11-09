@@ -394,16 +394,91 @@ def est(j):
         return a1 if j["arm"] == "A1" else a3h
     if j["kind"] == "rep":
         return TIER[j["steps"]] * a3h
-    return 0.05 * a3h
+    return 0.8 * a3h                     # l1, measured 2026-11-09: prefill LN 1,060-1,514 s (0.7-1.0 W)
 
 
-# two notebooks per fault, about 25-28 local process hours each (4-6 h at 7 parallel on Colab): h1 = prefill MHA and the four decode
-# operators, h2 = prefill LN, projection, FFN; each with both starts (L2Gsync and FULL-A3h on A3h, FULL-BusyBarn on A1)
-HALVES = {"h1": ["pf_mha", "dc_ln", "dc_mha", "dc_proj", "dc_ffn"], "h2": ["pf_ln", "pf_proj", "pf_ffn"]}
+# Allocation (user 2026-11-09): this machine (14 parallel) takes the longest single jobs, the 300-step repairs of prefill MHA and LN
+# and prefill MHA's FULL-A3h, about 29 % of the total; Colab (at most 6 notebooks at once, 7 parallel each) takes the rest in shards of
+# 4-6 h, 6 per batch. Colab: per fault one "h2" shard (prefill LN s30/s100 and FULL-A3h, FULL-BusyBarn; prefill projection and FFN, all
+# jobs), and one "h1" shard per two faults (prefill MHA s30/s100 and FULL-BusyBarn; the four decode operators, all jobs).
+def local_jobs(out, fid):
+    return [j for op in ("pf_mha", "pf_ln") for j in jobs_rep(out, op, fid) if j["steps"] == 300] + jobs_full(out, "pf_mha", fid, "A3h")
+
+
+def colab_h2(out, fid):
+    jobs = [j for j in jobs_rep(out, "pf_ln", fid) if j["steps"] != 300] + jobs_full(out, "pf_ln", fid, "A3h") + jobs_full(out, "pf_ln", fid, "A1")
+    return jobs + [j for op in ("pf_proj", "pf_ffn") for j in jobs_rep(out, op, fid) + jobs_full(out, op, fid, "A3h") + jobs_full(out, op, fid, "A1")]
+
+
+def colab_h1(out, fid):
+    jobs = [j for j in jobs_rep(out, "pf_mha", fid) if j["steps"] != 300] + jobs_full(out, "pf_mha", fid, "A1")
+    return jobs + [j for op in ("dc_ln", "dc_mha", "dc_proj", "dc_ffn") for j in jobs_rep(out, op, fid) + jobs_full(out, op, fid, "A3h") + jobs_full(out, op, fid, "A1")]
+
+
+# user 2026-11-09 (via the main session): this machine also takes whole faults (all their jobs), sized so both sides end together
+# (14 parallel here from now; 6 notebooks x 7 parallel on Colab from about 4.5 h later). Total 1,004 local process h for 19 faults:
+# here 291 h of long jobs + 3 whole faults (112 h), Colab 24 shards = 4 batches of 6.
+LOCAL_FAULTS = ["MCCluster", "MCEdge", "MCScratch"]
+
+
+def colab_faults():
+    return [f for f in faults_run() if f not in LOCAL_FAULTS]
+
+
+def h1_pairs():
+    f = colab_faults()
+    return [f[i:i + 2] for i in range(0, len(f), 2)]
+
+
+def colab_shards():
+    return [f"{fid}_h2" for fid in colab_faults()] + [f"h1_{'+'.join(p)}" for p in h1_pairs()]
+
+
+def batches():
+    """Batch 1: notebook 1 runs the check and then its shard; the other 5 open once the check passes. 6 shards per batch. Fault order (set (a) first):
+    each h1 pair followed by the h2 shards of its two faults."""
+    sh = []
+    for p in h1_pairs():
+        sh += [f"h1_{'+'.join(p)}"] + [f"{f}_h2" for f in p]
+    out = [["check+" + sh[0]] + sh[1:6]]      # batch 1, notebook 1: the check, then a shard in the same notebook
+    rest = sh[6:]
+    while rest:
+        out.append(rest[:6])
+        rest = rest[6:]
+    return out
+
+
+def check(out, workers):
+    """Colab batch 1, first notebook: the EIR decode regression, then the start evaluations (16) and the l1 of PF4 (16) recomputed in
+    OUT/_check and compared with this machine's (local_ref.json). Nothing is written into the results."""
+    sub = os.path.join(os.path.abspath(out), "_check")
+    ok = regress(sub, workers)
+    P = os.path.join(sub, "prep")
+    phases = [[eir.job_pre(P, s, op) for op in OPS for s in STARTS], [eir.job_l1(P, s, op, "PF4") for op in OPS for s in STARTS]]
+    for ph in phases:
+        with ThreadPoolExecutor(workers) as ex:
+            res = list(ex.map(lambda j: eir.run_job(j, sub), ph))
+        if any(r[1] == "failed" for r in res):
+            print(f"[c] check: failed {[r[0] for r in res if r[1] == 'failed']}", flush=True)
+            print("CHECK FAILED", flush=True)
+            return False
+    ref = json.load(open(LOCAL_REF, encoding="utf-8"))["jobs"]
+    n = 0
+    for j in phases[0] + phases[1]:
+        f = fingerprint(eir.read_sink(j["sink"]), j["kind"])
+        r = ref[j["name"]]
+        same = json.loads(json.dumps(f["exact"])) == r["exact"]
+        n += same
+        ok &= same
+        rel = (f["backend_mean"] / r["backend_mean"] - 1) if r["backend_mean"] else 0
+        print(f"[c] check {j['name']}: {'IDENTICAL' if same else 'DIFFERS'}, backend mean {100 * rel:+.2f}%", flush=True)
+    print(f"[c] check: {n}/{len(phases[0]) + len(phases[1])} identical with this machine", flush=True)
+    print("CHECK PASSED" if ok else "CHECK FAILED", flush=True)
+    return ok
 
 
 def shard_names():
-    return ["prep"] + [f"{fid}_{h}" for fid in faults_run() for h in HALVES]
+    return ["prep", "local", "localfull", "check"] + colab_shards()
 
 
 def shard_jobs(shard, out):
@@ -412,12 +487,21 @@ def shard_jobs(shard, out):
         return [pre, l1]
     if shard == "regress":
         return [regress_jobs(out)]
-    fid, h = shard.rsplit("_", 1)
-    if fid not in faults_run() or h not in HALVES:
+    if shard in ("local", "localfull"):
+        jobs = [j for fid in faults_run() if fid not in LOCAL_FAULTS for j in local_jobs(out, fid)]
+        jobs += [j for fid in LOCAL_FAULTS for op in OPS for j in jobs_rep(out, op, fid) + jobs_full(out, op, fid, "A3h") + jobs_full(out, op, fid, "A1")]
+        if shard == "localfull":          # the local FULL jobs need no prep: they run while prep runs
+            jobs = [j for j in jobs if j["kind"] == "full"]
+    elif shard.startswith("h1_"):
+        fids = shard[3:].split("+")
+        if not all(f in colab_faults() for f in fids):
+            raise SystemExit(f"unknown shard {shard}")
+        jobs = [j for f in fids for j in colab_h1(out, f)]
+    elif shard.endswith("_h2") and shard[:-3] in colab_faults():
+        jobs = colab_h2(out, shard[:-3])
+    else:
         raise SystemExit(f"unknown shard {shard}")
-    # longest first, so the long prefill jobs do not trail at the end
-    jobs = [j for op in HALVES[h] for j in jobs_rep(out, op, fid) + jobs_full(out, op, fid, "A3h") + jobs_full(out, op, fid, "A1")]
-    return [sorted(jobs, key=lambda j: -est(j))]
+    return [sorted(jobs, key=lambda j: -est(j))]       # longest first
 
 
 def guard(phases, out):
@@ -443,7 +527,7 @@ def run(shard, out, workers):
     out = os.path.abspath(out)
     phases = shard_jobs(shard, out)
     guard(phases, out)
-    if shard not in ("prep", "regress"):
+    if shard not in ("prep", "regress", "localfull"):
         pre, l1 = prep_jobs(out)
         miss = [j["name"] for j in pre + l1 if not eir.sink_ok(j["sink"], j)]
         if miss:
@@ -505,15 +589,16 @@ def run(shard, out, workers):
 def shards_info(out):
     rows = []
     for s in shard_names():
-        if s == "prep":
-            jobs = [j for p in shard_jobs(s, out) for j in p]
-        else:
-            jobs = [j for p in shard_jobs(s, out) for j in p]
+        if s == "check":
+            continue
+        jobs = [j for p in shard_jobs(s, out) for j in p]
         e = sum(est(j) for j in jobs)
         rows.append((s, len(jobs), e / 3600))
     for s, n, h in rows:
-        print(f"{s:28s} {n:5d} jobs  {h:6.1f} local process h  Colab 7 parallel {h * 1.25 / 7:4.1f}-{h * 1.45 / 7:4.1f} h")
+        print(f"{s:28s} {n:5d} jobs  {h:6.1f} local process h  Colab 7 parallel {h * 1.25 / 7:4.1f}-{h * 1.45 / 7:4.1f} h  local 14 parallel {h / 14:4.1f} h")
     print(f"total {sum(r[1] for r in rows)} jobs, {sum(r[2] for r in rows):.0f} local process h")
+    for i, b in enumerate(batches(), 1):
+        print(f"batch {i}: {b}")
     return rows
 
 
@@ -554,6 +639,8 @@ EIR_OUT = os.path.join(ROOT, "eir", "out")
 REG = [  # (kind, eir sink, spec builder): EIR W0 decode jobs of every kind C uses, incl. PE-only, DDR port, composite faults
     ("pre", "main/pre/pre_a3h_mha.pkl.gz", lambda R: eir.job_pre(R, "a3h", "mha")),
     ("pre", "main/pre/pre_a3h_ffn.pkl.gz", lambda R: eir.job_pre(R, "a3h", "ffn")),
+    ("pre", "main/pre/pre_e3_mha.pkl.gz", lambda R: eir.job_pre(R, "e3", "mha")),
+    ("pre", "main/pre/pre_e3_ffn.pkl.gz", lambda R: eir.job_pre(R, "e3", "ffn")),
     ("l1", "main/l1/l1_a3h_mha_F4.pkl.gz", lambda R: eir.job_l1(R, "a3h", "mha", "F4")),
     ("l1", "main/l1/l1_e3_mha_F6.pkl.gz", lambda R: eir.job_l1(R, "e3", "mha", "F6")),
     ("l1", "main/l1/l1_e3_ffn_F1.pkl.gz", lambda R: eir.job_l1(R, "e3", "ffn", "F1")),
@@ -732,7 +819,7 @@ def main():
         return child(sys.argv[2])
     redirect()
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["setup", "select", "coords", "regress", "smoke", "run", "shards", "localref", "compare", "probe", "report", "pack"])
+    ap.add_argument("cmd", choices=["setup", "select", "coords", "regress", "smoke", "run", "shards", "localref", "compare", "probe", "check", "report", "pack"])
     ap.add_argument("shard", nargs="?")
     ap.add_argument("--out", default=os.path.join(CDIR, "out"))
     ap.add_argument("--workers", type=int, default=7)
@@ -765,6 +852,8 @@ def main():
         sys.exit(0 if compare(a.out) else 1)
     elif a.cmd == "probe":
         sys.exit(0 if probe(a.out) else 1)
+    elif a.cmd == "check":
+        sys.exit(0 if check(a.out, a.workers) else 1)
     elif a.cmd == "report":
         report(a.shard, a.out)
     elif a.cmd == "pack":
