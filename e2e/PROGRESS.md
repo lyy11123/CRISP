@@ -582,3 +582,4 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
   - `run localfix --workers 4`，余下 4 个；
   - `run localrep --workers 3`，新进程，带认领。
   - localfix 跑完后，再开一个 `run localrep --workers 4`，与前一个共享作业表，使 localrep 回到 7 个。
+- **localfix 完成：** 15/15 个修复作业完成，0 失败（最后 4 个 30 步作业 544–553 s）。`fallback.jsonl` 全程只有 1 行（l1 那 1 次），15 个修复作业都没有触发。localrep 另开第 2 个进程（4 个并行，带认领），本机回到 14 个并行。
