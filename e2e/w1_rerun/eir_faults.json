@@ -783,6 +783,427 @@
    ],
    "random_seed": null,
    "same_as": null
+  },
+  "F4aW": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "e3_fault": null,
+   "chosen_on": "a3h_w1",
+   "rule": "eir.select F4 rule, backend seed 1",
+   "replaces": "F4a",
+   "same_as": null,
+   "stable_over_seeds_123": true,
+   "picks_seeds_123": {
+    "1": [
+     [
+      [
+       1,
+       8
+      ],
+      [
+       0,
+       11
+      ]
+     ],
+     [
+      [
+       0,
+       11
+      ],
+      [
+       1,
+       8
+      ]
+     ]
+    ],
+    "2": [
+     [
+      [
+       1,
+       8
+      ],
+      [
+       0,
+       11
+      ]
+     ],
+     [
+      [
+       0,
+       11
+      ],
+      [
+       1,
+       8
+      ]
+     ]
+    ],
+    "3": [
+     [
+      [
+       1,
+       8
+      ],
+      [
+       0,
+       11
+      ]
+     ],
+     [
+      [
+       0,
+       11
+      ],
+      [
+       1,
+       8
+      ]
+     ]
+    ]
+   },
+   "busy_over_a": 0.7090090855056466
+  },
+  "F5aW": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "e3_fault": null,
+   "chosen_on": "a3h_w1",
+   "rule": "eir.select F5 rule, backend seed 1",
+   "replaces": "F5a",
+   "same_as": null,
+   "stable_over_seeds_123": false,
+   "picks_seeds_123": {
+    "1": [
+     [
+      [
+       2,
+       3
+      ],
+      [
+       2,
+       2
+      ]
+     ],
+     [
+      [
+       2,
+       2
+      ],
+      [
+       2,
+       3
+      ]
+     ]
+    ],
+    "2": [
+     [
+      [
+       0,
+       11
+      ],
+      [
+       1,
+       8
+      ]
+     ],
+     [
+      [
+       1,
+       8
+      ],
+      [
+       0,
+       11
+      ]
+     ]
+    ],
+    "3": [
+     [
+      [
+       3,
+       3
+      ],
+      [
+       3,
+       2
+      ]
+     ],
+     [
+      [
+       3,
+       2
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    ]
+   },
+   "busy_over_a": 0.6604398403668167,
+   "critical_wait_over_a": 0.47066315700093403
+  },
+  "F8aW": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "e3_fault": null,
+   "chosen_on": "a3h_w1",
+   "rule": "eir_next.select F8 rule, backend seed 1",
+   "replaces": "F8a",
+   "same_as": null,
+   "stable_over_seeds_123": true,
+   "busy_over_a": 0.6505901333106904,
+   "busy_over_a_seeds_123": [
+    0.6505901333106904,
+    0.6529186195142735,
+    0.6544243252476939
+   ],
+   "top_ports": [
+    [
+     "(0, 20)",
+     7662
+    ],
+    [
+     "(1, 16)",
+     7142
+    ],
+    [
+     "(2, 18)",
+     7112
+    ],
+    [
+     "(2, 22)",
+     6880
+    ]
+   ]
+  },
+  "CRandomW": {
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "failed_links": [],
+   "failed_nodes": [],
+   "kind": "k=4 composite: Random",
+   "e3_fault": null,
+   "chosen_on": "a3h_w1",
+   "rule": "each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "pe_load": [
+    768.0,
+    2336.0,
+    32.0,
+    2432.0
+   ],
+   "random_seed": 20261105,
+   "same_as": null,
+   "replaces": "CRandom"
+  },
+  "CClusterW": {
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_nodes": [],
+   "link_busy_both": 10355,
+   "kind": "k=4 composite: Cluster",
+   "e3_fault": null,
+   "chosen_on": "a3h_w1",
+   "rule": "connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "pe_load": [
+    2432.0,
+    2336.0,
+    2436.0
+   ],
+   "random_seed": null,
+   "same_as": null,
+   "replaces": "CCluster"
+  },
+  "CEdgeW": {
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "failed_links": [],
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "port_busy": 7662,
+   "kind": "k=4 composite: Edge",
+   "e3_fault": null,
+   "chosen_on": "a3h_w1",
+   "rule": "3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "pe_load": [
+    2304.0,
+    2496.0,
+    32.0
+   ],
+   "random_seed": null,
+   "same_as": null,
+   "replaces": "CEdge"
+  },
+  "CScratchW": {
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_nodes": [],
+   "link_busy_both": 15678,
+   "kind": "k=4 composite: Scratch",
+   "e3_fault": null,
+   "chosen_on": "a3h_w1",
+   "rule": "the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "pe_load": [
+    672.0,
+    768.0,
+    192.0
+   ],
+   "random_seed": null,
+   "same_as": null,
+   "replaces": "CScratch"
   }
  },
  "ffn14": {

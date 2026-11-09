@@ -12,17 +12,22 @@ W1 in memory:
   - `full` (cpcm_sa's search from scratch, FULL-A3h and FULL-BusyBarn): as B4 (e2e_pilot.install_w1), the template's add_broadcast
     and BcCache.graph both drop.
   - every drop is checked: MHA 72 messages, FFN 0; anything else stops the process.
-Starts (same source as EIR): a3h_mha = B4's backend-best W1 A3h run dc_mha_w1_A3h_g0_s2 (selected state), e3_mha = E3's start
-  (unchanged; the A1 trajectory does not depend on the final broadcast). Fault coordinates: eir/faults.json unchanged (user: same
-  coordinates; the report `faults` says whether they are still what the rules pick on the W1 start).
+Starts: a3h_mha = B4's backend-best W1 A3h run dc_mha_w1_A3h_g0_s2 (selected state); e3_mha = the template's W1 winner A1 g0 l1
+  (user 2026-11-09, handoff section 4 item 8; captured by w1_e3start.py exactly as E3 captured its l4 start, which that script
+  reproduces bit for bit first). Fault coordinates: eir/faults.json unchanged under the old ids; the 7 faults chosen on the A3h
+  mapping (F4a, F5a, F8a, the four C) chosen again on the W1 A3h start by the same rules (`reselect`, ids F4aW ... CScratchW,
+  user 2026-11-09); on these only L2Gsync (step tiers 30, 100, 300) and FULL-A3h.
 FULL-BusyBarn: user 2026-11-08, rerun as the original process (E3's FULL): the 14 A1 variants on each of the 7 faulty platforms.
 
 Shards (one Colab notebook each; prep first, the other four at the same time; every job one process, finished sinks are skipped):
-  prep          pre (a3h, e3, a3h with waits), l1 (16), select (F4, F5, F8 rules on the W1 A3h start) and 2 reference jobs
+  prep          pre (a3h, e3, a3h with waits), l1 (16 + 7 new coordinates), select (F4, F5, F8 rules on the W1 A3h start) and 2 reference jobs
   eir_main_a3h  main repairs from the A3h start (F4, F5, F4a, F5a: 180) and its control (15)
   eir_main_e3   main repairs from the E3 start (7 faults: 240) and its control (15)
   eir_full      FULL-A3h (main F4, F5: 28; next F4a, F8a, C x 4: 84) and FULL-BusyBarn (7 faults x 14 A1 variants: 98)
   eir_next      next repairs (F8a old methods 10, new methods 45, extra seeds 30, C 120) and phase B checkpoints (30)
+  eir_w1sel_rep   new coordinates: L2Gsync x s{30, 100, 300} x seeds (F4aW, F5aW, F8aW: 5; C: 10) = 165
+  eir_w1sel_full  new coordinates: FULL-A3h, 7 faults x 14 = 98
+(prep also runs l1 (R0 + L1: the post-fault latency before repair) on the 7 new coordinates.)
 
   python e2e/w1_rerun/w1_eir.py setup                       local only: work copy, eir_inputs/, eir_faults.json
   python e2e/w1_rerun/w1_eir.py probe --out OUT             pre of the W1 A3h start in OUT/_probe, compared with local_ref.json
@@ -68,8 +73,14 @@ A3H_W1 = ("dc_mha_w1", "A3h", 0, 2)          # backend best of B4's 14 W1 A3h ru
 W1_DROP = ("qkt", "s_softmax")
 EXPECT = {"mha": 72, "ffn": 0, "ffn14": 0}
 ALERT_S = 3600                                # single process over 1 h: stop and report
-SHARDS = ["prep", "eir_main_a3h", "eir_main_e3", "eir_full", "eir_next"]
+SHARDS = ["prep", "eir_main_a3h", "eir_main_e3", "eir_full", "eir_next", "eir_w1sel_rep", "eir_w1sel_full"]
 REF_JOBS = ("a3h_mha_F4_L2G_s30_r123", "full_mha_F1_A1_g0_4")
+# User 2026-11-09 (handoff section 4 item 8): the 7 faults whose coordinates came from the A3h mapping, chosen again by the same rules
+# on the W1 A3h start (`reselect`, written to eir_faults.json under these ids; the old ids keep the old coordinates and their runs).
+# On the new coordinates only the main repair L2Gsync (all three step tiers, so the eps = 2 % rule can climb) and FULL-A3h.
+W1SEL = {"F4aW": "F4a", "F5aW": "F5a", "F8aW": "F8a", "CRandomW": "CRandom", "CClusterW": "CCluster", "CEdgeW": "CEdge", "CScratchW": "CScratch"}
+W1SEL_STEPS = (30, 100, 300)
+W1SEL_SEEDS = {"F4aW": eir.SA_SEEDS, "F5aW": eir.SA_SEEDS, "F8aW": eir.SA_SEEDS}      # C: EN.C_SEEDS["mha"] (10), as the old C runs
 
 
 def redirect():
@@ -187,11 +198,23 @@ def dirs(out):
     return M, N, EN.B_OUT
 
 
+def w1sel_l1(out, fid):
+    M, _, _ = dirs(out)
+    return dict(eir.job_l1(os.path.join(out, "w1sel"), "a3h", OP, fid), pre_sink=eir.job_pre(M, "a3h", OP)["sink"])
+
+
+def w1sel_rep(out, fid, steps, seed):
+    M, _, _ = dirs(out)
+    j = eir.job_rep(os.path.join(out, "w1sel"), "a3h", OP, fid, "L2Gsync", steps, seed)
+    j["pre_sink"], j["l1_sink"] = eir.job_pre(M, "a3h", OP)["sink"], w1sel_l1(out, fid)["sink"]
+    return j
+
+
 def prep_jobs(out):
     M, N, _ = dirs(out)
     pre = [eir.job_pre(M, "a3h", OP), eir.job_pre(M, "e3", OP), dict(EN.job_pre_w(OP), name="prew_a3h_mha")]   # unique name: logs and spec files go by name
     l1 = [eir.job_l1(M, "a3h", OP, f) for f in ("F4", "F5", "F4a", "F5a")] + [eir.job_l1(M, "e3", OP, f) for f in eir.FIDS] + \
-         [EN.job_l1(OP, f, out=N) for f in ("F8a",) + EN.C_FAULTS]
+         [EN.job_l1(OP, f, out=N) for f in ("F8a",) + EN.C_FAULTS] + [w1sel_l1(out, f) for f in W1SEL]
     sel = [dict(eir.job_select(M, OP), fids=["F4", "F5", "F8"])]
     return pre, l1, sel
 
@@ -221,6 +244,10 @@ def shard_jobs(shard, out):
         jobs += [jr(f, m, sd) for f in EN.C_FAULTS for m in EN.C_METHODS for sd in EN.C_SEEDS[OP]]
         jobs += [dict(EN.job_rep(OP, EN.B_FAULT, m, sd, out=B, steps=300), checkpoints=list(EN.B_CK), ck_backend=True) for m in EN.B_METHODS for sd in EN.B_SEEDS]
         return [jobs]
+    if shard == "eir_w1sel_rep":
+        return [[w1sel_rep(out, f, st, sd) for f in W1SEL for st in W1SEL_STEPS for sd in W1SEL_SEEDS.get(f, EN.C_SEEDS[OP])]]
+    if shard == "eir_w1sel_full":
+        return [[eir.job_full(os.path.join(out, "w1sel"), OP, f, "A3h", g, x) for f in W1SEL for g, x in cs.variants("A3h")]]
     raise SystemExit(f"unknown shard {shard}")
 
 
@@ -302,15 +329,16 @@ def setup():
         os.makedirs(os.path.join(WORK, "models", eir.GPT, "results"), exist_ok=True)
         print(f"work copy: {WORK} (from {src}, without results)")
     os.makedirs(INPUTS, exist_ok=True)
-    for n in ("e3_mha", "e3_ffn", "a3h_ffn"):        # FFN starts: only for ffncheck
+    for n in ("e3_ffn", "a3h_ffn"):                  # FFN starts: only for ffncheck; e3_mha: w1_e3start.py (A1 l1)
         shutil.copy(os.path.join(ROOT, "eir", "inputs", n + ".pkl.gz"), os.path.join(INPUTS, n + ".pkl.gz"))
     cfg, arm, g, x = A3H_W1
     d = cs.load_run(cfg, arm, g, x, os.path.join(E2E, "out", "b4"))
     with gzip.open(os.path.join(INPUTS, "a3h_mha.pkl.gz"), "wb") as f:
         pickle.dump(d["selected"]["e3map"], f, protocol=pickle.HIGHEST_PROTOCOL)
-    shutil.copy(os.path.join(ROOT, "eir", "faults.json"), FAULTS)
+    if not os.path.exists(FAULTS):                    # never overwrite: it holds the W1SEL rows (reselect)
+        shutil.copy(os.path.join(ROOT, "eir", "faults.json"), FAULTS)
     bk = statistics.mean(v[0] for v in d["selected"]["backend"].values())
-    print(f"inputs: a3h_mha from {cs.run_name(cfg, arm, g, x)} (backend mean {bk:.1f}); e3_mha, e3_ffn, a3h_ffn copied; faults.json copied")
+    print(f"inputs: a3h_mha from {cs.run_name(cfg, arm, g, x)} (backend mean {bk:.1f}); e3_ffn, a3h_ffn copied; faults.json copied (then: w1_e3start.py, run prep, reselect)")
 
 
 def ffncheck():
@@ -489,6 +517,52 @@ def faults_report(out):
     return rep
 
 
+def reselect(out):
+    """Local, after `run prep` (the select job and F4a's l1 on the W1 A3h start): the 7 A3h-chosen faults again by EIR's own rules,
+    written to eir_faults.json as W1SEL ids. F4a, F5a: eir.select (backend seed 1 decides; seeds 2, 3 show the stability; same_as when an
+    E3 fault is the same link). F8a: eir_next.select (seed 1). C: eir_next.choose_c (deterministic, fixed random seed for CRandom)."""
+    out = os.path.abspath(out)
+    M, N, _ = dirs(out)
+    redirect()
+    t = eir.load_faults()
+    tab = t[OP]
+    links = lambda x: {frozenset((tuple(a), tuple(b))) for a, b in x}
+    d = eir.read_sink(dict(eir.job_select(M, OP))["sink"])["choice"]
+    new = {}
+    for f in ("F4", "F5"):
+        c = d[1][f]
+        fl = [[list(a), list(b)] for a, b in c["failed_links"]]
+        new[f + "aW"] = {"failed_nodes": [], "failed_links": fl, "failed_pes": [], "kind": c["kind"], "e3_fault": None, "chosen_on": "a3h_w1",
+                         "rule": f"eir.select {f} rule, backend seed 1", "replaces": f + "a",
+                         "same_as": next((g for g in eir.FIDS if tab[g]["failed_links"] and links(tab[g]["failed_links"]) == links(fl)), None),
+                         "stable_over_seeds_123": all(links(d[s][f]["failed_links"]) == links(fl) for s in (2, 3)),
+                         "picks_seeds_123": {s: d[s][f]["failed_links"] for s in (1, 2, 3)},
+                         **{k: c[k] for k in ("busy_over_a", "critical_wait_over_a") if k in c}}
+    c = d[1]["F8"]
+    nodes = [list(n) for n in c["failed_nodes"]]
+    new["F8aW"] = {"failed_nodes": nodes, "failed_links": [], "failed_pes": [], "kind": c["kind"], "e3_fault": None, "chosen_on": "a3h_w1",
+                   "rule": "eir_next.select F8 rule, backend seed 1", "replaces": "F8a",
+                   "same_as": next((g for g in eir.FIDS if tab[g]["failed_nodes"] == nodes), None),
+                   "stable_over_seeds_123": all(d[s]["F8"]["failed_nodes"] == c["failed_nodes"] for s in (2, 3)),
+                   "busy_over_a": c["busy_over_a"], "busy_over_a_seeds_123": [d[s]["F8"]["busy_over_a"] for s in (1, 2, 3)], "top_ports": c["top_ports"]}
+    for fid, x in EN.choose_c(OP).items():
+        row = json.loads(json.dumps(x))
+        row.update(chosen_on="a3h_w1", replaces=fid)
+        new[fid + "W"] = row
+    for fid, row in new.items():
+        row = json.loads(json.dumps(row))
+        if fid in tab and tab[fid] != row:
+            raise SystemExit(f"{fid}: already in {FAULTS} with other contents")
+        tab[fid] = row
+        old = tab[row["replaces"]]
+        print(f"[w1] {fid}: links {row['failed_links']} nodes {row['failed_nodes']} pes {row['failed_pes']} (old {row['replaces']}: "
+              f"{old['failed_links']} {old['failed_nodes']} {old['failed_pes']}); same_as {row.get('same_as')}, stable {row.get('stable_over_seeds_123')}", flush=True)
+    tmp = FAULTS + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(t, f, indent=1, ensure_ascii=False)
+    os.replace(tmp, FAULTS)
+
+
 def smoke(out):
     """Every code path once, short (bundle check): pre, l1 at F4, rep L2Gsync 5 steps, FULL-BusyBarn A1 15 SA steps; 2 backend
     seeds in EIR jobs. Written to OUT/_smoke (a fresh folder), never into the results."""
@@ -580,7 +654,7 @@ def main():
         return child(sys.argv[2])
     redirect()
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["setup", "probe", "smoke", "run", "localref", "compare", "faults", "report", "pack", "ffncheck"])
+    ap.add_argument("cmd", choices=["setup", "probe", "smoke", "run", "localref", "compare", "faults", "reselect", "report", "pack", "ffncheck"])
     ap.add_argument("shard", nargs="?", choices=SHARDS)
     ap.add_argument("--out", default=os.path.join(HERE, "out", "eir"))
     ap.add_argument("--workers", type=int, default=7)
@@ -606,6 +680,8 @@ def main():
         sys.exit(0 if compare(a.out) else 1)
     elif a.cmd == "faults":
         faults_report(a.out)
+    elif a.cmd == "reselect":
+        reselect(a.out)
     elif a.cmd == "report":
         report(a.shard, a.out)
     elif a.cmd == "pack":
