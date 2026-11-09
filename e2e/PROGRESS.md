@@ -572,3 +572,13 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
   - `fallback.jsonl` 全程 1 行，即 l1 那 1 次；修复作业没有触发。
 - **18:13 现状：** 空闲 9.7 GB。localfull 7 个在跑；localrep 跑完最后 1 个作业后退出（已完成 69 个）。
 - **续跑方案：** 已报主会话，等确认。本机维持 14 个并行。
+
+## 2026-11-09 18:2x C：续跑（主会话确认），本机总并行不超过 14
+
+- **停线经过**（见 18:13 条）：localfix 8 个加 localfull 7 个加 localrep 7 个，共 22 个进程，系统空闲内存降到 2.9–3.0 GB，触发 3 GB 停线。原因是并行数超过 14；“短时间超过 14 个也可以”这一指示已作废，3 GB 停线照常有效。
+- **localfix 结果到此为止：** `fallback.jsonl` 只有 1 行（l1 那 1 次）。已完成的 11 个修复作业都没有触发；余下 4 个运行后再核对。
+- **续跑：**
+  - localfull 7 个（不变）；
+  - `run localfix --workers 4`，余下 4 个；
+  - `run localrep --workers 3`，新进程，带认领。
+  - localfix 跑完后，再开一个 `run localrep --workers 4`，与前一个共享作业表，使 localrep 回到 7 个。
