@@ -513,3 +513,19 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
   - 16 个起点评估加 PF4 的 16 个 l1 与本机比较，32/32 逐位相同。
   - 结论：BUNDLE CHECK PASSED。
 - 指南 `C_COLAB_GUIDE.md` 改为 3 批 × 5 个笔记本（c01–c15，`check+c01` 先开）。
+
+## 2026-11-09 C：seed_broadcast 退回配对（用户选 (a)），回归通过；(a) 配不上，待定 (a')
+
+- **修法 (a)：** `c_eir.install_seed_fallback`，每个子进程在内存中替换 `eir.Engine.seed_broadcast`，代码与 eir 逐行相同，只多一个分支：
+  - 只在 (生产者, 字节数) 的桶为空时触发：取剩余事件中 (源位置, 字节数) 相同的第一条。
+  - 每次触发都打印 `[c] FALLBACK`，并写 `OUT/fallback.jsonl`，记录作业、数据块、切块、原键、新键、事件名。
+  - 不在 `FALLBACK_OK = {(a3h, pf_mha, MCRandom)}` 内的作业一旦触发，就抛 RuntimeError，即作业失败，驱动停下。
+  - 该组合的 15 个修复作业读同一个 l1，也会走 seed_broadcast，所以按组合放行，而不只按作业名放行。
+- **回归（8 个并行，16:30–16:55），全部通过，退回路径未触发：**
+  - EIR decode 的 12 个回归作业 12/12 逐位相同（`out/_fixcheck_reg`）。
+  - prep 的 7 个已完成作业重算后与 local_ref 7/7 逐位相同：pre a1/a3h pf_mha、pre a3h dc_mha、l1 a1 pf_mha MCRandom、l1 a3h pf_mha PF1、l1 a3h pf_mha MCCluster、l1 a3h dc_mha MCRandom（`fixcheck`，`out/_fixcheck`）。
+- **(a) 在失败作业上配不上（在 scratchpad 试跑确认）：**
+  - 生产者 20 位于 (0,3)，它的数据块 (0,33) 需要 1 条 786,432 B 的广播。
+  - 重新生成的事件中，这条广播的源是 (1,9)、依赖是生产者 19（事件名 `MHA_p_matmul_1`），与生产者 19 自己那条（`MHA_vconv_conv1d_1`）同源同字节。
+  - 没有任何剩余事件源为 (0,3)、字节数为 786,432，所以试跑报 RuntimeError。
+- **提议 (a')（代码已备，`FALLBACK_DIJKSTRA = False`，等用户定）：** 仍配不上时，把这一条记为源不一致，不放进缓存。BcCache 建图时会用 Dijkstra 重算这条路由，与原代码处理“源位置已变”的广播相同。

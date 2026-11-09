@@ -196,9 +196,88 @@ def child_full(spec):
     cs.child(cfg, arm, g, x, spec["sink"], spec["snap"], False)
 
 
+# ---------------------------------------------------------------- seed_broadcast with a fallback match (user 2026-11-09, option (a))
+# eir.Engine.seed_broadcast matches each re-generated broadcast event to its split by (producer, bytes). On prefill MHA, A3h start,
+# MCRandom one event of producer (0,0,0,20,1) carries producer 19 as its dependency, so its bucket runs empty (IndexError). Fallback,
+# used only when the (producer, bytes) bucket is empty: the first remaining event with the same (source location, bytes), any
+# producer. Every use is logged; a use outside FALLBACK_OK stops the job (RuntimeError). Otherwise the code is eir's, line for line.
+FALLBACK_OK = {("a3h", "pf_mha", "MCRandom")}
+FALLBACK_DIJKSTRA = False     # (a'), proposed 2026-11-09: no (source, bytes) match either -> treat as a source mismatch
+FALLBACK_LOG = []
+
+
+def install_seed_fallback(spec):
+    import collections as _c
+    import copy as _copy
+    import random as _random
+    import numpy as _np
+
+    def seed_broadcast(self):
+        from data_notation import type_bytes
+        s, ctx = self.a.state, self.ctx
+        rng = _random.getstate(), _np.random.get_state()
+        _random.seed(123)
+        _np.random.seed(123)
+        beha, data, ev, hp2 = _copy.deepcopy((s[5], s[6], s[7], self.hp))
+        before = set(ev)
+        self.add_broadcast_e3(data_tags=ctx["broadcast_datatags"],
+                              ddr_chiplets=ctx["layers_regions"][ctx["initialization_layer_tag"]], beha_dict=beha,
+                              data_dict=data, hardware_platform=hp2, event_dict=ev,
+                              dijkstra_routing=ctx["dijkstra_routing"], alpha=ctx["alpha"], beta=ctx["beta"],
+                              gamma=ctx["gamma"])
+        T_wrapped = eir.cs.cpcm_sim(ev, hp2)[1].T
+        _random.setstate(rng[0])
+        _np.random.set_state(rng[1])
+        bucket = _c.defaultdict(list)
+        for t in ev:
+            if t not in before:
+                e = ev[t]
+                bucket[(next(iter(e.dependency_set)), e.comm_bytes)].append(e)
+        mismatch = 0
+        for dt in ctx["broadcast_datatags"]:
+            for prod, splits in s[6][dt].generated_tag_splitted_dict.items():
+                loc = s[7][prod].comp_location[:-1]
+                for sp in splits:
+                    nb = int(_np.prod([e_ - s_ + 1 for (s_, e_) in sp]) * type_bytes[s[6][dt].data_type])
+                    if bucket[(prod, nb)]:
+                        e = bucket[(prod, nb)].pop(0)
+                    else:
+                        hit = next(((k, i) for k, lst in bucket.items() if k[1] == nb for i, x in enumerate(lst)
+                                    if tuple(x.source_location) == tuple(loc)), None)
+                        rec = {"job": spec["name"], "data_tag": str(dt), "split": str(sp), "key": [str(prod), nb], "source": str(tuple(loc)),
+                               "new_key": [str(hit[0][0]), hit[0][1]] if hit else None,
+                               "event": getattr(bucket[hit[0]][hit[1]], "event_name", None) if hit else None}
+                        FALLBACK_LOG.append(rec)
+                        print(f"[c] FALLBACK {json.dumps(rec)}", flush=True)
+                        p = os.environ.get("C_FALLBACK_LOG")
+                        if p:
+                            with open(p, "a", encoding="utf-8") as f:
+                                f.write(json.dumps(rec) + "\n")
+                        if (spec.get("start"), spec.get("op"), spec.get("fault")) not in FALLBACK_OK:
+                            raise RuntimeError(f"seed_broadcast fallback outside {FALLBACK_OK}: {rec}")
+                        if hit is None:
+                            if not FALLBACK_DIJKSTRA:
+                                raise RuntimeError(f"seed_broadcast fallback found no event with source {tuple(loc)} and {nb} bytes")
+                            mismatch += 1        # (a'): left out of the cache, as a moved source; BcCache routes it by Dijkstra
+                            continue
+                        e = bucket[hit[0]].pop(hit[1])
+                    if tuple(e.source_location) != tuple(loc):
+                        mismatch += 1
+                        continue
+                    w = [((r_, l_), self.hp.current_link_loads(e.comm_bytes, self.hp.links_dict[(r_, l_)]))
+                         for r_, leaves in e.paths.items() for l_ in leaves]
+                    self.bc.routes[(dt, prod, sp)] = (loc, e.paths, e.path_list, w)
+        out = {"T_wrapped": T_wrapped, "source_mismatch": mismatch, "n_routes": len(self.bc.routes)}
+        if FALLBACK_LOG:
+            out["fallback"] = list(FALLBACK_LOG)
+        return out
+    eir.Engine.seed_broadcast = seed_broadcast
+
+
 def child(spec_path):
     with open(spec_path, encoding="utf-8") as f:
         spec = json.load(f)
+    install_seed_fallback(spec)
     reg = spec.get("reg", False)
     redirect(reg)
     mem_logger(spec["name"])
@@ -608,6 +687,7 @@ def run(shard, out, workers):
             print(f"[c] held back {len(held)} jobs reading failed prep {HELD_PREP}: {held}", flush=True)
     os.makedirs(os.path.join(out, "mem"), exist_ok=True)
     os.environ["C_MEM_LOG"] = os.path.join(out, "mem", f"{shard}.jsonl")
+    os.environ["C_FALLBACK_LOG"] = os.path.join(out, "fallback.jsonl")
     runs_log = os.path.join(out, f"runs_{shard}.jsonl")
     stop = []
     t_all = time.time()
@@ -770,6 +850,41 @@ def regress(out, workers):
     return ok
 
 
+FIXCHECK_PRE = [("a1", "pf_mha"), ("a3h", "pf_mha"), ("a3h", "dc_mha")]
+FIXCHECK_L1 = [("a1", "pf_mha", "MCRandom"), ("a3h", "pf_mha", "PF1"), ("a3h", "pf_mha", "MCCluster"), ("a3h", "dc_mha", "MCRandom")]
+
+
+def fixcheck(out, workers):
+    """Fallback (a), 2026-11-09: completed prep jobs recomputed in OUT/_fixcheck with the patched seed_broadcast and compared with
+    local_ref.json (exact parts identical, backend by mean); no fallback may fire. Run beside `regress --out OUT/_fixcheck_reg`."""
+    sub = os.path.join(os.path.abspath(out), "_fixcheck")
+    P = os.path.join(sub, "prep")
+    os.environ["C_FALLBACK_LOG"] = os.path.join(sub, "fallback.jsonl")
+    phases = [[eir.job_pre(P, s, op) for s, op in FIXCHECK_PRE], [eir.job_l1(P, s, op, f) for s, op, f in FIXCHECK_L1]]
+    for ph in phases:
+        with ThreadPoolExecutor(workers) as ex:
+            res = list(ex.map(lambda j: eir.run_job(j, sub), ph))
+        if any(r[1] == "failed" for r in res):
+            print(f"[c] fixcheck: failed {[r[0] for r in res if r[1] == 'failed']}", flush=True)
+            print("FIXCHECK FAILED", flush=True)
+            return False
+    ref = json.load(open(LOCAL_REF, encoding="utf-8"))["jobs"]
+    ok, n = True, 0
+    for j in phases[0] + phases[1]:
+        f = fingerprint(eir.read_sink(j["sink"]), j["kind"])
+        r = ref[j["name"]]
+        same = json.loads(json.dumps(f["exact"])) == r["exact"]
+        n += same
+        ok &= same
+        rel = (f["backend_mean"] / r["backend_mean"] - 1) if r["backend_mean"] else 0
+        print(f"[c] fixcheck {j['name']}: {'IDENTICAL' if same else 'DIFFERS'}, backend mean {100 * rel:+.2f}%", flush=True)
+    fired = os.path.exists(os.environ["C_FALLBACK_LOG"])
+    ok &= not fired
+    print(f"[c] fixcheck: {n}/{len(phases[0]) + len(phases[1])} identical, fallback fired: {fired}", flush=True)
+    print("FIXCHECK PASSED" if ok else "FIXCHECK FAILED", flush=True)
+    return ok
+
+
 def smoke(out):
     """Every operator once per job kind, short: pre (a1, a3h), l1 (a3h) at PF4, rep L2Gsync 5 steps, FULL A3h and A1 15 SA steps;
     2 backend seeds. Written to OUT/_smoke, never into the results."""
@@ -895,7 +1010,7 @@ def main():
         return child(sys.argv[2])
     redirect()
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["setup", "select", "coords", "regress", "smoke", "run", "shards", "plan", "localref", "compare", "probe", "check", "report", "pack"])
+    ap.add_argument("cmd", choices=["setup", "select", "coords", "regress", "smoke", "run", "shards", "plan", "fixcheck", "localref", "compare", "probe", "check", "report", "pack"])
     ap.add_argument("shard", nargs="?")
     ap.add_argument("--out", default=os.path.join(CDIR, "out"))
     ap.add_argument("--workers", type=int, default=7)
@@ -912,7 +1027,10 @@ def main():
     elif a.cmd == "coords":
         coords(a.out)
     elif a.cmd == "regress":
+        os.environ["C_FALLBACK_LOG"] = os.path.join(os.path.abspath(a.out), "fallback.jsonl")
         sys.exit(0 if regress(a.out, a.workers) else 1)
+    elif a.cmd == "fixcheck":
+        sys.exit(0 if fixcheck(a.out, a.workers) else 1)
     elif a.cmd == "smoke":
         sys.exit(0 if smoke(a.out) else 1)
     elif a.cmd == "run":
