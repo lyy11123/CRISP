@@ -1,0 +1,4718 @@
+{
+ "pf_ln": {
+  "PF1": {
+   "failed_nodes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "interior core closest to the 2x2 group's centre (die 0 core 10, grid (2, 2)); ties over dies: lowest die",
+   "set": "a",
+   "same_as": null
+  },
+  "PF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule, already mapping-independent: random.Random(F2_SEED).choice(sorted non-corner cores) = (0, 9)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+   "set": "a",
+   "same_as": null
+  },
+  "PF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "on-chip link from PF1's core (0, 10) to its neighbour on the die (0, 1) edge (0, 11), which feeds PF4's D2D link",
+   "set": "a",
+   "same_as": null
+  },
+  "PF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF1's core, PE only (as E3's F6)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF2's core, PE only (as E3's F7)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF8": {
+   "failed_nodes": [
+    [
+     0,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "lower-numbered DDR port of die 0's core 15, the corner core at the group centre (ports 22, 23)",
+   "set": "a",
+   "same_as": null
+  },
+  "PCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "per die one non-corner core, random.Random(20261105).choice(sorted non-corner cores), dies 0-3 in order; PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "PCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      6
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     5
+    ],
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "die 0 interior path 5-6-10, PE only; plus the on-chip link 6-10, both directions",
+   "set": "a",
+   "same_as": null
+  },
+  "PCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "3 consecutive cores on the group's outer top edge from the outer corner (die 0 cores 0, 1, 2), PE only; plus DDR port 16 of core 0",
+   "set": "a",
+   "same_as": null
+  },
+  "PCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     8
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "PF4's D2D link, both directions; plus the 3 cores of global row 2 across it, x = 2..4: (0,10), (0,11), (1,8); PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "MF1": {
+   "failed_nodes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F1 rule (non-corner core with the largest computation busy time) on decode MHA's W1 A3h start, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule (random, mapping-independent)",
+   "set": "b",
+   "same_as": "PF2"
+  },
+  "MF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF1's core, PE only",
+   "set": "b",
+   "same_as": null
+  },
+  "MF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF2's core, PE only",
+   "set": "b",
+   "same_as": "PF7"
+  },
+  "MF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "w1_rerun eir_faults.json F4aW: eir.select F4 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": "PF4"
+  },
+  "MF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "w1_rerun eir_faults.json F5aW: eir.select F5 rule, backend seed 1",
+   "stable_over_seeds_123": false,
+   "set": "b",
+   "same_as": null
+  },
+  "MF8": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "w1_rerun eir_faults.json F8aW: eir_next.select F8 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "w1_rerun eir_faults.json CRandomW: each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "w1_rerun eir_faults.json CClusterW: connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "w1_rerun eir_faults.json CEdgeW: 3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "w1_rerun eir_faults.json CScratchW: the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  }
+ },
+ "pf_mha": {
+  "PF1": {
+   "failed_nodes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "interior core closest to the 2x2 group's centre (die 0 core 10, grid (2, 2)); ties over dies: lowest die",
+   "set": "a",
+   "same_as": null
+  },
+  "PF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule, already mapping-independent: random.Random(F2_SEED).choice(sorted non-corner cores) = (0, 9)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+   "set": "a",
+   "same_as": null
+  },
+  "PF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "on-chip link from PF1's core (0, 10) to its neighbour on the die (0, 1) edge (0, 11), which feeds PF4's D2D link",
+   "set": "a",
+   "same_as": null
+  },
+  "PF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF1's core, PE only (as E3's F6)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF2's core, PE only (as E3's F7)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF8": {
+   "failed_nodes": [
+    [
+     0,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "lower-numbered DDR port of die 0's core 15, the corner core at the group centre (ports 22, 23)",
+   "set": "a",
+   "same_as": null
+  },
+  "PCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "per die one non-corner core, random.Random(20261105).choice(sorted non-corner cores), dies 0-3 in order; PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "PCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      6
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     5
+    ],
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "die 0 interior path 5-6-10, PE only; plus the on-chip link 6-10, both directions",
+   "set": "a",
+   "same_as": null
+  },
+  "PCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "3 consecutive cores on the group's outer top edge from the outer corner (die 0 cores 0, 1, 2), PE only; plus DDR port 16 of core 0",
+   "set": "a",
+   "same_as": null
+  },
+  "PCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     8
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "PF4's D2D link, both directions; plus the 3 cores of global row 2 across it, x = 2..4: (0,10), (0,11), (1,8); PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "MF1": {
+   "failed_nodes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F1 rule (non-corner core with the largest computation busy time) on decode MHA's W1 A3h start, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule (random, mapping-independent)",
+   "set": "b",
+   "same_as": "PF2"
+  },
+  "MF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF1's core, PE only",
+   "set": "b",
+   "same_as": null
+  },
+  "MF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF2's core, PE only",
+   "set": "b",
+   "same_as": "PF7"
+  },
+  "MF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "w1_rerun eir_faults.json F4aW: eir.select F4 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": "PF4"
+  },
+  "MF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "w1_rerun eir_faults.json F5aW: eir.select F5 rule, backend seed 1",
+   "stable_over_seeds_123": false,
+   "set": "b",
+   "same_as": null
+  },
+  "MF8": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "w1_rerun eir_faults.json F8aW: eir_next.select F8 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "w1_rerun eir_faults.json CRandomW: each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "w1_rerun eir_faults.json CClusterW: connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "w1_rerun eir_faults.json CEdgeW: 3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "w1_rerun eir_faults.json CScratchW: the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  }
+ },
+ "pf_proj": {
+  "PF1": {
+   "failed_nodes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "interior core closest to the 2x2 group's centre (die 0 core 10, grid (2, 2)); ties over dies: lowest die",
+   "set": "a",
+   "same_as": null
+  },
+  "PF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule, already mapping-independent: random.Random(F2_SEED).choice(sorted non-corner cores) = (0, 9)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+   "set": "a",
+   "same_as": null
+  },
+  "PF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "on-chip link from PF1's core (0, 10) to its neighbour on the die (0, 1) edge (0, 11), which feeds PF4's D2D link",
+   "set": "a",
+   "same_as": null
+  },
+  "PF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF1's core, PE only (as E3's F6)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF2's core, PE only (as E3's F7)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF8": {
+   "failed_nodes": [
+    [
+     0,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "lower-numbered DDR port of die 0's core 15, the corner core at the group centre (ports 22, 23)",
+   "set": "a",
+   "same_as": null
+  },
+  "PCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "per die one non-corner core, random.Random(20261105).choice(sorted non-corner cores), dies 0-3 in order; PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "PCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      6
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     5
+    ],
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "die 0 interior path 5-6-10, PE only; plus the on-chip link 6-10, both directions",
+   "set": "a",
+   "same_as": null
+  },
+  "PCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "3 consecutive cores on the group's outer top edge from the outer corner (die 0 cores 0, 1, 2), PE only; plus DDR port 16 of core 0",
+   "set": "a",
+   "same_as": null
+  },
+  "PCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     8
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "PF4's D2D link, both directions; plus the 3 cores of global row 2 across it, x = 2..4: (0,10), (0,11), (1,8); PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "MF1": {
+   "failed_nodes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F1 rule (non-corner core with the largest computation busy time) on decode MHA's W1 A3h start, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule (random, mapping-independent)",
+   "set": "b",
+   "same_as": "PF2"
+  },
+  "MF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF1's core, PE only",
+   "set": "b",
+   "same_as": null
+  },
+  "MF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF2's core, PE only",
+   "set": "b",
+   "same_as": "PF7"
+  },
+  "MF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "w1_rerun eir_faults.json F4aW: eir.select F4 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": "PF4"
+  },
+  "MF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "w1_rerun eir_faults.json F5aW: eir.select F5 rule, backend seed 1",
+   "stable_over_seeds_123": false,
+   "set": "b",
+   "same_as": null
+  },
+  "MF8": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "w1_rerun eir_faults.json F8aW: eir_next.select F8 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "w1_rerun eir_faults.json CRandomW: each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "w1_rerun eir_faults.json CClusterW: connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "w1_rerun eir_faults.json CEdgeW: 3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "w1_rerun eir_faults.json CScratchW: the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  }
+ },
+ "pf_ffn": {
+  "PF1": {
+   "failed_nodes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "interior core closest to the 2x2 group's centre (die 0 core 10, grid (2, 2)); ties over dies: lowest die",
+   "set": "a",
+   "same_as": null
+  },
+  "PF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule, already mapping-independent: random.Random(F2_SEED).choice(sorted non-corner cores) = (0, 9)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+   "set": "a",
+   "same_as": null
+  },
+  "PF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "on-chip link from PF1's core (0, 10) to its neighbour on the die (0, 1) edge (0, 11), which feeds PF4's D2D link",
+   "set": "a",
+   "same_as": null
+  },
+  "PF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF1's core, PE only (as E3's F6)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF2's core, PE only (as E3's F7)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF8": {
+   "failed_nodes": [
+    [
+     0,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "lower-numbered DDR port of die 0's core 15, the corner core at the group centre (ports 22, 23)",
+   "set": "a",
+   "same_as": null
+  },
+  "PCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "per die one non-corner core, random.Random(20261105).choice(sorted non-corner cores), dies 0-3 in order; PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "PCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      6
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     5
+    ],
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "die 0 interior path 5-6-10, PE only; plus the on-chip link 6-10, both directions",
+   "set": "a",
+   "same_as": null
+  },
+  "PCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "3 consecutive cores on the group's outer top edge from the outer corner (die 0 cores 0, 1, 2), PE only; plus DDR port 16 of core 0",
+   "set": "a",
+   "same_as": null
+  },
+  "PCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     8
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "PF4's D2D link, both directions; plus the 3 cores of global row 2 across it, x = 2..4: (0,10), (0,11), (1,8); PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "MF1": {
+   "failed_nodes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F1 rule (non-corner core with the largest computation busy time) on decode MHA's W1 A3h start, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule (random, mapping-independent)",
+   "set": "b",
+   "same_as": "PF2"
+  },
+  "MF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF1's core, PE only",
+   "set": "b",
+   "same_as": null
+  },
+  "MF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF2's core, PE only",
+   "set": "b",
+   "same_as": "PF7"
+  },
+  "MF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "w1_rerun eir_faults.json F4aW: eir.select F4 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": "PF4"
+  },
+  "MF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "w1_rerun eir_faults.json F5aW: eir.select F5 rule, backend seed 1",
+   "stable_over_seeds_123": false,
+   "set": "b",
+   "same_as": null
+  },
+  "MF8": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "w1_rerun eir_faults.json F8aW: eir_next.select F8 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "w1_rerun eir_faults.json CRandomW: each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "w1_rerun eir_faults.json CClusterW: connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "w1_rerun eir_faults.json CEdgeW: 3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "w1_rerun eir_faults.json CScratchW: the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  }
+ },
+ "dc_ln": {
+  "PF1": {
+   "failed_nodes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "interior core closest to the 2x2 group's centre (die 0 core 10, grid (2, 2)); ties over dies: lowest die",
+   "set": "a",
+   "same_as": null
+  },
+  "PF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule, already mapping-independent: random.Random(F2_SEED).choice(sorted non-corner cores) = (0, 9)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+   "set": "a",
+   "same_as": null
+  },
+  "PF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "on-chip link from PF1's core (0, 10) to its neighbour on the die (0, 1) edge (0, 11), which feeds PF4's D2D link",
+   "set": "a",
+   "same_as": null
+  },
+  "PF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF1's core, PE only (as E3's F6)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF2's core, PE only (as E3's F7)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF8": {
+   "failed_nodes": [
+    [
+     0,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "lower-numbered DDR port of die 0's core 15, the corner core at the group centre (ports 22, 23)",
+   "set": "a",
+   "same_as": null
+  },
+  "PCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "per die one non-corner core, random.Random(20261105).choice(sorted non-corner cores), dies 0-3 in order; PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "PCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      6
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     5
+    ],
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "die 0 interior path 5-6-10, PE only; plus the on-chip link 6-10, both directions",
+   "set": "a",
+   "same_as": null
+  },
+  "PCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "3 consecutive cores on the group's outer top edge from the outer corner (die 0 cores 0, 1, 2), PE only; plus DDR port 16 of core 0",
+   "set": "a",
+   "same_as": null
+  },
+  "PCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     8
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "PF4's D2D link, both directions; plus the 3 cores of global row 2 across it, x = 2..4: (0,10), (0,11), (1,8); PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "MF1": {
+   "failed_nodes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F1 rule (non-corner core with the largest computation busy time) on decode MHA's W1 A3h start, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule (random, mapping-independent)",
+   "set": "b",
+   "same_as": "PF2"
+  },
+  "MF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF1's core, PE only",
+   "set": "b",
+   "same_as": null
+  },
+  "MF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF2's core, PE only",
+   "set": "b",
+   "same_as": "PF7"
+  },
+  "MF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "w1_rerun eir_faults.json F4aW: eir.select F4 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": "PF4"
+  },
+  "MF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "w1_rerun eir_faults.json F5aW: eir.select F5 rule, backend seed 1",
+   "stable_over_seeds_123": false,
+   "set": "b",
+   "same_as": null
+  },
+  "MF8": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "w1_rerun eir_faults.json F8aW: eir_next.select F8 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "w1_rerun eir_faults.json CRandomW: each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "w1_rerun eir_faults.json CClusterW: connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "w1_rerun eir_faults.json CEdgeW: 3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "w1_rerun eir_faults.json CScratchW: the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  }
+ },
+ "dc_mha": {
+  "PF1": {
+   "failed_nodes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "interior core closest to the 2x2 group's centre (die 0 core 10, grid (2, 2)); ties over dies: lowest die",
+   "set": "a",
+   "same_as": null
+  },
+  "PF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule, already mapping-independent: random.Random(F2_SEED).choice(sorted non-corner cores) = (0, 9)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+   "set": "a",
+   "same_as": null
+  },
+  "PF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "on-chip link from PF1's core (0, 10) to its neighbour on the die (0, 1) edge (0, 11), which feeds PF4's D2D link",
+   "set": "a",
+   "same_as": null
+  },
+  "PF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF1's core, PE only (as E3's F6)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF2's core, PE only (as E3's F7)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF8": {
+   "failed_nodes": [
+    [
+     0,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "lower-numbered DDR port of die 0's core 15, the corner core at the group centre (ports 22, 23)",
+   "set": "a",
+   "same_as": null
+  },
+  "PCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "per die one non-corner core, random.Random(20261105).choice(sorted non-corner cores), dies 0-3 in order; PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "PCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      6
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     5
+    ],
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "die 0 interior path 5-6-10, PE only; plus the on-chip link 6-10, both directions",
+   "set": "a",
+   "same_as": null
+  },
+  "PCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "3 consecutive cores on the group's outer top edge from the outer corner (die 0 cores 0, 1, 2), PE only; plus DDR port 16 of core 0",
+   "set": "a",
+   "same_as": null
+  },
+  "PCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     8
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "PF4's D2D link, both directions; plus the 3 cores of global row 2 across it, x = 2..4: (0,10), (0,11), (1,8); PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "MF1": {
+   "failed_nodes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F1 rule (non-corner core with the largest computation busy time) on decode MHA's W1 A3h start, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule (random, mapping-independent)",
+   "set": "b",
+   "same_as": "PF2"
+  },
+  "MF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF1's core, PE only",
+   "set": "b",
+   "same_as": null
+  },
+  "MF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF2's core, PE only",
+   "set": "b",
+   "same_as": "PF7"
+  },
+  "MF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "w1_rerun eir_faults.json F4aW: eir.select F4 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": "PF4"
+  },
+  "MF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "w1_rerun eir_faults.json F5aW: eir.select F5 rule, backend seed 1",
+   "stable_over_seeds_123": false,
+   "set": "b",
+   "same_as": null
+  },
+  "MF8": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "w1_rerun eir_faults.json F8aW: eir_next.select F8 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "w1_rerun eir_faults.json CRandomW: each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "w1_rerun eir_faults.json CClusterW: connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "w1_rerun eir_faults.json CEdgeW: 3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "w1_rerun eir_faults.json CScratchW: the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  }
+ },
+ "dc_proj": {
+  "PF1": {
+   "failed_nodes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "interior core closest to the 2x2 group's centre (die 0 core 10, grid (2, 2)); ties over dies: lowest die",
+   "set": "a",
+   "same_as": null
+  },
+  "PF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule, already mapping-independent: random.Random(F2_SEED).choice(sorted non-corner cores) = (0, 9)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+   "set": "a",
+   "same_as": null
+  },
+  "PF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "on-chip link from PF1's core (0, 10) to its neighbour on the die (0, 1) edge (0, 11), which feeds PF4's D2D link",
+   "set": "a",
+   "same_as": null
+  },
+  "PF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF1's core, PE only (as E3's F6)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF2's core, PE only (as E3's F7)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF8": {
+   "failed_nodes": [
+    [
+     0,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "lower-numbered DDR port of die 0's core 15, the corner core at the group centre (ports 22, 23)",
+   "set": "a",
+   "same_as": null
+  },
+  "PCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "per die one non-corner core, random.Random(20261105).choice(sorted non-corner cores), dies 0-3 in order; PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "PCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      6
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     5
+    ],
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "die 0 interior path 5-6-10, PE only; plus the on-chip link 6-10, both directions",
+   "set": "a",
+   "same_as": null
+  },
+  "PCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "3 consecutive cores on the group's outer top edge from the outer corner (die 0 cores 0, 1, 2), PE only; plus DDR port 16 of core 0",
+   "set": "a",
+   "same_as": null
+  },
+  "PCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     8
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "PF4's D2D link, both directions; plus the 3 cores of global row 2 across it, x = 2..4: (0,10), (0,11), (1,8); PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "MF1": {
+   "failed_nodes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F1 rule (non-corner core with the largest computation busy time) on decode MHA's W1 A3h start, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule (random, mapping-independent)",
+   "set": "b",
+   "same_as": "PF2"
+  },
+  "MF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF1's core, PE only",
+   "set": "b",
+   "same_as": null
+  },
+  "MF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF2's core, PE only",
+   "set": "b",
+   "same_as": "PF7"
+  },
+  "MF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "w1_rerun eir_faults.json F4aW: eir.select F4 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": "PF4"
+  },
+  "MF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "w1_rerun eir_faults.json F5aW: eir.select F5 rule, backend seed 1",
+   "stable_over_seeds_123": false,
+   "set": "b",
+   "same_as": null
+  },
+  "MF8": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "w1_rerun eir_faults.json F8aW: eir_next.select F8 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "w1_rerun eir_faults.json CRandomW: each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "w1_rerun eir_faults.json CClusterW: connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "w1_rerun eir_faults.json CEdgeW: 3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "w1_rerun eir_faults.json CScratchW: the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  }
+ },
+ "dc_ffn": {
+  "PF1": {
+   "failed_nodes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "interior core closest to the 2x2 group's centre (die 0 core 10, grid (2, 2)); ties over dies: lowest die",
+   "set": "a",
+   "same_as": null
+  },
+  "PF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule, already mapping-independent: random.Random(F2_SEED).choice(sorted non-corner cores) = (0, 9)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+   "set": "a",
+   "same_as": null
+  },
+  "PF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      0,
+      10
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "on-chip link from PF1's core (0, 10) to its neighbour on the die (0, 1) edge (0, 11), which feeds PF4's D2D link",
+   "set": "a",
+   "same_as": null
+  },
+  "PF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF1's core, PE only (as E3's F6)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "PF2's core, PE only (as E3's F7)",
+   "set": "a",
+   "same_as": null
+  },
+  "PF8": {
+   "failed_nodes": [
+    [
+     0,
+     22
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "lower-numbered DDR port of die 0's core 15, the corner core at the group centre (ports 22, 23)",
+   "set": "a",
+   "same_as": null
+  },
+  "PCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "per die one non-corner core, random.Random(20261105).choice(sorted non-corner cores), dies 0-3 in order; PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "PCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      6
+     ],
+     [
+      0,
+      10
+     ]
+    ],
+    [
+     [
+      0,
+      10
+     ],
+     [
+      0,
+      6
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     5
+    ],
+    [
+     0,
+     6
+    ],
+    [
+     0,
+     10
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "die 0 interior path 5-6-10, PE only; plus the on-chip link 6-10, both directions",
+   "set": "a",
+   "same_as": null
+  },
+  "PCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     16
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "3 consecutive cores on the group's outer top edge from the outer corner (die 0 cores 0, 1, 2), PE only; plus DDR port 16 of core 0",
+   "set": "a",
+   "same_as": null
+  },
+  "PCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     8
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "PF4's D2D link, both directions; plus the 3 cores of global row 2 across it, x = 2..4: (0,10), (0,11), (1,8); PE only",
+   "set": "a",
+   "same_as": null
+  },
+  "MF1": {
+   "failed_nodes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F1 rule (non-corner core with the largest computation busy time) on decode MHA's W1 A3h start, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MF2": {
+   "failed_nodes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "node (core + router)",
+   "rule": "E3's F2 rule (random, mapping-independent)",
+   "set": "b",
+   "same_as": "PF2"
+  },
+  "MF6": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     1
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF1's core, PE only",
+   "set": "b",
+   "same_as": null
+  },
+  "MF7": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     9
+    ]
+   ],
+   "kind": "PE only (tensor + vector unit); router keeps forwarding",
+   "rule": "MF2's core, PE only",
+   "set": "b",
+   "same_as": "PF7"
+  },
+  "MF4": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ],
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link ch2ch, both directions",
+   "rule": "w1_rerun eir_faults.json F4aW: eir.select F4 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": "PF4"
+  },
+  "MF5": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      2,
+      3
+     ],
+     [
+      2,
+      2
+     ]
+    ],
+    [
+     [
+      2,
+      2
+     ],
+     [
+      2,
+      3
+     ]
+    ]
+   ],
+   "failed_pes": [],
+   "kind": "link co2co, both directions",
+   "rule": "w1_rerun eir_faults.json F5aW: eir.select F5 rule, backend seed 1",
+   "stable_over_seeds_123": false,
+   "set": "b",
+   "same_as": null
+  },
+  "MF8": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [],
+   "kind": "DDR port node",
+   "rule": "w1_rerun eir_faults.json F8aW: eir_next.select F8 rule, backend seed 1",
+   "stable_over_seeds_123": true,
+   "set": "b",
+   "same_as": null
+  },
+  "MCRandom": {
+   "failed_nodes": [],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     15
+    ]
+   ],
+   "kind": "k=4 composite: Random",
+   "rule": "w1_rerun eir_faults.json CRandomW: each die: random.Random(20261105).choice(sorted loaded cores), dies in order; loaded = tensor + vector load > 0 at the fault-free A3h mapping",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCCluster": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      1,
+      13
+     ],
+     [
+      1,
+      14
+     ]
+    ],
+    [
+     [
+      1,
+      14
+     ],
+     [
+      1,
+      13
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     1,
+     12
+    ],
+    [
+     1,
+     13
+    ],
+    [
+     1,
+     14
+    ]
+   ],
+   "kind": "k=4 composite: Cluster",
+   "rule": "w1_rerun eir_faults.json CClusterW: connected path of 3 loaded cores in one die with the largest load sum (ties: smallest ids); PE only; plus the busiest on-chip link (both directions summed) touching one of them, both directions",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCEdge": {
+   "failed_nodes": [
+    [
+     0,
+     20
+    ]
+   ],
+   "failed_links": [],
+   "failed_pes": [
+    [
+     0,
+     12
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "kind": "k=4 composite: Edge",
+   "rule": "w1_rerun eir_faults.json CEdgeW: 3 consecutive loaded cores on one side of the group's outer perimeter (global grid) with the largest load sum (ties: smallest ids); PE only; plus the DDR port with the largest ddr2co busy time",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  },
+  "MCScratch": {
+   "failed_nodes": [],
+   "failed_links": [
+    [
+     [
+      0,
+      11
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    [
+     [
+      1,
+      8
+     ],
+     [
+      0,
+      11
+     ]
+    ]
+   ],
+   "failed_pes": [
+    [
+     0,
+     9
+    ],
+    [
+     0,
+     10
+    ],
+    [
+     0,
+     11
+    ]
+   ],
+   "kind": "k=4 composite: Scratch",
+   "rule": "w1_rerun eir_faults.json CScratchW: the D2D pair with the largest busy time (both directions summed), both directions; plus 3 consecutive loaded cores on the global row or column crossing that link, containing one of its ends, with the largest load sum (ties: smallest ids); PE only",
+   "stable_over_seeds_123": null,
+   "set": "b",
+   "same_as": null
+  }
+ },
+ "_select_record": {
+  "1": {
+   "F1": {
+    "kind": "node (core + router)",
+    "failed_nodes": [
+     [
+      0,
+      1
+     ]
+    ],
+    "failed_links": []
+   },
+   "F2": {
+    "kind": "node (core + router)",
+    "failed_nodes": [
+     [
+      0,
+      9
+     ]
+    ],
+    "failed_links": []
+   },
+   "F4": {
+    "kind": "link ch2ch, both directions",
+    "failed_nodes": [],
+    "failed_links": [
+     [
+      [
+       1,
+       8
+      ],
+      [
+       0,
+       11
+      ]
+     ],
+     [
+      [
+       0,
+       11
+      ],
+      [
+       1,
+       8
+      ]
+     ]
+    ],
+    "busy": 8350,
+    "busy_over_a": 0.7090090855056466
+   },
+   "F5": {
+    "kind": "link co2co, both directions",
+    "failed_nodes": [],
+    "failed_links": [
+     [
+      [
+       2,
+       3
+      ],
+      [
+       2,
+       2
+      ]
+     ],
+     [
+      [
+       2,
+       2
+      ],
+      [
+       2,
+       3
+      ]
+     ]
+    ],
+    "critical_wait": 5543,
+    "critical_wait_over_a": 0.47066315700093403,
+    "busy": 7778,
+    "busy_over_a": 0.6604398403668167
+   },
+   "F8": {
+    "kind": "DDR port node",
+    "failed_nodes": [
+     [
+      0,
+      20
+     ]
+    ],
+    "failed_links": [],
+    "busy": 7662,
+    "busy_over_a": 0.6505901333106904,
+    "top_ports": [
+     [
+      "(0, 20)",
+      7662
+     ],
+     [
+      "(1, 16)",
+      7142
+     ],
+     [
+      "(2, 18)",
+      7112
+     ],
+     [
+      "(2, 22)",
+      6880
+     ]
+    ]
+   }
+  },
+  "2": {
+   "F1": {
+    "kind": "node (core + router)",
+    "failed_nodes": [
+     [
+      0,
+      1
+     ]
+    ],
+    "failed_links": []
+   },
+   "F2": {
+    "kind": "node (core + router)",
+    "failed_nodes": [
+     [
+      0,
+      9
+     ]
+    ],
+    "failed_links": []
+   },
+   "F4": {
+    "kind": "link ch2ch, both directions",
+    "failed_nodes": [],
+    "failed_links": [
+     [
+      [
+       1,
+       8
+      ],
+      [
+       0,
+       11
+      ]
+     ],
+     [
+      [
+       0,
+       11
+      ],
+      [
+       1,
+       8
+      ]
+     ]
+    ],
+    "busy": 8350,
+    "busy_over_a": 0.7055940510393781
+   },
+   "F5": {
+    "kind": "link co2co, both directions",
+    "failed_nodes": [],
+    "failed_links": [
+     [
+      [
+       2,
+       3
+      ],
+      [
+       2,
+       2
+      ]
+     ],
+     [
+      [
+       2,
+       2
+      ],
+      [
+       2,
+       3
+      ]
+     ]
+    ],
+    "critical_wait": 6136,
+    "critical_wait_over_a": 0.5185059996619908,
+    "busy": 7778,
+    "busy_over_a": 0.6572587459861416
+   },
+   "F8": {
+    "kind": "DDR port node",
+    "failed_nodes": [
+     [
+      0,
+      20
+     ]
+    ],
+    "failed_links": [],
+    "busy": 7662,
+    "busy_over_a": 0.6474564813249958,
+    "top_ports": [
+     [
+      "(0, 20)",
+      7662
+     ],
+     [
+      "(1, 16)",
+      7142
+     ],
+     [
+      "(2, 18)",
+      7112
+     ],
+     [
+      "(2, 22)",
+      6880
+     ]
+    ]
+   }
+  },
+  "3": {
+   "F1": {
+    "kind": "node (core + router)",
+    "failed_nodes": [
+     [
+      0,
+      1
+     ]
+    ],
+    "failed_links": []
+   },
+   "F2": {
+    "kind": "node (core + router)",
+    "failed_nodes": [
+     [
+      0,
+      9
+     ]
+    ],
+    "failed_links": []
+   },
+   "F4": {
+    "kind": "link ch2ch, both directions",
+    "failed_nodes": [],
+    "failed_links": [
+     [
+      [
+       1,
+       8
+      ],
+      [
+       0,
+       11
+      ]
+     ],
+     [
+      [
+       0,
+       11
+      ],
+      [
+       1,
+       8
+      ]
+     ]
+    ],
+    "busy": 8350,
+    "busy_over_a": 0.7131875640587633
+   },
+   "F5": {
+    "kind": "link co2co, both directions",
+    "failed_nodes": [],
+    "failed_links": [
+     [
+      [
+       3,
+       3
+      ],
+      [
+       3,
+       2
+      ]
+     ],
+     [
+      [
+       3,
+       2
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    ],
+    "critical_wait": 4558,
+    "critical_wait_over_a": 0.38930645712333445,
+    "busy": 9290,
+    "busy_over_a": 0.7934745473180731
+   },
+   "F8": {
+    "kind": "DDR port node",
+    "failed_nodes": [
+     [
+      0,
+      20
+     ]
+    ],
+    "failed_links": [],
+    "busy": 7662,
+    "busy_over_a": 0.6544243252476939,
+    "top_ports": [
+     [
+      "(0, 20)",
+      7662
+     ],
+     [
+      "(1, 16)",
+      7142
+     ],
+     [
+      "(2, 18)",
+      7112
+     ],
+     [
+      "(2, 22)",
+      6880
+     ]
+    ]
+   }
+  }
+ }
+}
