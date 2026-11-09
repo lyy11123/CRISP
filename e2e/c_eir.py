@@ -198,11 +198,12 @@ def child_full(spec):
 
 # ---------------------------------------------------------------- seed_broadcast with a fallback match (user 2026-11-09, option (a))
 # eir.Engine.seed_broadcast matches each re-generated broadcast event to its split by (producer, bytes). On prefill MHA, A3h start,
-# MCRandom one event of producer (0,0,0,20,1) carries producer 19 as its dependency, so its bucket runs empty (IndexError). Fallback,
-# used only when the (producer, bytes) bucket is empty: the first remaining event with the same (source location, bytes), any
-# producer. Every use is logged; a use outside FALLBACK_OK stops the job (RuntimeError). Otherwise the code is eir's, line for line.
+# MCRandom one event of producer (0,0,0,20,1) carries producer 19 as its dependency, so its bucket runs empty (IndexError).
+# (a'), user 2026-11-09, no chaining: a split whose (producer, bytes) bucket is empty is left out of the cache (a source mismatch;
+# BcCache routes it by Dijkstra); no other event is taken for it. Logged with the unused events; a use outside FALLBACK_OK stops the
+# job (RuntimeError) after the match. Otherwise the code is eir's, line for line. (A first version took the first remaining event of
+# the same (source, bytes) and chained through producers 30 and 36 at core (0,3); its run is in OUT/_old_chain.)
 FALLBACK_OK = {("a3h", "pf_mha", "MCRandom")}
-FALLBACK_DIJKSTRA = True      # (a'), user 2026-11-09: no (source, bytes) match either -> a source mismatch, routed by BcCache's Dijkstra.
 # Local only: the Colab bundle (git 0b60b2e) has neither the fallback nor this combination's 15 jobs (shard localfix runs them here).
 FALLBACK_LOG = []
 
@@ -234,34 +235,17 @@ def install_seed_fallback(spec):
             if t not in before:
                 e = ev[t]
                 bucket[(next(iter(e.dependency_set)), e.comm_bytes)].append(e)
-        mismatch = 0
+        mismatch, empty = 0, []
         for dt in ctx["broadcast_datatags"]:
             for prod, splits in s[6][dt].generated_tag_splitted_dict.items():
                 loc = s[7][prod].comp_location[:-1]
                 for sp in splits:
                     nb = int(_np.prod([e_ - s_ + 1 for (s_, e_) in sp]) * type_bytes[s[6][dt].data_type])
-                    if bucket[(prod, nb)]:
-                        e = bucket[(prod, nb)].pop(0)
-                    else:
-                        hit = next(((k, i) for k, lst in bucket.items() if k[1] == nb for i, x in enumerate(lst)
-                                    if tuple(x.source_location) == tuple(loc)), None)
-                        rec = {"job": spec["name"], "data_tag": str(dt), "split": str(sp), "key": [str(prod), nb], "source": str(tuple(loc)),
-                               "new_key": [str(hit[0][0]), hit[0][1]] if hit else None,
-                               "event": getattr(bucket[hit[0]][hit[1]], "event_name", None) if hit else None}
-                        FALLBACK_LOG.append(rec)
-                        print(f"[c] FALLBACK {json.dumps(rec)}", flush=True)
-                        p = os.environ.get("C_FALLBACK_LOG")
-                        if p:
-                            with open(p, "a", encoding="utf-8") as f:
-                                f.write(json.dumps(rec) + "\n")
-                        if (spec.get("start"), spec.get("op"), spec.get("fault")) not in FALLBACK_OK:
-                            raise RuntimeError(f"seed_broadcast fallback outside {FALLBACK_OK}: {rec}")
-                        if hit is None:
-                            if not FALLBACK_DIJKSTRA:
-                                raise RuntimeError(f"seed_broadcast fallback found no event with source {tuple(loc)} and {nb} bytes")
-                            mismatch += 1        # (a'): left out of the cache, as a moved source; BcCache routes it by Dijkstra
-                            continue
-                        e = bucket[hit[0]].pop(hit[1])
+                    if not bucket[(prod, nb)]:      # (a'): no event of this producer and size -> not cached, BcCache's Dijkstra
+                        empty.append({"job": spec["name"], "data_tag": str(dt), "split": str(sp), "key": [str(prod), nb], "source": str(tuple(loc))})
+                        mismatch += 1
+                        continue
+                    e = bucket[(prod, nb)].pop(0)
                     if tuple(e.source_location) != tuple(loc):
                         mismatch += 1
                         continue
@@ -269,7 +253,19 @@ def install_seed_fallback(spec):
                          for r_, leaves in e.paths.items() for l_ in leaves]
                     self.bc.routes[(dt, prod, sp)] = (loc, e.paths, e.path_list, w)
         out = {"T_wrapped": T_wrapped, "source_mismatch": mismatch, "n_routes": len(self.bc.routes)}
-        if FALLBACK_LOG:
+        if empty:
+            unused = [{"key": [str(k[0]), k[1]], "event": getattr(x, "event_name", None), "source": str(tuple(x.source_location))}
+                      for k, lst in bucket.items() for x in lst]
+            for rec in empty:
+                rec["unused_events"] = unused
+                FALLBACK_LOG.append(rec)
+                print(f"[c] FALLBACK {json.dumps(rec)}", flush=True)
+                p = os.environ.get("C_FALLBACK_LOG")
+                if p:
+                    with open(p, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(rec) + "\n")
+            if (spec.get("start"), spec.get("op"), spec.get("fault")) not in FALLBACK_OK:
+                raise RuntimeError(f"seed_broadcast fallback outside {FALLBACK_OK}: {empty}")
             out["fallback"] = list(FALLBACK_LOG)
         return out
     eir.Engine.seed_broadcast = seed_broadcast
