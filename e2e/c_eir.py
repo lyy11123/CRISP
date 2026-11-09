@@ -80,6 +80,9 @@ SET_B = ["MF1", "MF2", "MF4", "MF5", "MF6", "MF7", "MF8", "MCRandom", "MCCluster
 LONG_OPS = ("pf_mha", "pf_ln")           # handoff 5.6: 3 h, alert only
 ALERT_S = {op: (3 * 3600 if op in LONG_OPS else 3600) for op in OPS}
 MEM_STOP_GB, PEAK_STOP_GB = 3.0, 3.0
+# prep jobs that failed and wait for a decision (2026-11-09: seed_broadcast IndexError, a broadcast event of producer 20 depends on 19);
+# jobs reading their sinks are held back, everything else runs
+HELD_PREP = ["l1_a3h_pf_mha_MCRandom"]
 C_RANDOM_SEED = 20261105
 
 
@@ -478,7 +481,7 @@ def check(out, workers):
 
 
 def shard_names():
-    return ["prep", "local", "localfull", "check"] + colab_shards()
+    return ["prep", "local", "localfull", "localrep", "check"] + colab_shards()
 
 
 def shard_jobs(shard, out):
@@ -487,11 +490,13 @@ def shard_jobs(shard, out):
         return [pre, l1]
     if shard == "regress":
         return [regress_jobs(out)]
-    if shard in ("local", "localfull"):
+    if shard in ("local", "localfull", "localrep"):
         jobs = [j for fid in faults_run() if fid not in LOCAL_FAULTS for j in local_jobs(out, fid)]
         jobs += [j for fid in LOCAL_FAULTS for op in OPS for j in jobs_rep(out, op, fid) + jobs_full(out, op, fid, "A3h") + jobs_full(out, op, fid, "A1")]
         if shard == "localfull":          # the local FULL jobs need no prep: they run while prep runs
             jobs = [j for j in jobs if j["kind"] == "full"]
+        elif shard == "localrep":         # the rest of local, beside a running localfull (no job in both)
+            jobs = [j for j in jobs if j["kind"] != "full"]
     elif shard.startswith("h1_"):
         fids = shard[3:].split("+")
         if not all(f in colab_faults() for f in fids):
@@ -529,9 +534,16 @@ def run(shard, out, workers):
     guard(phases, out)
     if shard not in ("prep", "regress", "localfull"):
         pre, l1 = prep_jobs(out)
-        miss = [j["name"] for j in pre + l1 if not eir.sink_ok(j["sink"], j)]
-        if miss:
-            raise SystemExit(f"prep is not finished in {out} ({len(miss)} missing, e.g. {miss[:3]}): run the prep shard first")
+        miss = [j for j in pre + l1 if not eir.sink_ok(j["sink"], j)]
+        if len(miss) > len(HELD_PREP):
+            raise SystemExit(f"prep is not finished in {out} ({len(miss)} missing, e.g. {[j['name'] for j in miss[:3]]}): run the prep shard first")
+        gone = {os.path.abspath(j["sink"]) for j in miss}
+        if {j["name"] for j in miss} - set(HELD_PREP):
+            raise SystemExit(f"missing prep {[j['name'] for j in miss]} not in HELD_PREP {HELD_PREP}")
+        if gone:      # hold back the jobs that read a missing (failed, under decision) prep sink; the rest run
+            held = [j["name"] for p in phases for j in p if any(j.get(k) and os.path.abspath(j[k]) in gone for k in ("pre_sink", "l1_sink", "pre_w_sink"))]
+            phases = [[j for j in p if j["name"] not in set(held)] for p in phases]
+            print(f"[c] held back {len(held)} jobs reading failed prep {HELD_PREP}: {held}", flush=True)
     os.makedirs(os.path.join(out, "mem"), exist_ok=True)
     os.environ["C_MEM_LOG"] = os.path.join(out, "mem", f"{shard}.jsonl")
     runs_log = os.path.join(out, f"runs_{shard}.jsonl")
@@ -726,7 +738,7 @@ def smoke(out):
 def localref(out):
     out = os.path.abspath(out)
     pre, l1 = prep_jobs(out)
-    ref = {j["name"]: fingerprint(eir.read_sink(j["sink"]), j["kind"]) for j in pre + l1}
+    ref = {j["name"]: fingerprint(eir.read_sink(j["sink"]), j["kind"]) for j in pre + l1 if j["name"] not in HELD_PREP}
     json.dump({"jobs": ref, "probe": ref["pre_a3h_dc_mha"], "built": time.strftime("%Y-%m-%d %H:%M:%S")}, open(LOCAL_REF, "w"), indent=1)
     print(f"{LOCAL_REF}: {len(ref)} jobs")
 
