@@ -202,7 +202,8 @@ def child_full(spec):
 # used only when the (producer, bytes) bucket is empty: the first remaining event with the same (source location, bytes), any
 # producer. Every use is logged; a use outside FALLBACK_OK stops the job (RuntimeError). Otherwise the code is eir's, line for line.
 FALLBACK_OK = {("a3h", "pf_mha", "MCRandom")}
-FALLBACK_DIJKSTRA = False     # (a'), proposed 2026-11-09: no (source, bytes) match either -> treat as a source mismatch
+FALLBACK_DIJKSTRA = True      # (a'), user 2026-11-09: no (source, bytes) match either -> a source mismatch, routed by BcCache's Dijkstra.
+# Local only: the Colab bundle (git 0b60b2e) has neither the fallback nor this combination's 15 jobs (shard localfix runs them here).
 FALLBACK_LOG = []
 
 
@@ -601,7 +602,7 @@ def check(out, workers):
 
 
 def shard_names():
-    return ["prep", "local", "localfull", "localrep", "check"] + colab_shards()
+    return ["prep", "local", "localfull", "localrep", "localfix", "check"] + colab_shards()
 
 
 def shard_jobs(shard, out):
@@ -610,6 +611,11 @@ def shard_jobs(shard, out):
         return [pre, l1]
     if shard == "regress":
         return [regress_jobs(out)]
+    if shard == "localfix":         # (a'), 2026-11-09: the held prep job, then the 15 jobs reading it (5 local s300, 10 moved from Colab)
+        l1 = [j for j in prep_jobs(out)[1] if j["name"] in HELD_PREP]
+        gone = {os.path.abspath(j["sink"]) for j in l1}
+        reps = [j for fid in faults_run() for j in jobs_rep(out, "pf_mha", fid) if os.path.abspath(j["l1_sink"]) in gone]
+        return [l1, sorted(reps, key=lambda j: -est(j))]
     if shard in ("local", "localfull", "localrep"):
         jobs = [j for fid in faults_run() if fid not in LOCAL_FAULTS for j in local_jobs(out, fid)]
         jobs += [j for fid in LOCAL_FAULTS for op in OPS for j in jobs_rep(out, op, fid) + jobs_full(out, op, fid, "A3h") + jobs_full(out, op, fid, "A1")]
@@ -673,7 +679,7 @@ def run(shard, out, workers):
     out = os.path.abspath(out)
     phases = shard_jobs(shard, out)
     guard(phases, out)
-    if shard not in ("prep", "regress", "localfull"):
+    if shard not in ("prep", "regress", "localfull", "localfix"):
         pre, l1 = prep_jobs(out)
         miss = [j for j in pre + l1 if not eir.sink_ok(j["sink"], j)]
         if len(miss) > len(HELD_PREP):
