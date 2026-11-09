@@ -5,7 +5,7 @@ Run only when the code is committed and the local prep is finished (`c_eir.py ru
 
 Contents: cpcm, cpcm_sa, e1_fidelity, e2_attribution, e3_warmstart, eir (py and _inject), eir/inputs and eir/faults.json (the regression's
 EIR starts and faults), the EIR sinks the regression compares with (c_eir.REG), e2e/c_eir.py, e2e/e2e_pilot_peak.py, e2e/c/{faults,
-starts,local_ref}.json, e2e/c/inputs, the C artifact work copy (src, utils, tool, GPT prefill and decode py + cfg), the artifact commit,
+starts,local_ref,shards}.json, e2e/c/inputs, the C artifact work copy (src, utils, tool, GPT prefill and decode py + cfg), the artifact commit,
 and this machine's prep sinks (c_prep/prep/..., unpacked into OUT by the notebook: every repair reads its start's pre and l1).
 Clean-room check: unpack into an empty temporary folder, `python -I` without PYTHONPATH: `c_eir.py probe` and `c_eir.py check`
 (the regression and 32 prep jobs against local_ref.json); a failure renames the bundle to .FAILED.
@@ -71,7 +71,7 @@ def build(out, prep_out):
             tar.add(os.path.join(ROOT, "eir", "out", r + ".pkl.gz"), f"eir/out/{r}.pkl.gz")
         for name in ("c_eir.py", "e2e_pilot_peak.py"):
             tar.add(os.path.join(HERE, name), f"e2e/{name}")
-        for name in ("faults.json", "starts.json", "local_ref.json"):
+        for name in ("faults.json", "starts.json", "local_ref.json", "shards.json"):
             tar.add(os.path.join(CDIR, name), f"e2e/c/{name}")
         add_tree(tar, os.path.join(CDIR, "inputs"), "e2e/c/inputs")
         tar.add(os.path.join(ROOT, "third_party", "isca2026-busybarn-artifact.COMMIT"), "third_party/isca2026-busybarn-artifact.COMMIT")

@@ -384,26 +384,35 @@ def prep_jobs(out):
     return pre, l1
 
 
-# local estimate per single run (s, B4 walls; C_PLAN.md section 7): FULL = W; repair = 0.87 / 1.2 / 1.74 W at 30 / 100 / 300 steps
+# local estimate per single run (s). Revised 2026-11-09 from this machine's measured C runs (prep 304 l1, FULL pf_mha A3h 56 runs,
+# 12-19 processes): l1 medians by operator (L1_MEAS); FULL pf_mha A3h 1,644 s against B4's W 1,855 s, so the other FULL = B4 W x 0.886;
+# a repair = l1 x REP_X (EIR W1 decode MHA on Colab: L2Gsync 64 / 79 / 121 s at 30 / 100 / 300 steps against l1 about 107 s locally,
+# Colab factor 1.3, scaled by the measured 300-step prefill MHA). COLAB_X: Colab single run / this machine's (EIR W1: FULL decode MHA A3h 275-340 s on Colab
+# against 240 s here in B4, FULL A1 152 s against 103 s), 1.15-1.5, planned at 1.3.
 W_EST = {"pf_ln": (1503, 1110), "pf_mha": (1855, 660), "pf_proj": (588, 285), "pf_ffn": (252, 258),
          "dc_ln": (38, 35), "dc_mha": (240, 125), "dc_proj": (70, 50), "dc_ffn": (100, 60)}
-TIER = {30: 0.87, 100: 1.2, 300: 1.74}
+L1_MEAS = {"pf_ln": 1290, "pf_mha": 1000, "pf_proj": 332, "pf_ffn": 109, "dc_ln": 66, "dc_mha": 123, "dc_proj": 76, "dc_ffn": 90}
+FULL_X, FULL_PF_MHA_A3H = 1644 / 1855, 1644
+REP_X = {30: 0.55, 100: 0.65, 300: 1.0}      # 300: pf_mha measured 1,005-1,018 s (l1 1,000 s)
+COLAB_X = 1.3
 
 
 def est(j):
     op = j["op"]
-    a3h, a1 = W_EST[op]
     if j["kind"] == "full":
-        return a1 if j["arm"] == "A1" else a3h
+        if op == "pf_mha" and j["arm"] == "A3h":
+            return FULL_PF_MHA_A3H
+        a3h, a1 = W_EST[op]
+        return FULL_X * (a1 if j["arm"] == "A1" else a3h)
     if j["kind"] == "rep":
-        return TIER[j["steps"]] * a3h
-    return 0.8 * a3h                     # l1, measured 2026-11-09: prefill LN 1,060-1,514 s (0.7-1.0 W)
+        return REP_X[j["steps"]] * L1_MEAS[op]
+    return L1_MEAS.get(op, 300) if j["kind"] == "l1" else 200
 
 
-# Allocation (user 2026-11-09): this machine (14 parallel) takes the longest single jobs, the 300-step repairs of prefill MHA and LN
-# and prefill MHA's FULL-A3h, about 29 % of the total; Colab (at most 6 notebooks at once, 7 parallel each) takes the rest in shards of
-# 4-6 h, 6 per batch. Colab: per fault one "h2" shard (prefill LN s30/s100 and FULL-A3h, FULL-BusyBarn; prefill projection and FFN, all
-# jobs), and one "h1" shard per two faults (prefill MHA s30/s100 and FULL-BusyBarn; the four decode operators, all jobs).
+# Allocation. This machine (14 parallel): the longest single jobs (the 300-step repairs of prefill MHA and LN, prefill MHA's FULL-A3h)
+# of the 16 Colab faults, and the 3 whole faults LOCAL_FAULTS (shards localfull + localrep, running since 2026-11-09 morning / 14:46).
+# Colab (user 2026-11-09, revised: at most 5 high-RAM notebooks at once, 7 parallel each): the rest, packed by `plan` into shards of about
+# 5 h (SHARD_H at COLAB_X) and frozen in c/shards.json, 5 shards per batch; jobs reading a HELD_PREP sink are left out.
 def local_jobs(out, fid):
     return [j for op in ("pf_mha", "pf_ln") for j in jobs_rep(out, op, fid) if j["steps"] == 300] + jobs_full(out, "pf_mha", fid, "A3h")
 
@@ -428,27 +437,59 @@ def colab_faults():
     return [f for f in faults_run() if f not in LOCAL_FAULTS]
 
 
-def h1_pairs():
-    f = colab_faults()
-    return [f[i:i + 2] for i in range(0, len(f), 2)]
+SHARDS_JSON = os.path.join(CDIR, "shards.json")
+SHARD_H, PER_BATCH = 5.0, 5
+
+
+def colab_pool(out):
+    """Every Colab job (the old h1 / h2 split: everything of the 16 Colab faults except local_jobs), minus jobs reading a held prep."""
+    held = {os.path.abspath(eir.job_l1(os.path.join(out, "prep"), n.split("_")[1], "_".join(n.split("_")[2:4]), "_".join(n.split("_")[4:]))["sink"])
+            for n in HELD_PREP}
+    jobs = [j for f in colab_faults() for j in colab_h1(out, f) + colab_h2(out, f)]
+    return [j for j in jobs if not any(j.get(k) and os.path.abspath(j[k]) in held for k in ("pre_sink", "l1_sink"))]
+
+
+def plan(out):
+    """Pack the Colab pool into shards of about SHARD_H Colab hours at 7 parallel: groups (fault, operator, kind, arm or steps) by LPT,
+    largest first; frozen in shards.json (refuses to overwrite)."""
+    if os.path.exists(SHARDS_JSON):
+        raise SystemExit(f"{SHARDS_JSON} exists; it is frozen")
+    jobs = colab_pool(out)
+    groups = collections.defaultdict(list)
+    for j in jobs:
+        groups[(j["fault"] if "fault" in j else j["name"].split("_")[3], j["op"], j["kind"], j.get("arm") or j.get("steps"))].append(j)
+    total = sum(est(j) for j in jobs) * COLAB_X / 7 / 3600
+    n = PER_BATCH * max(1, round(total / SHARD_H / PER_BATCH))
+    bins = [[0.0, []] for _ in range(n)]
+    for k, g in sorted(groups.items(), key=lambda kv: (-sum(est(j) for j in kv[1]), str(kv[0]))):
+        b = min(bins, key=lambda x: x[0])
+        b[0] += sum(est(j) for j in g) * COLAB_X / 7 / 3600
+        b[1] += [j["name"] for j in g]
+    bins.sort(key=lambda x: -x[0])
+    shards = {f"c{i + 1:02d}": sorted(b[1]) for i, b in enumerate(bins)}
+    hours = {f"c{i + 1:02d}": round(b[0], 2) for i, b in enumerate(bins)}
+    names = list(shards)
+    rec = {"made": time.strftime("%Y-%m-%d %H:%M:%S"), "model": {"L1_MEAS": L1_MEAS, "FULL_X": FULL_X, "REP_X": REP_X, "COLAB_X": COLAB_X},
+           "held_prep": HELD_PREP, "jobs": len(jobs), "colab_hours_est": hours,
+           "batches": [names[i:i + PER_BATCH] for i in range(0, n, PER_BATCH)], "shards": shards}
+    json.dump(rec, open(SHARDS_JSON, "w", encoding="utf-8"), indent=1)
+    print(f"{SHARDS_JSON}: {len(jobs)} jobs, {n} shards, Colab h per shard {min(hours.values())}-{max(hours.values())}, total {total:.1f} h at 7 parallel")
+
+
+def frozen():
+    return json.load(open(SHARDS_JSON, encoding="utf-8")) if os.path.exists(SHARDS_JSON) else None
 
 
 def colab_shards():
-    return [f"{fid}_h2" for fid in colab_faults()] + [f"h1_{'+'.join(p)}" for p in h1_pairs()]
+    f = frozen()
+    return list(f["shards"]) if f else []
 
 
 def batches():
-    """Batch 1: notebook 1 runs the check and then its shard; the other 5 open once the check passes. 6 shards per batch. Fault order (set (a) first):
-    each h1 pair followed by the h2 shards of its two faults."""
-    sh = []
-    for p in h1_pairs():
-        sh += [f"h1_{'+'.join(p)}"] + [f"{f}_h2" for f in p]
-    out = [["check+" + sh[0]] + sh[1:6]]      # batch 1, notebook 1: the check, then a shard in the same notebook
-    rest = sh[6:]
-    while rest:
-        out.append(rest[:6])
-        rest = rest[6:]
-    return out
+    """Batch 1: notebook 1 runs the check and then its shard; the other 4 open once the check passes. 5 shards per batch."""
+    b = [list(x) for x in frozen()["batches"]]
+    b[0][0] = "check+" + b[0][0]
+    return b
 
 
 def check(out, workers):
@@ -497,13 +538,11 @@ def shard_jobs(shard, out):
             jobs = [j for j in jobs if j["kind"] == "full"]
         elif shard == "localrep":         # the rest of local, beside a running localfull (no job in both)
             jobs = [j for j in jobs if j["kind"] != "full"]
-    elif shard.startswith("h1_"):
-        fids = shard[3:].split("+")
-        if not all(f in colab_faults() for f in fids):
-            raise SystemExit(f"unknown shard {shard}")
-        jobs = [j for f in fids for j in colab_h1(out, f)]
-    elif shard.endswith("_h2") and shard[:-3] in colab_faults():
-        jobs = colab_h2(out, shard[:-3])
+    elif shard in colab_shards():
+        want = set(frozen()["shards"][shard])
+        jobs = [j for j in colab_pool(out) if j["name"] in want]
+        if len(jobs) != len(want):
+            raise SystemExit(f"{shard}: {len(want) - len(jobs)} frozen jobs not in the pool")
     else:
         raise SystemExit(f"unknown shard {shard}")
     return [sorted(jobs, key=lambda j: -est(j))]       # longest first
@@ -526,6 +565,29 @@ def free_gb():
     sys.path.insert(0, HERE)
     import e2e_pilot_peak as PK
     return PK.free_gb()
+
+
+CLAIM_STALE_S = 4 * 3600
+LOCAL_SHARDS = ("local", "localfull", "localrep")   # claims only here (Colab shards are disjoint; a reconnect must resume at once)
+
+
+def claim(j, out):
+    """Two runners on the same OUT may share a job list (2026-11-09: a second `run localfull` once localrep ends): a job starts only
+    if this runner creates OUT/claims/<name> first. A claim older than CLAIM_STALE_S of a job without a sink (a killed runner) is taken over;
+    to resume at once after killing a runner, delete OUT/claims."""
+    if eir.sink_ok(j["sink"], j):
+        return True                              # cached: run_job returns at once
+    d = os.path.join(out, "claims")
+    os.makedirs(d, exist_ok=True)
+    p = os.path.join(d, j["name"])
+    try:
+        os.close(os.open(p, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+        return True
+    except FileExistsError:
+        if time.time() - os.path.getmtime(p) > CLAIM_STALE_S:
+            os.utime(p)
+            return True
+        return False
 
 
 def run(shard, out, workers):
@@ -558,6 +620,8 @@ def run(shard, out, workers):
                 time.sleep(20)
             if stop:
                 return j["name"], "skipped", 0.0
+            if shard in LOCAL_SHARDS and not claim(j, out):
+                return j["name"], "claimed", 0.0
             live[j["name"]] = (time.time(), j["op"])
             try:
                 r = eir.run_job(j, out)
@@ -607,7 +671,7 @@ def shards_info(out):
         e = sum(est(j) for j in jobs)
         rows.append((s, len(jobs), e / 3600))
     for s, n, h in rows:
-        print(f"{s:28s} {n:5d} jobs  {h:6.1f} local process h  Colab 7 parallel {h * 1.25 / 7:4.1f}-{h * 1.45 / 7:4.1f} h  local 14 parallel {h / 14:4.1f} h")
+        print(f"{s:28s} {n:5d} jobs  {h:6.1f} local process h  Colab 7 parallel {h * 1.15 / 7:4.1f}-{h * 1.5 / 7:4.1f} h  local 14 parallel {h / 14:4.1f} h")
     print(f"total {sum(r[1] for r in rows)} jobs, {sum(r[2] for r in rows):.0f} local process h")
     for i, b in enumerate(batches(), 1):
         print(f"batch {i}: {b}")
@@ -831,7 +895,7 @@ def main():
         return child(sys.argv[2])
     redirect()
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["setup", "select", "coords", "regress", "smoke", "run", "shards", "localref", "compare", "probe", "check", "report", "pack"])
+    ap.add_argument("cmd", choices=["setup", "select", "coords", "regress", "smoke", "run", "shards", "plan", "localref", "compare", "probe", "check", "report", "pack"])
     ap.add_argument("shard", nargs="?")
     ap.add_argument("--out", default=os.path.join(CDIR, "out"))
     ap.add_argument("--workers", type=int, default=7)
@@ -858,6 +922,8 @@ def main():
                 raise SystemExit(1)
     elif a.cmd == "shards":
         shards_info(a.out)
+    elif a.cmd == "plan":
+        plan(a.out)
     elif a.cmd == "localref":
         localref(a.out)
     elif a.cmd == "compare":
