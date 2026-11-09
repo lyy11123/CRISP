@@ -8,51 +8,43 @@
 - 对 EIR decode 的 12 个已有结果做逐位回归，12/12 全部相同（覆盖起点评估、R0 + L1、L2Gsync 100 步、FULL-A3h 1000 步，以及节点、只坏 PE、DDR 端口、复合故障）。
 - 8 个算子的冒烟。
 - 本机 prep：16 个起点评估加 304 个 l1，完成 303 个，结果随压缩包分发。
-- 失败 1 个：`l1_a3h_pf_mha_MCRandom`（EIR 的 `seed_broadcast` 配对出错，修法待用户定）。读它的作业暂缓，驱动会自动跳过并打印 `held back`：第 4 批 `h1_MF8+MCRandom` 中 prefill MHA 的 A3h 30、100 步修复（10 个），以及本机的 5 个 300 步修复。修法定了以后单独补跑。
+- 失败 1 个：`l1_a3h_pf_mha_MCRandom`（EIR 的 `seed_broadcast` 配对出错，修法待用户定）。读它的 15 个作业暂缓，见下文。
 
-**约束与分配**（用户 2026-11-09）：
+**约束与分配**（用户 2026-11-09 修订）：
 
-- Colab 最多同时开 6 个高内存笔记本，每个 8 vCPU，跑 7 个并行。
-- EIR 的 W1 补跑跑完后才开 C 的第 1 批。
-- 本机从现在起同时跑（14 个并行：`localfull` 7 个 + `localrep` 7 个，两者合起来就是 `local`），分到两部分：
-  - 全部 16 个 Colab 故障里单次最长的作业：prefill MHA、LN 的 300 步修复，以及 prefill MHA 的 FULL-A3h；
+- Colab 最多同时开 5 个 8 vCPU 高内存笔记本，每个跑 7 个并行。
+- 耗时按本机已跑完的 C 作业实测：
+  - l1 按算子取中位数（304 个）：prefill LN 1,290 s，MHA 1,000 s，投影 332 s，FFN 109 s；decode 66–123 s。
+  - prefill MHA 的 FULL-A3h 56 次，中位数 1,644 s（B4 是 1,855 s）；其余 FULL 按 B4 × 0.886。
+  - 修复 = l1 × 0.55 / 0.65 / 1.0（30 / 100 / 300 步）。300 步按 prefill MHA 实测 1,005–1,018 s 定，30 和 100 步按 EIR W1 decode MHA 的比例。
+- Colab 系数 1.3（范围 1.15–1.5）。EIR W1 中 FULL decode MHA A3h：Colab 275–340 s，本机 240 s；FULL A1：Colab 152 s，本机 103 s。两边没有跑过逐个相同的作业，所以系数是按同类作业比的。
+- **本机（14 个并行：`localfull` 7 个 + `localrep` 7 个）：**
+  - 16 个 Colab 故障里单次最长的作业：prefill MHA、LN 的 300 步修复，prefill MHA 的 FULL-A3h；
   - 3 个整故障（MCCluster、MCEdge、MCScratch）的全部作业。
-- 本机另外先跑完 prep（16 个起点评估加 304 个 l1），它的结果放进压缩包。
+  - `localrep` 先跑完后，再开第二个 `localfull` 进程，与第一个共享作业表。作业靠认领文件区分，不会重复。
+- **Colab：** 其余 5,110 个作业冻结在 `e2e\c\shards.json`，分成 15 个分片，每片约 4.9 h；5 个一批，共 3 批。
 
-**运行量（估）：**
+**运行量（估，实测折算）：**
 
 | 部分 | 作业数 | 本机进程小时 | 墙钟 |
 |---|---|---|---|
-| 合计 | 6,856 | 约 1,040 | |
-| 本机，含 prep | 1,736 | 约 444 | 约 26–31 h |
-| Colab，24 个分片 | 5,120 | 约 600 | 4 批 × 4.3–5.4 h，加检查约 0.5 h，约 18–22 h |
+| 本机，余下（15:20 起） | 约 1,340 | 约 230 | 14 个并行，约 16.5 h |
+| Colab，15 个分片 | 5,110 | 约 395（Colab 约 513） | 检查约 0.5 h + 3 批 × 约 4.9 h，约 15–15.5 h |
 
-- 估算用 B4 的单次墙钟折算；l1 已按本机实测（prefill LN 1,060–1,514 s）修正。
-- Colab 按本机的 1.25–1.45 倍，未实测。
-- 从现在算，Colab 约 4.5 h 后开始，两边都约在 26–31 h 内跑完。
-- 若 Colab 先跑完，本机还没开始的整故障（先 MCScratch，再 MCEdge）改到 Colab，作为第 5 批；若本机先跑完，本机从第 4 批末尾往前接 Colab 的分片。挪动都记在下面的表里和 PROGRESS 里。
+- 两边都约在明早 7–8 点跑完。
+- 若 Colab 先跑完，就从本机的 `localfull` 末尾挪作业给 Colab，作为第 4 批；若本机先跑完，本机从第 3 批末尾往前接分片。挪动都记在下表和 PROGRESS 里。
+- **暂缓 15 个作业：** 读失败 prep `l1_a3h_pf_mha_MCRandom` 的作业不在分片里（Colab 10 个，本机 5 个），修法定了以后单独补跑。
 
-## 批次（每批 6 个笔记本；一批全部跑完再开下一批）
+## 批次（每批 5 个笔记本；一批全部跑完再开下一批）
 
 | 批 | 笔记本（分片名） | 每个的预计墙钟 |
 |---|---|---|
-| 1 | **先只开第 1 个 `check+h1_PF1+PF2`**（先做检查，再跑分片 `h1_PF1+PF2`）；它打印出 `CHECK PASSED` 后再开其余 5 个：`PF1_h2`、`PF2_h2`、`h1_PF4+PF5`、`PF4_h2`、`PF5_h2` | 检查约 0.5 h；分片 4.3–5.4 h |
-| 2 | `h1_PF6+PF7`、`PF6_h2`、`PF7_h2`、`h1_PF8+PCRandom`、`PF8_h2`、`PCRandom_h2` | 4.3–5.4 h |
-| 3 | `h1_PCCluster+PCEdge`、`PCCluster_h2`、`PCEdge_h2`、`h1_PCScratch+MF1`、`PCScratch_h2`、`MF1_h2` | 4.3–5.4 h |
-| 4 | `h1_MF5+MF6`、`MF5_h2`、`MF6_h2`、`h1_MF8+MCRandom`、`MF8_h2`、`MCRandom_h2` | 4.3–5.4 h |
-| 本机 | 3 个整故障 MCCluster、MCEdge、MCScratch；以及上面各分片中 prefill MHA、LN 的 300 步修复和 prefill MHA 的 FULL-A3h（这些作业不在 Colab 分片里） | |
+| 1 | **先只开第 1 个 `check+c01`**（先做检查，再跑分片 `c01`）；它打印出 `CHECK PASSED` 后再开其余 4 个：`c02`、`c03`、`c04`、`c05` | 检查约 0.5 h；分片约 4.9 h（4.3–5.6 h） |
+| 2 | `c06`、`c07`、`c08`、`c09`、`c10` | 约 4.9 h |
+| 3 | `c11`、`c12`、`c13`、`c14`、`c15` | 约 4.9 h |
 
-**分片内容：**
-
-| 分片 | 内容 |
-|---|---|
-| `<故障>_h2` | 该故障下 prefill LN 的 30、100 步修复与两种 FULL；prefill 投影、FFN 的全部作业 |
-| `h1_<故障1>+<故障2>` | 两个故障下 prefill MHA 的 30、100 步修复与 FULL-BusyBarn；4 个 decode 算子的全部作业 |
-
-故障编号：
-
-- **PF*、PC*：** 集合 (a)，按物理位置固定，是主集合。
-- **MF*、MC*：** 集合 (b)，按 decode MHA 的 W1 A3h 起点选。
+- 每个分片混有多个故障和算子：作业按“故障 × 算子 × 种类 × 档”成组，按最长处理时间优先装箱，使各片负载相等。
+- 分片内容见 `shards.json`，运行时由驱动读出，不用手填。
 
 **两边之间挪动的分片：**
 
@@ -96,7 +88,7 @@ os.environ["OUT"] = "/content/drive/MyDrive/CRISP_colab/c"
 
 **单元格 2：运行**（断线后重新执行单元格 1 和这一格即可续跑，已完成的作业会跳过）
 
-第 1 批的第 1 个笔记本（`check+h1_PF1+PF2`），先检查：
+第 1 批的第 1 个笔记本（`check+c01`），先检查：
 
 ```python
 !cd /content/crisp && python e2e/c_eir.py check --out $OUT --workers 7 2>&1 | tee -a /content/c_check.log | grep "\[c\]\|PASSED\|FAILED"
@@ -104,7 +96,7 @@ os.environ["OUT"] = "/content/drive/MyDrive/CRISP_colab/c"
 
 - 先跑 EIR decode 的 12 个回归作业。
 - 再重算 16 个起点评估和 PF4 的 16 个 l1，与本机逐位比较。
-- 最后要出现 `REGRESSION PASSED` 和 `CHECK PASSED`。出现后再开第 1 批的其余 5 个笔记本，这个笔记本接着用下面的单元格跑分片 `h1_PF1+PF2`。
+- 最后要出现 `REGRESSION PASSED` 和 `CHECK PASSED`。出现后再开第 1 批的其余 4 个笔记本，这个笔记本接着用下面的单元格跑分片 `c01`。
 
 每个分片：
 
@@ -138,3 +130,4 @@ mkdir -p colab_results/c && for f in colab_results/results_c_*.tar.gz; do tar -x
 - **比较口径：** T̂、路由、行为位置、搜索轨迹与对象地址无关，必须逐位相同；BusyBarn 后端依赖对象地址，只比均值。
 - **Colab 上的耗时不能进论文。**
 - **内存：** 单进程峰值，decode 约 0.45 GB，prefill MHA 约 0.8 GB（B4 记录）；7 个并行远低于 51 GB。
+- **单进程停线：** Colab 上 prefill LN 的 FULL-A3h 估约 1,330 × 1.3 ≈ 1,730 s，在 3 小时报警线以内。非 prefill MHA/LN 作业的 1 小时停线：最长是 prefill 投影的 FULL-A3h，估约 680 s。

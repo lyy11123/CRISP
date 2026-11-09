@@ -471,3 +471,35 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
 - **失败原因（诊断确认）：** `eir.Engine.seed_broadcast` 按 (生产者, 字节数) 把重新生成的广播事件配回各个切块，`IndexError: pop from empty list`。重新生成的 384 个广播事件中，1 个本应依赖生产者 `(0,0,0,20,1)`（位于 (0,3,0)）的事件，依赖记成了 `(0,0,0,19,1)`，字节数相同（786,432）：生产者 20 的桶少 1 个，生产者 19 的桶多 1 个。只出现在 prefill MHA 的 A3h 起点、故障 MCRandom（只坏 PE (0,2)、(1,13)、(2,4)、(3,15)）上；同一故障的 A1 起点和其余 7 个算子都正常。诊断脚本在 scratchpad，没有写任何结果。
 - **处理（待用户决定修法）：** `c_eir.py` 加 `HELD_PREP = ["l1_a3h_pf_mha_MCRandom"]`：读这个 prep 的作业暂缓（本机 5 个 300 步修复，Colab 分片 `h1_MF8+MCRandom` 中 prefill MHA 的 30、100 步修复 10 个），其余照常；其他 prep 缺失仍整片拒跑。`local_ref.json` 重建为 319 个作业（不含该作业）。
 - **本机补到 14 个并行：** 新分片 `localrep`（= `local` 去掉 FULL，520 个作业，估 204 进程小时），与仍在跑的 `localfull`（7 个并行，896 个作业，估 200 进程小时）并列各 7 个并行，两者没有重复作业。启动时系统空闲内存 12.9 GB。
+
+## 2026-11-09 C：按实测耗时重新分配（Colab 5 个笔记本一批）
+
+- **约束（用户，经主会话）：** Colab 最多同时开 5 个 8 vCPU 高内存笔记本，每个 7 个并行；耗时改用本机 C 实测，Colab 系数用 EIR W1 校正。
+- **实测（本机，12–19 个进程同时跑）：**
+  - l1 中位数：pf_ln 1,237（A3h）/ 1,351（A1），pf_mha 971 / 1,038，pf_proj 334 / 330，pf_ffn 109 / 109，dc_ln 67 / 66，dc_mha 114 / 132，dc_proj 76 / 77，dc_ffn 84 / 97 s。
+  - FULL pf_mha A3h：56 次，中位数 1,644 s（1,399–2,814），B4 是 1,855 s。
+  - L2Gsync pf_mha 300 步：4 次，1,005–1,018 s。
+- **Colab 系数：** EIR W1 的 Colab 结果与本机没有逐个相同的作业（同名作业在 Colab 上都是 cached）。按同类作业比较：
+  - FULL decode MHA A3h：Colab 中位数 275–340 s，本机 B4 是 240 s；
+  - FULL A1 `full_mha_F1_A1_g0_4`：本机 103 s，Colab 同类中位数 152 s。
+  - 取 1.3（范围 1.15–1.5）。
+- **模型（`c_eir.est`）：** l1 = L1_MEAS；FULL = B4 W × 0.886（pf_mha A3h 取 1,644 s）；修复 = l1 × 0.55 / 0.65 / 1.0。
+- **分配：**
+  - Colab 池 5,110 个作业（16 个故障中除本机长作业外的全部，去掉读 HELD_PREP 的 10 个），用 `plan` 冻结到 `c/shards.json`：15 个分片，各约 4.89 Colab 小时，3 批 × 5。
+  - 本机余下约 230 进程小时，即 localfull 约 151 + localrep 约 79，14 个并行约 16.5 h。
+  - Colab 约为检查 0.5 h + 3 × 4.9 h。
+- **本机调整：**
+  - 15:19 停掉旧的 `localfull` 进程：7 个 PF6 FULL 已跑了 0–9 分钟，损失约 0.8 进程小时。
+  - 以带认领的新代码（OUT/claims，O_EXCL）重启 localfull，7 个并行，输出 `run_localfull2.out`。
+  - localrep 跑完后再开第二个 `run localfull`，与第一个共享作业表，从而回到 14 个并行。
+- **首个压缩包作废：** 它的干净目录 probe 已通过，check 跑到一半时因代码更新停掉，压缩包按新代码重建。
+
+## 2026-11-09 W1 补跑：EIR 结果汇总（W1_RERUN_SUMMARY 第 12 节）
+
+- **数据：** Colab 6 个分片全部完成，0 失败；prep 比较 29/29 逐位相同（主会话核对）。本机 prep 与 Colab 结果合并到 `w1_rerun/out/eir_all`（不入库）。
+- **代码：** `w1_rerun/report_eir_w1.py`（W0 与 W1 用同一段代码读，输出 `out/report_eir_w1.json`）和 `report_eir_w1_md.py`（输出表格）。
+- **核对：** W0 列与 `EIR_SUMMARY` 已有数字一致，例如 mha F4a 的 R0 为 20,691，L1 为 18,582；E3 F4 的 FULL-BB 变体为 F4_FULL_g0_l6。
+- **口径说明（写入第 12 节）：**
+  - 种子按 W1 的运行集合，W0 也照此取（单点 5 个，复合 10 个）；
+  - E3 起点 W0 用 l4，W1 用 l1；
+  - FULL 的迁移量不含唯一块项。
