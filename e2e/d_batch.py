@@ -14,7 +14,8 @@ import statistics
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
 import d_joint as d  # noqa: E402
 
 SET_A = ["PF1", "PF2", "PF4", "PF5", "PF6", "PF7", "PF8", "PCRandom", "PCCluster", "PCEdge", "PCScratch"]

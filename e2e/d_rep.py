@@ -19,7 +19,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
 import d_joint as d  # noqa: E402  (puts the main checkout's e2e first: c_eir from there)
 import c_eir as c  # noqa: E402
 

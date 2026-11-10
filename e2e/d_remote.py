@@ -43,12 +43,14 @@ def absolute(j, root, out):
 
 def run_remote(out, workers, shard, nshards, names=None):
     root = _root()
-    sys.path.insert(0, HERE)
+    HERE in sys.path or sys.path.insert(0, HERE)
     import d_joint as d
     d.OUT = out
     jobs = load_jobs(root)
     if names:
         jobs = [j for j in jobs if j["name"] in names]
+    else:
+        jobs = [j for j in jobs if not j.get("ref")]        # reference jobs run only in `check`
     jobs = jobs[shard::nshards]
     items = [absolute(j, root, out) for j in jobs]
     os.makedirs(os.path.join(out, "sims"), exist_ok=True)
@@ -68,7 +70,7 @@ def check(out):
     with open(os.path.join(root, "e2e", "d_ref.json"), encoding="utf-8") as f:
         ref = json.load(f)
     bad = run_remote(out, 2, 0, 1, names=set(ref))
-    sys.path.insert(0, HERE)
+    HERE in sys.path or sys.path.insert(0, HERE)
     import d_joint as d
     diff = []
     for name, want in ref.items():
@@ -118,7 +120,7 @@ def _add_text(tar, name, text):
 
 
 def build(batches, part, name, ref_jobs):
-    sys.path.insert(0, HERE)
+    HERE in sys.path or sys.path.insert(0, HERE)
     import d_joint as d
     import d_batch as B
     out = os.path.join(d.OUT, "prod")
@@ -129,6 +131,15 @@ def build(batches, part, name, ref_jobs):
             xs = B.ext_jobs(js)
             js = xs if part == "ext" else js + xs
         jobs += js
+    have = {j["name"] for j in jobs}
+    for b in ("D1", "D2", "D3", "D4"):                 # the reference jobs (already run here), marked "ref"
+        _, js = B.build(b, out)
+        for j in js + B.ext_jobs(js):
+            if j["name"] in ref_jobs and j["name"] not in have:
+                jobs.append(dict(j, ref=True))
+                have.add(j["name"])
+    if set(ref_jobs) - have:
+        raise SystemExit(f"reference jobs not found: {set(ref_jobs) - have}")
     # every export the jobs read must exist (export them here first: d_batch run --part ext does that, or this call)
     exports = {}
     for j in jobs:
@@ -140,7 +151,7 @@ def build(batches, part, name, ref_jobs):
     for j in jobs:
         sp = json.loads(json.dumps(j["spec"]))
         sp["exports"] = {k: exports[v] for k, v in sp["exports"].items()}
-        rel.append({"name": j["name"], "cmd": j["cmd"], "spec": sp, "arms": j["arms"], "cond": j["cond"], "kind": j["kind"]})
+        rel.append({"name": j["name"], "cmd": j["cmd"], "spec": sp, "arms": j["arms"], "cond": j["cond"], "kind": j["kind"], "ref": j.get("ref", False)})
     root = d.MAIN
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=_root(), capture_output=True, text=True).stdout.strip()
     dist = os.path.join(d.OUT, "..", "dist")
@@ -176,9 +187,10 @@ def build(batches, part, name, ref_jobs):
             tar.add(src, dst)
         _add_text(tar, "e2e/d_jobs.json", json.dumps(rel))
         _add_text(tar, "e2e/d_ref.json", json.dumps(ref))
-        _add_text(tar, "BUNDLE.json", json.dumps({"git": head, "batches": batches, "part": part, "jobs": len(rel), "exports": len(exports),
+        _add_text(tar, "BUNDLE.json", json.dumps({"git": head, "batches": batches, "part": part, "jobs": sum(not j["ref"] for j in rel), "exports": len(exports),
                                                   "built": time.strftime("%Y-%m-%d %H:%M:%S")}))
-    print(f"bundle {path}: {len(rel)} jobs, {len(exports)} exports, {os.path.getsize(path) / 2 ** 20:.0f} MB", flush=True)
+    n = sum(not j["ref"] for j in rel)
+    print(f"bundle {path}: {n} jobs (+{len(rel) - n} reference), {len(exports)} exports, {os.path.getsize(path) / 2 ** 20:.0f} MB", flush=True)
     # clean room: unpack, python -I, check (the reference jobs) -- also proves the bundle runs without this repository
     tmp = tempfile.mkdtemp(prefix="dbundle_")
     try:
@@ -210,7 +222,7 @@ def main():
     ap.add_argument("--free-gb", type=float)
     a = ap.parse_args()
     if a.cmd in ("run", "check"):
-        sys.path.insert(0, HERE)
+        HERE in sys.path or sys.path.insert(0, HERE)
         import d_joint as d
         if a.peak_gb:
             d.LOCAL_PEAK_GB = a.peak_gb
