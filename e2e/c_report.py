@@ -45,19 +45,23 @@ OUTS = (128, 512, 2048)
 PH = {"prefill": "pf", "decode": "dc"}
 A_PRIME = ("a3h", "pf_mha", "MCRandom")
 STARTS = json.load(open(os.path.join(HERE, "c", "starts.json"), encoding="utf-8"))
-_cache = {}
-
-
 def rd(job_of):
-    """job_of(root) -> job; the first root whose sink is complete."""
+    """job_of(root) -> job; the first root whose sink is complete. Each sink is read once and not cached (2026-11-10: the earlier
+    version read every sink twice, via eir.sink_ok, and kept all of them; the process reached about 24 GB with 0.0-0.9 GB free, and
+    one run reported 2 groups of complete MCScratch sinks as missing, since sink_ok turns any read error into False).
+    A sink that exists but cannot be read now stops the report instead of counting as missing. Sinks are written to .part / .tmp
+    and renamed by eir.run_job, so a sink path never holds a half-written file from a finished runner."""
     for r in ROOTS:
         j = job_of(r)
         p = j["sink"]
-        if p in _cache:
-            return _cache[p]
-        if os.path.exists(p) and E.sink_ok(p, j):
-            _cache[p] = E.read_sink(p)
-            return _cache[p]
+        if not os.path.exists(p):
+            continue
+        try:
+            d = E.read_sink(p)
+        except Exception as e:
+            raise RuntimeError(f"{p}: exists but cannot be read ({type(e).__name__}: {e})") from e
+        if ("selected" in d) if j["kind"] == "full" else (d.get("done") is True):
+            return d
     return None
 
 
@@ -372,6 +376,9 @@ def md(faults, missing):
     sb = [f for f in faults if FSET.get(f["fault"]) == "b"]
     set_sections(L, sa, "2", "(a) 组：按物理位置固定的坐标")
     set_sections(L, sb, "3", "(b) 组：在 decode MHA 的 W1 A3h 起点上按 EIR 原规则选的坐标")
+    diag = os.path.join(HERE, "c", "C_DIAG.md")          # hand-written read-only diagnosis (2026-11-10), kept apart so a rerun keeps it
+    if os.path.exists(diag):
+        L += [open(diag, encoding="utf-8").read()]
     open(SUMMARY_MD, "w", encoding="utf-8").write("\n".join(L))
     print(SUMMARY_MD, flush=True)
 
