@@ -591,3 +591,8 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
   - 单进程峰值：localfull 已完成的 286 个作业中最大 0.78 GB，没有超过 3 GB 的；14 个作业合计约 10 GB。现在空闲 11.5 GB。哪个程序在 08:00 前后占用了内存没有记录（推测是 python 以外的程序，未核实）。
   - localfull 共 896 个作业，完成 287 个，剩下 609 个：prefill MHA 42、LN 63、投影 84、FFN 84，decode LN、MHA、投影、FFN 各 84。
   - 等用户决定后再续跑（续跑命令不变，已完成的作业会跳过）。
+
+- 2026-11-10 09:15 C 本机：用户定为 localfull 按 14 个并行续跑（两个进程各 7 个，共用认领表），3 GB 停线照常有效。
+  - 新增 `e2e\c\mem_watch.ps1`：每 10 分钟记一次系统空闲内存、python 进程数与合计内存，以及按进程名合计内存最多的前 5 个非 python 程序，写入 `e2e\c\out\mem\system.jsonl`。
+  - 第 1 次采样（09:14，续跑前）：总内存 31.7 GB，空闲 14.9 GB；非 python 程序中 chrome 4.95 GB（20 个进程）、claude 2.72 GB、ChatGPT 1.74 GB、svchost 1.67 GB、Doubao 1.29 GB。
+  - 续跑后共 16 个 python 进程（2 个调度进程 + 14 个作业）。
