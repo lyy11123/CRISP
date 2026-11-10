@@ -550,6 +550,24 @@ def export_item(c, op, state, fid, rep, folder):
         j = first_root(lambda r: c.jobs_full(r, op, fid, "A1")[i])
         spec = {"name": name, "kind": "full", "op": op, "fault": fid, "sink": sink, "run_sink": j["sink"], "snap": j["snap"], "winner": run}
         return {"name": name, "cmd": "export", "spec": spec, "folder": folder}
+    if state == "a1_rep":                          # -A3h: the A1-start L2Gsync of e2e/d_rep.py (levels.json)
+        lv = json.load(open(os.path.join(OUT, "a1rep", "levels.json"), encoding="utf-8"))[fid][op]
+        lvl = lv["level"]
+        if lvl is None:
+            raise SystemExit(f"-A3h repair of {op} {fid} not finished")
+        if lvl in ("R0", "L1"):
+            state = f"a1_{lvl}"
+        else:
+            rows = []
+            for p, sd in zip(lv["sinks"], (123, 1, 2, 3, 4)):
+                dd = E.read_sink(p)
+                rows.append((statistics.mean(v[0] for v in dd["record"]["backend"].values()), sd, p))
+            m = statistics.median(r[0] for r in rows)
+            pick = min((r for r in rows if r[0] == m), key=lambda r: r[1])
+            fr = {"type": "snap", "sink": pick[2], "key": "final_snap", "ref_key": ["record", "T"], "level": lvl, "seed": pick[1],
+                  "seed_rows": [[r[0], r[1]] for r in rows]}
+            spec = {"name": name, "kind": "reload", "start": "a1", "op": op, "fault": fid, "sink": sink, "d_from": fr}
+            return {"name": name, "cmd": "export", "spec": spec, "folder": folder}
     if state == "a3h_rep":
         lvl = rep[fid]["steps"]["per_op"][op]["level"]
         if lvl in ("R0", "L1"):
