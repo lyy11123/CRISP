@@ -1,7 +1,8 @@
 """C summary (GPT, one physical fault on all 8 operators, W1): numbers only, by the rules of PROGRESS 2026-11-09 "C 第 0 步" and C_PLAN section 6.
 
   python e2e/c_report.py check c04 c08 ...   -> per Colab shard: jobs present, failed runs, W1 drop counts, peak memory, wall times
-  python e2e/c_report.py report               -> e2e/c/out/c_report.json and e2e/c/out/c_report.md (faults with every job present)
+  python e2e/c_report.py xcheck [workers]      -> rerun a sample of Colab jobs here, compare fingerprints (c/out/c_xcheck.json)
+  python e2e/c_report.py report               -> e2e/c/out/c_report.json and e2e/C_SUMMARY.md (faults with every job present)
 
 Sinks are looked up in this machine's output (e2e/c/out) and the unpacked Colab results (colab_results/c), in that order.
 
@@ -24,6 +25,7 @@ Rules (fixed before results, PROGRESS "C 第 0 步"):
 - T-hat error: T-hat / backend mean - 1. Backend noise: (max - min) / mean over the 10 seeds.
 - (a'): the combination (a3h, pf_mha, MCRandom) used the seed_broadcast fallback (a') (PROGRESS 2026-11-09); its rows are marked.
 """
+import collections
 import json
 import os
 import statistics
@@ -234,46 +236,108 @@ def pct(x):
     return "—" if x is None else f"{100 * x:+.1f}%"
 
 
-def md(faults, missing):
-    L = ["# C 汇总（自动生成，`e2e\\c_report.py report`）", "",
-         f"完整的故障 {len(faults)} 个；不完整：{', '.join(f'{k}（{len(v)} 个算子缺）' for k, v in missing.items()) or '无'}。", ""]
-    L += ["## 1. 请求延迟（LN 原样）", "",
-          "单位：周期。相对 = 相对同一起点的故障前 / 相对 A1 故障前。标 † 的故障含 (a′) 组合（A3h、prefill MHA、MCRandom）。", ""]
-    for ln, title in (("asis", "原样"), ("fixed", "修正")):
-        if ln == "fixed":
-            L += ["## 2. 请求延迟（LN 修正）", ""]
-        L += ["| 故障 | 方案 | TTFT | TPOT | 请求 128 | 请求 512 | 请求 2048 | 相对故障前：TTFT / TPOT / 2048 | 相对 A1 故障前：TTFT / TPOT / 2048 |", "|---|---|---|---|---|---|---|---|---|"]
+MAIN = ["A1 故障前", "A1 R0", "A1 FULL-BusyBarn", "A3h 故障前", "A3h R0", "A3h L2Gsync 停止档（均值）", "A3h FULL-A3h"]
+SUMMARY_MD = os.path.join(HERE, "C_SUMMARY.md")
+FSET = {f: v.get("set") for f, v in json.load(open(c.FAULTS, encoding="utf-8"))["dc_mha"].items()}
+
+
+def fmt3(xs):
+    return f"{pct(median(xs))} [{pct(min(xs))}, {pct(max(xs))}]" if xs else "—"
+
+
+def check_section():
+    L = []
+    p = os.path.join(ROOTS[0], "c_colab_check.json")
+    if os.path.exists(p):
+        d = json.load(open(p, encoding="utf-8"))
+        L += ["| 分片 | 作业 | 缺 | 运行记录 | 失败记录 | 内存记录 | MHA 作业的内存记录 | 删去条数不符 | 单进程峰值 GB | 单次最长 s | 进程小时 | 超时 |",
+              "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+        for k in sorted(d):
+            r = d[k]
+            L.append(f"| {k} | {r['jobs']} | {r['missing']} | {r['run_records']} | {r['failed_records']} | {r['mem_records']} | {r['mha_jobs_with_mem']} | "
+                     f"{r['n_drop_mismatch']} | {r['peak_gb_max']:.2f} | {r['wall_max_s']:,.0f} | {r['process_hours']:.1f} | {len(r['alerts'])} |")
+        ks = sorted({x for r in d.values() for x in r["wall_over_local_est_median"]})
+        L += ["", "Colab 单次墙钟 / 本机估时（`c_eir.est`）：先在每个分片内取中位，再列各分片的最小、中位、最大。", "",
+              "| 种类：算子 | 最小 | 中位 | 最大 |", "|---|---|---|---|"]
+        for x in ks:
+            v = [r["wall_over_local_est_median"][x] for r in d.values() if x in r["wall_over_local_est_median"]]
+            L.append(f"| {x} | {min(v):.2f} | {median(v):.2f} | {max(v):.2f} |")
+        L.append("")
+    p = os.path.join(ROOTS[0], "c_xcheck.json")
+    if os.path.exists(p):
+        r = json.load(open(p, encoding="utf-8"))
+        b = [x["backend_rel"] for x in r]
+        bad = [(x["job"], x["differs"]) for x in r if not x["identical"]]
+        L += [f"本机重跑抽样（`c_report.py xcheck`：每个 Colab 分片取 1 个 decode 修复、1 个 decode FULL）：{sum(x['identical'] for x in r)}/{len(r)} 个"
+              f"与地址无关的部分（T̂、路由、行为位置、搜索轨迹）逐位相同；后端均值相差 {pct(min(b))} 到 {pct(max(b))}。" + (f" 不同的：{bad}。" if bad else ""), ""]
+    return L
+
+
+def set_sections(L, faults, tag, title):
+    L += [f"## {tag}. {title}", ""]
+    for ln, lname in (("asis", "原样"), ("fixed", "修正")):
+        L += [f"### {tag}.{1 if ln == 'asis' else 2} 请求延迟（LN {lname}）", "",
+              "| 故障 | 方案 | TTFT | TPOT | 请求 128 | 请求 512 | 请求 2048 | 相对故障前 TTFT / TPOT / 128 / 512 / 2048 | 相对 A1 故障前 TTFT / TPOT / 2048 |",
+              "|---|---|---|---|---|---|---|---|---|"]
         for f in faults:
             for r in f["assembly"]:
-                if r["ln"] != ln:
+                if r["ln"] != ln or r["scheme"] not in MAIN:
                     continue
                 v, a = r["vs_pre"], r["vs_A1pre"]
-                L.append(f"| {f['fault']}{'†' if f['a_prime'] else ''} | {r['scheme']} | {r['TTFT']:,.0f} | {r['TPOT']:,.0f} | {r['req128']:,.0f} | {r['req512']:,.0f} | {r['req2048']:,.0f} | "
-                         f"{pct(v['TTFT'])} / {pct(v['TPOT'])} / {pct(v['req2048'])} | {pct(a['TTFT'])} / {pct(a['TPOT'])} / {pct(a['req2048'])} |")
+                L.append(f"| {f['fault']}{'†' if f['a_prime'] else ''} | {r['scheme']} | {r['TTFT']:,.0f} | {r['TPOT']:,.0f} | {r['req128']:,.0f} | {r['req512']:,.0f} | "
+                         f"{r['req2048']:,.0f} | {pct(v['TTFT'])} / {pct(v['TPOT'])} / {pct(v['req128'])} / {pct(v['req512'])} / {pct(v['req2048'])} | "
+                         f"{pct(a['TTFT'])} / {pct(a['TPOT'])} / {pct(a['req2048'])} |")
         L.append("")
-    L += ["## 3. 各算子：后端均值相对同一起点故障前", "", "A3h 修复为停止档 5 个种子的均值；FULL 为 14 次中的胜者。", "",
+    L += [f"### {tag}.3 跨故障（本组 {len(faults)} 个）：中位 [最小, 最大]", "",
+          "| 方案 | LN | 相对故障前 TTFT | TPOT | 请求 2048 | 相对 A1 故障前 TTFT | TPOT | 请求 2048 |", "|---|---|---|---|---|---|---|---|"]
+    for ln, lname in (("asis", "原样"), ("fixed", "修正")):
+        for name, *_ in SCHEMES:
+            rs = [r for f in faults for r in f["assembly"] if r["ln"] == ln and r["scheme"] == name]
+            if not rs or name.endswith("故障前"):
+                continue
+            L.append(f"| {name} | {lname} | " + " | ".join(fmt3([r[k][q] for r in rs]) for k in ("vs_pre", "vs_A1pre") for q in ("TTFT", "TPOT", "req2048")) + " |")
+    extra = [n for n, *_ in SCHEMES if n not in MAIN]
+    L += ["", f"### {tag}.4 补充：A3h 各档与中位、FULL 中位（请求 2048 相对故障前，LN 原样 / 修正）", "",
+          "| 故障 | " + " | ".join(extra) + " |", "|---|" + "---|" * len(extra)]
+    for f in faults:
+        cells = []
+        for n in extra:
+            a = next(r for r in f["assembly"] if r["scheme"] == n and r["ln"] == "asis")["vs_pre"]["req2048"]
+            b = next(r for r in f["assembly"] if r["scheme"] == n and r["ln"] == "fixed")["vs_pre"]["req2048"]
+            cells.append(f"{pct(a)} / {pct(b)}")
+        L.append(f"| {f['fault']}{'†' if f['a_prime'] else ''} | " + " | ".join(cells) + " |")
+    L += ["", f"### {tag}.5 各算子：后端均值相对同一起点故障前", "",
+          "A3h 停止档为该档 5 个种子的均值；FULL 为 14 次中的胜者，括号内为 14 次的中位。", "",
           "| 故障 | 算子 | A1 R0 | A1 FULL-BB | A3h R0 | A3h L1 | A3h 停止档 | 停在 | 原因 | A3h FULL-A3h |", "|---|---|---|---|---|---|---|---|---|---|"]
+    rel = lambda s, k, q="bk": s[k][q] / s["pre"]["bk"] - 1  # noqa: E731
     for f in faults:
         for op, o in f["ops"].items():
             a1, a3 = o["a1"], o["a3h"]
-            rel = lambda s, k: s[k]["bk"] / s["pre"]["bk"] - 1  # noqa: E731
-            L.append(f"| {f['fault']} | {op}{'†' if o['a_prime'] else ''} | {pct(rel(a1, 'R0'))} | {pct(rel(a1, 'FULL'))} | {pct(rel(a3, 'R0'))} | {pct(rel(a3, 'L1'))} | "
-                     f"{pct(rel(a3, 'REP'))} | {a3['REP']['level']} | {a3['REP']['why']} | {pct(rel(a3, 'FULL'))} |")
-    L += ["", "## 4. 迁移量（一层，按 T_block 计数求和）与修复步数", "",
+            L.append(f"| {f['fault']} | {op}{'†' if o['a_prime'] else ''} | {pct(rel(a1, 'R0'))} | {pct(rel(a1, 'FULL'))} ({pct(rel(a1, 'FULL', 'median'))}) | "
+                     f"{pct(rel(a3, 'R0'))} | {pct(rel(a3, 'L1'))} | {pct(rel(a3, 'REP'))} | {a3['REP']['level']} | {a3['REP']['why']} | "
+                     f"{pct(rel(a3, 'FULL'))} ({pct(rel(a3, 'FULL', 'median'))}) |")
+    L += ["", f"### {tag}.6 迁移量（一层，按 T_block 计数 2/8/1/1 求和）", "",
           "| 故障 | 方案 | 搬动行为 | 占比 | DDR 读搬动字节 | 占比 |", "|---|---|---|---|---|---|"]
     for f in faults:
         for name, m in f["migration"].items():
             if m is None:
                 L.append(f"| {f['fault']} | {name} | — | — | — | — |")
                 continue
-            L.append(f"| {f['fault']} | {name} | {m['moved_behas']:,.1f} | {pct(m['moved_behas_share']).lstrip('+')} | {m['ddr_read_moved_bytes']:,.0f} | "
-                     f"{pct(m['ddr_read_moved_share']).lstrip('+') if m['ddr_read_moved_share'] is not None else '—'} |")
-    L += ["", "| 故障 | " + " | ".join(c.OPS) + " | 一层 SA 步数（档 / 累计） |", "|---|" + "---|" * len(c.OPS) + "---|"]
+            sh = m["ddr_read_moved_share"]
+            shs = "—" if sh is None else f"{100 * sh:.1f}%"
+            L.append(f"| {f['fault']} | {name} | {m['moved_behas']:,.1f} | {100 * m['moved_behas_share']:.1f}% | {m['ddr_read_moved_bytes']:,.0f} | {shs} |")
+    L += ["", f"### {tag}.7 停止级别与 SA 步数（A3h L2Gsync，ε = 2%）", "",
+          "| 故障 | " + " | ".join(c.OPS) + " | 一层 SA 步数（停止档 / 累计） |", "|---|" + "---|" * len(c.OPS) + "---|"]
     for f in faults:
         s = f["steps"]
         L.append(f"| {f['fault']} | " + " | ".join(s["per_op"][op]["level"] for op in c.OPS) + f" | {s['layer_steps']:,} / {s['layer_steps_cum']:,} |")
-    L += ["", "## 5. T̂ 误差与后端噪声（各算子，跨完整故障取中位 [最小, 最大]）", "",
-          "误差 = T̂ / 后端 10 种子均值 − 1；噪声 = (最大 − 最小) / 均值，10 个种子。A3h 停止档与 FULL 取各自的中位。", "",
+    lv = collections.Counter(f["steps"]["per_op"][op]["level"] for f in faults for op in c.OPS)
+    why = collections.Counter(f["steps"]["per_op"][op]["why"].split(" ")[0] for f in faults for op in c.OPS)
+    L += ["", f"停止级别计数（{len(faults)} 个故障 × 8 个算子）：" + "，".join(f"{k} {v}" for k, v in sorted(lv.items())) +
+          "；原因：" + "，".join(f"{k} {v}" for k, v in why.items()) + "。", ""]
+    L += [f"### {tag}.8 T̂ 误差与后端噪声（各算子，本组故障上取中位 [最小, 最大]）", "",
+          "误差 = T̂ / 后端 10 种子均值 − 1；噪声 = (最大 − 最小) / 均值，10 个种子。A3h 停止档取 5 个种子的中位，FULL 取 14 次的中位。"
+          "故障前一行以 B4 后端均值为分母，与故障无关。", "",
           "| 算子 | 起点 | 状态 | 误差 | 噪声 |", "|---|---|---|---|---|"]
     for op in c.OPS:
         for st, lvls in (("a1", ("pre", "R0", "FULL")), ("a3h", ("pre", "R0", "REP", "FULL"))):
@@ -282,11 +346,34 @@ def md(faults, missing):
                 n = [f["ops"][op][st][lvl]["noise" if lvl != "FULL" else "noise_median"] for f in faults]
                 if lvl == "pre":
                     e, n = e[:1], n[:1]
-                fmt = lambda xs: f"{pct(median(xs))} [{pct(min(xs))}, {pct(max(xs))}]" if xs else "—"  # noqa: E731
-                L.append(f"| {op} | {st.upper()} | {lvl} | {fmt(e)} | {fmt(n)} |")
-    L += ["", "故障前一行的误差以 B4 后端均值为分母；本次 prep 重评估的后端均值与 B4 的差见 `c_report.json` 的 `bk_prep`。", ""]
-    open(os.path.join(ROOTS[0], "c_report.md"), "w", encoding="utf-8").write("\n".join(L))
-    print(os.path.join(ROOTS[0], "c_report.md"), flush=True)
+                L.append(f"| {op} | {st.upper()} | {lvl} | {fmt3(e)} | {fmt3(n)} |")
+    L.append("")
+
+
+def md(faults, missing):
+    L = ["# C 汇总：GPT 同一物理故障作用于 8 个算子（W1）", "",
+         "由 `e2e\\c_report.py report` 生成，只报数字。口径见 `e2e\\PROGRESS.md`“C 第 0 步”（事先写下，看结果后不改）与 `c_report.py` 开头的说明。", "",
+         "- **平台：** GPT，序列 2048，2×2 组，W1（MHA 最终广播删去 QKᵀ、S 的消息）。单位：周期。",
+         "- **方案：**",
+         "  - A1（BusyBarn 起点）：R0、FULL-BusyBarn。",
+         "  - A3h 起点：R0、L2Gsync（ε = 2% 停止规则，逐个算子判档）、FULL-A3h。",
+         "  - 每个算子各取 B4 W1 的后端最优作起点。",
+         "- **组装：** T_block = 2·LN + 8·MHA + 投影 + FFN；TTFT = prefill T_block，TPOT = decode T_block，请求 = TTFT + 输出长度 × TPOT。",
+         "  - LN 原样：decode 计 3 个 LN；修正：计 2 个。",
+         "- **† (a′)：** A3h、prefill MHA、MCRandom 这一组合用了 seed_broadcast 修法 (a′)（PROGRESS 2026-11-09）。",
+         "  - 配对桶为空的分割改由 Dijkstra 路由，不链式。",
+         "  - 它的 l1 与 15 个修复只在本机运行；fallback 全程只触发 1 次（l1，生产者 20）。",
+         "  - 含它的故障是 MCRandom，表中标 †。",
+         f"- **完整的故障：** {len(faults)} 个；不完整：{', '.join(f'{k}（{len(v)} 个算子缺）' for k, v in missing.items()) or '无'}。",
+         "  - (b) 组中 MF2、MF4、MF7 与 (a) 组的 PF2、PF4、PF7 坐标相同，未重跑，数字见 (a) 组。", ""]
+    L += ["## 1. 运行与核对", ""]
+    L += check_section()
+    sa = [f for f in faults if FSET.get(f["fault"]) == "a"]
+    sb = [f for f in faults if FSET.get(f["fault"]) == "b"]
+    set_sections(L, sa, "2", "(a) 组：按物理位置固定的坐标")
+    set_sections(L, sb, "3", "(b) 组：在 decode MHA 的 W1 A3h 起点上按 EIR 原规则选的坐标")
+    open(SUMMARY_MD, "w", encoding="utf-8").write("\n".join(L))
+    print(SUMMARY_MD, flush=True)
 
 
 # ---------------------------------------------------------------- Colab shard check
@@ -335,9 +422,47 @@ def check(shards):
     _j.dump(old, open(dst, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 
 
+XOUT = os.path.join(ROOTS[0], "_xcheck")
+
+
+def xcheck(workers):
+    """Rerun on this machine one decode repair and one decode FULL per Colab shard (first such job of the frozen list) into
+    e2e/c/out/_xcheck (prep copied in), then compare c_eir.fingerprint with the Colab sink: address-independent parts exact,
+    backend by mean only (C_COLAB_GUIDE "比较口径")."""
+    import shutil
+    if not os.path.isdir(os.path.join(XOUT, "prep")):
+        shutil.copytree(os.path.join(ROOTS[0], "prep"), os.path.join(XOUT, "prep"))
+    pick = []
+    for sh in c.colab_shards():
+        jobs = [j for p in c.shard_jobs(sh, XOUT) for j in p]
+        for kind in ("rep", "full"):
+            k = [j for j in jobs if j["kind"] == kind and j["op"].startswith("dc_")]
+            if k:
+                pick.append((sh, k[len(k) // 2]))
+    real = c.shard_jobs
+    c.shard_jobs = lambda shard, out: [[j for _, j in pick]] if shard == "xcheck" else real(shard, out)
+    c.redirect()          # as c_eir.main: C inputs, faults, work copy; children run `c_eir.py child`
+    try:
+        c.run("xcheck", XOUT, workers)
+    finally:
+        c.shard_jobs = real
+    rows = []
+    for sh, j in pick:
+        col = j["sink"].replace(XOUT, ROOTS[1])
+        a, b = c.fingerprint(E.read_sink(j["sink"]), j["kind"]), c.fingerprint(E.read_sink(col), j["kind"])
+        same = json.loads(json.dumps(a["exact"])) == json.loads(json.dumps(b["exact"]))
+        rows.append({"shard": sh, "job": j["name"], "identical": same, "backend_rel": a["backend_mean"] / b["backend_mean"] - 1,
+                     "differs": [] if same else [k for k in a["exact"] if json.loads(json.dumps(a["exact"][k])) != json.loads(json.dumps(b["exact"].get(k)))]})
+        print(json.dumps(rows[-1]), flush=True)
+    json.dump(rows, open(os.path.join(ROOTS[0], "c_xcheck.json"), "w"), indent=1)
+    print(f"XCHECK {sum(r['identical'] for r in rows)}/{len(rows)} identical", flush=True)
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1]
     if cmd == "check":
         check(sys.argv[2:])
     elif cmd == "report":
         report()
+    elif cmd == "xcheck":
+        xcheck(int(sys.argv[2]) if len(sys.argv) > 2 else 14)
