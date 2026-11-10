@@ -228,6 +228,9 @@ def sa_jobs(out):
 
 
 def run(name, workers, out, part="all"):
+    if part == "all" and os.path.exists(os.path.join(out, "EXT_REMOTE")):
+        part = "base"            # the seed 4-10 supplements are kept for the remote bundle (d_remote.py) or a later local pass
+        print(f"[{name}] EXT_REMOTE present: running the base jobs (seeds 1-3) only", flush=True)
     exports, jobs = build(name, out)
     if part in ("all", "ext", "exports"):
         xj = ext_jobs(jobs)
@@ -263,6 +266,8 @@ def run(name, workers, out, part="all"):
     json.dump(r2, open(os.path.join(bdir, f"runs_{part}.json"), "w"), indent=1)
     bad = [x for x in r2 if x.get("rc") or x.get("killed")]
     print(f"[{name}] done; failed {len(bad)}: {bad}", flush=True)
+    if bad:
+        raise SystemExit(1)     # stop the chain: a failed or killed job is reported before anything else runs
 
 
 # ---------------------------------------------------------------- report
@@ -303,8 +308,10 @@ def report(name, out):
         solo, ovs = R.pop("_solo", {}), R.pop("_ovs", [])
         soloD = R.pop("_soloD", [])
         if solo:
-            R["T_P_mha_self"] = statistics.mean(solo.values())
-            R["P_mha_solo_range"] = max(solo.values()) - min(solo.values())
+            s3 = [v for k, v in solo.items() if k <= 3]
+            R["T_P_mha_self"] = statistics.mean(s3) if s3 else None
+            R["P_mha_solo_range"] = (max(s3) - min(s3)) if s3 else None
+            R["P_mha_solo_range_1_10"] = max(solo.values()) - min(solo.values())
             R["n_solo_seeds"] = len(solo)
         if soloD:
             R["T_D_self"] = statistics.mean(soloD)
@@ -315,8 +322,13 @@ def report(name, out):
                            "dP": (r["streams"][0]["C"] - solo[r["seed"]]) if r["seed"] in solo else None} for r in ovs]
     res = {"audit": audit, "taus": TAUS, "T_ref": T_REF, "rows": []}
     for (cond, arm), R in sorted(rows.items()):
-        u = R.get("units") or []
+        u_all = R.get("units") or []
+        u = [x for x in u_all if x["seed"] <= 3]          # main table: seeds 1-3 (supplementary rule 2026-11-11)
         row = {"cond": cond, "arm": arm, **{k: v for k, v in R.items() if k != "units"}}
+        dp_all = [x["dP"] for x in u_all if x["dP"] is not None]
+        if len(u_all) > len(u) and dp_all:
+            row["supp_seeds_1_10"] = {"n_units": len(u_all), "dP_mean": statistics.mean(dp_all), "dP_min": min(dp_all), "dP_max": max(dp_all),
+                                      "D_lat_mean": statistics.mean(x["D_lat"] for x in u_all)}
         if u:
             dl = [x["D_lat"] for x in u]
             row.update(D_lat_mean=statistics.mean(dl), D_lat_min=min(dl), D_lat_max=max(dl), D_over_ref=statistics.mean(dl) / T_REF["D"] - 1,
