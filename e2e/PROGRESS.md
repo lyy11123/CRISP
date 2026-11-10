@@ -683,3 +683,20 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
   - 旧汇总脚本每个 sink 读两次并全部缓存。复测时进程工作集最大 23.97 GB，系统空闲内存 20:31–21:01 一直低于 1 GB。`eir.sink_ok` 会把读取异常当作不完整。
   - 推测 18:51 那次是在内存不足时读失败。
   - 已修改 `c_report.py` 的 `rd`：只读一次、不缓存，读不出就报错停止。修改后峰值 0.54 GB、约 3 分钟；19/19 完整，数字逐字相同。
+
+## 2026-11-10 D 方案（只读起草）：`e2e\D_PLAN.md`
+
+父会话转达用户要求（`E2E_HANDOFF.md` 第 6 节）：只读起草 D 的运行方案，不写实验代码，不跑任何运行。状态：草案写好，等用户放行。
+
+- **核实到的事实：**
+  - GPT prefill 与 decode 的 2×2 cfg（`config_ch2x2_bw256_co4x4_bw256_t128x64_failpattern0.cfg`）逐字节相同，两个阶段的映射可以放进同一个平台对象。
+  - E4a 的 `rename_stream` / `merged_events`（tag 第 2 位 = 10 + 流号）、释放时间 (b)，按跳后端（`fast_hop`）与原后端多流版 `e4_backend.event_driver_e4` 都接受 `release`，能直接表达“同一组上 P 流与 D 流重叠”。`rename_stream` 要求 tag 第 2、3 位为 0，prefill 各算子是否满足还没核实。
+  - W1 prefill MHA 的最终广播保留 256 条消息发往 32 个 DDR 端口（prefill 写 KV）；decode MHA 读 K、V 形状的离线权重（共享 KV 口径）。两者共用 DDR 端口及其链路。全链路 256 KB 切块后，W1 prefill MHA 有 66,227–67,493 个事件（`out\b1.json`，10 个映射）。
+  - EIR 的 sink 存有可重新加载的映射：修复作业的 `final_snap`，l1 作业的 `R0_snap`、`L1_snap`，以及 `child_reload` 校验（`eir\eir.py`）。C 的 Colab 结果中，修复 sink 1,750 个、FULL 快照 3,360 个（`colab_results\c\`）。
+  - C 的全部数字都来自原后端（不切块，地址哈希），没有按跳后端或切块的运行。
+  - C 在 A1 起点上只跑了 R0、L1 和 FULL-BusyBarn，没有跑 L2Gsync，所以“−CPCM 映射”这一消融要新跑修复。
+  - 两条流时，C4 的 d̂_D = τ + k·T̂_D 小于 d̂_P = k·T̂_P（只要 τ < k(T̂_P − T̂_D)），C4 就等于 decode 优先（按定义推出）。
+  - 晶圆上 P 组、D 组分开（2×4）：`WAMIS_HD` 按 chiplet_rows × columns 通用地建拓扑，但模板只生成单组平台，要改写 Die 编号与路由并新造 KV 传输事件（推测可行，未试）。
+- **方案要点：** 场景 S-A 同组时分。单元 = 臂 × 故障 × P 算子（4 种）× f ∈ {0.1, 0.4, 0.7} × 种子 1–3。D 流是一个 decode 步的串行链（2 LN + 8 MHA + 投影 + FFN）。TPOT 用“decode 完成即停止”模式（先逐位验证），ΔP 用完整运行，TTFT 线性叠加（近似）。共 7 个臂（2 个基线、CRISP、4 个消融）；故障推荐 C 的 19 个全集，分批跑。
+- **耗时（估）：** 合计约 1,070–1,330 本机进程小时，其中 −CPCM 的新修复 210–470；墙钟约 30–45 小时（本机 + 5 个 Colab）。pf_ln、pf_proj 的切块后按跳耗时没测过（推测值），停止模式的节省也没测过，都留到 D0。
+- **待用户决定：** 见 `D_PLAN.md` 第 9 节的 10 个问题。
