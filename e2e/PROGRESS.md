@@ -596,3 +596,16 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
   - 新增 `e2e\c\mem_watch.ps1`：每 10 分钟记一次系统空闲内存、python 进程数与合计内存，以及按进程名合计内存最多的前 5 个非 python 程序，写入 `e2e\c\out\mem\system.jsonl`。
   - 第 1 次采样（09:14，续跑前）：总内存 31.7 GB，空闲 14.9 GB；非 python 程序中 chrome 4.95 GB（20 个进程）、claude 2.72 GB、ChatGPT 1.74 GB、svchost 1.67 GB、Doubao 1.29 GB。
   - 续跑后共 16 个 python 进程（2 个调度进程 + 14 个作业）。
+
+- 2026-11-10 16:05 C：本机全部跑完，Colab 6 个分片已收回。
+  - localfull 续跑的两个进程都 all ok（6.71 h、6.72 h），0 失败，期间没有触线。
+  - 本机各分片逐个核对 sink，全部齐：prep 320、local 1,416、localfull 896、localrep 520、localfix 16，剩 0。`fallback.jsonl` 全程仍只有 1 行。
+  - 内存记录（`e2e\c\out\mem\system.jsonl`，09:14–15:54，41 次采样）：
+    - 最低空闲 3.93 GB，在 12:04；python 合计最多 10.29 GB。
+    - 最低点时非 python 程序的前 5 名：chrome 5.40 GB、claude 2.61 GB、ChatGPT 1.89 GB、svchost 1.64 GB、Doubao 1.31 GB。
+    - 本机跑完后停了记录进程。
+  - Colab：`colab_results/` 中有 c01、c02、c03、c05、c06、c07 共 6 个压缩包（Drive 下载时间 11-10 08:54–08:56），已解压到 `colab_results/c`。
+    - 这 6 个分片按 shards.json 逐个核对 sink，全部齐，运行记录中没有失败。
+    - c01、c02、c03、c05 的运行记录条数多于作业数（370/335、397/362、362/348、430/353），推测是断线后续跑的重复记录，未核实。
+  - 尚无结果的分片：c04、c08–c15，共 3,033 个作业。
+  - 指南写“本机先跑完就从第 3 批末尾往前接分片”。但 Colab 现在在跑哪些分片，这里不知道，先问清楚再接，避免与 Colab 重复。
