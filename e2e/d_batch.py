@@ -171,6 +171,30 @@ def build(name, out):
     return list(exports.values()), list(jobs.values())
 
 
+SEEDS_X = (4, 5, 6, 7, 8, 9, 10)           # rule 12: pf_mha cells get seeds 4-10 as supplement jobs
+
+
+def ext_jobs(jobs):
+    """For every pf_mha job: 3 supplement jobs (one per g); the first also runs P solo with seeds 4-10 if the base job has P solos."""
+    out = []
+    for j in jobs:
+        if j["kind"] != "mha":
+            continue
+        base = j["spec"]
+        has_solo = any(r["label"].startswith("soloP") for r in base["runs"])
+        b0 = next(r for r in base["runs"] if r["kind"] == "ov")
+        for gi, tau in enumerate(TAUS):
+            runs = []
+            if gi == 0 and has_solo:
+                runs += [{"kind": "solo", "stream": 0, "backend": b0["backend"], "seed": s, "policy": {"name": "P1"}, "label": f"soloP_s{s}"} for s in SEEDS_X]
+            runs += [{"kind": "ov", "backend": b0["backend"], "seed": s, "policy": dict(b0["policy"]), "tau": tau, "by_op": False,
+                      "label": f"ov_g{G[gi]}_s{s}"} for s in SEEDS_X]
+            nm = f"{base['name']}_x{gi}"
+            sp = dict(base, name=nm, sink=os.path.join(os.path.dirname(base["sink"]), nm + ".pkl.gz"), runs=runs)
+            out.append({"name": nm, "cmd": "simsb", "spec": sp, "folder": j["folder"], "arms": list(j["arms"]), "cond": j["cond"], "kind": "mha"})
+    return out
+
+
 def sa_jobs(out):
     """S-A reduced (D_PLAN v2 section 1): the 2x2 co-location of D0, conditions N, PF4, PF6; B-R0, CRISP, -DSTU-prio; f = 0.4."""
     import c_eir as c
@@ -203,14 +227,22 @@ def sa_jobs(out):
     return list(exports.values()), jobs
 
 
-def run(name, workers, out):
+def run(name, workers, out, part="all"):
     exports, jobs = build(name, out)
-    if name == "D1":
+    if part in ("all", "ext", "exports"):
+        xj = ext_jobs(jobs)
+        jobs = xj if part == "ext" else jobs + xj
+    if name == "D1" and part != "ext":
         e2, j2 = sa_jobs(out)
         exports += e2
         jobs += j2
     bdir = os.path.join(out, "batches", name)
     os.makedirs(bdir, exist_ok=True)
+    old = os.path.join(bdir, "plan.json")
+    if os.path.exists(old):                     # keep the jobs of an earlier run of this batch in the plan (the report reads it)
+        prev = json.load(open(old))
+        have = {j["name"] for j in jobs}
+        jobs = jobs + [j for j in prev["jobs"] if j["name"] not in have and j["kind"] != "export"]
     json.dump({"exports": [e["spec"] for e in exports], "jobs": [{k: v for k, v in j.items() if k != "spec"} | {"spec": j["spec"]} for j in jobs]},
               open(os.path.join(bdir, "plan.json"), "w"), indent=1, default=str)
     print(f"[{name}] exports {len(exports)}, jobs {len(jobs)}", flush=True)
@@ -223,9 +255,12 @@ def run(name, workers, out):
         x = d._load(e["spec"]["sink"])["d_export"]
         if not x["T_equal"]:
             raise SystemExit(f"{e['name']}: T-hat {x['T']} differs from C's {x['T_ref']}")
+    if part == "exports":
+        print(f"[{name}] exports done", flush=True)
+        return
     jobs.sort(key=lambda j: 0 if j["kind"] in ("mha", "SA_pf_mha", "SA_pf_ffn", "ffncheck") else 1)
-    r2 = d.run_all(jobs, workers)
-    json.dump(r2, open(os.path.join(bdir, "runs.json"), "w"), indent=1)
+    r2 = d.run_all([j for j in jobs if part != "ext" or j["name"].endswith(("_x0", "_x1", "_x2"))], workers)
+    json.dump(r2, open(os.path.join(bdir, f"runs_{part}.json"), "w"), indent=1)
     bad = [x for x in r2 if x.get("rc") or x.get("killed")]
     print(f"[{name}] done; failed {len(bad)}: {bad}", flush=True)
 
@@ -249,23 +284,35 @@ def report(name, out):
             key = (j["cond"], arm)
             R = rows[key]
             if j["kind"] == "mha":
-                solo = {r["seed"]: r for r in s["runs"] if r["label"].startswith("soloP")}
-                soloD = [r["out"][0] for r in s["runs"] if r["label"].startswith("soloD")]
-                ovs = [r for r in s["runs"] if r["kind"] == "ov"]
-                R["mha_job"] = j["name"]
-                if solo:
-                    R["T_P_mha_self"] = statistics.mean(r["out"][0] for r in solo.values())
-                    R["P_mha_solo_range"] = max(r["out"][0] for r in solo.values()) - min(r["out"][0] for r in solo.values())
-                if soloD:
-                    R["T_D_self"] = statistics.mean(soloD)
-                R["units"] = [{"tau": r["tau"], "seed": r["seed"], "D_lat": r["streams"][1]["C"] - r["tau"], "C_P": r["streams"][0]["C"],
-                               "kv_window": r.get("kv_window"),
-                               "in_window": bool(r.get("kv_window") and r["kv_window"][0] is not None and r["kv_window"][0] <= r["tau"] + 355201 and r["tau"] <= r["kv_window"][1]),
-                               "dP": (r["streams"][0]["C"] - solo[r["seed"]]["out"][0]) if r["seed"] in solo else None} for r in ovs]
+                R.setdefault("_solo", {}).update({r["seed"]: r["out"][0] for r in s["runs"] if r["label"].startswith("soloP")})
+                R.setdefault("_soloD", []).extend(r["out"][0] for r in s["runs"] if r["label"].startswith("soloD"))
+                R.setdefault("_ovs", []).extend(r for r in s["runs"] if r["kind"] == "ov")
+                R.setdefault("mha_jobs", []).append(j["name"])
             elif j["kind"] in ("pf_ln", "pf_proj", "pf_ffn"):
                 R[f"T_{j['kind']}_self"] = statistics.mean(r["out"][0] for r in s["runs"])
             else:
                 R[j["kind"]] = [{"label": r["label"], "out": r["out"], "C": {k: v["C"] for k, v in r["streams"].items()}, "tau": r.get("tau")} for r in s["runs"]]
+    # shared solos: an arm whose pf_mha job has no P solo (-DSTU-prio, rev) pairs with the C4 arm of the same state (CRISP): same graph,
+    # and C4 = P1 on one stream bit for bit (D0 item 5)
+    for (cond, arm), R in rows.items():
+        if not R.get("_solo") and arm in ("-DSTU-prio", "rev") and (cond, "CRISP") in rows:
+            R["_solo"] = rows[(cond, "CRISP")].get("_solo", {})
+            R["_soloD"] = rows[(cond, "CRISP")].get("_soloD", [])
+            R["solo_from"] = "CRISP"
+    for (cond, arm), R in rows.items():
+        solo, ovs = R.pop("_solo", {}), R.pop("_ovs", [])
+        soloD = R.pop("_soloD", [])
+        if solo:
+            R["T_P_mha_self"] = statistics.mean(solo.values())
+            R["P_mha_solo_range"] = max(solo.values()) - min(solo.values())
+            R["n_solo_seeds"] = len(solo)
+        if soloD:
+            R["T_D_self"] = statistics.mean(soloD)
+        if ovs:
+            R["units"] = [{"tau": r["tau"], "seed": r["seed"], "D_lat": r["streams"][1]["C"] - r["tau"], "C_P": r["streams"][0]["C"],
+                           "kv_window": r.get("kv_window"),
+                           "in_window": bool(r.get("kv_window") and r["kv_window"][0] is not None and r["kv_window"][0] <= r["tau"] + 355201 and r["tau"] <= r["kv_window"][1]),
+                           "dP": (r["streams"][0]["C"] - solo[r["seed"]]) if r["seed"] in solo else None} for r in ovs]
     res = {"audit": audit, "taus": TAUS, "T_ref": T_REF, "rows": []}
     for (cond, arm), R in sorted(rows.items()):
         u = R.get("units") or []
@@ -294,6 +341,7 @@ def main():
     ap.add_argument("--out", default=os.path.join(d.OUT, "prod"))
     ap.add_argument("--peak-gb", type=float)
     ap.add_argument("--free-gb", type=float)
+    ap.add_argument("--part", default="all", choices=("all", "base", "ext", "exports"))
     a = ap.parse_args()
     if a.peak_gb:
         d.LOCAL_PEAK_GB = a.peak_gb
@@ -306,7 +354,7 @@ def main():
         for j in jobs:
             print(j["name"], j["arms"], len(j["spec"]["runs"]))
     elif a.cmd == "run":
-        run(a.batch, a.workers, a.out)
+        run(a.batch, a.workers, a.out, a.part)
     elif a.cmd == "report":
         r = report(a.batch, a.out)
         for row in r["rows"]:
