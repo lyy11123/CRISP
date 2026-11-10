@@ -650,6 +650,367 @@ def d0(workers, only=None):
         json.dump(r, open(os.path.join(base, "probe_runs.json"), "w"), indent=1)
 
 
+# ================================================================ S-B: P group (left 2x2) and D group (right 2x2) on a 2x4 platform
+# User 2026-11-11 (E2E_HANDOFF.md section 6, "场景改定"). The 2x2 graphs are exported as before (C's states, unchanged) and
+# remapped here: die n*2+m of the 2x2 -> n*4+m (left, P) or n*4+m+2 (right, D); core and DDR-port numbers stay. The K and V messages
+# of prefill MHA's final broadcast (kconv, vconv) get the D group's DDR ports as targets and new multicast trees (the artifact's
+# Dijkstra on the 2x4 platform, in tag order, RNG seeded BCAST_SEED, alpha / beta / gamma of the template); K^T and P stay in the P
+# group. Faults: C's coordinates remapped into one group (that group's operators take C's state for the fault, the other group
+# its fault-free state), or a link between the groups (both groups fault-free).
+SB_MAP = {"L": {0: 0, 1: 1, 2: 4, 3: 5}, "R": {0: 2, 1: 3, 2: 6, 3: 7}}
+CFG24 = "config_ch2x4_bw256_co4x4_bw256_t128x64_failpattern0.cfg"
+KV_NAMES = ("kconv", "vconv")
+# links between the groups (2x4 coordinates; D0 probe): dies 1-2 and 5-6, two per direction each
+INTER = {"G1": [[[1, 11], [2, 8]], [[2, 8], [1, 11]]],
+         "G2": [[[1, 11], [2, 8]], [[2, 8], [1, 11]], [[1, 7], [2, 4]], [[2, 4], [1, 7]]]}
+
+
+def cfg_2x4(c):
+    src = os.path.join(c.WORK, "models", c.PREFILL, "cfg", CFG_NAME)
+    with open(src, encoding="utf-8") as f:
+        txt = f.read()
+    if txt.count("chiplet_number = 4") != 1 or txt.count("chiplet_columns = 2") != 1:
+        raise RuntimeError("2x2 cfg: unexpected chiplet lines")
+    new = txt.replace("chiplet_number = 4", "chiplet_number = 8").replace("chiplet_columns = 2", "chiplet_columns = 4")
+    dst = os.path.join(OUT, "cfg", CFG24)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    if not os.path.exists(dst) or open(dst, encoding="utf-8").read() != new:
+        with open(dst + ".tmp", "w", encoding="utf-8") as f:
+            f.write(new)
+        os.replace(dst + ".tmp", dst)
+    return dst
+
+
+def rn(n, mp):
+    return (mp[n[0]],) + tuple(n[1:])
+
+
+def remap_fault(f, mp):
+    if not f:
+        return {"failed_nodes": [], "failed_links": [], "failed_pes": []}
+    return {"failed_nodes": [list(rn(tuple(n), mp)) for n in f.get("failed_nodes", [])],
+            "failed_links": [[list(rn(tuple(a), mp)), list(rn(tuple(b), mp))] for a, b in f.get("failed_links", [])],
+            "failed_pes": [list(rn(tuple(n), mp)) for n in f.get("failed_pes", [])]}
+
+
+def build_platform_sb(c, fault24):
+    import e4_overlap as E4
+    hp = E4.build_platform(cfg_2x4(c), fault24 if fault24 and (fault24["failed_nodes"] or fault24["failed_links"]) else None)
+    pes = set(map(tuple, (fault24 or {}).get("failed_pes", [])))
+    for d in (hp.tensorcore_dict, hp.vectorunit_dict):
+        for loc in list(d):
+            if tuple(loc[:-1]) in pes:
+                del d[loc]
+    return hp
+
+
+def remap_events(ev, mp):
+    for e in ev.values():
+        if e.event_type == "computation":
+            e.comp_location = rn(e.comp_location, mp)
+        else:
+            e.source_location = rn(e.source_location, mp)
+            T = e.target_location
+            e.target_location = {rn(x, mp) for x in T} if isinstance(T, set) else rn(T, mp)
+            e.paths = {rn(k, mp): [rn(x, mp) for x in v] for k, v in e.paths.items()}
+            e.path_list = [[(rn(a, mp), rn(b, mp)) for a, b in br] for br in e.path_list]
+    return ev
+
+
+def check_group(hp22, hp24, mp):
+    """The 2x2 platform of a group, remapped, is exactly the 2x4 platform restricted to the group's dies."""
+    dies = set(mp.values())
+    bad = 0
+    for (a, b), L in hp22.links_dict.items():
+        L2 = hp24.links_dict.get((rn(a, mp), rn(b, mp)))
+        if L2 is None or (L2.link_type, L2.bandwidth, L2.latency, L2.timeunit) != (L.link_type, L.bandwidth, L.latency, L.timeunit):
+            bad += 1
+    n24 = sum(1 for (a, b) in hp24.links_dict if a[0] in dies and b[0] in dies)
+    m22 = {(t, rn(loc, mp)) for t, ms in hp22.modules_dict.items() for loc in ms}
+    m24 = {(t, loc) for t, ms in hp24.modules_dict.items() for loc in ms if loc[0] in dies}
+    return {"links_bad": bad, "links_22": len(hp22.links_dict), "links_24_in_group": n24, "modules_equal": m22 == m24}
+
+
+def check_graph(ev, hp):
+    miss_c = sum(1 for e in ev.values() if e.event_type == "computation" and e.comp_location not in hp.modules_dict[e.comp_device])
+    miss_l = sum(1 for e in ev.values() if e.event_type == "communication" for br in e.path_list for k in br if k not in hp.links_dict)
+    return {"missing_compute": miss_c, "missing_links": miss_l}
+
+
+def links_of(ev):
+    return {k for e in ev.values() if e.event_type == "communication" for br in e.path_list for k in br}
+
+
+def build_kv(c, ev, hp, ctx):
+    """K and V messages of prefill MHA's final broadcast -> the D group's DDR ports, new multicast trees."""
+    import numpy as np
+    right = set(SB_MAP["R"].values())
+    d_ddrs = {d[:-1] for d in hp.ddr_dict if d[0] in right}
+    kv = sorted(t for t, e in ev.items() if e.event_type == "communication" and any(k in e.event_name for k in KV_NAMES)
+                and isinstance(e.target_location, set) and all(x[1] >= 16 for x in e.target_location))
+    b0 = sum(int(ev[t].comm_bytes) for t in kv)
+    rng = random.getstate(), np.random.get_state()
+    random.seed(c.cs.BCAST_SEED)
+    np.random.seed(c.cs.BCAST_SEED)
+    for t in kv:
+        e = ev[t]
+        e.target_location = set(d_ddrs)
+        e.paths = hp.record_dijkstra_multicast_path(comm_pairs=[[t, e.source_location, set(d_ddrs), e.comm_bytes]],
+                                                    alpha=ctx["alpha"], beta=ctx["beta"], gamma=ctx["gamma"])[2][t]
+        e.path_list = e.get_paths(e.paths)
+    random.setstate(rng[0])
+    np.random.set_state(rng[1])
+    # checks: every target is a leaf, every branch ends at a target, links exist, inter-group crossings
+    leaf_bad = tree_bad = cross = 0
+    for t in kv:
+        e = ev[t]
+        leaves = {br[-1][1] for br in e.path_list if br}
+        if leaves != d_ddrs:
+            leaf_bad += 1
+        if any(k not in hp.links_dict for br in e.path_list for k in br):
+            tree_bad += 1
+        cross += len({k for br in e.path_list for k in br if hp.links_dict[k].link_type == "ch2ch" and (k[0][0] % 4 < 2) != (k[1][0] % 4 < 2)})
+    return kv, {"n_kv": len(kv), "bytes": b0, "bytes_after": sum(int(ev[t].comm_bytes) for t in kv), "targets": len(d_ddrs),
+                "leaf_mismatch": leaf_bad, "missing_links": tree_bad, "inter_group_link_uses": cross}
+
+
+def chain_sb(blobs, sid, mp, reps=1):
+    out, prev_sinks, edges = {}, None, 0
+    for k, op in enumerate(CHAIN * reps):
+        ev = retag(remap_events(pickle.loads(blobs[op]), mp), sid, k)
+        sources = [t for t, e in ev.items() if not e.dependency_set]
+        sinks = [t for t, e in ev.items() if not e.issue_set]
+        if prev_sinks is not None:
+            for t in sources:
+                ev[t].dependency_set.update(prev_sinks)
+            for t in prev_sinks:
+                out[t].issue_set.update(sources)
+            edges += len(sources) * len(prev_sinks)
+        out.update(ev)
+        prev_sinks = sinks
+    return out, edges
+
+
+def window(rec, tags):
+    v = [rec[t] for t in tags if t in rec]
+    return (min(x[0] for x in v), max(x[1] for x in v)) if v else (None, None)
+
+
+def base_of(t):
+    return tuple(t[:-1]) + (t[-1] % 1_000_000,)
+
+
+def sim_sb(spec_path):
+    with open(spec_path, encoding="utf-8") as f:
+        spec = json.load(f)
+    c = _sim_setup()
+    import dstu2
+    t_start = time.perf_counter()
+    hp0 = build_platform_sb(c, spec.get("fault24"))
+    sink = {"spec": spec, "plat": plat_struct(hp0), "runs": [], "checks": {}}
+    ex, hp22 = {}, {}
+    for g in ("P", "D"):
+        gs = spec["groups"].get(g)
+        if not gs:
+            continue
+        hp22[g] = build_platform(c, gs.get("fault22"))
+        ps = plat_struct(hp22[g])
+        for name in gs["exports"]:
+            d = _load(spec["exports"][name])["d_export"]
+            if d["plat"]["sha1"] != ps["sha1"]:
+                raise RuntimeError(f"{name}: 2x2 platform structure differs from the exporting process's")
+            ex[name] = d["events_blob"]
+        sink["checks"][f"group_{g}"] = check_group(hp22[g], hp0, SB_MAP[gs["map"]])
+    built, raw, kv_base = {}, {}, set()
+    if spec["groups"].get("P"):
+        gs = spec["groups"]["P"]
+        ev = retag(remap_events(pickle.loads(ex[gs["P"]]), SB_MAP[gs["map"]]), 0)
+        if gs.get("kv"):
+            kv, st = build_kv(c, ev, hp0, spec["kv_ctx"])
+            kv_base = set(kv)
+            sink["checks"]["kv"] = st
+        built[0] = ev
+    if spec["groups"].get("D"):
+        gs = spec["groups"]["D"]
+        ev, edges = chain_sb({op: ex[gs["D"][op]] for op in DC}, 1, SB_MAP[gs["map"]], spec.get("reps", 1))
+        built[1] = ev
+        sink["checks"]["chain_edges"] = edges
+    for s, ev in built.items():
+        sink["checks"][f"graph_{s}"] = check_graph(ev, hp0)
+    if 0 in built and 1 in built:
+        kvl = links_of({t: e for t, e in built[0].items() if t in kv_base})
+        pl = links_of({t: e for t, e in built[0].items() if t not in kv_base})
+        dl = links_of(built[1])
+        typ = lambda ks: dict(collections.Counter(hp0.links_dict[k].link_type for k in ks))  # noqa: E731
+        pm = {(e.comp_device, e.comp_location) for e in built[0].values() if e.event_type == "computation"}
+        dm = {(e.comp_device, e.comp_location) for e in built[1].values() if e.event_type == "computation"}
+        sink["checks"]["shared"] = {"P_links_and_D_links": typ(pl & dl), "KV_links_and_D_links": typ(kvl & dl),
+                                    "KV_links_and_P_links": typ(kvl & pl), "compute_shared": len(pm & dm), "KV_links": typ(kvl)}
+    blobs = {}
+    for s, ev in built.items():
+        raw[s] = pickle.dumps(ev, protocol=pickle.HIGHEST_PROTOCOL)
+        t0 = time.perf_counter()
+        ch, cst = dstu2.chunk_by(ev, hp0, CHUNK)
+        sink["checks"][f"build_{s}"] = {"n_events": len(ev), "n_chunked": len(ch), "chunk": cst, "wall": time.perf_counter() - t0}
+        blobs[s] = pickle.dumps(ch, protocol=pickle.HIGHEST_PROTOCOL)
+        built[s] = ch
+    that = {}
+    for s in spec.get("that", []):
+        T, w, n = that_hop(built[s], hp0)
+        that[s] = T
+        sink["checks"][f"that_{s}"] = {"T_hat": T, "wall": w, "n": n}
+    del built
+    merged = {}
+    if len(blobs) == 2:
+        for nm_, bl in (("hop", blobs), ("orig", raw)):
+            m = pickle.loads(bl[0])
+            m.update(pickle.loads(bl[1]))
+            merged[nm_] = pickle.dumps(m, protocol=pickle.HIGHEST_PROTOCOL)
+            del m
+    kv_win = solo_P = None
+    for r in spec["runs"]:
+        pol = dict(r.get("policy", {"name": "P1"}))
+        rec_needed = r.get("record", False) or bool(kv_base)
+        if r["kind"] == "solo":
+            s = r["stream"]
+            if pol["name"] == "C4":
+                pol["rank"] = {s: 0}
+            if r.get("on") == "2x2":                        # the same state on its own 2x2 platform (no remap, no KV)
+                g = "P" if s == 0 else "D"
+                gs = spec["groups"][g]
+                ev = retag(pickle.loads(ex[gs["P"]]), 0) if s == 0 else chain({op: ex[gs["D"][op]] for op in DC}, 1)[0]
+                if r["backend"] == "hop":
+                    ev, _ = dstu2.chunk_by(ev, hp22[g], CHUNK)
+                res = run_backend(c, pickle.dumps(ev), hp22[g], r["backend"], pol, {s: 0}, r["seed"], record=True)
+            else:
+                res = run_backend(c, (raw if r["backend"] == "orig" else blobs)[s], hp0, r["backend"], pol, {s: 0}, r["seed"], record=rec_needed)
+        else:
+            tau = r.get("tau")
+            if tau is None and "f_p" in r:                    # f x this process's first solo P run
+                tau = int(round(r["f_p"] * solo_P))
+            elif tau is None:                                 # relative to the KV window of a solo run of this process
+                lo, hi = kv_win
+                tau = int(round(lo + r["f_kv"] * (hi - lo)))
+            rel = {0: 0, 1: tau}
+            if pol["name"] == "C4":
+                d_hat = {0: K * that[0], 1: tau + K * that[1]}
+                order = sorted(d_hat, key=lambda i: (d_hat[i], i))
+                pol["rank"] = {i: order.index(i) for i in d_hat}
+                pol["d_hat"] = d_hat
+            elif pol["name"] == "PD":
+                pol = {"name": "fixed", "rank": {0: 0, 1: 1}}
+            res = run_backend(c, merged[r["backend"]], hp0, r["backend"], pol, rel, r["seed"], record=rec_needed)
+            res.update(tau=tau, rank=pol.get("rank"), d_hat=pol.get("d_hat"))
+        if kv_base and "record" in res:
+            kt = [t for t in res["record"] if t[1] == 10 and base_of(t) in kv_base]
+            res["kv_window"] = window(res["record"], kt)
+            if r["kind"] == "solo" and r["stream"] == 0 and r.get("on") != "2x2" and kv_win is None:
+                kv_win = res["kv_window"]
+            if r.get("by_op") and 1 in res["streams"]:
+                by = collections.defaultdict(list)
+                for t, v in res["record"].items():
+                    if t[1] == 11:
+                        by[t[2]].append(v)
+                res["d_ops"] = {k: (min(x[0] for x in v), max(x[1] for x in v)) for k, v in sorted(by.items())}
+            if not r.get("record"):
+                res.pop("record", None)
+                res.pop("links", None)
+        elif r.get("by_op") and "record" in res:
+            by = collections.defaultdict(list)
+            for t, v in res["record"].items():
+                if t[1] == 11:
+                    by[t[2]].append(v)
+            res["d_ops"] = {k: (min(x[0] for x in v), max(x[1] for x in v)) for k, v in sorted(by.items())}
+        if r["kind"] == "solo" and r["stream"] == 0 and r.get("on") != "2x2" and solo_P is None:
+            solo_P = res["out"][0]
+        res["kind"], res["label"], res["on"] = r["kind"], r.get("label"), r.get("on", "2x4")
+        sink["runs"].append(res)
+        print(f"[sb] {spec['name']} {r.get('label')} out {res['out']} wall {res['wall']:.1f}s kv {res.get('kv_window')}", flush=True)
+    sink["wall"] = time.perf_counter() - t_start
+    sink["peak_gb"] = peak_gb()
+    tmp = spec["sink"] + ".part"
+    with gzip.open(tmp, "wb") as fh:
+        pickle.dump(sink, fh, protocol=pickle.HIGHEST_PROTOCOL)
+    os.replace(tmp, spec["sink"])
+
+
+def kv_ctx(c):
+    """alpha / beta / gamma of prefill MHA's template (cpcm_sa saved the template's broadcast arguments with every run)."""
+    j = first_root(lambda r: c.jobs_full(r, "pf_mha", "PF4", "A3h")[0])
+    ctx = c.eir.read_sink(j["sink"])["meta"]["ctx"]
+    return {k: ctx[k] for k in ("alpha", "beta", "gamma", "dijkstra_routing")}
+
+
+def sb_smoke(workers):
+    import c_eir as c
+    c.redirect()
+    ctx = kv_ctx(c)
+    faults = c.eir.load_faults()
+    f22 = lambda fid: ({k: faults["pf_ln"][fid][k] for k in ("failed_nodes", "failed_links", "failed_pes")} if fid else None)  # noqa: E731
+    X = lambda op, st, fid=None: os.path.join(OUT, "d0", "export", f"x_{op}_{st}_{fid or 'none'}.pkl.gz")  # noqa: E731
+    base = os.path.join(OUT, "sb_smoke")
+    sf = os.path.join(base, "sims")
+
+    def spec(nm, P=None, D=None, fault24=None, reps=1, runs=(), that=(0, 1)):
+        ex, groups = {}, {}
+        if P:
+            op, st, fid, kv = P
+            ex[f"{op}:{st}"] = X(op, st, fid)
+            groups["P"] = {"map": "L", "fault22": f22(fid), "exports": [f"{op}:{st}"], "P": f"{op}:{st}", "kv": kv}
+        if D:
+            st, fid = D
+            for o in DC:
+                ex[f"{o}:{st}"] = X(o, st, fid)
+            groups["D"] = {"map": "R", "fault22": f22(fid), "exports": [f"{o}:{st}" for o in DC], "D": {o: f"{o}:{st}" for o in DC}}
+        sp = {"name": nm, "sink": os.path.join(sf, nm + ".pkl.gz"), "exports": ex, "groups": groups, "fault24": fault24, "reps": reps,
+              "kv_ctx": ctx, "that": [t for t in that if (t == 0 and P) or (t == 1 and D)], "runs": list(runs)}
+        return {"name": nm, "cmd": "simsb", "spec": sp, "folder": sf}
+    so = lambda s, b="hop", sd=1, on="2x4", pol="P1", by=False, rec=False: {"kind": "solo", "stream": s, "backend": b, "seed": sd, "on": on,  # noqa: E731
+                                                                          "policy": {"name": pol}, "by_op": by, "record": rec,
+                                                                          "label": f"solo{s}_{b}_{on}_{pol}_s{sd}"}
+    ov = lambda pol="C4", sd=1, b="hop", **kw: dict({"kind": "ov", "backend": b, "seed": sd, "policy": {"name": pol}, "by_op": True,  # noqa: E731
+                                                     "label": f"ov_{b}_{pol}_s{sd}_" + "_".join(f"{k}{v}" for k, v in kw.items())}, **kw)
+    fl = lambda fid, g: remap_fault(f22(fid), SB_MAP[g])  # noqa: E731
+    inter = lambda g: {"failed_nodes": [], "failed_links": INTER[g], "failed_pes": []}  # noqa: E731
+    items = [
+        # 2x4 against 2x2, same state, no KV retargeting (hop and original backend, seed 1, same process)
+        spec("sb_nokv_mha_a3h", P=("pf_mha", "a3h_pre", None, False), D=("a3h_pre", None),
+             runs=[so(0, rec=True), so(0, on="2x2"), so(0, "orig", rec=True), so(0, "orig", on="2x2"),
+                   so(1, rec=True), so(1, on="2x2"), so(1, "orig", rec=True), so(1, "orig", on="2x2")]),
+        # KV: solo P with KV, solo D, overlaps across the KV window (C4 and P1)
+        spec("sb_mha_a3h_none", P=("pf_mha", "a3h_pre", None, True), D=("a3h_pre", None),
+             runs=[so(0), so(1, by=True), so(1, sd=2), so(1, sd=3), so(0, "orig")] + [ov(f_kv=f) for f in FS] + [ov("P1", f_kv=0.4)]),
+        # linearity: 8 decode steps in a row against 1 (same tau rule)
+        spec("sb_mha_a3h_none_lin8", P=("pf_mha", "a3h_pre", None, True), D=("a3h_pre", None), reps=8,
+             runs=[so(0), so(1, by=True)] + [ov(f_kv=f) for f in (0.0, 0.4)] + [ov("P1", f_kv=0.0)]),
+        # faults: C's PF4 in the P group / in the D group; links between the groups
+        spec("sb_mha_PF4_P", P=("pf_mha", "a3h_rep", "PF4", True), D=("a3h_pre", None), fault24=fl("PF4", "L"),
+             runs=[so(0), so(1, by=True), ov(f_kv=0.4)]),
+        spec("sb_mha_PF4_D", P=("pf_mha", "a3h_pre", None, True), D=("a3h_rep", "PF4"), fault24=fl("PF4", "R"),
+             runs=[so(0), so(1, by=True), ov(f_kv=0.4)]),
+        spec("sb_mha_G1", P=("pf_mha", "a3h_pre", None, True), D=("a3h_pre", None), fault24=inter("G1"),
+             runs=[so(0), so(1, by=True), ov(f_kv=0.4)]),
+        spec("sb_mha_G2", P=("pf_mha", "a3h_pre", None, True), D=("a3h_pre", None), fault24=inter("G2"),
+             runs=[so(0), so(1, by=True), ov(f_kv=0.4)]),
+        # a non-MHA prefill operator: no KV, so P and D share no resource (checked); one overlap as evidence
+        spec("sb_ffn_a3h_none", P=("pf_ffn", "a3h_pre", None, False), D=("a3h_pre", None),
+             runs=[so(0), so(1), ov(f_p=0.4)]),
+    ]
+    # common reference: healthy W1 baseline = A1 before the fault, original backend, seeds 1-3, on the S-B platform (P with KV)
+    for op in PF:
+        items.append(spec(f"sb_ref_{op}", P=(op, "a1_pre", None, op == "pf_mha"), D=("a1_pre", None) if op == "pf_ln" else None,
+                          runs=[so(0, "orig", sd) for sd in SEEDS] + ([so(1, "orig", sd) for sd in SEEDS] if op == "pf_ln" else []), that=()))
+    with open(os.path.join(base, "plan.json") if os.path.isdir(base) else _mk(base, "plan.json"), "w", encoding="utf-8") as f:
+        json.dump([it["spec"] for it in items], f, indent=1)
+    r = run_all(items, workers)
+    json.dump(r, open(os.path.join(base, "runs.json"), "w"), indent=1)
+
+
+def _mk(d, name):
+    os.makedirs(d, exist_ok=True)
+    return os.path.join(d, name)
+
+
 def _load(p):
     with gzip.open(p, "rb") as fh:
         return pickle.load(fh)
@@ -800,6 +1161,10 @@ def main():
         return export_full(a.arg) if kind == "full" else export_eir(a.arg)
     if a.cmd == "sim":
         return sim(a.arg)
+    if a.cmd == "simsb":
+        return sim_sb(a.arg)
+    if a.cmd == "sbsmoke":
+        return sb_smoke(a.workers)
     if a.cmd == "d0":
         return d0(a.workers, a.only)
     if a.cmd == "d0report":
