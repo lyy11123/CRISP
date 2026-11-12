@@ -135,45 +135,136 @@
   "F": {
     "hardware_profiles": 3,
     "healthy_searches": 1008,
-    "fault_full_searches": 1344,
-    "total_searches": 2352,
+    "fault_full_searches": 336,
+    "total_searches": 1344,
     "terminal_states": 24,
-    "fault_final_states": 288,
-    "EIR_repairs": 96,
-    "joint_simulations": 648,
-    "solo_simulations_max_before_dedup": 324,
-    "estimated_total_hours": [
-      4,
-      8
-    ]
+    "EIR_configurations": 96,
+    "EIR_trajectory_slots_max": 480,
+    "fault_configuration_summary_rows": 288,
+    "fault_final_state_instances_max": 672,
+    "joint_base_simulations": 324,
+    "joint_extra_no_EIR_simulations": 27,
+    "joint_simulations": 351,
+    "ffn_structural_check_points": 3,
+    "pilot_searches_included": 72,
+    "paired_solo_count_status": "enumerate unique states after manifest generation",
+    "search_process_hours_E_duration_proxy": 196.79434678619748,
+    "total_wall_time_status": "estimate after full pilot jobs, complete repair trajectories, joint and paired-solo measurements",
+    "EIR_L2_independent_jobs_max": 1440
   },
   "G": {
     "shape_partition_combinations": 4,
     "healthy_searches": 1344,
-    "fault_full_searches": 448,
-    "total_searches": 1792,
+    "fault_full_searches": 224,
+    "total_searches": 1568,
     "terminal_states": 32,
-    "fault_final_states": 96,
-    "EIR_repairs": 32,
-    "joint_simulations": 432,
-    "solo_simulations_max_before_dedup": 216,
-    "estimated_total_hours": [
-      6,
-      12
-    ]
-  },
-  "memory_extrapolation": {
-    "E_peak_GiB": 0.914,
-    "scale": 2.25,
-    "G_3x3_job_GiB": 2.0565,
-    "G_128_same_jobs_GiB": 263.232,
-    "note": "rough proportional estimate; measure pilot, mix task sizes; no server state probe"
+    "EIR_configurations": 32,
+    "EIR_trajectory_slots_max": 160,
+    "fault_configuration_summary_rows": 96,
+    "fault_final_state_instances_max": 224,
+    "joint_base_simulations": 216,
+    "joint_extra_no_EIR_simulations": 18,
+    "joint_simulations": 234,
+    "ffn_structural_check_points": 2,
+    "pilot_searches_included": 96,
+    "paired_solo_count_status": "enumerate unique states after manifest generation",
+    "search_process_hours_E_duration_proxy": 217.54456558318222,
+    "total_wall_time_status": "estimate after measuring new graphs; core count is not a runtime or memory multiplier",
+    "EIR_L2_independent_jobs_max": 480
   },
   "estimate_limits": [
-    "F hardware conversion not implemented",
-    "FACE only HBM and D2D transfer until exact microarchitecture is available",
-    "D2D total/directional conversion is an explicit model assumption",
-    "G event-scale multipliers unmeasured",
-    "fault and joint estimates require new pilot timing"
-  ]
+    "E historical measured durations remain unchanged; decode FFN A1/A3h use same-method prefill FFN duration as a proxy",
+    "F hardware conversion and G larger graphs are not implemented or timed",
+    "D2D per-Die bidirectional total is the stated initial modeling assumption; 2 physical connections per edge",
+    "EIR has up to 640 configuration-by-seed trajectory slots; stages and early stop affect executed jobs",
+    "Whole-stage wall time awaits pilot repair, terminal-state, joint and paired-solo measurements",
+    "Main and sweep joint counts are logical pre-dedup executions, not all backend calls"
+  ],
+  "plan_revision": "2026-11-12_user_fg_update",
+  "plan_source": "C:/Users/YiyangLiu/Downloads/CRISP_FG_CODEX_UPDATE.md",
+  "execution_started": false,
+  "active_workers_policy": "at most 128; schedule from available memory and measured per-category peak RSS",
+  "D2D_sweep": {
+    "hardware_profile": "WATOS",
+    "multipliers": [
+      0.5,
+      1,
+      2
+    ],
+    "reused_multiplier": 1,
+    "new_searches": 112,
+    "new_joint_simulations": 24,
+    "search_operators": [
+      "decode/mha",
+      "decode/ffn"
+    ],
+    "search_methods": [
+      "A1",
+      "A3h"
+    ],
+    "search_mode": "reoptimize at each new bandwidth",
+    "joint_mapping_mode": "freeze selected WATOS 1x P and complete D mapping; reevaluate at each bandwidth",
+    "search_process_hours_E_duration_proxy": 6.491729813567777,
+    "paired_solo_count_status": "reevaluate at each new bandwidth; enumerate in manifest"
+  },
+  "totals": {
+    "main_healthy_searches": 2352,
+    "fault_full_searches": 560,
+    "main_searches": 2912,
+    "bandwidth_searches": 112,
+    "total_searches": 3024,
+    "terminal_states": 56,
+    "EIR_configurations": 128,
+    "EIR_trajectory_slots_max": 640,
+    "fault_configuration_summary_rows": 384,
+    "fault_final_state_instances_max": 896,
+    "main_joint_simulations": 585,
+    "bandwidth_joint_simulations": 24,
+    "joint_simulations": 609,
+    "ffn_structural_check_points": 5,
+    "pilot_searches_included": 168,
+    "search_process_hours_E_duration_proxy": 420.8306421829475,
+    "search_candidate_backend_calls_before_reuse": 30240,
+    "search_candidate_random_CPCM_calls_before_reuse": 30240,
+    "terminal_backend_calls_max_before_reuse": 560,
+    "other_evaluation_calls_status": "enumerate repair states, intermediate evaluations, solos and joint runs in executable manifest",
+    "EIR_L2_independent_jobs_max": 1920
+  },
+  "memory_reference": {
+    "E_peak_GiB": 0.914,
+    "F_G_peak_GiB_status": "measure each pilot task class",
+    "policy": "use actual graph and chunk counts; do not infer peak memory from 144/64 core ratio"
+  },
+  "EIR_protocol": {
+    "SA_seeds": [
+      123,
+      1,
+      2,
+      3,
+      4
+    ],
+    "steps": [
+      30,
+      100,
+      300
+    ],
+    "stage_start": "each stage independently reloads the same L1 snapshot",
+    "max_steps_per_configuration_seed": 430,
+    "stopping_metric": "mean deterministic CPCM estimate across five seeds at each L2 stage",
+    "epsilon": 0.02,
+    "joint_representative": "at chosen L2 stop stage, median of ten-backend-seed candidate means; tie smaller SA seed; R0/L1 stop reuses that state"
+  },
+  "joint_protocol": {
+    "phases": [
+      0.1,
+      0.5,
+      0.9
+    ],
+    "backend_seeds": [
+      1,
+      2,
+      3
+    ],
+    "reference": "healthy A1 original backend with cross-group KV; mean KV window over backend seeds 1-3, common absolute release times within each hardware/scale"
+  }
 }
