@@ -1,6 +1,6 @@
-# E 阶段实验方案（讨论稿）
+# E 阶段实验方案
 
-2026-11-12。依据用户提供的 `CRISP_E_CODEX_HANDOFF.md`、最新 `PROGRESS.md` 和本副本源码整理。代码基线为 `88b557a`，artifact 版本见 `third_party/isca2026-busybarn-artifact.COMMIT`。本次完成文件清点与源码核对，以下为待确认的实验安排。
+2026-11-12。依据用户提供的 `CRISP_E_CODEX_HANDOFF.md`、最新 `PROGRESS.md` 和本副本源码整理。代码基线为 `88b557a`，artifact 版本见 `third_party/isca2026-busybarn-artifact.COMMIT`。用户已确认本方案，当前授权实现和小批验证。小批结果及正式运行的预计时间汇报后，再决定全量。
 
 E 要回答两个问题。在相同 GPT 工作量和硬件上，A3h 相对 BusyBarn、Gemini 能改善多少 prefill、decode 和请求时间。把紧凑的 2×2 组与长条的 1×4 组放到同一块晶圆上以后，这些改善是否保持。
 
