@@ -7,7 +7,7 @@
 通用规则：
 - 不改 `third_party\`、`cpcm\`、`cpcm_sa\`、`eir\`、`dstu\` 的已有源码和结果；需要复用就 import，新代码放 `e2e\`，工作副本放 `e2e\work\artifact\`（不进仓库），对 artifact 的修改都在内存中或生成的 `py\`、`cfg\` 里。
 - 比较规则开跑前写进 `e2e\PROGRESS.md`，之后不改。汇总只报数字，不下结论；推测要标明。
-- 每步提交并推送；记录 artifact commit、随机种子、命令行。
+- 每步提交，远端分支按 `AGENTS.md`。记录 artifact commit、随机种子和命令行。
 
 ## 1. A：GPT prefill 试点（用户 2026-11-07 放行）
 
@@ -139,3 +139,11 @@ C 已完成（`e2e\C_SUMMARY.md`）。D 在新会话中做，第一步只读起�
   5. 放行第 11 条的 5 GB 放宽按 D0 实测（pf_mha 1.03 GB）多半用不上，大图作业可在本机跑。
   - 下一步：改写 D_PLAN（S-B 版，含 S-A 缩小版的范围、故障清单、任务清单与去重、D0 实测重估的运行量与本机/远端分配），写 S-B 代码并冒烟、自检；报用户放行后才开 D1。
 - **开跑授权（用户 2026-11-11）：** S-B 代码写好、冒烟与自检全部通过、比较规则写进 PROGRESS 后，直接开跑 D1，不再等放行；后续各批连续推进，每批结束报一次结果与剩余时间，不等回复。自检不通过、模板或后端报错、内存触线、单进程超过时限，仍停下报告。远端部分（Colab 或租用服务器）需要用户手动开，包好后把指南与预计墙钟报给用户。
+
+
+## 7. Codex 接手状态（2026-11-12）
+
+- `CRISP_codex` 顶层从 Claude 提交 `6d2821e` 建立 `codex/e2e-handoff` 分支。后续推送使用 Codex 分支。
+- D1–D5 与 S-A 已汇总，共 1,853 个作业。D5 的 123 个补充作业归档在 `e2e/d/out/remote/pkg3`，结果并入 `e2e/d/out/prod/sims`。数据口径见 `D_PLAN.md` 和 `PROGRESS.md`。
+- 从仓库根目录运行 `python -B e2e/d_summary.py` 生成逐条件表 `e2e/D_SUMMARY.md`。运行 `python -B e2e/d_stage_summary.py --e2e e2e --out-dir e2e/d/out/prod/analysis` 生成逐单元 JSON 和分析汇总。
+- 下一阶段 E 为混合分组与 Gemini 基线。接续时先核对 W1 下的分组、映射和 Gemini 模板计数，再制定作业矩阵与比较口径。路线沿用文档开头的 E 至 J 顺序。

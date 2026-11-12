@@ -1,3 +1,81 @@
-# AGENTS.md
+# CRISP Codex 工作说明
 
-本仓库的项目说明与规则在 [`CLAUDE.md`](CLAUDE.md)，多工具协作约定（拉取、提交、推送、交接）在 [`README.md`](README.md)。开始任何工作前先读这两个文件，再读当前实验的 `<实验>_HANDOFF.md` 与 `PROGRESS.md` 最后几条。
+## Codex 工作目录与分支
+
+- 本工作副本为 `E:\58Institute\PhD_TERM3\CRISP_codex`。从顶层仓库运行 Git 和实验命令。
+- 接手分支为 `codex/e2e-handoff`，基线是 Claude 的 `6d2821e`。后续 Codex 工作使用 `codex/*` 分支，GitHub 推送目标为相应的 `origin/codex/*` 分支。
+- `origin/main` 用于同步共享基线。同步时先 `git fetch origin`，再在当前 `codex/*` 分支合并 `origin/main`。
+- 已有 Claude 嵌套工作树保留为交接材料。当前端到端实验入口是顶层 `e2e`。接手时读 [`PROJECT_MEMORY.md`](PROJECT_MEMORY.md)、对应的 `*_HANDOFF.md` 和 `PROGRESS.md` 最后一条。
+
+## 这是什么
+
+CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障修复，目标期刊 IEEE TC / TPDS。
+
+主张：按资源累加负载的代价函数看不到依赖、时间对齐和服务顺序，故障会放大这一盲区。CRISP 以调度级延迟估计驱动映射搜索和分级故障修复，作为插件接在现有映射器之后。
+
+三个模块（定位以方案文档为准，下面是 2026-11-03 判定关口结束时定稿的状态）：
+- **CPCM**：依赖感知的调度级延迟估计，是映射搜索、DSTU 选切与试算、EIR 每级评估的统一底座；在映射搜索里替代聚合代价，需要做到增量、毫秒级。
+- **EIR**：分级增量故障修复。L1 只改路由或通信顺序，L2 故障附近局部重映射，L3 Die 组之间重新划分层，L4 全局重新搜索；每级用 CPCM 估计，代价计入权重迁移量。停止规则（2026-11-05 定稿，ε = 2%）：跨级时 T̂ 回到故障前 ε 以内才停，否则继续升级，L1 改进小或为 0 不是停止理由；L2 内部按步数档判断，已进 ε 或相邻两档 T̂ 改进小于 2% 即停。原“相邻两级改进小于阈值即停”已废除（L1 没有候选时改进为 0，会误停在 R0，如 A3h FFN F5 的 +29.2%）。故障后下界 LB_post 保留作分析参照（E3 测得下界紧度只有 0.25–0.38）。
+- **DSTU**（定位 2026-11-07 由用户调整）：核心机制是全链路切块（提供抢占点）与按跳优先级仲裁（决定抢占方向）的协同，全链路 256 KB 是默认配置（块开销压力扫描 o = 0–1000 周期，a2、Δ0、k = 1.5：L̂ 始终优于只切 D2D 和无优先级基线；o 区间不是真实硬件阈值）。不再主张“截止时间必须由 CPCM 算出”：流级 C4 的顺序与聚合代价键在 95% 以上的行上相同（`dstu\OVERHEAD_SUMMARY.md`），算子级子期限公式 ED 在违约过载时退化（最差 L̂ 差于不用预测的 UD）。CPCM 在 DSTU 中的作用是两处：事件级 φ_res 选择性切块，在切块有开销时避开全切 64 KB 的完成时间恶化，并以可控的完成时间代价压低短流 L̂ 迟约（全链路 256 KB 起点、o = 0 时 9/9 优于所测静态规则和随机，是 L̂ 与完成时间的权衡，不是全面占优）；前向试算 CP_SIM 与按流分图的传播准则（C-S：合并图的跨流边使 C-M 退化，遮掉后恢复）。全链路设定 3（`dstu\SETTING3_ALL_SUMMARY.md`）中 C4 − BestFixed 最大 0.028（W0；主负载 W1 下最大 0.060、2 行超过 0.04，见 `e2e\w1_rerun\W1_RERUN_SUMMARY.md`），CP_SIM 与 C4 只有 3 行顺序不同（差 2、平 1、好 0），即 CP_SIM 在此无增益，用户 2026-11-07 决定它退出默认方法。定版：全链路 256 KB + C4 是默认方法，φ_res 是可选增强，C-S、C-M 只作机制和权衡对照。不再强调运行中逐 tick 动态重算 slack（E4b：截止时间已知时，动态 slack 不比静态 EDF 稳定更好）。晶圆场景中传输流的重叠（同实例 PD 与远端 KV 访存、跨阶段激活流与主流水线交织）是 DSTU 的应用背景。D2D 运行时改路不作重点（相邻 Die 之间每个方向只有 2 条并行 D2D 链路，绕经第三个 Die 会更糟）。
+
+基线平台：BusyBarn（ISCA 2026）artifact 的模拟器、硬件配置和模型集合。
+
+## 当前阶段
+
+判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。第 4 步 EIR 主实验已完成（1,240 次，`eir\EIR_SUMMARY.md`），论文 EIR 主表以 A3h 起点为核心，BusyBarn 起点保留用于对比外部映射器起点和 FULL-BusyBarn。下一阶段增量实验 A（L2-Impact 与消融）、C（k = 4 复合故障）、B（双阶段时间轴与窗口决策，含 KV 解析估算）已于 2026-11-05 完成（`eir\EIR_NEXT_SUMMARY.md`）：L2-Global（+sync）是主力修复方法；窗口决策不一致优于固定 ε；事后追加的渐进部署在 T_switch ≤ 0.1 s 时不输于单次部署（中位数），FFN 上 T̂ 低估主要来自确定性平局规则。EIR 于 2026-11-06 封版。DSTU 阶段 1（CPCM 截止时间代替理想值，设定 1–3）已于 2026-11-06 完成（`dstu\DSTU_SUMMARY.md`）：各流自己的图上 CPCM 几乎不丢收益，合并图丢掉大部分；流级 C4 总体与事件级 C-S 打平或更稳，但有反例子集。阶段 2（2A 子期限、2B 选择性切块）、2C（全链路 256 KB 复测）、块开销敏感性与聚合代价键核查已完成（`dstu\STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`）；全链路设定 3 与“不切”对照已于 2026-11-07 完成（`dstu\SETTING3_ALL_SUMMARY.md`），DSTU 收尾（全链路设定 2、非零开销选切对照）已于 2026-11-07 完成（`dstu\FINAL_RUNS_SUMMARY.md`）。端到端阶段（`e2e\E2E_HANDOFF.md`，每步用户放行后才做下一步；串行计时放在最后）：A 试点、B GPT 完整 P/D（`e2e\B4_SUMMARY.md`）、按跳提速（`e2e\SPEEDUP_SUMMARY.md`）已完成；2026-11-08 起主工作负载定为 W1（MHA 最终广播去掉 QKᵀ、S 的消息，W0 只作附录对照），KV 定义为 batch 内共享历史 KV；EIR、DSTU 及上游 E4a/E4b 已在 W1 下补跑（`e2e\w1_rerun\W1_RERUN_SUMMARY.md`，三列 W0 / W0-tag / W1），EIR 的 E3 起点改为 W1 模板规则选的 A1 l1，7 类按 A3h 映射选的故障另按 W1 重选坐标。C（GPT 同一物理故障作用于 prefill + decode 的 8 个算子，19 个故障）已于 2026-11-10 完成（`e2e\C_SUMMARY.md`）。D（A3h + EIR + DSTU 联合实验）已于 2026-11-12 完成，见 `e2e/D_SUMMARY.md`。下一步是 E 混合分组与 Gemini 基线。全量串行计时推迟到算法冻结后、写论文前统一做。E4c（请求随机到达、goodput、P99、SLO）以后再议。
+
+研究方案、判定标准和结论记录在 claude.ai 上的方案文档里，不在本目录。本目录里每个实验都有一份交接说明 `<实验文件夹>\<实验>_HANDOFF.md`，执行时以它为准。
+
+## 目录
+
+| 位置 | 内容 |
+|---|---|
+| `third_party\isca2026-busybarn-artifact\` | BusyBarn artifact，只读；commit 记录在 `third_party\isca2026-busybarn-artifact.COMMIT` |
+| `e1_fidelity\` | E1：聚合代价与后端延迟的秩相关 |
+| `e2_attribution\` | E2：关键等待归因、单资源重排与删除上限 |
+| `e3_warmstart\` | E3：故障后热启动 SA、迁移量与下界紧度 |
+| `e4_overlap\` | E4a：多流重叠下的链路冲突与仲裁收益上限；E4b：按跳截止时间仲裁原型与异构截止时间（均已完成） |
+| `cpcm\` | CPCM 的设计、实现与验证（V0–V7 完成，汇总 `CPCM_SUMMARY.md`） |
+| `cpcm_sa\` | 第 3 步：CPCM 接入 SA 映射搜索（已完成，汇总 `CPCM_SA_SUMMARY.md`） |
+| `eir\` | 第 4 步：EIR 分级故障修复主实验（已完成，汇总 `EIR_SUMMARY.md`）；下一阶段增量实验 A、C、B 已完成（汇总 `EIR_NEXT_SUMMARY.md`） |
+| `dstu\` | DSTU 阶段 1、2、2C 与块开销敏感性已完成（汇总 `DSTU_SUMMARY.md`、`STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`、`SETTING3_ALL_SUMMARY.md`、`FINAL_RUNS_SUMMARY.md`） |
+| `e2e\` | 端到端阶段：完整 prefill + decode、故障、联合实验、硬件、规模、补齐模型（进行中，交接 `E2E_HANDOFF.md`） |
+
+## 规则
+
+- 只做当前任务交接说明里写的事。EIR 按 `eir\EIR_HANDOFF.md` 实现；下一阶段增量实验按 `eir\EIR_NEXT_HANDOFF.md`，阶段 A 做完要回报，用户放行后才继续；DSTU 按 `dstu\DSTU_HANDOFF.md`，第 13 节之后的新实验用户放行后才写代码；端到端阶段按 `e2e\E2E_HANDOFF.md`，每步放行后才做；不要扩大范围；想扩就先问用户。
+- 不修改 `third_party\` 里的源码文件（`make generate_exp` 生成的 `cfg\`、`py\`、`results\` 除外）；需要改行为时在内存中替换函数。会覆盖 `results\` 的实验，在各自文件夹下的 artifact 工作副本里运行。
+- 一个进程只跑一个任务脚本，任务脚本在模块级建立全局状态。
+- 每个实验文件夹维护 `PROGRESS.md`：每完成一步在末尾追加一条（状态、自检、关键数字、对源码的新发现、待用户决定的问题），不改写旧条目。标题末尾标记记录工具，例如 `（Codex）`。交接时记录运行中的进程及日志位置和下一步。合并进度记录时按时间保留双方条目。只写确认过的事实，推测要标明。
+- 记录 artifact commit、随机种子和命令行，保证可复现。
+- 单次运行预计超过 1 小时，先告诉用户再跑。
+- 本机是 Windows，`make` 不一定可用：按 Makefile 的顺序直接运行 python 脚本。artifact 由 zip 下载（不是 git 子模块）；本目录自 2026-11-02 起是 git 仓库（私有 GitHub `lyy11123/CRISP`，协作规则见 `README.md`）。每一步整理为小提交，提交信息使用 `[Codex] <实验>: <变更>`。远端使用上面的 Codex 分支约定。
+
+## 实验运行约定
+
+- 正式开跑前在阶段交接中记录工作负载版本、实验臂、故障状态、种子、对照、指标和自检标准。先用小批核对输入、输出及同状态对照，再按确定的矩阵跑齐。
+- 使用现有的生成、运行、续跑和汇总入口，代码直接表达实验方法。确定性路径按交接规定核对结构或逐项结果。BusyBarn 的跨进程延迟波动按已有多种子口径报告。结果标明直接仿真与解析外推的范围。
+- 按实测耗时和内存排并行与分片。端到端子进程在导入 NumPy 前设 `OMP_NUM_THREADS=1`、`MKL_NUM_THREADS=1`、`OPENBLAS_NUM_THREADS=1`，并按 `E2E_HANDOFF.md` 做小批核对。本机 D 阶段沿用系统空闲 3 GB 停线。用户指定并发时按该并发运行，触及内存停线时报告现场内存、失败作业和剩余量，由用户决定后续并发。
+- 云端按作业清单与已完成输出续跑，记录代码版本、命令、并发、平台、日志和完成数。结果拉回本机后按清单清点，再运行汇总。串行论文计时放在 J 阶段。
+
+## BusyBarn artifact 的已知事实（E0–E3 确认）
+
+- 每个任务只映射一层里的一个算子（LN、MHA、投影、FFN），放在 1×1、1×4 或 2×2 Die 组上，每 Die 4×4 核，batch 16；decode 时序列长度即 KV 长度，decode 的 FFN 结果与序列长度无关。
+- 结果三元组 `SA time cost: (a, b, c)`：总延迟、未被掩盖的纯计算时间、未被掩盖的纯通信时间。
+- 模板最终评估的是 SA 最后停留的状态，不是能量最优的状态（SA 原地修改传入的字典）。E3 中从一个好的起点热启动时，SA 日志显示前期接受率 100%（起始温度 10 或 1 都远大于能量变化），记录到的最好能量就是起点本身，最后停留的状态连按 SA 自己的能量都比起点差，相当于在起点附近随机游走。
+- 原版 SA 移动权重（`update_offlinedata`）只改相关通信的 `source_location`，从不更新 `data_dict[d].generated_split_location`，所以 SA 之后权重实际从哪个 DDR 读只记在通信事件上；`used_splitted_tag_dict` 中残留的、被回收重用的通信 tag 甚至会让在线数据的通信“从 DDR 读”。
+- Dijkstra 路由按平台上的 `link_loads_dict` 选路，这个计数在原版 SA 中只增不减，所以路由取决于整个 SA 历史；按最终映射用 `build_event` 重建，约一半通信会换路，延迟变化 −4% 到 +11%。要复现一个映射，须连同通信的源、路由、通信 tag、`event_dict` 顺序一起恢复（见 `e3_warmstart\e3_warmstart.py`）。
+- 端到端对 BusyBarn 每个算子取 14 个变体（初始化 g0/g1 × 损失权重 l0–l6）中总延迟最小者；Gemini 只跑 1 次。一个 block = 2×LN + 8×MHA + 投影 + FFN，直接相加。
+- 后端（`src/backend/analytical/event_driver.py`）：设备与链路一次只服务一个事件；多跳不是存储转发，空闲的各跳同时发放；同等长度路径随机打破平局，换种子延迟平均波动约 1%、最大约 8%。结果还依赖对象地址（集合按地址迭代）：同一状态、同一种子，换一个进程就会变，E3 中 MHA 最多相差 3.9%，连不做 deepcopy 的原样运行也会变（MHA 20,006 与 20,153）。自检阶段只把这当作已知特性，用多次评估的均值比较，不追查。
+- 故障模型（`planar_2d.py`、`WAMIS_HD.py`，E3 已核实）：故障从 cfg 的 `[failures]` 读入，节点是 `(Die, 核)`，链路是有向对；坏节点整体删除（核与路由器一起）；坏链路按有向边删除。每 Die 的角落核（4×4 阵列中的核 0、3、12、15）各接两个 DDR 端口（节点编号 16–23），角落核失效、DDR 与角落核之间的链路失效都会抛 `ValueError`；DDR 端口节点本身可以列为失效。原生不支持“PE 坏、Router 仍转发”，E3 在内存中模拟：节点与链路保留，把它的张量单元和向量单元从 `tensorcore_dict` / `vectorunit_dict` 删除。
+- artifact 的 bug：`WAMIS_HD.xy_multicast_path` 的 DDR 分支先使用 `xy_pointopoint_path` 的返回值、后检查 None（约第 898 与 906 行），所以某条片内链路失效后，平台在构建阶段就抛 TypeError，BusyBarn 原样无法运行。E3 在内存中替换该函数，在这种情况下返回 None（与非 DDR 分支一致）；XY 表只在不用 Dijkstra 时才用到，两个任务都用 Dijkstra。
+- SA 的打分（`StreamOptimization.energy()`）= `loss[0]·通信距离之和 + loss[1]·最忙链路累计传输时间 + loss[2]·最忙张量单元累计计算时间 + loss[3]·最忙向量单元累计计算时间`，各项除以初值。FFN 胜出变体 lossratio6 为 [0.1, 0.1, 1, 1]，MHA lossratio4 为 [0.1, 1, 0.1, 0.1]。
+- 耗时：后端单次评估 0.7–8 秒，SA 一步 4–36 毫秒。现阶段为效率并行运行，墙钟含资源争用（例如 FFN 1000 步 SA：并行 10 个进程时 14–16 秒，12 个进程时 21–44 秒）；论文所需的耗时数据后期单独串行重测，并以步数、相对 FULL 的比例等与机器无关的量为主。
+- E2：无故障时关键等待集中在一两个已饱和的资源上（忙碌率多数 70–99%）；对单个资源做精确重排收益最大 3.3%，删去单个资源全部工作的收益上限中位数 1.8%、最大 13.4%。
+- E3（GPT decode、序列 2048、2×2，FFN 与 MHA 胜出变体）：只修复的 R0 在 9/13 个故障上离完整重跑（FULL，14 个变体）不超过 +2.1%；困难故障是 Die 间链路、关键链路、带路由器的节点（+16.5% 到 +38.4%）。FULL 每次搬动 97%–99% 的行为。最忙的链路不一定关键（FFN：忙碌 74.2% 的链路坏了 +3.0%，忙碌 72.7% 的关键链路坏了 +31.8%）。下界紧度 0.25–0.38，由 DDR 读带宽主导。扩展后（44 个组合）：1×4 上故障代价普遍更大（节点、D2D、关键链路 +39% 到 +79%），故障后首要资源几乎都是被压满的剩余 D2D 链路；Gemini 用 XY 路由，故障落在角落核附近（节点或链路都会；单点故障中 1/3 的非角落节点、1/6 的片内链路属于此类）时，artifact 的 XY-YX 路由对部分节点对给不出路径，`build_event` 直接崩溃（XY 距离为 None）；E3 中只有“最忙的片内链路”落在那里（见 `e3_warmstart\xy_probe.py`）；FULL 在故障平台上重跑会混入 SA 自身的随机性（可能比故障前更好或更差，Gemini 单次波动可达 ±35%），“相对 FULL”的差距不能单独解读为修复质量。
+
+## 可复用代码
+
+- `e1_fidelity\e1_fidelity.py`：用 `runpy` 运行任务脚本，在内存中替换 SA 循环，评估前后保存并恢复随机数状态。
+- `e2_attribution\e2_attribution.py`：截取模板的最终后端评估，建立活动级关键链，做阻塞归因、单资源重排（Schrage、Jackson、精确解）与“删去该资源”的上限；`--from-dump` 可只重新分析已保存的结果。
+- `e3_warmstart\e3_warmstart.py`（配合 `_inject\sitecustomize.py`）：捕获最终映射（含源、路由、tag、事件顺序），注入映射并恢复路由，注入故障（节点、链路、只坏 PE），R0 搬迁、W 热启动、FULL 重跑，映射无关的下界，以及 `matrix` 并行跑多个“任务 × 故障”。

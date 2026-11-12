@@ -3,7 +3,7 @@
 Rules: PROGRESS 2026-11-11 "比较规则" (1-11) and "补充规则" (seeds 4-10 as a side column). Every result is read from e2e/d/out/prod/sims,
 whatever machine produced it; the source of each job is taken from e2e/d/out/prod/sources.json (written by `sources`).
 
-  python e2e/d_summary.py sources      who produced each sink (local / package 1 / package 2), from the run records
+  python e2e/d_summary.py sources      who produced each sink (local / package 1 / package 2 / package 3), from the run records
   python e2e/d_summary.py              the summary
 """
 import collections
@@ -49,7 +49,7 @@ def all_jobs():
 
 def sources():
     have = {}
-    for pk in ("pkg1", "pkg2"):
+    for pk in ("pkg1", "pkg2", "pkg3"):
         p = os.path.join(REMOTE, pk, "top", "runs_0.json")
         for r in json.load(open(p)):
             have[r["name"]] = pk
@@ -179,13 +179,19 @@ def group_of(cond):
 
 def main():
     rows, sa, ffncheck, dup, audit = collect()
-    src = json.load(open(os.path.join(OUT, "sources.json"))) if os.path.exists(os.path.join(OUT, "sources.json")) else sources()
+    src = sources()
     res = {"audit": audit, "cells": {}, "supp": {}, "extra": {}}
     for (cond, arm), R in rows.items():
         k = f"{cond}|{arm}"
         res["cells"][k] = cell(R, {1, 2, 3})
-        res["supp"][k] = cell(R, set(range(1, 11)))
-        res["extra"][k] = extrapolate(R, res["cells"][k])
+        seeds = set(range(1, 11))
+        overlap = {(r["seed"], r["tau"]) for r in R["ovs"]}
+        full_grid = {(seed, tau) for seed in seeds for tau in B.TAUS}
+        res["supp"][k] = cell(R, seeds) if overlap == full_grid and seeds <= R["solo"].keys() else None
+        nonmha = R["nonmha"]
+        if cond.startswith(("D-", "X-")) and ("N", arm) in rows:
+            nonmha = {**rows[("N", arm)]["nonmha"], **nonmha}
+        res["extra"][k] = extrapolate(dict(R, nonmha=nonmha), res["cells"][k])
         res["cells"][k] and res["cells"][k].update(nonmha=R["nonmha"])
     conds = sorted({c for c, _ in rows}, key=lambda c: (["N", "D", "P", "X"].index(group_of(c)), c))
     json.dump(res, open(os.path.join(OUT, "summary.json"), "w"), indent=1, default=float)
@@ -197,6 +203,7 @@ def main():
           f"| 本机（本会话与用户在本机用同一代码续跑的部分） | {c.get('local', 0)} |",
           f"| 结果包 1（D3、D4、D5 的种子 1–3 主体，128 个并行的机器） | {c.get('pkg1', 0)} |",
           f"| 结果包 2（D2–D4 的种子 4–10 补充，云服务器） | {c.get('pkg2', 0)} |",
+          f"| 结果包 3（D5 的种子 4–10 补充，云服务器） | {c.get('pkg3', 0)} |",
           f"| 缺 | {c.get(None, 0)} |", "",
           f"- 按跳发放审计：{audit['n']:,} 次，选中键不是最小键 {audit['bad']} 次。", ""]
     if dup:
@@ -247,7 +254,8 @@ def main():
           "- TPOT′ = TPOT_iso + w_MHA·(D 链延迟 − TPOT_iso)，w_MHA = 8·T_MHA / TTFT_iso。",
           "- TTFT′：规则第 9 条写的是 TTFT_iso + 8·ΔP·(8·T_MHA / TPOT′)。按 D_PLAN 第 6 节的推导（每个 MHA 任务期间插入 T_MHA/TPOT′ 个 decode 步，共 8 个任务），"
           "8 个任务只应计一次，即 TTFT_iso + 8·ΔP·(T_MHA / TPOT′)；规则中的式子多乘了一个 8（事后发现的笔误，未改规则）。下表两者都列，并列 ΔP = 0 的值；"
-          "ΔP 在各格都落在无 KV 对照的范围内（第 2–5 节）。", ""]
+          "种子 1–10 下，CRISP 与 B-R0 的 ΔP 均值各有 41/41 落入各自同条件的无 KV 对照经验范围。",
+          "D 组与组间故障的非 MHA P 单独时间按 D_PLAN §5 使用同臂无故障结果。", ""]
     L += ["| 条件 | 臂 | TTFT_iso | TPOT_iso | TPOT′ | TTFT′（规则式） | TTFT′（计一次） | 请求 2048：R-iso | R-ov（计一次） | R-ov（ΔP = 0） |",
           "|---|---|---|---|---|---|---|---|---|---|"]
     for cc in [x for x in conds if x in ("N",) or x.endswith(("PF4", "PF6", "PCScratch", "MF5", "G1", "G2"))]:
