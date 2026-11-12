@@ -1,0 +1,108 @@
+{
+  "audit": {
+    "expected_records": 1,
+    "completed_records": 1,
+    "missing_records": 0,
+    "primary_candidates": 1,
+    "backend_samples": 2,
+    "backend_calls": 2,
+    "reused_backend_samples": 0,
+    "random_tie_calls": 10,
+    "issues": []
+  },
+  "spec": {
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "candidate_id": "FULLSMOKE__F_face_2x2_fixed_d2d1__full_PF4_decode_ln_A3h_g0_s123",
+    "kind": "search",
+    "family": "full",
+    "phase": "decode",
+    "op": "ln",
+    "method": "A3h",
+    "g": 0,
+    "x": 123,
+    "candidate_order": 0,
+    "search_steps": 5,
+    "backend_seeds": [
+      1,
+      2
+    ],
+    "fault_id": "PF4",
+    "protocol_version": "FG_W1_fixedLN_v1",
+    "module": "fg_run",
+    "depends_on": [
+      "F_face_2x2_fixed_d2d1__fault_select"
+    ],
+    "fault_file": "e2e/fg/out/full_smoke/faults.json"
+  },
+  "resolved_failures": {
+    "failed_nodes": [],
+    "failed_links": [
+      [
+        [
+          0,
+          11
+        ],
+        [
+          1,
+          8
+        ]
+      ],
+      [
+        [
+          1,
+          8
+        ],
+        [
+          0,
+          11
+        ]
+      ]
+    ],
+    "failed_pes": []
+  },
+  "checks": {
+    "fault_file_read": true,
+    "both_failed_d2d_directions_absent": true,
+    "remaining_directed_D2D_links": 14,
+    "healthy_directed_D2D_links": 16,
+    "snapshot_reloaded": true,
+    "snapshot_workload_matches": true,
+    "snapshot_CPCM_ticks": 3736,
+    "record_prebroadcast_CPCM_ticks": 3736
+  },
+  "result": {
+    "candidate_id": "FULLSMOKE__F_face_2x2_fixed_d2d1__full_PF4_decode_ln_A3h_g0_s123",
+    "wall_seconds": 7.943694699992193,
+    "search_seconds": 0.024472475051879883,
+    "evaluation_seconds": 2.8219691999838687,
+    "peak_rss_gb": 0.4288902282714844,
+    "T_hat": 4266,
+    "T_hat_pre": 3736,
+    "backend": [
+      {
+        "seed": 1,
+        "cycles": 4266,
+        "triple": [
+          4266,
+          194,
+          3302
+        ]
+      },
+      {
+        "seed": 2,
+        "cycles": 4266,
+        "triple": [
+          4266,
+          194,
+          3302
+        ]
+      }
+    ],
+    "graph_events": 28
+  }
+}

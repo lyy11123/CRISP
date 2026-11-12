@@ -1,0 +1,127 @@
+{
+  "status": "passed",
+  "platform": "win32",
+  "python": "3.13.16 (tags/v3.13.16:cbc944f, Sep 30 2026, 19:17:50) [MSC v.1944 64 bit (AMD64)]",
+  "tests": [
+    {
+      "case": "two_controllers_share_two_slots",
+      "checks": {
+        "all_success": true,
+        "no_duplicate": true,
+        "max_parallel_two": true,
+        "overlap_happened": true,
+        "dependencies_observed": true,
+        "completed_all": true,
+        "external_receipts_imported": true
+      },
+      "actual_max_parallel": 2,
+      "traces": [
+        {
+          "id": "dependent",
+          "pid": 70720,
+          "start": 1794501329.0685203,
+          "finish": 1794501331.0693557
+        },
+        {
+          "id": "external_long",
+          "pid": 65364,
+          "start": 1794501324.910621,
+          "finish": 1794501332.911744
+        },
+        {
+          "id": "external_short",
+          "pid": 74260,
+          "start": 1794501324.9041088,
+          "finish": 1794501327.9050734
+        },
+        {
+          "id": "independent",
+          "pid": 70048,
+          "start": 1794501333.0804844,
+          "finish": 1794501335.081928
+        }
+      ],
+      "external_final": {
+        "state": "complete",
+        "controller_pid": 65132,
+        "controller_alive": false,
+        "completed": 2,
+        "unfinished": [],
+        "failed": {},
+        "active": 0,
+        "reserved_slots": 0,
+        "batch_present": true,
+        "terminal_confirmed": true,
+        "missing_after_exit": []
+      }
+    },
+    {
+      "case": "priority_and_no_external_mode",
+      "checks": {
+        "success": true,
+        "priority_first": true,
+        "same_priority_lpt": true,
+        "one_worker": true,
+        "identity_unchanged_by_scheduling": true
+      },
+      "execution_order": [
+        "priority_short",
+        "ordinary_long",
+        "ordinary_short"
+      ]
+    },
+    {
+      "case": "external_failure_is_reported",
+      "checks": {
+        "external_failure_nonzero": true,
+        "formal_failure_nonzero": true,
+        "reported_external_failure": true,
+        "dependent_not_started": true
+      },
+      "external_final": {
+        "state": "failed",
+        "controller_pid": 26604,
+        "controller_alive": false,
+        "completed": 0,
+        "unfinished": [
+          "external_fail"
+        ],
+        "failed": {
+          "external_fail": 7
+        },
+        "active": 0,
+        "reserved_slots": 0,
+        "batch_present": true,
+        "terminal_confirmed": true,
+        "missing_after_exit": []
+      }
+    },
+    {
+      "case": "wrong_receipt_and_exited_owner",
+      "checks": {
+        "nonmatching_receipt_not_imported": true,
+        "missing_owner_reported": true,
+        "nonzero": true,
+        "no_takeover": true
+      },
+      "external_final": {
+        "state": "incomplete",
+        "controller_pid": 999999999,
+        "controller_alive": false,
+        "completed": 0,
+        "unfinished": [
+          "mismatched"
+        ],
+        "failed": {},
+        "active": 0,
+        "reserved_slots": 0,
+        "batch_present": false,
+        "terminal_confirmed": true,
+        "missing_after_exit": [
+          "mismatched"
+        ]
+      }
+    }
+  ],
+  "scope": "Real lightweight subprocesses only; no experiment simulation; shared limit tested at two workers."
+}
