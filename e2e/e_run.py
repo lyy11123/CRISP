@@ -151,7 +151,7 @@ def record(spec, result, search_seconds, wall_seconds, peak, checks):
                 checks=checks, graph_events=result["graph_events"])
 
 
-def child(spec, out):
+def child(spec, out, recover=False):
     started = time.perf_counter()
     out = Path(out).resolve()
     for folder in ("results", "snapshots", "raw", "logs"):
@@ -227,23 +227,26 @@ def child(spec, out):
             evaluated.update(evaluate(snapshot, ctx, c, broadcast, driver))
             return evaluated
 
-        c.final_eval = final_with_ties
-        try:
-            c.child(cfg, spec["method"], spec["g"], spec["x"], str(raw_path), str(snap_path), True)
-        except SystemExit as exit_event:
-            if exit_event.code not in (0, None):
-                raise
+        if not recover:
+            c.final_eval = final_with_ties
+            try:
+                c.child(cfg, spec["method"], spec["g"], spec["x"], str(raw_path), str(snap_path), True)
+            except SystemExit as exit_event:
+                if exit_event.code not in (0, None):
+                    raise
         with gzip.open(raw_path, "rb") as file:
             run = pickle.load(file)
-        result = evaluated
+        result = run["selected"]
         search_seconds = run["sa_wall"]
         restored = load_snapshot(snap_path, c, cfg)
         checks = {"snapshot_workload_same": signature(restored) == result["workload_signature"],
                   "snapshot_T_pre_same": int(c.cpcm_sim(restored[2], restored[3])[1].T) == int(result["T_pre"]),
-                  "revert": run["check_revert"], "selected_step": run["selected"]["step"]}
+                  "revert": {key: int(value) for key, value in run["check_revert"].items()},
+                  "selected_step": int(run["selected"]["step"])}
         assert checks["snapshot_workload_same"] and checks["snapshot_T_pre_same"]
+    elapsed = spec["original_wall_seconds"] if recover else time.perf_counter() - started
     write_json(out / "results" / (name + ".json"), record(
-        spec, result, search_seconds, time.perf_counter() - started, pilot.peak() / 2**30, checks))
+        spec, result, search_seconds, elapsed, None if recover else pilot.peak() / 2**30, checks))
 
 
 def run_batch(manifest, out, workers):
@@ -287,6 +290,8 @@ def main():
     job = sub.add_parser("child")
     job.add_argument("--spec", required=True, type=Path)
     job.add_argument("--out", required=True, type=Path)
+    job.add_argument("--recover-output", action="store_true",
+                     help="Publish an existing A1/A3h run after an output-format failure")
     batch = sub.add_parser("run")
     batch.add_argument("--manifest", required=True, type=Path)
     batch.add_argument("--out", required=True, type=Path)
@@ -297,7 +302,7 @@ def main():
         write_json(args.out, items)
         print(len(items), dict(collections.Counter(item["kind"] for item in items)))
     elif args.command == "child":
-        child(json.loads(args.spec.read_text(encoding="utf-8")), args.out)
+        child(json.loads(args.spec.read_text(encoding="utf-8")), args.out, args.recover_output)
     else:
         return run_batch(args.manifest, args.out, args.workers)
     return 0

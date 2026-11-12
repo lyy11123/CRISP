@@ -1,4 +1,4 @@
-"""Build a repo-shaped Linux bundle for the approved E-stage pilot."""
+"""Package an E task manifest, its source, templates and historical inputs for Linux."""
 
 import argparse
 from collections import Counter
@@ -17,7 +17,6 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PILOT = "e2e/e/pilot.json"
-EXPECTED = {"search": 30, "reeval": 10}
 SOURCE_DIRS = ("cpcm", "cpcm_sa", "e1_fidelity", "e2_attribution", "e3_warmstart",
                "e4_overlap", "eir", "dstu", "e2e")
 SKIP_DIRS = {"out", "work", "work_e4", "logs", "dist", "results", "colab", "e4_out", "e4b_out",
@@ -55,8 +54,6 @@ def tree_files(relative, suffix, excluded=()):
 
 def pilot_inputs(manifest):
     items = json.loads(manifest.read_text(encoding="utf-8-sig"))
-    if not isinstance(items, list) or Counter(item["kind"] for item in items) != EXPECTED:
-        raise ValueError(f"Only the {EXPECTED} approved pilot is supported")
     if len({item["candidate_id"] for item in items}) != len(items):
         raise ValueError("Duplicate pilot candidate IDs")
     snapshots = set()
@@ -78,9 +75,6 @@ def model_inputs(items):
     paths = set()
     for item in items:
         phase, shape, op, method = (item[key] for key in ("phase", "shape", "op", "method"))
-        if (phase not in ("prefill", "decode") or shape not in ("2x2", "1x4")
-                or op not in ("ln", "mha", "proj", "ffn") or method not in ("A1", "A3h", "Gemini")):
-            raise ValueError(f"Unexpected E workload: {item['candidate_id']}")
         model = f"{ARTIFACT}/models/intra_mapping_gpt_{phase}"
         config = f"ch{shape}{CONFIG_SUFFIX}"
         paths.add(f"{model}/cfg/config_{config}.cfg")
@@ -116,7 +110,7 @@ def build(manifest, output):
     metadata = {
         "kind": "E_pilot",
         "jobs": len(items),
-        "job_counts": EXPECTED,
+        "job_counts": dict(Counter(item["kind"] for item in items)),
         "source_git_head": subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"],
                                                    cwd=ROOT, text=True).strip(),
         "artifact_commit": source_file(ARTIFACT_COMMIT).read_text(encoding="utf-8").splitlines()[0],

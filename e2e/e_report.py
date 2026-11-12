@@ -246,6 +246,17 @@ def terminal_rows(formal):
     return rows
 
 
+def candidate_rows(formal):
+    rows = []
+    for record in formal:
+        values = [item["cycles"] for item in record["backend"]]
+        rows.append({key: record[key] for key in (
+            "candidate_id", "kind", "shape", "phase", "op", "method", "wall_seconds", "peak_rss_gb")} |
+                    {"mean_cycles": statistics.mean(values), "min_cycles": min(values), "max_cycles": max(values),
+                     "T_hat": record["T_hat"], "T_hat_rand_mean": record["T_hat_rand_mean"]})
+    return rows
+
+
 def write_csv(path, rows, empty_fields=()):
     fields = list(dict.fromkeys(key for row in rows for key in row)) or empty_fields
     with path.open("w", newline="", encoding="utf-8") as file:
@@ -266,7 +277,8 @@ def summarize(records, out_dir, c_report_path):
     capacity = [row for layout in fixed for row in capacity_rows(layout)]
     terminals = terminal_rows(formal)
     out_dir.mkdir(parents=True, exist_ok=True)
-    tables = {"operator_table": operators, "layer_table": layers, "model_table": models, "fault_model_table": faults,
+    tables = {"candidate_table": candidate_rows(formal), "operator_table": operators,
+              "layer_table": layers, "model_table": models, "fault_model_table": faults,
               "capacity_table": capacity, "timing_table": times, "terminal_table": terminals}
     empty_fields = {"fault_model_table": ("fault", "scheme", "method", "ln", "layout", "group", "affected_layers"),
                     "terminal_table": ("shape", "phase", "op", "candidate", "cycles", "backend_min", "backend_max")}
