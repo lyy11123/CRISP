@@ -37,7 +37,9 @@ def load_jobs(root):
 def absolute(j, root, out):
     sp = json.loads(json.dumps(j["spec"]))
     sp["exports"] = {k: os.path.join(root, v) for k, v in sp["exports"].items()}
-    sp["sink"] = os.path.join(out, "sims", os.path.basename(sp["sink"]))
+    # the sink's file name only: jobs built on Windows carry a Windows path, and posixpath.basename does not split at a backslash
+    # (2026-11-11: the cloud run wrote out/sims/'E:\...\sims\<job>.pkl.gz' as one file name)
+    sp["sink"] = os.path.join(out, "sims", sp["sink"].replace(chr(92), "/").rsplit("/", 1)[-1])
     return {"name": j["name"], "cmd": j["cmd"], "spec": sp, "folder": os.path.join(out, "sims"), "limit_gb": None}
 
 
@@ -151,6 +153,7 @@ def build(batches, part, name, ref_jobs):
     for j in jobs:
         sp = json.loads(json.dumps(j["spec"]))
         sp["exports"] = {k: exports[v] for k, v in sp["exports"].items()}
+        sp["sink"] = "e2e/d/sims/" + os.path.basename(sp["sink"])     # no machine path in the bundle
         rel.append({"name": j["name"], "cmd": j["cmd"], "spec": sp, "arms": j["arms"], "cond": j["cond"], "kind": j["kind"], "ref": j.get("ref", False)})
     root = d.MAIN
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=_root(), capture_output=True, text=True).stdout.strip()

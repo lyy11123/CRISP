@@ -83,6 +83,10 @@ OPS8 = PF + DC
 # D_FREE_GB). Defaults: this machine's rule (3 GB / 3 GB); a remote machine with more memory passes its own (e.g. 5 GB per process).
 LOCAL_PEAK_GB = float(os.environ.get("D_PEAK_GB", "3.0"))
 LOCAL_FREE_GB = float(os.environ.get("D_FREE_GB", "3.0"))
+START_MARGIN_GB = float(os.environ.get("D_START_MARGIN_GB", "2.0"))   # a new job starts only above LOCAL_FREE_GB + this
+LAUNCH_SPACING_S = float(os.environ.get("D_LAUNCH_SPACING_S", "60"))  # and at least this long after the previous start
+_LAUNCH_LOCK = threading.Lock()
+_LAST_LAUNCH = [0.0]
 
 
 # ---------------------------------------------------------------- memory (Windows: working set of a child; Linux: /proc)
@@ -496,6 +500,13 @@ def run_all(items, workers, limit_gb=None):
     def one(it):
         if os.path.exists(it["spec"]["sink"]):
             return {"name": it["name"], "rc": 0, "cached": True}
+        while True:                                          # no new process close to the memory line (2026-11-11: other programs on
+            with _LAUNCH_LOCK:                               # this machine took the free memory to 3.6 GB and one job was killed);
+                wait = _LAST_LAUNCH[0] + LAUNCH_SPACING_S - time.time()   # one start at a time, LAUNCH_SPACING_S apart, so that the
+                if wait <= 0 and free_gb() >= LOCAL_FREE_GB + START_MARGIN_GB:   # gate sees the memory of the jobs just started
+                    _LAST_LAUNCH[0] = time.time()            # (2026-11-12: 5 workers passing the gate together, 30 jobs killed)
+                    break
+            time.sleep(max(5.0, min(30.0, wait if wait > 0 else 30.0)))
         r = launch(it["name"], it["cmd"], it["spec"], it["folder"], it.get("limit_gb") or limit_gb or LOCAL_PEAK_GB, log_dir)
         print(f"[d0] {r}", flush=True)
         return r
