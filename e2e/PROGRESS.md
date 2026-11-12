@@ -886,3 +886,11 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
 - 本机 20 步短测试已覆盖 Gemini decode LN、Gemini 1×4 prefill MHA、A3h 1×4 decode MHA，以及旧 2×2 decode MHA 快照重评。退出均为 0，映射重载与 CPCM 检查通过。prefill Gemini 的短测试含单种子后端评估总计约 69 s，峰值约 0.68 GiB。
 - 正式小批清单 `e/pilot.json` 有 40 个任务，其中新搜索 30 个、旧快照重评 10 个，另产生 16 个 Gemini 结束状态评估。每个正式搜索 1,000 步，最终后端种子 1–10，完成结果计入 E。
 - 用户提供当前服务器地址 `119.45.118.66`，原有主机指纹匹配。服务器为 128 逻辑 CPU，247 GiB 总内存、约 244 GiB 可用，Python 3.13.18，NumPy 2.5.4、NetworkX 3.7、simanneal 0.5.0。小批放在 `~/crisp_e_pilot`，计划最多 32 个进程并行。实际峰值、进度及耗时在下一条记录。
+
+## 2026-11-12 E：补充交接与旧结果核查（Codex）
+
+- 按用户提出的四项技术细节核对源码，更新 `CRISP_E_CODEX_HANDOFF.md`、`E_PLAN.md` 与 `AGENTS.md`。历史算法及 A–D 脚本只读，E 新代码统一使用 `e_*.py`；打包脚本从 `build_e_bundle.py` 更名为 `e_bundle.py`，行为不变。
+- `fast_cpcm.py` 与 `fast_hop.py` 是 hop/C4 加速；`fast_cpcm` 对 bb 回调原实现，`SPEEDUP_SUMMARY.md` 第 5 节明确 bb 尚未优化。E 继续使用 B4 的 bb 搜索、广播缓存与原后端，未替换为按跳模型。
+- 1×4 decode FFN 的 28 套 run/snapshot 均已在 E 的平台配置下重载；行为 179 个、张量 42 个，工作量相同。旧随机平局记录在 `e2e/out/b0/ffn14_*.json`，28 份各有 10 个值。云端小批 A1/A3h 各一份的确定性与十个随机平局值和历史记录逐项相同，其余 26 份在 E 全量统一重评。证据在 `e/out/technical_audit/ffn_reuse.json`。
+- 参考 E3 在模板第二次后端入口捕获广播后结束状态的实现；E 需要最佳态和结束态，故在退火结束、最终广播前捕获，再共同评估。`LP_flag` 在源码中是优先选择空闲节点的移动策略。14 种子短轨迹核对正在补充，完成情况单独追加。
+- 服务器小批 40 个任务继续后台运行；完成结果原子写出，日志各自保存，断开 SSH 不影响进程。全量将按用户要求最多 128 并行，待汇报小批结果和预计时间后决定。

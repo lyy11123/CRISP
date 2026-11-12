@@ -1,4 +1,7 @@
-"""Package an E task manifest, its source, templates and historical inputs for Linux."""
+"""Package an E task manifest, source, templates and historical inputs for Linux.
+
+python e2e/e_bundle.py --help
+"""
 
 import argparse
 from collections import Counter

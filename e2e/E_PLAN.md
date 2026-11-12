@@ -70,6 +70,10 @@ prefill 的 7 头乘 8 只对应 56 头。改为 8 头会改变映射与通信�
 
 现有 `cpcm_sa.make_anneal` 专门处理 A1/A3h，遇到 Gemini 的 `LP_flag` 会报错。Gemini 因此需要自己的包装代码，共用状态保存和最终评估。这里的 LP 是优先选择空闲节点的移动策略。保留 `greedy_flag=False`、`LP_flag=True`、`hops_only=True`、`ddr_random=True`、`dijkstra_routing=False`，温度从 10 降到 1e-6。
 
+参考 `e3_warmstart` 的 Gemini 捕获与 XY 路由处理，E 将捕获位置前移到退火结束、最终广播之前。LN/proj 的八类组合纳入完整小批；另外用短搜索比较种子 `{123, 1..13}` 的实际移动与能量序列。初始化仍固定 123，检验的是退火轨迹。
+
+`SPEEDUP_SUMMARY.md` 与 `fast_cpcm.py`、`fast_hop.py` 已核对：加速针对 hop/C4，bb 模式仍调用原 CPCM。E 的搜索与最终评估使用 B4 的 bb/原后端路径，保持既定方法。
+
 源码中有三处需要在 E 实现时处理。
 
 1. **退火种子。** 原生 `anneal()` 内部把 Python、NumPy 的种子都重设成 123。E 将这里改为任务指定的搜索种子，初始化种子与搜索种子分别记录。

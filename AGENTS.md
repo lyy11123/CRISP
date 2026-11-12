@@ -22,6 +22,8 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 ## 当前阶段
 
+E 已完成方案确认，正在做实现与小批验证。执行方案见 `e2e/E_PLAN.md`，小批清单为 `e2e/e/pilot.json`；先向用户报告小批结果及全量预计时间，再决定全量。以下保留前序阶段的结论。
+
 判定关口已于 2026-11-03 结束（E0–E3、E4a、E4b 全部完成，汇总见各实验文件夹；E3 的三个算法设计切入点在 `e3_warmstart\PROGRESS.md`，E4a、E4b 结论在 `e4_overlap\E4A_SUMMARY.md`、`E4B_SUMMARY.md`）。第 2 步 CPCM 已完成（V0–V7，`cpcm\CPCM_SUMMARY.md`；SA 中用全量推演，增量更新留给单消息改路）。第 3 步 CPCM 接入 SA 已完成（本地 952 次 + Colab 224 次，`cpcm_sa\CPCM_SA_SUMMARY.md`）。第 4 步 EIR 主实验已完成（1,240 次，`eir\EIR_SUMMARY.md`），论文 EIR 主表以 A3h 起点为核心，BusyBarn 起点保留用于对比外部映射器起点和 FULL-BusyBarn。下一阶段增量实验 A（L2-Impact 与消融）、C（k = 4 复合故障）、B（双阶段时间轴与窗口决策，含 KV 解析估算）已于 2026-11-05 完成（`eir\EIR_NEXT_SUMMARY.md`）：L2-Global（+sync）是主力修复方法；窗口决策不一致优于固定 ε；事后追加的渐进部署在 T_switch ≤ 0.1 s 时不输于单次部署（中位数），FFN 上 T̂ 低估主要来自确定性平局规则。EIR 于 2026-11-06 封版。DSTU 阶段 1（CPCM 截止时间代替理想值，设定 1–3）已于 2026-11-06 完成（`dstu\DSTU_SUMMARY.md`）：各流自己的图上 CPCM 几乎不丢收益，合并图丢掉大部分；流级 C4 总体与事件级 C-S 打平或更稳，但有反例子集。阶段 2（2A 子期限、2B 选择性切块）、2C（全链路 256 KB 复测）、块开销敏感性与聚合代价键核查已完成（`dstu\STAGE2_SUMMARY.md`、`STAGE2C_SUMMARY.md`、`OVERHEAD_SUMMARY.md`）；全链路设定 3 与“不切”对照已于 2026-11-07 完成（`dstu\SETTING3_ALL_SUMMARY.md`），DSTU 收尾（全链路设定 2、非零开销选切对照）已于 2026-11-07 完成（`dstu\FINAL_RUNS_SUMMARY.md`）。端到端阶段（`e2e\E2E_HANDOFF.md`，每步用户放行后才做下一步；串行计时放在最后）：A 试点、B GPT 完整 P/D（`e2e\B4_SUMMARY.md`）、按跳提速（`e2e\SPEEDUP_SUMMARY.md`）已完成；2026-11-08 起主工作负载定为 W1（MHA 最终广播去掉 QKᵀ、S 的消息，W0 只作附录对照），KV 定义为 batch 内共享历史 KV；EIR、DSTU 及上游 E4a/E4b 已在 W1 下补跑（`e2e\w1_rerun\W1_RERUN_SUMMARY.md`，三列 W0 / W0-tag / W1），EIR 的 E3 起点改为 W1 模板规则选的 A1 l1，7 类按 A3h 映射选的故障另按 W1 重选坐标。C（GPT 同一物理故障作用于 prefill + decode 的 8 个算子，19 个故障）已于 2026-11-10 完成（`e2e\C_SUMMARY.md`）。D（A3h + EIR + DSTU 联合实验）已于 2026-11-12 完成，见 `e2e/D_SUMMARY.md`。下一步是 E 混合分组与 Gemini 基线。全量串行计时推迟到算法冻结后、写论文前统一做。E4c（请求随机到达、goodput、P99、SLO）以后再议。
 
 研究方案、判定标准和结论记录在 claude.ai 上的方案文档里，不在本目录。本目录里每个实验都有一份交接说明 `<实验文件夹>\<实验>_HANDOFF.md`，执行时以它为准。
@@ -53,6 +55,9 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 ## 实验运行约定
 
+- 已完成的 `cpcm/`、`cpcm_sa/`、`eir/`、`dstu/` 源码，以及 `e2e/` 下 A–D 脚本（含 `e2e_b4.py`、`c_eir.py`、`d_joint.py`）保持只读，不改已有函数签名或默认行为。E 的新增实现写在 `e2e/e_*.py`，需要接入旧代码时在 E 进程内包装；原始结果保留，进度文档按下述规则追加。
+- E 开始前读 `e2e/SPEEDUP_SUMMARY.md`、`e2e/fast_cpcm.py`、`e2e/fast_hop.py` 和 `e3_warmstart` 的 Gemini 捕获代码。两项 fast 实现用于 hop/C4；`fast_cpcm` 的 bb 模式回调原实现。E 的 bb 搜索与原后端评估沿用 B4 方法，不能用按跳实现替换。
+- 本机做短冒烟，长任务通过服务器的后台进程池按清单运行，当前服务器允许最多 128 个进程。每个作业保存 spec、日志、快照和结果；JSON 与快照写完临时文件后原子更名，完成结果作为任务续跑记录。主进程脱离 SSH 会话，使用轻量命令查看完成数、进程、内存与日志。重启时跳过已完成且配置相同的任务，未完成任务从该任务起重跑。
 - 正式开跑前在阶段交接中记录工作负载版本、实验臂、故障状态、种子、对照、指标和自检标准。先用小批核对输入、输出及同状态对照，再按确定的矩阵跑齐。
 - 使用现有的生成、运行、续跑和汇总入口，代码直接表达实验方法。确定性路径按交接规定核对结构或逐项结果。BusyBarn 的跨进程延迟波动按已有多种子口径报告。结果标明直接仿真与解析外推的范围。
 - 按实测耗时和内存排并行与分片。端到端子进程在导入 NumPy 前设 `OMP_NUM_THREADS=1`、`MKL_NUM_THREADS=1`、`OPENBLAS_NUM_THREADS=1`，并按 `E2E_HANDOFF.md` 做小批核对。本机 D 阶段沿用系统空闲 3 GB 停线。用户指定并发时按该并发运行，触及内存停线时报告现场内存、失败作业和剩余量，由用户决定后续并发。
