@@ -150,7 +150,9 @@ def fault_bars(faults):
 
 def save_figure(fig, out, stem, title):
     try:
-        fig.savefig(out / f"{stem}.svg", bbox_inches="tight", pad_inches=0.07, metadata={"Title": title, "Date": None})
+        svg = out / f"{stem}.svg"
+        fig.savefig(svg, bbox_inches="tight", pad_inches=0.07, metadata={"Title": title, "Date": None})
+        svg.write_text("\n".join(line.rstrip() for line in svg.read_text(encoding="utf-8").splitlines()) + "\n", encoding="utf-8")
         fig.savefig(out / f"{stem}.png", bbox_inches="tight", pad_inches=0.07, dpi=300, metadata={"Title": title})
     finally:
         plt.close(fig)
