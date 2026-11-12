@@ -15,6 +15,6 @@
 ## 接续入口
 
 - D 的主体与补充种子使用各自的比较口径，汇总见 `e2e/D_SUMMARY.md`，原始数据和复算入口见 `e2e/E2E_HANDOFF.md` §7。
-- E 从 W1 的混合分组与 Gemini 基线开始。先核对 Gemini prefill 模板的 `heads = 7` 与端到端聚合乘数 8，再确定比较矩阵。阶段顺序见 `e2e/E2E_HANDOFF.md`。
+- E 已按确认方案实现，Gemini prefill 对齐 8 头，完整层采用八份八头任务。40 个主任务与 16 个结束状态对照的小批已完成；代码、核对结果和全量时间估算见 `e2e/E_PILOT_SUMMARY.md`。剩余 390 次搜索、242 次重评待用户决定启动。阶段顺序见 `e2e/E2E_HANDOFF.md`。
 
 Claude 记忆来源为 `busybarn-no-runtime-faults.md`、`crisp-design-entry-points.md`、`e4a-hop-arbitration-finding.md`、`e4b-deadline-arbitration-finding.md`、`e2e-w1-and-c-results.md`、`focus-on-own-method.md` 与 `e2e-coverage-over-time.md`。EIR 与 DSTU 的当前定义已与仓库中的后续定版对齐。
