@@ -59,7 +59,7 @@ def load_tables(data, ln):
                          {(shape, method) for shape in SHAPES for method in METHODS})
     models = select_rows(data["model_table"], ln, ("layout", "method"),
                          {(layout, method) for layout in LAYOUTS for method in METHODS})
-    faults = select_rows(data["fault_model_table"], ln, ("layout", "fault", "scheme"),
+    faults = select_rows([row for row in data["fault_model_table"] if row["group"] == "G2"], ln, ("layout", "fault", "scheme"),
                          {("L_mix", fault, scheme) for fault in FAULTS for scheme in FAULT_STYLES})
     positive_latencies(layers)
     positive_latencies(models)

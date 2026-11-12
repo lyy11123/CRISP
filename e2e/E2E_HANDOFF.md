@@ -147,3 +147,4 @@ C 已完成（`e2e\C_SUMMARY.md`）。D 在新会话中做，第一步只读起�
 - D1–D5 与 S-A 已汇总，共 1,853 个作业。D5 的 123 个补充作业归档在 `e2e/d/out/remote/pkg3`，结果并入 `e2e/d/out/prod/sims`。数据口径见 `D_PLAN.md` 和 `PROGRESS.md`。
 - 从仓库根目录运行 `python -B e2e/d_summary.py` 生成逐条件表 `e2e/D_SUMMARY.md`。运行 `python -B e2e/d_stage_summary.py --e2e e2e --out-dir e2e/d/out/prod/analysis` 生成逐单元 JSON 和分析汇总。
 - E 混合分组与 Gemini 基线已完成。420 次新搜索、252 个历史候选重评、16 个结束状态对照均已下载并核对；正式剩余批次 632 个任务以 128 并行耗时 50 分 09.45 秒。完整表、混合/条带模型分析、十九个故障的组装结果和图见 `E_SUMMARY.md`。具体代码、运行位置与核查记录见 `PROGRESS.md` 最新条目。F 硬件尚未启动，下一步先讨论方案；路线沿用文档开头的 E 至 J 顺序。
+- E 后处理已增加 G0/G1 四层组与理想瓶颈周期，原 G2 表保持不变；Gemini 静态归因保存于 `e/evidence/gemini_attribution.json`。F/G 详细草案为 `FG_PLAN.md`，包含来源参数、具体任务、增长切分、估时和内存安排。用户确认计划后才进入 F/G 实现及小批，正式批次在小批汇报后再决定。本次没有新增仿真。

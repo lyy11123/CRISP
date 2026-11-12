@@ -9,4 +9,4 @@ A3h 是在原后端评估的 CRISP 映射。健康图使用各单元 14 个候�
 - `e_request_latency` 按固定 KV 长度 2048 计算 `R(N) = P_model + N × D_model`。N 为 prefill 后追加的 decode 步数，标点对应 128、512、2048。
 - `e_fault_latency` 采用 2048 个 decode 步，以同方法、同起点故障前结果为分母。PF4 为 G2 内双向 D2D 链路故障，PF1 为核和路由器故障，PF8 为 DDR 访问端口故障。左图只计受损的 3 层，右图保留另外 41 层及组间传输，两图的纵轴范围独立。
 
-输入 `summary.json` 的 SHA-256 为 `3e12f724cd1a8d15100d895010d1bb217dc208f732d21080494f290c044b29fd`。SVG 保留文本，字体为 DejaVu Sans。PNG 为 300 dpi。
+输入 `summary.json` 的 SHA-256 为 `5e379bfba20f5c172d03c561ebc04822210bebb5223d00ee4e31a0528600192f`。SVG 保留文本，字体为 DejaVu Sans。PNG 为 300 dpi。

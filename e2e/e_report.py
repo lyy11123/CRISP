@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 import statistics
 
-from e_layouts import DAMAGE_GROUP, capacity_rows, layouts
+from e_layouts import capacity_rows, layouts
 
 
 HERE = Path(__file__).resolve().parent
@@ -22,6 +22,7 @@ OUTPUT_LENGTHS = (128, 512, 2048)
 SEEDS = list(range(1, 11))
 CANDIDATES = 14
 SEARCH_STEPS = 1000
+FAULT_GROUPS = ("G2", "G0", "G1")
 
 C_SCHEMES = {
     "A1 R0": ("A1", "A1 故障前"),
@@ -167,33 +168,91 @@ def model_rows(layers, fixed_layouts):
     return rows
 
 
+def stage_bottleneck(stage_cycles):
+    cycles = max(stage_cycles.values())
+    return cycles, ";".join(group for group, value in stage_cycles.items() if value == cycles)
+
+
+def pipeline_fields(stages):
+    """Ideal stage service demand; requests sum P + N*D within each group first."""
+    row = {}
+    for when, phases in stages.items():
+        demands = dict(phases)
+        for length in OUTPUT_LENGTHS:
+            demands[f"request_{length}"] = {
+                group: value + length * phases["decode"][group]
+                for group, value in phases["prefill"].items()
+            }
+        for key, values in demands.items():
+            cycles, groups = stage_bottleneck(values)
+            row[f"pipeline_stage_{key}_{when}"] = cycles
+            row[f"pipeline_bottleneck_groups_{key}_{when}"] = groups
+    for key in (*PHASES, *(f"request_{length}" for length in OUTPUT_LENGTHS)):
+        before, after = (row[f"pipeline_stage_{key}_{when}"] for when in ("before", "after"))
+        row[f"pipeline_stage_{key}_change"] = after / before - 1
+        row[f"pipeline_ideal_throughput_{key}_change"] = before / after - 1
+    return row
+
+
 def fault_rows(layers, mix, c_report):
     table = {(r["shape"], r["method"], r["ln"]): r for r in layers}
-    healthy_groups = [g for g in mix.groups if g.name != DAMAGE_GROUP]
-    affected_layers = next(g.layers for g in mix.groups if g.name == DAMAGE_GROUP)
     rows = []
-    for fault in c_report["faults"]:
-        by_scheme = {(r["scheme"], r["ln"]): r for r in fault["assembly"]}
-        for scheme, (method, before_scheme) in C_SCHEMES.items():
-            for ln in LN_MODES:
-                healthy = {phase: [(g.layers, table[g.shape, method, ln][phase]) for g in healthy_groups] for phase in PHASES}
-                if any(value is None for values in healthy.values() for _, value in values):
-                    continue
-                before, after = by_scheme[before_scheme, ln], by_scheme[scheme, ln]
-                row = {"fault": fault["fault"], "scheme": scheme, "method": method, "ln": ln,
-                       "layout": mix.name, "group": DAMAGE_GROUP, "affected_layers": affected_layers}
-                for phase, key in (("prefill", "TTFT"), ("decode", "TPOT")):
-                    fixed = sum(n * value for n, value in healthy[phase]) + mix.transfer_cycles(phase)
-                    row[f"local_{phase}_before"] = before[key] * affected_layers
-                    row[f"local_{phase}_after"] = after[key] * affected_layers
-                    row[f"model_{phase}_before"] = fixed + row[f"local_{phase}_before"]
-                    row[f"model_{phase}_after"] = fixed + row[f"local_{phase}_after"]
-                for scope in ("local", "model"):
+    for damage_group in FAULT_GROUPS:
+        healthy_groups = [g for g in mix.groups if g.name != damage_group]
+        affected = next(g for g in mix.groups if g.name == damage_group)
+        for fault in c_report["faults"]:
+            by_scheme = {(r["scheme"], r["ln"]): r for r in fault["assembly"]}
+            for scheme, (method, before_scheme) in C_SCHEMES.items():
+                for ln in LN_MODES:
+                    healthy = {phase: [(g.layers, table[g.shape, method, ln][phase]) for g in healthy_groups] for phase in PHASES}
+                    if any(value is None for values in healthy.values() for _, value in values):
+                        continue
+                    before, after = by_scheme[before_scheme, ln], by_scheme[scheme, ln]
+                    row = {"fault": fault["fault"], "scheme": scheme, "method": method, "ln": ln,
+                           "layout": mix.name, "group": damage_group, "affected_layers": affected.layers}
+                    stages = {when: {} for when in ("before", "after")}
+                    for phase, key in (("prefill", "TTFT"), ("decode", "TPOT")):
+                        fixed = sum(n * value for n, value in healthy[phase]) + mix.transfer_cycles(phase)
+                        row[f"local_{phase}_before"] = before[key] * affected.layers
+                        row[f"local_{phase}_after"] = after[key] * affected.layers
+                        row[f"model_{phase}_before"] = fixed + row[f"local_{phase}_before"]
+                        row[f"model_{phase}_after"] = fixed + row[f"local_{phase}_after"]
+                        row[f"paired_before_vs_E_healthy_{phase}"] = before[key] / table[affected.shape, method, ln][phase] - 1
+                        for when, source in (("before", before), ("after", after)):
+                            stages[when][phase] = {
+                                g.name: g.layers * (source[key] if g.name == damage_group else table[g.shape, method, ln][phase])
+                                for g in mix.groups
+                            }
+                    for scope in ("local", "model"):
+                        for length in OUTPUT_LENGTHS:
+                            for when in ("before", "after"):
+                                row[f"{scope}_request_{length}_{when}"] = (row[f"{scope}_prefill_{when}"] + length * row[f"{scope}_decode_{when}"])
+                        for key in (*PHASES, *(f"request_{length}" for length in OUTPUT_LENGTHS)):
+                            row[f"{scope}_{key}_change"] = row[f"{scope}_{key}_after"] / row[f"{scope}_{key}_before"] - 1
                     for length in OUTPUT_LENGTHS:
-                        for when in ("before", "after"):
-                            row[f"{scope}_request_{length}_{when}"] = (row[f"{scope}_prefill_{when}"] + length * row[f"{scope}_decode_{when}"])
-                    for key in (*PHASES, *(f"request_{length}" for length in OUTPUT_LENGTHS)):
-                        row[f"{scope}_{key}_change"] = row[f"{scope}_{key}_after"] / row[f"{scope}_{key}_before"] - 1
+                        e_layer = table[affected.shape, method, ln]
+                        e_request = e_layer["prefill"] + length * e_layer["decode"]
+                        row[f"paired_before_vs_E_healthy_request_{length}"] = (before["TTFT"] + length * before["TPOT"]) / e_request - 1
+                    row.update(pipeline_fields(stages))
+                    rows.append(row)
+    return rows
+
+
+def pipeline_summary_rows(faults):
+    rows = []
+    for group in FAULT_GROUPS:
+        for ln in LN_MODES:
+            for scheme in C_SCHEMES:
+                selected = [r for r in faults if (r["group"], r["ln"], r["scheme"]) == (group, ln, scheme)]
+                if not selected:
+                    continue
+                row = {"group": group, "affected_layers": selected[0]["affected_layers"], "ln": ln,
+                       "scheme": scheme, "fault_count": len(selected)}
+                for key in (*PHASES, *(f"request_{length}" for length in OUTPUT_LENGTHS)):
+                    for metric in (f"model_{key}_change", f"pipeline_stage_{key}_change", f"pipeline_ideal_throughput_{key}_change"):
+                        values = [r[metric] for r in selected]
+                        row.update({f"{metric}_{label}": value for label, value in (
+                            ("min", min(values)), ("median", statistics.median(values)), ("max", max(values)))})
                 rows.append(row)
     return rows
 
@@ -279,13 +338,25 @@ def summarize(records, out_dir, c_report_path):
     out_dir.mkdir(parents=True, exist_ok=True)
     tables = {"candidate_table": candidate_rows(formal), "operator_table": operators,
               "layer_table": layers, "model_table": models, "fault_model_table": faults,
-              "capacity_table": capacity, "timing_table": times, "terminal_table": terminals}
+              "capacity_table": capacity, "timing_table": times, "terminal_table": terminals,
+              "pipeline_summary_table": pipeline_summary_rows(faults)}
     empty_fields = {"fault_model_table": ("fault", "scheme", "method", "ln", "layout", "group", "affected_layers"),
-                    "terminal_table": ("shape", "phase", "op", "candidate", "cycles", "backend_min", "backend_max")}
+                    "terminal_table": ("shape", "phase", "op", "candidate", "cycles", "backend_min", "backend_max"),
+                    "pipeline_summary_table": ("group", "affected_layers", "ln", "scheme", "fault_count")}
     for name, rows in tables.items():
         write_csv(out_dir / f"{name}.csv", rows, empty_fields.get(name, ()))
     (out_dir / "layouts.json").write_text(json.dumps({layout.name: layout.describe() for layout in fixed}, indent=2) + "\n", encoding="utf-8")
-    metadata = {"completion": totals, "excluded": excluded, "c_report_available": have_c}
+    metadata = {"completion": totals, "excluded": excluded, "c_report_available": have_c,
+                "fault_assembly": {
+                    "groups": list(FAULT_GROUPS),
+                    "sources": "C paired before/after on damaged 2x2 group; E healthy layer timings on other groups",
+                    "serial_model": "sum of group service cycles plus 13 serial inter-group transfers",
+                    "pipeline_stage": "max_g n_g*t_g, separately for P, D and P+N*D; request service sums P+N*D in each group before taking max",
+                    "pipeline_ideal_throughput_change": "stage_cycles_before / stage_cycles_after - 1",
+                    "pipeline_assumptions": "1/B is an ideal service-rate upper bound from per-group work; enough independent requests must keep every group occupied. Excludes inter-group transfer, shared-link contention, pipeline fill/drain and autoregressive feedback scheduling",
+                    "baseline_difference": "paired_before_vs_E_healthy_* records the C/E healthy timing difference for the same group shape; C paired baseline is retained",
+                    "placement": "Same C local fault reused analytically at G2 (3 layers), G0 and G1 (4 layers each); group-interconnect transfer term remains fixed"
+                }}
     (out_dir / "summary.json").write_text(json.dumps(tables | metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     text = ["# E 阶段汇总", "", "正式候选采用 1,000 步和后端种子 1–10。每个算子单元格有齐 14 个候选时才给选优和组装结果。", "",
             "| 作业类别 | 完成 / 计划 | 已测进程小时 | 已测速率覆盖的剩余进程小时 | 待测速作业 |",
@@ -308,6 +379,18 @@ def summarize(records, out_dir, c_report_path):
         for row in finished_models:
             values = [f"{row[k]:,.0f}" for k in (*PHASES, *(f"request_{n}" for n in OUTPUT_LENGTHS))]
             text.append(f"| {row['layout']} | {row['method']} | {row['ln']} | " + " | ".join(values) + " |")
+        text.append("")
+    if faults:
+        text += ["## 故障位置与最慢组的解析计算", "",
+                 "同一 C 故障分别放在 G2（三层）、G0 或 G1（四层）。受损组的前后时间沿用 C 成对数据，其余组使用 E 健康数据。", "",
+                 "最慢组周期 B 为 max_g(n_g × t_g)，分别计算 prefill、decode，以及每组 P + N × D 的请求服务量。1/B 是按组工作量算出的理想服务率上限，其相对变化为 B_before / B_after − 1；周期增加与服务率下降是倒数关系。该计算假设有足量独立请求使各组持续工作，组间传输、共享链路争用、填充排空及自回归反馈调度另计。", "",
+                 "C 与 E 的健康测量不同，可能改变四层组之间的瓶颈归属；逐行 paired_before_vs_E_healthy_* 列出差值。", "",
+                 "| 受损组 | 方案 | 44 层请求2048变化中位数 | 最慢组请求服务量变化中位数 | 理想服务率变化中位数 |",
+                 "|---|---|---:|---:|---:|"]
+        for row in tables["pipeline_summary_table"]:
+            if row["ln"] == "asis":
+                keys = ("model_request_2048_change_median", "pipeline_stage_request_2048_change_median", "pipeline_ideal_throughput_request_2048_change_median")
+                text.append(f"| {row['group']} | {row['scheme']} | " + " | ".join(f"{row[key]:+.2%}" for key in keys) + " |")
         text.append("")
     (out_dir / "E_SUMMARY.md").write_text("\n".join(text), encoding="utf-8")
     return totals

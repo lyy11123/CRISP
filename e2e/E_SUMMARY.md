@@ -18,7 +18,8 @@ A3h 的改善主要来自 decode。混合分组的 44 层模型中，相对 Busy
 | 每状态十种子的后端评估 | 6,880 |
 | 主候选最终确定性 CPCM / 随机平局 CPCM | 672 / 6,720 |
 | 算子比较表 | 48 行，每行 14 个候选 |
-| 故障组装表 | 190 行，19 个故障 × 5 种方案 × 2 种 LN 计数 |
+| 故障组装表 | 570 行，19 个故障 × 5 种方案 × 2 种 LN 计数 × G2/G0/G1 三个位置 |
+| 最慢组汇总表 | 30 行，三个位置 × 五种方案 × 两种 LN 计数 |
 | 容量表 | 28 行，两种布局各 14 组 |
 
 小批完成 40 个主任务和 16 个结束状态对照；正式批次完成其余 632 个任务。每次搜索 1,000 步。工作负载为 GPT W1、batch 16、prefill 长度 2048、decode KV 长度 2048。Gemini prefill MHA 已对齐为八头，每头维度 96；完整层按八份八头任务相加。
@@ -43,6 +44,10 @@ A1 使用 g0/g1 × 七组代价权重，A3h 使用 g0/g1 × 七个退火种子�
 | 1×4 | Gemini | 231.465 | 456.711 |
 
 Gemini 相对 A3h 的 prefill 绝对差主要来自 FFN 和 MHA：两者合计占 2×2 单层差距的 85.33%、1×4 的 91.48%。这是当前原生 Gemini 搜索设置和同工作量仿真的结果。
+
+读取已有快照和实际通信路径后，FFN 的主要现象是计算分配集中：Gemini 在两种形状下最忙 tensorcore 的累计工作均为 **94.37M 周期**，A1/A3h 为 **37.75M 周期**，前者是后者的 2.5 倍；这个计算工作量下界已经高于 A3h 整个 FFN 的 44.00M/45.46M 周期。MHA 则同时存在 DDR 与片内访问集中：Gemini 最忙 DDR 读链的累计工作为 **9.44M/9.46M**，片内链为 **8.86M/8.88M**；A3h 分别为 **2.79M/2.99M**、**2.33M/3.02M**（依次为 2×2/1×4）。
+
+这些累计工作量来自主表选中候选的计算事件和最终广播后通信树。三种方法的总计算量一致；Gemini 原生 `hops_only` 目标没有最忙计算设备和最忙链路负载项，当前结果表现出计算与通信负载集中。`ddr_random` 与 XY 各自的影响没有单独消融，因此本次解释落在已保存映射呈现的资源工作量上。逐项数据见 [gemini_attribution.csv](e/tables/gemini_attribution.csv) 和 [逐资源记录](e/evidence/gemini_attribution.json)；这些是静态工作量，实际逐事件排队时间未在 E 中保存。
 
 ### 44 层时间
 
@@ -92,7 +97,7 @@ Gemini 相对 A3h 的 prefill 绝对差主要来自 FFN 和 MHA：两者合计�
 
 ## 4. 混合布局中的故障
 
-沿用 C 阶段的十九个物理故障，将故障放在混合布局的 G2（2×2，三层）。受影响的三层使用 C 的成对故障前/故障后结果，其余四十一层使用 E 的健康结果；双方使用相同组间传输。E 没有新增故障搜索。A3h + EIR 对应 C 的 `L2Gsync 停止档（均值）`，C 的多种子与广播修正见 [C_SUMMARY.md](C_SUMMARY.md)。
+沿用 C 阶段的十九个物理故障，原主表将故障放在混合布局的 G2（2×2，三层）。受影响的三层使用 C 的成对故障前/故障后结果，其余四十一层使用 E 的健康结果；双方使用相同组间传输。下文补充相同局部故障分别落在 G0、G1（均为 2×2、四层）时的解析结果。E 没有新增故障搜索。A3h + EIR 对应 C 的 `L2Gsync 停止档（均值）`，C 的多种子与广播修正见 [C_SUMMARY.md](C_SUMMARY.md)。
 
 以下为生成 2048 步的请求时间相对各自故障前的变化；范围覆盖全部十九个故障。
 
@@ -110,6 +115,31 @@ EIR 相对同一起点的 R0，在十九个故障中的十八个降低请求时�
 
 ![代表故障下的局部与完整模型](e/figures/main/e_fault_latency.png)
 
+### 四层组受损与理想流水线瓶颈
+
+对每个组先计算 `W_g(N) = n_g × (P_g + N × D_g)`，再计算最慢组周期 `B(N) = max_g W_g(N)`。prefill 和 decode 的最慢组周期也分别列出。请求指标必须在每组内先相加 P 和 N×D，再取最大值。
+
+`1/B` 表示由组工作量决定的理想服务率上限，对应变化为 `B_故障前 / B_故障后 − 1`。这描述连续请求充分占用各组时的计算服务能力；组间通信、流水线填充/排空及自回归反馈调度另有时间需求。原 44 层串行和仍计十三次组间传输，新 B 指标只取组内工作量。
+
+下表为 A3h、原 LN 公式、2048 步请求。数值为十九个故障的中位数；G0 与 G1 在该模型中的数字相同，逐组结果分别保留。
+
+| 受损位置 | 方案 | 44 层串行时间变化 | 最慢组周期（十亿周期） | 最慢组周期变化 | 理想服务率变化 |
+|---|---|---:|---:|---:|---:|
+| G2，三层 | R0 | +1.333% | 2.40444 | 0% | 0% |
+| G2，三层 | EIR | +0.383% | 2.40444 | 0% | 0% |
+| G0/G1，四层 | R0 | +1.778% | 2.87693 | +19.651% | −16.423% |
+| G0/G1，四层 | EIR | +0.511% | 2.53954 | +5.619% | −5.320% |
+
+故障前 B 为 2.40444G 周期。G2 的 R0 在十九个故障中仅 PCEdge、MCEdge、MCScratch 三个超过健康四层组，B 最大增加 **1.572%**，理想服务率最多降低 **1.547%**；EIR 后十九个均由健康四层组决定 B。四层组受损时，R0 的 B 最大增加 **35.429%**，EIR 后最大增加 **9.591%**。
+
+四层组的改善仍主要来自 decode：prefill 的 B 退化中位数为 R0 **+19.896%**、EIR **+20.013%**；decode 则从 **+19.209%** 降到 **+3.267%**。完整的两阶段、三种请求长度、两种 LN 计数和五种方案见 [pipeline_summary_table.csv](e/tables/pipeline_summary_table.csv)。
+
+C 的健康 2×2 请求时间比 E 重评值低 0.0392%，所以受损前的最慢组是另一健康四层组；计算保留了这一差异。各行的 `paired_before_vs_E_healthy_*` 字段给出 C/E 健康时间差。
+
+“三层组退化超过 33.3%”表示它开始超过健康四层组，之后只将超过部分带入 B。例如同层时间为 t 时，三层组退化 35.48%，`B_后/B_前 = 3×1.3548/4 = 1.0161`，周期增加 1.61%，理想服务率下降 1.5845%。四层瓶颈组的周期增加 20%，对应服务率下降 16.67%。因此周期变化和吞吐变化需要分别计算。
+
+若继续按独立组模型分析多个受损组，串行增量为 `ΔT = Σ_g n_g × (t_g,后 − t_g,前)`。只有层数、单层退化相同且组间传输项不变时，绝对增量才等于 m 倍单组增量；最慢组指标仍取最大值。本次未新增多组并发故障仿真。
+
 ## 5. 容量与图表
 
 容量表按逻辑权重、共享历史 KV 和激活缓冲计算。每组有三层或四层；四层组的权重为 3,624,517,632 字节，共享历史 KV 为 192 MiB。每次组间 prefill 激活为 384 MiB、decode 激活为 192 KiB，单缓冲与双缓冲分别列出。SRAM 配置为每核 16 MiB，每组汇总为 1 GiB；DDR 容量按每 Die 32 GiB、每组 128 GiB 的配置注释计算。逐组汇总没有展开逐核同时存活张量的分配。
@@ -122,7 +152,7 @@ EIR 相对同一起点的 R0，在十九个故障中的十八个降低请求时�
 - [三个代表故障](e/figures/main/e_fault_latency.svg)
 - [主图说明](e/figures/main/FIGURE_NOTES.md)、[LN 修正版说明](e/figures/fixed/FIGURE_NOTES.md)
 
-全部逐项数据位于 [E_SUMMARY.json](E_SUMMARY.json) 和 `e/tables/`。其中 `operator_table.csv` 是算子与候选选择表，`model_table.csv` 是整模型表，`fault_model_table.csv` 是全部故障表，`capacity_table.csv` 是容量表。
+全部逐项数据位于 [E_SUMMARY.json](E_SUMMARY.json) 和 `e/tables/`。其中 `operator_table.csv` 是算子与候选选择表，`model_table.csv` 是整模型表，`fault_model_table.csv` 是 G2/G0/G1 全部故障表，`pipeline_summary_table.csv` 是最慢组汇总，`capacity_table.csv` 是容量表。
 
 ## 6. 运行与核对
 
@@ -145,6 +175,8 @@ EIR 相对同一起点的 R0，在十九个故障中的十八个降低请求时�
 
 完整结果包已下载并核对 SHA-256：`e1f5996ca12b2acfcb3c577bf44d7cfeb7947edec6901ea061afb9be5eed79e9`，大小 202,111,146 字节。归档位置为 `e/out/full_remote_archive/E_full_632_results_20261112.tar.gz`，解包数据为 `e/out/full_remote/`，小批为 `e/out/pilot_remote/`。正式包含逐任务结果、日志、spec、原始搜索输出和新搜索快照。
 
+后续四层组与最慢组分析只读取现有结果，原 G2 的 190 行旧字段及其余七张结果表逐项保持一致；公式检查包括零故障、三层组越过四层组、四层瓶颈退化和 P/D 最慢组不同的例子，见 [pipeline_check.json](e/evidence/pipeline_check.json)。Gemini 静态分析核对了十二个候选的快照、最终映射、确定性结果和事件数，并确认各方法总计算量一致、资源工作量下界不超过所存后端总时间。没有新增后端、CPCM 或 SA 运行。
+
 这些耗时含 128 并行时的资源竞争，论文串行计时仍在 J 阶段统一测量。E 的新搜索累计 49.04 进程小时，重评 7.20 进程小时，结束状态评估 0.41 进程小时。
 
 下载和核对后曾按用户要求尝试通过 Chrome 关机。电脑控制工具因无法可靠识别浏览器当前地址而中止，未执行关机；服务器仍需在腾讯云控制台关闭。
@@ -155,9 +187,13 @@ EIR 相对同一起点的 R0，在十九个故障中的十八个降低请求时�
 
 ```powershell
 python -B e2e/e_check.py --pilot-dir e2e/e/out/pilot_remote --full-dir e2e/e/out/full_remote --out e2e/e/out/technical_audit/full_results.json
-python -B e2e/e_report.py --inputs e2e/e/out/pilot_remote e2e/e/out/full_remote --out-dir e2e/e/out/full_report
-python -B e2e/e_plot.py --summary e2e/e/out/full_report/summary.json --out-dir e2e/e/figures/main
-python -B e2e/e_plot.py --summary e2e/e/out/full_report/summary.json --ln fixed --out-dir e2e/e/figures/fixed
+python -B e2e/e_report.py --inputs e2e/e/out/pilot_remote e2e/e/out/full_remote --out-dir e2e/e/out/postprocess_report
+python -B e2e/e_pipeline_check.py
+python -B e2e/e_gemini_analysis.py
+python -B e2e/e_plot.py --summary e2e/e/out/postprocess_report/summary.json --out-dir e2e/e/figures/main
+python -B e2e/e_plot.py --summary e2e/e/out/postprocess_report/summary.json --ln fixed --out-dir e2e/e/figures/fixed
 ```
 
-本次确认的 E 范围已做齐：两种组形状、三种方法、两种整模型布局、请求长度分析、十九个既有故障的混合布局组装，以及容量表。后续顺序是 F 硬件、G 规模、H Llama、I Qwen3-MoE、J 串行计时；这些阶段尚未启动，先拟下一阶段方案。
+本次确认的 E 范围已做齐：两种组形状、三种方法、两种整模型布局、请求长度分析、十九个既有故障的混合布局组装，以及容量表。D 的 1,853 个结果也已重新清点，D5 补充 123 个任务的结果与清单逐项一致，种子 4–10 齐全；`D_SUMMARY.md` 已在本地提交 `88b557a` 中，确认记录见 [d_completion_check.json](e/evidence/d_completion_check.json)。
+
+后续顺序是 F 硬件、G 规模、H Llama、I Qwen3-MoE、J 串行计时。F/G 的具体任务和预计耗时见 [FG_PLAN.md](FG_PLAN.md)，本次只拟方案，尚未启动。
