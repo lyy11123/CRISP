@@ -19,7 +19,7 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PILOT = "e2e/e/pilot.json"
+DEFAULT_MANIFEST = "e2e/e/pilot.json"
 SOURCE_DIRS = ("cpcm", "cpcm_sa", "e1_fidelity", "e2_attribution", "e3_warmstart",
                "e4_overlap", "eir", "dstu", "e2e")
 SKIP_DIRS = {"out", "work", "work_e4", "logs", "dist", "results", "colab", "e4_out", "e4b_out",
@@ -110,8 +110,10 @@ def add_bytes(archive, name, data):
 def build(manifest, output):
     items, snapshots = pilot_inputs(manifest)
     files = bundle_inputs(items, snapshots)
+    manifest_name = manifest.relative_to(ROOT).as_posix()
     metadata = {
-        "kind": "E_pilot",
+        "kind": "E_batch",
+        "manifest": manifest_name,
         "jobs": len(items),
         "job_counts": dict(Counter(item["kind"] for item in items)),
         "source_git_head": subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"],
@@ -133,8 +135,8 @@ def build(manifest, output):
                     metadata["files_sha256"][name] = hashlib.sha256(data).hexdigest()
                     add_bytes(archive, name, data)
                 data = json_bytes(items)
-                metadata["files_sha256"][PILOT] = hashlib.sha256(data).hexdigest()
-                add_bytes(archive, PILOT, data)
+                metadata["files_sha256"][manifest_name] = hashlib.sha256(data).hexdigest()
+                add_bytes(archive, manifest_name, data)
                 add_bytes(archive, "BUNDLE.json", json_bytes(metadata))
         temporary.replace(output)
     finally:
@@ -147,7 +149,7 @@ def build(manifest, output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", type=Path, default=ROOT / PILOT)
+    parser.add_argument("--manifest", type=Path, default=ROOT / DEFAULT_MANIFEST)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     build(args.manifest.resolve(), args.output.resolve())
