@@ -1,0 +1,58 @@
+{
+  "started_utc": "2026-11-12T16:39:52.272716+00:00",
+  "root": "/home/ubuntu/crisp_fg_20261113",
+  "source_git_head": "b2a15435fd220ef55e5d8962a486ff244ffcbffa",
+  "package_sha256": "c78ef2328ed2025055e7f26e8a32378127154e2d6a2634b8d52cfe067c860463",
+  "workers_combined": 128,
+  "processes": {
+    "release": {
+      "pid": 241175,
+      "argv": [
+        "/home/ubuntu/crisp-venv/bin/python",
+        "-u",
+        "-B",
+        "e2e/fg_release.py",
+        "--manifest",
+        "e2e/fg/out/full_jobs.json",
+        "--pilot",
+        "e2e/fg/manifest/pilot.json",
+        "--initial-release",
+        "e2e/fg/manifest/initial_release.json",
+        "--out",
+        "e2e/fg/out/main",
+        "--release",
+        "e2e/fg/out/main/release.json",
+        "--watch",
+        "--interval",
+        "30"
+      ],
+      "log": "release.log"
+    },
+    "full": {
+      "pid": 241176,
+      "argv": [
+        "/home/ubuntu/crisp-venv/bin/python",
+        "-u",
+        "-B",
+        "e2e/fg_batch.py",
+        "--manifest",
+        "e2e/fg/out/full_jobs.json",
+        "--out",
+        "e2e/fg/out/main",
+        "--workers",
+        "128",
+        "--reserve-gib",
+        "16",
+        "--name",
+        "full",
+        "--release-file",
+        "e2e/fg/out/main/release.json",
+        "--external-manifest",
+        "e2e/fg/manifest/pilot_jobs.json",
+        "--external-status",
+        "e2e/fg/out/main/pilot.status.json"
+      ],
+      "log": "full.log"
+    }
+  }
+}

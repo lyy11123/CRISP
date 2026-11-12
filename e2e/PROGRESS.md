@@ -978,3 +978,11 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
 - 为利用小批长任务期间的空闲核心，`fg_batch.py`新增外部批次共用并发名额和调度优先级；两个控制器合计上限128，正在运行的小批任务不重启。4类轻量实际进程测试共20项通过，证据`fg/evidence/batch_overlap_checks.json`。`fg_release.py`按已有结果逐类核对后开放全量，停止规则与联合指标核对通过才自动接入对应后续任务；验证见`fg/evidence/release_checks.json`。
 - `fg_estimate.py`使用实际候选/receipt与D云端单次联合评估，区分同类实测、历史外推和待测项。150个小批receipt时已覆盖的剩余工作299.71进程小时，按128并行及依赖约2.36小时；仍有364个慢搜索和修复/联合准备待测，该数不是全阶段完成时间。完整记录`fg/evidence/estimate_current.json/md`。本机小结构时间未用于真实prefill联合估计。
 - 用户授权更新估计后直接全量。全量按已通过类别持续接入；WATOS和3×3增长切分优先，尽早凑齐正式候选并测修复/联合。实际启动时间、PID和代码包另行追加。
+
+## 2026-11-13 00:39 F/G：正式队列启动（Codex）
+
+- 北京时间00:39:52，`119.45.93.240:/home/ubuntu/crisp_fg_20261113`正式控制器PID241176、逐类核对进程PID241175。运行记录`full.start.json`，日志`full.log`、`release.log`；输出仍为`e2e/fg/out/main`。完整6813作业已加入队列，前置核对后自动接入，用户无需再次确认。
+- 代码`b2a1543`，包`FG_full_20261113.tar.gz`共1,614,071字节，SHA-256=`c78ef2328ed2025055e7f26e8a32378127154e2d6a2634b8d52cfe067c860463`，2415个文件逐项核对。小批原代码清单另存`BUNDLE.pilot.json`，全量为`BUNDLE.full.json`。
+- 正式启动前小批155/168完成、0失败、13活跃；Linux实际进程与receipt匹配，全量识别这些任务为外部在跑，不重启。已核对可开放2515项，blocked为空。两批共用128名额，系统预留16GiB，每个子进程底层线程1。
+- 最新运行清单`fg/out/full_jobs.json`由当前实测更新耗时/优先级，6813个实验身份不变。真实修复与联合首次测量完成后自动核对并接入其余任务，仍需据实际时长更新整个阶段结束时间。
+- 启动后实查：全量115进程＋小批13进程＝128，两个进程组CPU占用合计约12756%（约127.6核）。30秒状态可用内存188.62GiB；随后61秒状态181.34GiB，failed和release blocked均为空。已保存本机`fg/evidence/cloud_full_start.json`与`cloud_full_initial_status.json`。

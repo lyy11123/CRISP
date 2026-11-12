@@ -64,3 +64,36 @@ free -h
 恢复需保留 `results/`、`raw/`、`snapshots/`、`exports/`、`selection/`、`faults/`、`joint_cache/`，以及 `specs/`、`receipts/`、日志、清单和开放列表；这些文件共同记录候选与后续任务的输入。新的正式启动命令、PID 和源码版本在实际启动后追加。
 
 完整输出当前保存在服务器磁盘，本机已开始分批接收结果记录。原 D 阶段 COS 定时上传仍在；F/G 新目录的三分钟上传尚待用户授权，当前未启用。
+
+## 正式队列已启动
+
+北京时间 **2026-11-13 00:39:52**，代码提交 `b2a1543`。全量控制器 PID **241176**，逐类核对进程 PID **241175**。完整清单 6813 项；启动前小批已完成 155/168，2515 项已达到开始条件，其余随前置结果核对通过自动接入。
+
+包 `FG_full_20261113.tar.gz`，1,614,071 字节；上传核对2415个文件。SHA-256：
+
+```text
+c78ef2328ed2025055e7f26e8a32378127154e2d6a2634b8d52cfe067c860463
+```
+
+`BUNDLE.pilot.json` 与 `BUNDLE.full.json` 分别保留两次代码清单；`full.start.json` 保存完整实际命令、PID和时间。正式控制器参数：
+
+```bash
+~/crisp-venv/bin/python -u -B e2e/fg_batch.py \
+  --manifest e2e/fg/out/full_jobs.json --out e2e/fg/out/main \
+  --workers 128 --reserve-gib 16 --name full \
+  --release-file e2e/fg/out/main/release.json \
+  --external-manifest e2e/fg/manifest/pilot_jobs.json \
+  --external-status e2e/fg/out/main/pilot.status.json
+```
+
+查看当前状态：
+
+```bash
+cd ~/crisp_fg_20261113
+head -n 18 e2e/fg/out/main/full.status.json
+tail -n 4 full.log
+tail -n 2 release.log
+free -h
+```
+
+`completed`包括已复用小批，`active`是全量队列自己启动的进程；`combined_active`加上仍运行的小批，合计上限128。`release.audit.json`记录各类核对结果，`waiting_for_release`为等待前置核对的作业。全流程最新测时文件是`e2e/fg/out/full_estimate_launch.json/md`，启动时仍有慢任务和修复未测，不能把已覆盖部分的小时数当作整批完成时间。
