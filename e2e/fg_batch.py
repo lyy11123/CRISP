@@ -72,7 +72,7 @@ def identity(job):
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
 
-def execute(manifest, out, workers, reserve_gib, run_name, memory_hint):
+def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_file=None):
     out = out.resolve()
     for folder in ("logs", "specs", "receipts"):
         (out / folder).mkdir(parents=True, exist_ok=True)
@@ -127,6 +127,8 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint):
     while pending or running:
         for name, active in list(running.items()):
             active["peak"] = max(active["peak"], process_rss(active["process"].pid))
+            key = category(active["job"])
+            memory[key] = max(memory.get(key, 0), active["peak"])
             rc = active["process"].poll()
             if rc is None:
                 continue
@@ -163,7 +165,10 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint):
         committed = sum(max(0, gib(a["job"]) - process_rss(a["process"].pid))
                         for a in running.values())
         budget = free - reserve_gib - committed
-        ready = sorted((j for j in pending.values() if set(j.get("deps", ())) <= completed
+        release = json.loads(release_file.read_text(encoding="utf-8")) if release_file else {"all": True}
+        released = ids if release.get("all") else set(release["ids"])
+        ready = sorted((j for j in pending.values() if j["id"] in released
+                        and set(j.get("deps", ())) <= completed
                         and category(j) not in paused_categories),
                        key=seconds, reverse=True)
         # A short ramp lets new workers report RSS before the next eight start.
@@ -195,13 +200,14 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint):
                           completed=len(completed), failed=sorted(failed), active=len(running),
                           pending=len(pending), available_gib=free, min_available_gib=min_available,
                           wall_seconds=now-started, max_active=max_active,
+                          waiting_for_release=sum(n not in released for n in pending),
                           running=[dict(id=n, pid=a["process"].pid,
                                         seconds=now-a["started"], rss_gb=process_rss(a["process"].pid))
                                    for n, a in running.items()])
             write_json(out / (run_name + ".status.json"), status)
             print(json.dumps({k:v for k,v in status.items() if k != "running"}), flush=True)
             next_status = now + 30
-        if not running and pending and not ready:
+        if not running and pending and not ready and not any(n not in released for n in pending):
             print(json.dumps(dict(event="blocked_dependencies", jobs=sorted(pending))), flush=True)
             break
         time.sleep(2)
@@ -223,10 +229,11 @@ def main():
     parser.add_argument("--reserve-gib", type=float, default=16)
     parser.add_argument("--memory-hint-gib", type=float, default=1.5)
     parser.add_argument("--name", default="batch")
+    parser.add_argument("--release-file", type=Path)
     args = parser.parse_args()
     assert 1 <= args.workers <= 128
     return execute(args.manifest, args.out, args.workers, args.reserve_gib, args.name,
-                   args.memory_hint_gib)
+                   args.memory_hint_gib, args.release_file)
 
 
 if __name__ == "__main__":
