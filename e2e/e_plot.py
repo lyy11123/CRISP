@@ -172,7 +172,7 @@ def render(summary_path, out, ln):
 
     mode = ("`asis` 沿用 B 原式，decode FFN 内的一次 LN 与外加两次 LN 均计入。" if ln == "asis" else
             "`fixed` 外加一次 decode LN，连同 decode FFN 内的一次共两次。")
-    notes = ["# E 阶段图说明", "", mode, "两种口径的数值均见 `layer_table.csv` 和 `model_table.csv`。",
+    notes = ["# E 阶段图说明", "", mode, "两种 LN 计数的数值均见 `layer_table.csv` 和 `model_table.csv`。",
              "A3h 是在原后端评估的 CRISP 映射。健康图使用各单元 14 个候选中的后端均值最优结果。", "",
              "- `e_layer_latency` 比较 2×2、1×4 组上一个 GPT W1 block 的 prefill 与 decode 一步。各 phase 的纵轴单位独立。",
              "- `e_model_latency` 比较 56 Die 混合和长条布局的 44 层组装时间，包含 13 次串行组间激活传输。组内和组间时间可在 `model_table.csv` 中查看。",

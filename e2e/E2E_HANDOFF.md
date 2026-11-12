@@ -146,4 +146,4 @@ C 已完成（`e2e\C_SUMMARY.md`）。D 在新会话中做，第一步只读起�
 - `CRISP_codex` 顶层从 Claude 提交 `6d2821e` 建立 `codex/e2e-handoff` 分支。后续推送使用 Codex 分支。
 - D1–D5 与 S-A 已汇总，共 1,853 个作业。D5 的 123 个补充作业归档在 `e2e/d/out/remote/pkg3`，结果并入 `e2e/d/out/prod/sims`。数据口径见 `D_PLAN.md` 和 `PROGRESS.md`。
 - 从仓库根目录运行 `python -B e2e/d_summary.py` 生成逐条件表 `e2e/D_SUMMARY.md`。运行 `python -B e2e/d_stage_summary.py --e2e e2e --out-dir e2e/d/out/prod/analysis` 生成逐单元 JSON 和分析汇总。
-- E 为混合分组与 Gemini 基线，方案已获用户确认，见 `E_PLAN.md`。实现与小批验证已完成，40 个主任务和 16 个结束状态对照已下载并核对，见 `E_PILOT_SUMMARY.md`。剩余 390 次搜索和 242 次重评等待用户决定启动。具体代码、运行位置与核查记录见 `PROGRESS.md` 最新条目。路线沿用文档开头的 E 至 J 顺序。
+- E 混合分组与 Gemini 基线已完成。420 次新搜索、252 个历史候选重评、16 个结束状态对照均已下载并核对；正式剩余批次 632 个任务以 128 并行耗时 50 分 09.45 秒。完整表、混合/条带模型分析、十九个故障的组装结果和图见 `E_SUMMARY.md`。具体代码、运行位置与核查记录见 `PROGRESS.md` 最新条目。F 硬件尚未启动，下一步先讨论方案；路线沿用文档开头的 E 至 J 顺序。
