@@ -1,0 +1,115 @@
+{
+  "started_utc": "2026-11-13T02:29:49.363601+00:00",
+  "source_commit": "c123b47",
+  "source_hashes": {
+    "fg_fault.py": "74a696deff9b5196ddd4ae4785d1334dfa48052e400abe950af95179a4e9be54",
+    "fg_pipeline.py": "efce194168571eb92a35ed4a39fa29097aed83c49d5ad7f0a7a27571b3fa6905"
+  },
+  "stopped_idle_controllers": [
+    2601367,
+    2601366
+  ],
+  "retained_worker_pids": [
+    1684095,
+    1684304,
+    1684308,
+    1684641,
+    1864241,
+    1864327,
+    1864396,
+    2308069,
+    2321441,
+    2321580,
+    2321691,
+    2322006,
+    2322009,
+    2322062,
+    2335278,
+    2335435,
+    2378691,
+    2381493
+  ],
+  "owner_pids": [
+    241176,
+    2429409
+  ],
+  "workers": 128,
+  "reserve_gib": 3,
+  "running_growth_fraction": 0.25,
+  "processes": {
+    "release_pipeline": {
+      "pid": 2161782,
+      "argv": [
+        "/home/ubuntu/crisp-venv/bin/python",
+        "-u",
+        "-B",
+        "e2e/fg_release.py",
+        "--manifest",
+        "e2e/fg/out/pipeline_jobs.json",
+        "--pilot",
+        "e2e/fg/manifest/pilot.json",
+        "--initial-release",
+        "e2e/fg/manifest/initial_release.json",
+        "--out",
+        "e2e/fg/out/main",
+        "--release",
+        "e2e/fg/out/main/release.pipeline.json",
+        "--watch",
+        "--interval",
+        "30"
+      ],
+      "log": "release_pipeline.log"
+    },
+    "pipeline": {
+      "pid": 2161783,
+      "argv": [
+        "/home/ubuntu/crisp-venv/bin/python",
+        "-u",
+        "-B",
+        "e2e/fg_batch.py",
+        "--manifest",
+        "e2e/fg/out/pipeline_jobs.json",
+        "--out",
+        "e2e/fg/out/main",
+        "--workers",
+        "128",
+        "--reserve-gib",
+        "3",
+        "--name",
+        "pipeline",
+        "--release-file",
+        "e2e/fg/out/main/release.pipeline.json",
+        "--external-manifest",
+        "e2e/fg/out/policy_owned_jobs.json",
+        "--external-status",
+        "e2e/fg/out/main/policy_owners.status.json"
+      ],
+      "log": "pipeline.log"
+    }
+  },
+  "dependency_change": {
+    "job": "G_busybarn_3x3_growth_d2d1__fault_select",
+    "before_dependencies": [
+      "G_busybarn_3x3_growth_d2d1__selection"
+    ],
+    "after_dependencies": [
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s1",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s2",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s3",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s4",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s5",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s6",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g1_s123",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g1_s1",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g1_s2",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g1_s3",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g1_s4",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g1_s5",
+      "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g1_s6"
+    ],
+    "jobs": 6813,
+    "all_job_identities_unchanged": true,
+    "note": "Outer deps describe runtime scheduling; spec.depends_on retains the original task definition."
+  }
+}

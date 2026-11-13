@@ -2,7 +2,21 @@
 
 2026-11-13（Codex）。服务器 `ubuntu@119.45.93.240`，工作目录 `/home/ubuntu/crisp_fg_20261113`；Python 使用 `/home/ubuntu/crisp-venv/bin/python`。原实例重新开机，既有 SSH 主机标识与环境匹配。
 
-**08:39后的当前入口：**主控制器PID2601367，`main.log`、`e2e/fg/out/main/main.status.json`；放行进程PID2601366，`release_main.log`、`release.main.json`。用户要求系统余量3GiB；当前将运行中预计增长的25%计为预留，首次启动仍按同类实测峰值扣额度。每轮读取`e2e/fg/out/main/scheduler_policy.json`，原子更新`running_growth_fraction`即可调整，无需再次移交。08:40实查128进程、CPU100%；08:46为127进程、CPU99%、可用46.49GiB。
+**10:29后的当前入口：**主控制器PID2161783，`pipeline.log`、`e2e/fg/out/main/pipeline.status.json`；放行进程PID2161782，`release_pipeline.log`、`release.pipeline.json`。运行清单为`e2e/fg/out/pipeline_jobs.json`，实际命令和代码摘要在`pipeline.start.json`。合计上限128，系统余量3GiB，未来增长预留系数0.25。
+
+10:20实查6138/6813完成，只有G的3×3增长切分未齐；20个长搜索运行，CPU约16%、可用187GiB。原清单让故障选择等待全部224个A1/A3h健康候选，但实际只读取14个decode MHA A3h候选。`fg_pipeline.py`将该作业的外层调度依赖改为这14项，6813个作业的spec与身份全部不变；四个已完成配置的选优结果逐项一致。这样112个FULL搜索可在其余prefill搜索结束前开始。原始清单和结果保留，改动提交`c123b47`。
+
+10:29移交时18个旧搜索继续运行（此前另两项已正常结束）；仅结束无工作进程的主控制器2601367及其放行进程2601366。旧owner241176/2429409继续收尾，由既有清理进程处理。三分钟COS备份沿用；新运行清单、源码、启动记录与状态均在原上传范围。
+
+```bash
+cd ~/crisp_fg_20261113
+head -n 22 e2e/fg/out/main/pipeline.status.json
+tail -n 3 pipeline.log
+tail -n 2 release_pipeline.log
+free -h
+```
+
+**08:39移交记录（已由10:29入口替代）：**主控制器PID2601367，`main.log`、`e2e/fg/out/main/main.status.json`；放行进程PID2601366，`release_main.log`、`release.main.json`。用户要求系统余量3GiB；当前将运行中预计增长的25%计为预留，首次启动仍按同类实测峰值扣额度。每轮读取`e2e/fg/out/main/scheduler_policy.json`，原子更新`running_growth_fraction`即可调整，无需再次移交。08:40实查128进程、CPU100%；08:46为127进程、CPU99%、可用46.49GiB。
 
 ```bash
 cd ~/crisp_fg_20261113
