@@ -201,6 +201,16 @@ def export_engine(eng, filename, spec, T_ref):
     return relative(filename)
 
 
+def install_broadcast_seed(spec):
+    """Use C's finalized non-chaining broadcast-cache rule in this F/G process."""
+    import c_eir
+    # C_SUMMARY: an empty producer/bytes bucket stays uncached; BcCache routes
+    # that split from its actual producer. Other producers keep their own routes.
+    c_eir.FALLBACK_OK.add((spec["start"], spec["op"], spec.get("fault")))
+    c_eir.FALLBACK_LOG.clear()
+    c_eir.install_seed_fallback(spec)
+
+
 def engine_job(spec, out):
     for var in ("OMP_NUM_THREADS","MKL_NUM_THREADS","OPENBLAS_NUM_THREADS"):
         os.environ[var] = "1"
@@ -238,6 +248,7 @@ def engine_job(spec, out):
             inner[key] = str(path(inner[key]))
     if action == "rep":
         inner.update(method="L2Gsync", steps=spec["steps"], seed=spec["seed"])
+    install_broadcast_seed(inner)
     original = getattr(eir,"child_"+action)
     def run(eng, spec0, sink, *args):
         print(f"[fg_fault] {name} loaded engine; evaluating {action}",flush=True)
@@ -270,6 +281,8 @@ def engine_job(spec, out):
             raise
     sink = read_pickle(raw_path(out,name))
     result = {"source_candidate":source["candidate_id"],"exports":sink["exports"],"sink":relative(raw_path(out,name))}
+    if "bc_seed" in sink:
+        result["broadcast_seed"] = sink["bc_seed"]
     if action == "pre":
         result.update(T=sink["T"],backend_mean=statistics.mean(v[0] for v in sink["record"]["backend"].values()))
         assert int(sink["T"]) == int(source_record["T_hat"]), "healthy injection changed deterministic CPCM"
