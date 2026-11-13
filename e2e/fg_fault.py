@@ -88,6 +88,31 @@ def selected_source(spec, out):
     return sel["operators"][spec["phase_op"]][spec["start_arm"]]
 
 
+def choose_candidate(rows, out):
+    assert len(rows) == 14, len(rows)
+    mean = lambda r: statistics.mean(x["cycles"] for x in r["backend"])
+    winner = min(rows, key=lambda r: (mean(r), r["candidate_order"]))
+    rand_pick = min(rows, key=lambda r: (r["T_hat_rand_mean"], r["candidate_order"]))
+    return {
+        "candidate_id": winner["candidate_id"], "record": relative(result_path(out, winner["candidate_id"])),
+        "raw": relative(raw_path(out, winner["candidate_id"])),
+        "snapshot": relative(Path(out) / "snapshots" / (winner["candidate_id"] + ".pkl.gz")),
+        "backend_mean": mean(winner), "candidate_median": statistics.median(mean(r) for r in rows),
+        "random_CPCM_pick": rand_pick["candidate_id"], "random_CPCM_pick_backend_mean": mean(rand_pick),
+    }
+
+
+def fault_anchor_candidates(spec):
+    from fg_manifest import candidate_specs
+    return [s["candidate_id"] for s in candidate_specs(
+        spec, "healthy", methods=("A3h",), phase_ops=[("decode", "mha")])]
+
+
+def fault_anchor_source(spec, out):
+    rows = [read_json(result_path(out, name)) for name in fault_anchor_candidates(spec)]
+    return choose_candidate(rows, out)
+
+
 def select_candidates(spec, out):
     groups = collections.defaultdict(list)
     for name in spec["candidate_ids"]:
@@ -96,17 +121,8 @@ def select_candidates(spec, out):
     selected = {"config_id": spec["config_id"], "selection": "backend_mean", "operators": {}}
     for (phase, op, arm), rows in groups.items():
         assert len(rows) == 14, (phase, op, arm, len(rows))
-        mean = lambda r: statistics.mean(x["cycles"] for x in r["backend"])
-        winner = min(rows, key=lambda r: (mean(r), r["candidate_order"]))
-        rand_pick = min(rows, key=lambda r: (r["T_hat_rand_mean"], r["candidate_order"]))
         key = ("pf" if phase == "prefill" else "dc") + "_" + op
-        selected["operators"].setdefault(key, {})[arm] = {
-            "candidate_id": winner["candidate_id"], "record": relative(result_path(out, winner["candidate_id"])),
-            "raw": relative(raw_path(out, winner["candidate_id"])),
-            "snapshot": relative(Path(out) / "snapshots" / (winner["candidate_id"] + ".pkl.gz")),
-            "backend_mean": mean(winner), "candidate_median": statistics.median(mean(r) for r in rows),
-            "random_CPCM_pick": rand_pick["candidate_id"], "random_CPCM_pick_backend_mean": mean(rand_pick),
-        }
+        selected["operators"].setdefault(key, {})[arm] = choose_candidate(rows, out)
     write_json(Path(out) / "selection" / (spec["config_id"] + ".json"), selected)
     return selected
 
@@ -136,7 +152,7 @@ def load_healthy(spec, source, out):
 
 
 def select_faults(spec, out):
-    source = selected_source(dict(spec, phase_op="dc_mha", start_arm="A3h"), out)
+    source = fault_anchor_source(spec, out)
     pilot, c, snap, ctx, record = load_healthy(op_spec(spec, "dc_mha"), source, out)
     import numpy as np
     import event_driver
