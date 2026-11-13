@@ -34,6 +34,8 @@ E 的后处理已增加 G0/G1 四层组受损与理想最慢组服务率分析�
 
 ## 目录
 
+F/G收尾要求（2026-11-13用户确认）：全部结果下载至本机`e2e/fg/out/main/`，压缩归档放`e2e/fg/dist/`；详细生成`F_SUMMARY.md`、`G_SUMMARY.md`及表格、图和复算记录，内容见`e2e/FG_REPORT_PLAN.md`。用户已授权核对完成后推送`origin/codex/e2e-handoff`，不再重复询问。运行尚未结束时继续保留服务器任务和三分钟COS备份。
+
 | 位置 | 内容 |
 |---|---|
 | `third_party\isca2026-busybarn-artifact\` | BusyBarn artifact，只读；commit 记录在 `third_party\isca2026-busybarn-artifact.COMMIT` |

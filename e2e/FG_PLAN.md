@@ -597,7 +597,7 @@ E 的记录保存在 `e/evidence/fg_estimates.json`，输入为 `e/tables/timing
 - 结构化结果、任务完成清单、计时和内存数据；
 - 带宽敏感性结果；
 - `PROGRESS.md` 中的实际状态；
-- 按仓库流程在 `codex/*` 分支做小提交；GitHub 推送按用户安排进行。原始大快照沿用现有持久存储。
+- 按仓库流程在 `codex/*` 分支做小提交。2026-11-13用户已要求完整结果下载本机、全面详细汇总，并授权最终推送至`origin/codex/e2e-handoff`。保存目录和各项汇总见[FG_REPORT_PLAN.md](FG_REPORT_PLAN.md)，完整原始数据保存在本机并保留COS副本。
 
 ### 14.2 本次范围保持不变
 
