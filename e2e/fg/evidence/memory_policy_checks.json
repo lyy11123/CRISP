@@ -1,0 +1,78 @@
+{
+  "status": "passed",
+  "checks": {
+    "default_fraction_one": true,
+    "accepts_zero_quarter_one": true,
+    "rejects_out_of_range": true,
+    "two_owners_recognized": true,
+    "policy_reloaded_in_same_controller": true,
+    "static_status_unchanged": true,
+    "successful_external_receipt_imported": true,
+    "no_duplicate": true,
+    "aggregate_cap_three": true,
+    "own_task_overlaps_old_owner": true,
+    "external_dependency_respected": true,
+    "failure_exits_after_both_owners_end": true,
+    "failed_external_reported": true,
+    "failed_dependency_remains_pending": true,
+    "actual_growth_reserve_scaled": true
+  },
+  "platform": "win32",
+  "aggregate_limit": 3,
+  "actual_max_active": 3,
+  "owner_pids": [
+    73852,
+    73884
+  ],
+  "traces": [
+    {
+      "id": "after_a",
+      "pid": 52036,
+      "start": 1794530169.1886976,
+      "finish": 1794530170.690229
+    },
+    {
+      "id": "old_a",
+      "pid": 73880,
+      "start": 1794530164.69287,
+      "finish": 1794530167.6950498
+    },
+    {
+      "id": "old_b",
+      "pid": 69400,
+      "start": 1794530164.7106092,
+      "finish": 1794530172.7131467
+    },
+    {
+      "id": "own",
+      "pid": 76356,
+      "start": 1794530165.2426825,
+      "finish": 1794530166.7546358
+    }
+  ],
+  "final_external": {
+    "state": "failed",
+    "controller_pid": 73852,
+    "controller_alive": false,
+    "owner_pids": [
+      73852,
+      73884
+    ],
+    "alive_owner_pids": [],
+    "completed": 1,
+    "unfinished": [
+      "old_b"
+    ],
+    "failed": {
+      "old_b": 7
+    },
+    "active": 0,
+    "reserved_slots": 0,
+    "batch_present": false,
+    "terminal_confirmed": true,
+    "missing_after_exit": []
+  },
+  "initial_policy": 1.0,
+  "final_policy": 0.25,
+  "scope": "Two actual old controllers plus one new controller; lightweight workers only; static union status and live policy update."
+}

@@ -85,6 +85,14 @@ def memory_requirement(job, measured, live, configuration_peaks, default):
                1.25 * observed)
 
 
+def growth_fraction(out):
+    path = out / "scheduler_policy.json"
+    policy = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    fraction = policy.get("running_growth_fraction", 1.0)
+    assert isinstance(fraction, (int, float)) and 0 <= fraction <= 1, "running_growth_fraction must be in [0, 1]"
+    return fraction
+
+
 def identity(job):
     payload = {key: job[key] for key in ("id", "kind", "spec", "result")}
     payload["argv"] = job.get("argv")
@@ -160,20 +168,25 @@ class ExternalBatch:
                 self.completed[name] = receipt
                 self.failed.pop(name, None)
         status = json.loads(self.status.read_text(encoding="utf-8"))
-        alive = process_alive(status["pid"])
+        owners = status["owner_pids"] if "owner_pids" in status else [status["pid"]]
+        alive_owners = [pid for pid in owners if process_alive(pid)]
+        alive = bool(alive_owners)
         batch = json.loads(self.batch.read_text(encoding="utf-8")) if self.batch.exists() else None
         remaining = set(self.jobs) - set(self.completed)
         running = {r["id"]: r for r in status.get("running", [])
                    if r["id"] in remaining and process_alive(r["pid"])}
-        children = child_pids(status["pid"]) if alive else None
-        active = len(children) if children is not None else len(running)
+        children = set()
+        for pid in alive_owners:
+            children.update(child_pids(pid) or ())
+        active = max(len(children), len(running))
         # Reserve every still-owned job, including jobs the external controller may
         # launch before its next status write. Receipts only release finished slots.
         reserved = max(len(remaining), active) if alive else max(len(running), active)
         state = "running" if alive else "complete" if not remaining else "incomplete"
         if self.failed:
             state = "failed"
-        return dict(state=state, controller_pid=status["pid"], controller_alive=alive,
+        return dict(state=state, controller_pid=status.get("pid", owners[0]), controller_alive=alive,
+                    owner_pids=owners, alive_owner_pids=alive_owners,
                     completed=len(self.completed), unfinished=sorted(remaining),
                     failed=dict(self.failed), active=active, reserved_slots=reserved,
                     batch_present=batch is not None,
@@ -320,7 +333,9 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
                 elif external_state["controller_alive"]:
                     external_commitment += gib(external.jobs[name])
             committed += external_commitment
-        budget = free - reserve_gib - committed
+        fraction = growth_fraction(out)
+        reserved_growth = fraction * committed
+        budget = free - reserve_gib - reserved_growth
         release = json.loads(release_file.read_text(encoding="utf-8")) if release_file else {"all": True}
         released = ids if release.get("all") else set(release["ids"])
         ready = sorted((j for j in pending.values() if j["id"] in released
@@ -360,13 +375,16 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
                           completed=len(completed), failed=sorted(failed), active=len(running),
                           pending=len(pending), available_gib=free, min_available_gib=min_available,
                           wall_seconds=now-started, max_active=max_active,
+                          running_growth_fraction=fraction, future_growth_gib=committed,
+                          growth_reserve_gib=reserved_growth,
                           waiting_for_release=sum(n not in released for n in pending),
                           running=[dict(id=n, pid=a["process"].pid,
                                         seconds=now-a["started"], rss_gb=process_rss(a["process"].pid))
                                    for n, a in running.items()])
             if external:
                 status.update(external={k: v for k, v in external_state.items() if k != "running"},
-                              external_commitment_gib=external_commitment,
+                              external_future_growth_gib=external_commitment,
+                              external_commitment_gib=fraction * external_commitment,
                               combined_active=combined_active, max_combined_active=max_combined_active)
             write_json(out / (run_name + ".status.json"), status)
             print(json.dumps({k:v for k,v in status.items() if k != "running"}), flush=True)
