@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "checks": {
+    "g_groups_distinct": true,
+    "measured_g0_replaces_config_and_job_floor": true,
+    "g1_retains_own_measured_peak": true,
+    "live_growth_still_reserved": true,
+    "unmeasured_class_retains_configuration_hint": true,
+    "unmeasured_live_growth_raises_budget": true,
+    "timing_category_unchanged": true,
+    "scheduling_identity_unchanged": true,
+    "legacy_receipt_category_loaded_via_job_id": true,
+    "task_admitted_with_one_gib_remaining": true,
+    "reserve_gib_16_preserved": true,
+    "workers_limit_128_preserved": true,
+    "cached_success_skipped": true,
+    "idle_external_controller_does_not_block_exit": true,
+    "exited_failed_external_does_not_block": true,
+    "idle_completed_external_does_not_block": true
+  },
+  "platform": "win32",
+  "measured_example": {
+    "config_peak_gib": 2.42,
+    "job_default_gib": 3,
+    "measured_g0_peak_gib": 0.8,
+    "measured_g1_peak_gib": 2.4,
+    "g0_required_gib": 1,
+    "g1_required_gib": 3
+  },
+  "integration": {
+    "available_gib": 17,
+    "reserve_gib": 16,
+    "workers": 128,
+    "legacy_receipt_category": [
+      "search",
+      "busybarn",
+      "3x3",
+      "growth",
+      "decode",
+      "ln",
+      "A3h"
+    ],
+    "completed": 2,
+    "max_active": 1,
+    "pending_job": "pending_g0"
+  },
+  "scope": "Memory grouping and one real lightweight worker; no experiment simulation.",
+  "idle_external_test": {
+    "controller_alive": true,
+    "external_unfinished": 0,
+    "local_failure_reported": [
+      "local_failed"
+    ],
+    "blocked_exit_rc": 1
+  },
+  "external_wait_cases": {
+    "exited_failed_external_does_not_block": {
+      "unfinished": [
+        "failed"
+      ],
+      "controller_alive": false,
+      "active": 0
+    },
+    "idle_completed_external_does_not_block": {
+      "unfinished": [],
+      "controller_alive": true,
+      "active": 0
+    }
+  }
+}

@@ -66,6 +66,25 @@ def category(job):
             s.get("phase"), s.get("op"), s.get("method"))
 
 
+def memory_key(job):
+    s = job["spec"]
+    if job["kind"] == "search":
+        config = s.get("config_id") or (s.get("hardware_profile"), s.get("shape"),
+                                       s.get("split_mode"), s.get("d2d_scale", 1))
+        return ("search", config, s.get("phase"), s.get("op"), s.get("method"), s.get("g"))
+    return category(job)
+
+
+def memory_requirement(job, measured, live, configuration_peaks, default):
+    key = memory_key(job)
+    observed = live.get(key, 0)
+    if measured.get(key, 0) > 0:
+        return 1.25 * max(measured[key], observed)
+    return max(job.get("peak_rss_gb", default),
+               1.25 * configuration_peaks.get(job["spec"].get("config_id"), 0),
+               1.25 * observed)
+
+
 def identity(job):
     payload = {key: job[key] for key in ("id", "kind", "spec", "result")}
     payload["argv"] = job.get("argv")
@@ -170,6 +189,7 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
         (out / folder).mkdir(parents=True, exist_ok=True)
     jobs = job_items(manifest)
     assert len({j["id"] for j in jobs}) == len(jobs)
+    jobs_by_id = {j["id"]: j for j in jobs}
     ids = {j["id"] for j in jobs}
     for job in jobs:
         assert set(job.get("deps", ())) <= ids, (job["id"], job.get("deps"))
@@ -179,13 +199,16 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
     external_state, external_change, external_incomplete = None, None, set()
     completed, failed, running, pending, rows = set(), set(), {}, {}, []
     paused_categories = set()
-    duration, memory = {}, {}
+    duration, memory, live_memory = {}, {}, {}
     for path in (out / "receipts").glob("*.json"):
         receipt = json.loads(path.read_text(encoding="utf-8"))
         if receipt["rc"] == 0:
             key = tuple(receipt["category"])
             duration.setdefault(key, []).append(receipt["wall_seconds"])
-            memory[key] = max(memory.get(key, 0), receipt.get("peak_rss_gb", 0))
+            job = jobs_by_id.get(receipt["id"])
+            if job is not None and receipt["identity"] == identity(job):
+                key = memory_key(job)
+                memory[key] = max(memory.get(key, 0), receipt.get("peak_rss_gb", 0))
     for job in jobs:
         receipt_path = out / "receipts" / (job["id"] + ".json")
         if receipt_path.exists():
@@ -212,9 +235,7 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
         return job.get("estimated_seconds", timing.get(name, {}).get("mean_job_seconds", 900))
 
     def gib(job):
-        measured = memory.get(category(job), 0)
-        configuration_peak = config_memory.get(job["spec"].get("config_id"), 0)
-        return max(job.get("peak_rss_gb", memory_hint), 1.25 * measured, 1.25 * configuration_peak)
+        return memory_requirement(job, memory, live_memory, config_memory, memory_hint)
 
     started, next_status = time.monotonic(), 0
     min_available, max_active, max_combined_active = available_gib(), 0, 0
@@ -233,6 +254,7 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
                 rows.append(dict(receipt, cached=True, external=True))
                 key = tuple(receipt["category"])
                 duration.setdefault(key, []).append(receipt["wall_seconds"])
+                key = memory_key(external.jobs[name])
                 memory[key] = max(memory.get(key, 0), receipt.get("peak_rss_gb", 0))
             for name in external_state["failed"]:
                 failed.add(name)
@@ -248,8 +270,8 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
                 next_status = 0
         for name, active in list(running.items()):
             active["peak"] = max(active["peak"], process_rss(active["process"].pid))
-            key = category(active["job"])
-            memory[key] = max(memory.get(key, 0), active["peak"])
+            key = memory_key(active["job"])
+            live_memory[key] = max(live_memory.get(key, 0), active["peak"])
             rc = active["process"].poll()
             if rc is None:
                 continue
@@ -271,10 +293,11 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
             write_json(out / "receipts" / (name + ".json"), receipt)
             rows.append(receipt)
             key = category(job)
-            memory[key] = max(memory.get(key, 0), peak)
             if rc == 0:
                 completed.add(name)
                 duration.setdefault(key, []).append(receipt["wall_seconds"])
+                key = memory_key(job)
+                memory[key] = max(memory.get(key, 0), peak)
             else:
                 failed.add(name)
                 paused_categories.add(key)
@@ -291,8 +314,8 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
                 active = external_state["running"].get(name)
                 if active is not None:
                     rss = process_rss(active["pid"])
-                    key = category(external.jobs[name])
-                    memory[key] = max(memory.get(key, 0), rss)
+                    key = memory_key(external.jobs[name])
+                    live_memory[key] = max(live_memory.get(key, 0), rss)
                     external_commitment += max(0, gib(external.jobs[name]) - rss)
                 elif external_state["controller_alive"]:
                     external_commitment += gib(external.jobs[name])
@@ -348,7 +371,8 @@ def execute(manifest, out, workers, reserve_gib, run_name, memory_hint, release_
             write_json(out / (run_name + ".status.json"), status)
             print(json.dumps({k:v for k,v in status.items() if k != "running"}), flush=True)
             next_status = now + 30
-        external_wait = external and (external_state["controller_alive"] or external_state["active"])
+        external_wait = external and ((bool(external_state["unfinished"]) and external_state["controller_alive"])
+                                      or bool(external_state["active"]))
         if not running and external_incomplete:
             print(json.dumps(dict(event="external_incomplete", jobs=sorted(external_incomplete))), flush=True)
             break

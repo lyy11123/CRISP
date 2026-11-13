@@ -42,7 +42,7 @@ def identity(job):
 
 
 def category(job, healthy=False):
-    """Pool restart seeds, retaining hardware, actual workload and search budget."""
+    """Pool restart seeds, retaining hardware, workload, initialization and budget."""
     spec = job["spec"]
     platform = tuple(spec.get(k) for k in PLATFORM)
     if healthy:
@@ -52,6 +52,7 @@ def category(job, healthy=False):
         return common + (("healthy" if healthy else spec["family"]),
                          ("healthy" if healthy else spec["fault_id"]),
                          spec["phase"], spec["op"], spec["method"],
+                         None if spec["method"] == "Gemini" else spec["g"],
                          spec["search_steps"], tuple(spec["backend_seeds"]))
     return common + tuple(spec.get(k) for k in
                           ("phase", "op", "phase_op", "start_arm", "fault_id", "steps",
@@ -195,7 +196,7 @@ def estimates(jobs, observed, references=None):
                               source_jobs=[name], reused=actual["reused"])
             continue
         samples = pools.get(category(job), [])
-        label, basis = "measured", "same hardware/workload/method/budget, other restart"
+        label, basis = "measured", "same hardware/workload/method/initialization/budget, other restart"
         if not samples and job["kind"] == "search" and spec["family"] in ("full", "bandwidth"):
             samples = pools.get(category(job, healthy=True), [])
             label = "proxy"
@@ -288,24 +289,27 @@ def analyse(jobs, out, workers=128, status=None, smoke_path=None, d_root=None):
     status = status or {}
     running = {r["id"]: r for r in status.get("running", []) if r["id"] not in observed}
     by_id, _, order = topology(jobs)
+    overruns = []
+    for name, current in running.items():
+        row = rows.get(name)
+        if row and row["high"] is not None and current["seconds"] > row["high"]:
+            overruns.append(dict(id=name, elapsed_seconds=current["seconds"], measured_max=row["high"]))
+            row["observed_total_seconds"] = {key: row[key] for key in ("low", "mean", "high")}
+            row.update(classification="unmeasured", low=None, mean=None, high=None,
+                       basis="running elapsed exceeds completed samples; remaining duration unmeasured")
+    for name, row in rows.items():
+        row["remaining_seconds"] = (None if row["mean"] is None else {
+            key: 0.0 if row["complete"] else max(0.0, row[key] - running.get(name, {}).get("seconds", 0))
+            for key in ("low", "mean", "high")})
     unknown = {name for name, row in rows.items() if row["classification"] == "unmeasured"}
     blocked = set(unknown)
     for name in order:
         if name not in observed and any(dep in blocked for dep in by_id[name]["deps"]):
             blocked.add(name)
     process_hours, schedules = {}, {}
-    overruns = []
-    for name, current in running.items():
-        row = rows.get(name)
-        if row and row["high"] is not None and current["seconds"] > row["high"]:
-            overruns.append(dict(id=name, elapsed_seconds=current["seconds"], measured_max=row["high"]))
     for column in ("low", "mean", "high"):
-        durations = {}
-        for name, row in rows.items():
-            duration = 0.0 if row["complete"] or row[column] is None else row[column]
-            if name in running:
-                duration = max(0.0, duration - running[name]["seconds"])
-            durations[name] = duration
+        durations = {name: row["remaining_seconds"][column] if row["remaining_seconds"] is not None else 0.0
+                     for name, row in rows.items()}
         process_hours[column] = sum(durations.values()) / 3600
         schedules[column] = schedule(jobs, durations, workers, running)
     prefix_jobs = [job for job in jobs if job["id"] not in blocked]
@@ -362,7 +366,7 @@ def analyse(jobs, out, workers=128, status=None, smoke_path=None, d_root=None):
         assumptions=[
             "Durations are process wall time, including contention; process-hours are not CPU utilization measurements.",
             "Low/high are observed sample minima/maxima, not confidence bounds. A single sample gives no variability estimate.",
-            "Restarts share a timing category only when platform, workload, method and budget match.",
+            "Restarts share a timing category only when platform, workload, method, initialization g and budget match; Gemini has no g grouping.",
             "Gemini seed 123 includes terminal evaluation once; other restarts do not inherit that extra cost.",
             "FULL and bandwidth proxies use matching healthy searches; they remain proxies until measured.",
             "All repair tiers are counted until real stop results are available; no early-stop rate is assumed.",
@@ -372,6 +376,7 @@ def analyse(jobs, out, workers=128, status=None, smoke_path=None, d_root=None):
             "Priority order: ready repair/joint tasks, WATOS, G3x3 growth, other F/G growth, G fixed; longer jobs first within a priority.",
             "The covered-work schedule sets unknown durations to zero and is only a partial-work projection, not a whole-run finishing time.",
             "Status is a supplied snapshot. Elapsed running time is subtracted only from measured/proxy duration; unfinished samples never become completed timings.",
+            "A running job beyond the completed sample range has remaining_seconds=null; it and its dependent prefix are excluded from a complete ETA.",
         ], job_estimates=list(rows.values()))
 
 
@@ -404,7 +409,7 @@ def markdown(report):
     if report["full_remaining_estimate_available"]:
         lines.append(f"全流程剩余估计：{report['full_remaining_schedule']['mean']['hours']:.2f} 小时。")
     else:
-        lines.append(f"全流程完成时间尚不能计算：{report['unmeasured_jobs']} 个作业没有同类正式测量，另有 {len(report['running_snapshot']['beyond_observed_range'])} 个在跑作业已超出对应样本最大耗时。")
+        lines.append(f"全流程完成时间尚不能计算：{report['unmeasured_jobs']} 个作业剩余时间未知，其中 {len(report['running_snapshot']['beyond_observed_range'])} 个在跑作业已超出对应样本最大耗时。")
     lines += ["", "进程小时按每个子进程的实际经过时间累加，含并发争用。样本最小/最大值不是置信区间；只有一个样本时尚无波动范围。排程未计内存导致的降并发。",
               "", "本机两步修复与 28 事件 P、308 事件 D 的小图只用于验证连接和调用，未用于推算真实 prefill 修复或联合实验。30/100/300 步修复按清单分别保留，未假定提前停止比例。"]
     if report["historical_D_reference"]:
