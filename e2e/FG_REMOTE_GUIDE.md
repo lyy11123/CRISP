@@ -2,6 +2,34 @@
 
 2026-11-13（Codex）。服务器 `ubuntu@119.45.93.240`，工作目录 `/home/ubuntu/crisp_fg_20261113`；Python 使用 `/home/ubuntu/crisp-venv/bin/python`。原实例重新开机，既有 SSH 主机标识与环境匹配。
 
+**08:39后的当前入口：**主控制器PID2601367，`main.log`、`e2e/fg/out/main/main.status.json`；放行进程PID2601366，`release_main.log`、`release.main.json`。用户要求系统余量3GiB；当前将运行中预计增长的25%计为预留，首次启动仍按同类实测峰值扣额度。每轮读取`e2e/fg/out/main/scheduler_policy.json`，原子更新`running_growth_fraction`即可调整，无需再次移交。08:40实查128进程、CPU100%；08:46为127进程、CPU99%、可用46.49GiB。
+
+```bash
+cd ~/crisp_fg_20261113
+head -n 22 e2e/fg/out/main/main.status.json
+tail -n 3 main.log
+tail -n 2 release_main.log
+free -h
+```
+
+当前清单及状态见`main.start.json`、`e2e/fg/out/policy_owned_jobs.json`、`policy_owners.status.json`。移交保留59个在跑任务，旧控制器241176/2429409均不再派发；清理进程2601368在它们无工作进程并收齐59项receipt后结束旧空闲控制器。旧release文件不能改回all=true。
+
+下面保留前次运行记录。
+
+**08:27移交记录（已被上面的08:39入口替代）：**主控制器PID2429409，`continuation.log`、`e2e/fg/out/main/continuation.status.json`；放行进程PID2429408，`release_next.log`、`release.next.json`。旧PID241176只照看已运行的长任务，新的状态统计已包含这些任务。查看命令：
+
+```bash
+cd ~/crisp_fg_20261113
+head -n 18 e2e/fg/out/main/continuation.status.json
+tail -n 3 continuation.log
+tail -n 2 release_next.log
+free -h
+```
+
+内存估计已按配置/算子/方法/初始化细分；同类有实测时采用其峰值，系统预留仍为16GiB，合计上限128。08:27移交保留53个实际运行进程；新队列从原结果目录续跑，修好的MF6任务亦由新队列重试。旧放行进程已停止，旧release只含完成项及在跑项，不能改回all=true。清理进程PID2429410会在旧控制器无工作进程且54项移交记录收齐后结束旧空闲控制器。
+
+三分钟COS上传已获用户授权，于08:22启用：`cos://crisp/crisp/FG_20261113`，日志`~/crisp_fg_cos_backup.log`。首次上传正在补齐已有文件；已有上传成功日志，且COS列表确认`meta/BUNDLE.full.json`存在。旧D定时任务保留。
+
 ## 小批
 
 北京时间 2026-11-13 00:07:02 启动，PID `88017`。源码提交 `35711b9`，168 个健康搜索，每个 1000 步、后端种子 1–10、随机平局 CPCM 种子 1–10；另保存 56 个 Gemini 结束状态，相同状态复用评估。小批计入正式清单。
@@ -63,7 +91,7 @@ free -h
 
 恢复需保留 `results/`、`raw/`、`snapshots/`、`exports/`、`selection/`、`faults/`、`joint_cache/`，以及 `specs/`、`receipts/`、日志、清单和开放列表；这些文件共同记录候选与后续任务的输入。新的正式启动命令、PID 和源码版本在实际启动后追加。
 
-完整输出当前保存在服务器磁盘，本机已开始分批接收结果记录。原 D 阶段 COS 定时上传仍在；F/G 新目录的三分钟上传尚待用户授权，当前未启用。
+完整输出当前保存在服务器磁盘，本机已开始分批接收结果记录。原D定时上传保留；F/G三分钟备份已于2026-11-13 08:22获准启用，见本页最新记录。
 
 ## 正式队列已启动
 

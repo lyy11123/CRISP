@@ -7,10 +7,10 @@ export CRISP_BACKUP_STATE="$HOME/.crisp_cos_backup_state_FG_20261113"
 source <(sed '/^# The simulator/,$d' "$HOME/crisp_cos_backup.sh")
 
 OUT="$ROOT/e2e/fg/out/main"
-for file in "$ROOT"/BUNDLE*.json "$ROOT"/*.start.json "$OUT"/*.batch.json "$OUT"/*.status.json "$OUT"/release*.json; do
+for file in "$ROOT"/BUNDLE*.json "$ROOT"/*.start.json "$OUT"/*.batch.json "$OUT"/*.status.json "$OUT"/release*.json "$OUT/scheduler_policy.json"; do
   upload_if_ready "$file" meta 10
 done
-for file in "$ROOT/e2e/fg/manifest"/*.json "$ROOT/e2e/fg/out/full_jobs.json"; do
+for file in "$ROOT/e2e/fg/manifest"/*.json "$ROOT/e2e/fg/out/"*jobs.json; do
   upload_if_ready "$file" manifests 10
 done
 for file in "$HOME"/FG_pilot_35711b9.tar.gz "$HOME"/FG_full_20261113.tar.gz "$ROOT"/e2e/fg_cos_backup.sh "$ROOT"/e2e/fg_*.py; do

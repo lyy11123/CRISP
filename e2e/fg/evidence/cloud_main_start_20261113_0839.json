@@ -1,0 +1,72 @@
+{
+  "started_utc": "2026-11-13T00:39:15.646546+00:00",
+  "source_commit": "bcf1f25",
+  "retained_workers": 59,
+  "owner_pids": [
+    241176,
+    2429409
+  ],
+  "reserve_gib": 3,
+  "running_growth_fraction": 0.25,
+  "processes": {
+    "release_main": {
+      "pid": 2601366,
+      "argv": [
+        "/home/ubuntu/crisp-venv/bin/python",
+        "-u",
+        "-B",
+        "e2e/fg_release.py",
+        "--manifest",
+        "e2e/fg/out/full_jobs.json",
+        "--pilot",
+        "e2e/fg/manifest/pilot.json",
+        "--initial-release",
+        "e2e/fg/manifest/initial_release.json",
+        "--out",
+        "e2e/fg/out/main",
+        "--release",
+        "e2e/fg/out/main/release.main.json",
+        "--watch",
+        "--interval",
+        "30"
+      ],
+      "log": "release_main.log"
+    },
+    "main": {
+      "pid": 2601367,
+      "argv": [
+        "/home/ubuntu/crisp-venv/bin/python",
+        "-u",
+        "-B",
+        "e2e/fg_batch.py",
+        "--manifest",
+        "e2e/fg/out/full_jobs.json",
+        "--out",
+        "e2e/fg/out/main",
+        "--workers",
+        "128",
+        "--reserve-gib",
+        "3",
+        "--name",
+        "main",
+        "--release-file",
+        "e2e/fg/out/main/release.main.json",
+        "--external-manifest",
+        "e2e/fg/out/policy_owned_jobs.json",
+        "--external-status",
+        "e2e/fg/out/main/policy_owners.status.json"
+      ],
+      "log": "main.log"
+    },
+    "policy_cleanup": {
+      "pid": 2601368,
+      "argv": [
+        "/home/ubuntu/crisp-venv/bin/python",
+        "-u",
+        "-B",
+        "/home/ubuntu/crisp_fg_20261113/patches/20261113_policy/cleanup_owners.py"
+      ],
+      "log": "policy_cleanup.log"
+    }
+  }
+}
