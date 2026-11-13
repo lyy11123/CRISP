@@ -1,14 +1,17 @@
 """Small deterministic scheduling and chunk semantics checks; no large simulation."""
 import copy
+import gzip
 import json
 import pickle
 from pathlib import Path
 import random
 import sys
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from post_fg_dstu_policy import MessagePolicy
 from post_fg_dstu import ROOT, write_json
+import post_fg_dstu as runner
 import fast_hop
 
 
@@ -93,4 +96,47 @@ def main():
     print(json.dumps(result))
 
 
-if __name__=="__main__":main()
+def real_alias_checks():
+    """Real graph identities, plus a mocked result handoff; no backend calls."""
+    manifest=runner.read_json(ROOT/"e2e/post_fg/manifest/dstu_health.json")
+    checks=[];out=ROOT/"e2e/post_fg/out/local_check"
+    for hw in ("wsc","face"):
+        spec=next(s for s in manifest["jobs"] if s["hardware_profile"]==hw and s.get("alias_job") and s["seed"]==1)
+        hspec=next(s for s in manifest["jobs"] if s["job_id"]==spec["alias_job"])
+        d,hp,g,streams=runner.graph_inputs(spec,out)
+        h0,_,_,hstats=runner.transform(copy.deepcopy(streams),hp,"H0",spec["rank"])
+        filtered_h0={t:e for t,e in h0.items() if t[1]==11}
+        expected=runner.evaluation_identity(hspec,filtered_h0,hp,{1:0})
+        # The time below is a sentinel fixture, not a simulation measurement.
+        other=dict(status="ok",spec=hspec,evaluation_identity=expected,completion={"1":37},
+                   first_start={"1":0},kv_window=None,release={"1":0},simulated_total=37,
+                   unhidden_compute=11,unhidden_communication=9,policy_counters={"issues":2},
+                   candidate_counters_available=False,audit=dict(n=2,bad=0),simulation_seconds=1.25)
+        with patch.object(runner,"read_json",return_value=other),patch.object(runner,"sha",return_value="fixture-result-digest"),\
+             patch.object(runner,"graph_inputs",side_effect=lambda *args:(d,hp,g,copy.deepcopy(streams))):
+            result=runner.batch_alias(spec,out)
+            assert result["evaluation_identity"]==expected and result["completion"]=={"1":37}
+            assert result["chunk_stats"]["selected_messages"]==128 and hstats["selected_messages"]==0
+            assert result["backend_calls"]==0 and result["simulation_seconds"]==0
+            with gzip.open(result["message_transform"],"rt",encoding="utf-8") as handle:stored=json.load(handle)
+            assert stored["arm"]=="S256" and stored["stats"]["blocks_added"]==256
+            assert any(m["tag"][1]==10 and m["count"]>1 for m in stored["messages"])
+            assert all(m["count"]==1 for m in stored["messages"] if m["tag"][1]==11)
+            other["evaluation_identity"]=dict(expected,seed=2)
+            try:runner.batch_alias(spec,out)
+            except AssertionError:pass
+            else:raise AssertionError("different backend seed was reused")
+        checks.append(dict(hardware=hw,D_graph_sha256=expected["graph_sha256"],
+                           filtered_graph_policy_platform_release_seed_match=True,
+                           S256_joint_mask_retained=True,H0_metadata_not_copied=True,
+                           mismatched_seed_rejected=True,backend_calls=0,result_transfer_fixture_only=True))
+    result=dict(status="passed",checks=checks,logical_units=180,historical_reuses=60,new_batch_aliases=6,
+                new_backend_calls=114,smoke_backend_calls=15,scope="Real saved graph identity and mocked result transfer; no simulation")
+    write_json(ROOT/"e2e/post_fg/evidence/dstu_alias_checks.json",result)
+    print(json.dumps(result))
+
+
+if __name__=="__main__":
+    if "--real-alias" in sys.argv:
+        real_alias_checks()
+    else:main()

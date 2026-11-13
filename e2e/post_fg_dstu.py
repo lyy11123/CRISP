@@ -120,6 +120,40 @@ class Audit:
         self.bad += record[2] != record[3]
 
 
+def graph_digest(events):
+    """Canonical complete initial service graph, preserving event iteration order."""
+    rows=[]
+    for tag,e in events.items():
+        row=dict(tag=tag,type=e.event_type,name=e.event_name,
+                 dependencies=sorted(e.dependency_set),successors=sorted(e.issue_set),
+                 start=e.start_time,end=e.end_time)
+        if e.event_type=="computation":
+            row.update(device=e.comp_device,location=e.comp_location,kind=e.comp_type,shape=e.comp_datashape)
+        else:
+            target=sorted(e.target_location) if isinstance(e.target_location,set) else e.target_location
+            row.update(source=e.source_location,target=target,target_is_set=isinstance(e.target_location,set),
+                       bytes=e.comm_bytes,paths=e.path_list)
+        rows.append(row)
+    return hashlib.sha256(json.dumps(plain(rows),sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
+
+
+def evaluation_identity(spec, events, hp, release):
+    mode="MsgCont" if spec["arm"].endswith("-M") else "TieFIFO" if spec["arm"]=="TieFIFO" else "C4"
+    return plain(dict(graph_sha256=graph_digest(events),platform_sha256=platform_signature(hp),
+                      backend="BB0" if spec["arm"]=="BB0" else "Hop",policy=mode,
+                      rank=spec["rank"],seed=spec["seed"],release=release))
+
+
+def save_transform(spec, out, metadata, stats):
+    path=Path(out)/"transforms"/(spec["job_id"]+".json.gz")
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with gzip.open(str(path)+".part","wt",encoding="utf-8") as handle:
+        json.dump(plain(dict(input_sha256=spec["graph_sha256"],rank=spec["rank"],arm=spec["arm"],stats=stats,
+                             messages=[dict(tag=t,**m) for t,m in metadata.items()])),handle,separators=(",",":"))
+    Path(str(path)+".part").replace(path)
+    return path
+
+
 def simulate(spec, out):
     import numpy as np
     import fast_hop
@@ -128,17 +162,13 @@ def simulate(spec, out):
     t_transform = time.perf_counter()
     events, metadata, originals, stats = transform(streams, hp, spec["arm"], rank)
     transform_seconds = time.perf_counter() - t_transform
-    transform_path=Path(out)/"transforms"/(spec["job_id"]+".json.gz")
-    transform_path.parent.mkdir(parents=True,exist_ok=True)
-    with gzip.open(str(transform_path)+".part","wt",encoding="utf-8") as handle:
-        json.dump(plain(dict(input_sha256=spec["graph_sha256"],rank=rank,arm=spec["arm"],stats=stats,
-                             messages=[dict(tag=t,**m) for t,m in metadata.items()])),handle,separators=(",",":"))
-    Path(str(transform_path)+".part").replace(transform_path)
+    transform_path=save_transform(spec,out,metadata,stats)
     if spec["run_type"] == "solo":
         events = {t: e for t, e in events.items() if t[1] - 10 == spec["stream"]}
         release = {spec["stream"]: 0}
     else:
         release = {0: 0, 1: spec["tau"]}
+    evaluated_identity=evaluation_identity(spec,events,hp,release)
     deps = {t: set(e.dependency_set) for t, e in events.items()}
     trace_path = Path(out) / "traces" / (spec["job_id"] + ".issues.jsonl.gz")
     trace_handle = None
@@ -204,6 +234,7 @@ def simulate(spec, out):
                   policy_counters=dict(policy.stats) if spec.get("trace") or mode=="MsgCont" else {"issues":policy.stats["issues"]},
                   candidate_counters_available=bool(spec.get("trace") or mode=="MsgCont"), audit=dict(n=audit.n, bad=audit.bad),
                   input_graph_sha256=spec["graph_sha256"], rank=rank,
+                  evaluation_identity=evaluated_identity,backend_calls=1,
                   message_transform=str(transform_path),
                   issue_trace=str(trace_path) if spec.get("trace") else None,
                   message_trace=str(trace_summary) if trace_summary else None,
@@ -214,6 +245,33 @@ def simulate(spec, out):
         result["metrics"] = dict(P_completion=cp, D_latency=cd,
                                  Lhat_P=(cp - 1.5*rp)/rp, Lhat_D=(cd - 1.5*rd)/rd)
         result["metrics"]["Lhat_max"] = max(result["metrics"]["Lhat_P"], result["metrics"]["Lhat_D"])
+    return result
+
+
+def batch_alias(spec, out):
+    """Reuse one matched D solo, retaining S256's joint-derived mask metadata."""
+    assert spec["arm"]=="S256" and spec["run_type"]=="solo" and spec["stream"]==1
+    filename=result_path(out,spec["alias_job"])
+    other=read_json(filename)
+    assert other["status"]=="ok" and other["spec"]["arm"]=="H0"
+    _,hp,graph,streams=graph_inputs(spec,out)
+    started=time.perf_counter()
+    events,metadata,original,stats=transform(streams,hp,"S256",spec["rank"])
+    seconds=time.perf_counter()-started
+    transform_path=save_transform(spec,out,metadata,stats)
+    actual={t:e for t,e in events.items() if t[1]-10==spec["stream"]}
+    release={spec["stream"]:0}
+    identity=evaluation_identity(spec,actual,hp,release)
+    assert identity==other["evaluation_identity"],(identity,other["evaluation_identity"])
+    keys=("completion","first_start","kv_window","release","simulated_total","unhidden_compute",
+          "unhidden_communication","policy_counters","candidate_counters_available","audit")
+    result={key:other[key] for key in keys}
+    result.update(batch_alias_from=spec["alias_job"],batch_alias_result_sha256=sha(filename),
+                  evaluation_identity=identity,alias_identity_checked=True,backend_calls=0,
+                  simulation_seconds=0,source_simulation_seconds=other["simulation_seconds"],
+                  transform_seconds=seconds,chunk_stats=stats,message_transform=str(transform_path),
+                  input_graph_sha256=spec["graph_sha256"],rank=spec["rank"],
+                  issue_trace=None,message_trace=None,timing_includes_resource_trace=False)
     return result
 
 
@@ -231,7 +289,7 @@ def reuse(spec):
              original_simulation_seconds=sim["wall"], simulated_total=sim["out"][0],
              unhidden_compute=sim["out"][1], unhidden_communication=sim["out"][2],
              reused_from=str(filename), original_job=spec["reuse_job"], original_sha256=spec["reuse_sha256"],
-             rank=spec["rank"], input_graph_sha256=spec["graph_sha256"])
+             rank=spec["rank"], input_graph_sha256=spec["graph_sha256"],backend_calls=0)
     if spec["run_type"] == "joint":
         assert old["tau"] == spec["tau"]
         r["metrics"] = {k: old["metrics"][k] for k in ("P_completion", "D_latency", "Lhat_P", "Lhat_D", "Lhat_max")}
@@ -276,7 +334,7 @@ def graph_check(spec, out):
 
 def child(spec, out):
     out = Path(out); started = time.perf_counter()
-    result = reuse(spec) if spec.get("reuse_job") else simulate(spec, out)
+    result = reuse(spec) if spec.get("reuse_job") else batch_alias(spec,out) if spec.get("alias_job") else simulate(spec, out)
     if spec.get("compare_old_job"):
         assert sha(source_result(spec,spec["compare_old_job"]))==spec["compare_old_sha256"]
         old=read_json(source_result(spec,spec["compare_old_job"]))
@@ -338,15 +396,23 @@ def manifest(source_root, output, condition="healthy", selected=None):
                 backend = "orig" if spec["arm"] == "BB0" else "hop"
                 name = f"{cid}__solo_{cond}_A3hEIR_{backend}_{spec['stream']}_{spec['seed']}"
             spec.update(reuse_job=name,reuse_sha256=sha(source_result(spec,name)))
+        if "H0" in arms and spec["arm"]=="S256" and spec["run_type"]=="solo" and spec["stream"]==1:
+            name=f"dstu_{spec['hardware_profile']}_{condition}_H0_solo1_s{spec['seed']}"
+            spec.update(alias_job=name,depends_on=[name],alias_rule="identical filtered D graph, C4, platform, release and seed")
         if condition=="healthy" and not spec.get("reuse_job") and spec["run_type"]=="joint" and spec["seed"]==1:
             spec["trace"]=(spec["hardware_profile"]=="wsc" and spec["phase"] in (.1,.9)) or (spec["hardware_profile"]=="face" and spec["phase"]==.9)
     payload = dict(version=VERSION, jobs=jobs, logical_units=len(jobs),
                    old_result_reuses=sum("reuse_job" in s for s in jobs),
-                   new_backend_calls=sum("reuse_job" not in s for s in jobs))
+                   new_batch_aliases=sum("alias_job" in s for s in jobs),
+                   new_backend_calls=sum(not s.get("reuse_job") and not s.get("alias_job") for s in jobs))
     write_json(output,payload)
     smoke = [s for s in jobs if s["hardware_profile"]=="wsc" and s["seed"]==1
              and (s["run_type"]=="solo" or s["phase"] in (.1,.9))]
-    if condition=="healthy":write_json(Path(output).with_name("dstu_smoke.json"),dict(version=VERSION,jobs=smoke))
+    if condition=="healthy":
+        write_json(Path(output).with_name("dstu_smoke.json"),dict(version=VERSION,jobs=smoke,logical_units=len(smoke),
+                   old_result_reuses=sum("reuse_job" in s for s in smoke),
+                   new_batch_aliases=sum("alias_job" in s for s in smoke),
+                   new_backend_calls=sum(not s.get("reuse_job") and not s.get("alias_job") for s in smoke)))
     if condition=="healthy":
         trace_jobs=[]
         for spec in jobs:
@@ -369,7 +435,8 @@ def report(manifest_path, out, destination):
     for spec in specs:
         r=read_json(result_path(out,spec["job_id"]))
         row={k:spec.get(k) for k in ("job_id","hardware_profile","condition","arm","run_type","phase","stream","seed")}
-        row.update(wall_seconds=r["wall_seconds"],peak_rss_gb=r["peak_rss_gb"],reused=bool(spec.get("reuse_job")),
+        row.update(wall_seconds=r["wall_seconds"],peak_rss_gb=r["peak_rss_gb"],reused=bool(spec.get("reuse_job") or spec.get("alias_job")),
+                   historical_reuse=bool(spec.get("reuse_job")),batch_alias=spec.get("alias_job"),
                    simulation_seconds=r["simulation_seconds"],kv_window=r.get("kv_window"),
                    issue_trace=r.get("issue_trace"),message_trace=r.get("message_trace"),
                    audit_bad=r.get("audit",{}).get("bad"),chunk_stats=r.get("chunk_stats"),
@@ -422,7 +489,7 @@ def report(manifest_path, out, destination):
            "", "C4 排名取旧 All256 的估值与公共释放时刻；全部方案共用。Shared-only 只切与高优先流共享有向链路的低优先大消息。",
            "消息连续优先保留每个资源、每条流最近服务的 parent：有就绪子块时继续它；否则按原长路径优先和本轮 shuffle 顺序选择新 parent。新 parent 实际发放后才成为 owner。",
            "跨流抢占不清除低优先流的 owner；同 parent 的就绪块按 chunk_index 取最小者。key 只查询，不改变状态或随机数。", "",
-           f"本次清单 {len(rows)} 个逻辑项，旧结果复用 {sum(r['reused'] for r in rows)}，新后端调用 {sum(not r['reused'] for r in rows)}。",
+           f"本次清单 {len(rows)} 个逻辑项，旧结果复用 {sum(r['historical_reuse'] for r in rows)}，本批等价单跑复用 {sum(bool(r['batch_alias']) for r in rows)}，新后端调用 {sum(not r['reused'] for r in rows)}。",
            "", "| 硬件 | 方案 | 联合次数 | P 相对 A256：中位 [最小,最大] | D 相对 A256：中位 [最小,最大] | 超期次数 |",
            "|---|---|---:|---|---|---:|"]
     for row in summary:
