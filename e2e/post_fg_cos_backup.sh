@@ -9,6 +9,7 @@ source <(sed '/^# The simulator/,$d' "$HOME/crisp_cos_backup.sh")
 for file in "$ROOT"/BUNDLE*.json "$ROOT"/*.start.json "$ROOT"/e2e/post_fg_*.py "$ROOT"/e2e/post_fg_*.sh "$ROOT"/e2e/POST_FG_PLAN.md; do
   upload_if_ready "$file" input 10
 done
+upload_if_ready "$HOME/POST_FG_initial.tar.gz" input 0
 for group in manifest evidence tables figures out; do
   folder="$ROOT/e2e/post_fg/$group"
   [[ -d "$folder" ]] || continue

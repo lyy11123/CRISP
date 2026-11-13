@@ -13,7 +13,8 @@ from e_run import ROOT
 
 def build(output):
     files = {"AGENTS.md", "PROJECT_MEMORY.md", "e2e/POST_FG_PLAN.md",
-             "e2e/CRISP_POST_FG_CODEX_HANDOFF.md", e_bundle.ARTIFACT_COMMIT}
+             "e2e/CRISP_POST_FG_CODEX_HANDOFF.md", "e2e/e/evidence/fg_estimates.json",
+             e_bundle.ARTIFACT_COMMIT}
     for directory in e_bundle.SOURCE_DIRS:
         files.update(e_bundle.tree_files(directory, ".py", e_bundle.SKIP_DIRS))
     artifact = ROOT / e_bundle.ARTIFACT
