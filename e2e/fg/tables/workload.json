@@ -1,0 +1,3999 @@
+[
+  {
+    "config_id": "F_wsc_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "wsc",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ln",
+    "source_candidate": "F_wsc_2x2_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_wsc_2x2_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "redsum": 402653184,
+      "elemul": 65536,
+      "vecadd": 402948096,
+      "elepow2": 201326592,
+      "eleadd": 32768,
+      "elesqrt": 32768,
+      "vecdiv": 201588736,
+      "vecmac": 201424896
+    },
+    "computation_events_by_type": {
+      "redsum": 128,
+      "elemul": 128,
+      "vecadd": 128,
+      "elepow2": 64,
+      "eleadd": 64,
+      "elesqrt": 64,
+      "vecdiv": 64,
+      "vecmac": 64
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 64,
+      "LN_layernorm_elemul": 64,
+      "LN_layernorm_var_vecadd": 64,
+      "LN_layernorm_var_elepow2": 64,
+      "LN_layernorm_var_redsum": 64,
+      "LN_layernorm_var_elemul": 64,
+      "LN_layernorm_var_eleadd": 64,
+      "LN_layernorm_var_elesqrt": 64,
+      "LN_layernorm_norm_vecadd": 64,
+      "LN_layernorm_norm_vecdiv": 64,
+      "LN_layernorm_norm_vecmac": 64
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 3943,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 1409462272
+  },
+  {
+    "config_id": "F_wsc_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "wsc",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "mha",
+    "source_candidate": "F_wsc_2x2_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_wsc_2x2_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 1133871366144,
+    "tensor_grain_rounded_flops": 1168231104512,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 1073741824,
+    "vector_input_elements_by_type": {
+      "transpose": 25165824,
+      "redmax": 536870912,
+      "vecadd": 537133056,
+      "eleexp": 536870912,
+      "redsum": 536870912,
+      "vecdiv": 537133056
+    },
+    "computation_events_by_type": {
+      "matmac": 192,
+      "transpose": 64,
+      "matmul": 128,
+      "redmax": 64,
+      "vecadd": 64,
+      "eleexp": 64,
+      "redsum": 64,
+      "vecdiv": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 64,
+      "MHA_kconv_conv1d": 64,
+      "MHA_ktrans_transpose": 64,
+      "MHA_qkt_matmul": 64,
+      "MHA_s_softmax_redmax": 64,
+      "MHA_s_softmax_vecadd": 64,
+      "MHA_s_softmax_eleexp": 64,
+      "MHA_s_softmax_redsum": 64,
+      "MHA_s_softmax_vecdiv": 64,
+      "MHA_vconv_conv1d": 64,
+      "MHA_p_matmul": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 309237645312,
+      "MHA_kconv_conv1d": 309237645312,
+      "MHA_qkt_matmul": 103079215104,
+      "MHA_vconv_conv1d": 309237645312,
+      "MHA_p_matmul": 103079215104
+    },
+    "prebroadcast_events": 2935,
+    "tensor_objects": 137,
+    "intermediate_tensor_elements_sum": 2489321728
+  },
+  {
+    "config_id": "F_wsc_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "wsc",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "proj",
+    "source_candidate": "F_wsc_2x2_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_wsc_2x2_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 2473901162496,
+    "tensor_grain_rounded_flops": 2473901162496,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 64,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "matadd": 402653184
+    },
+    "computation_events_by_type": {
+      "matmac": 64,
+      "matadd": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_residual_matadd": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 2473901162496
+    },
+    "prebroadcast_events": 894,
+    "tensor_objects": 5,
+    "intermediate_tensor_elements_sum": 641734656
+  },
+  {
+    "config_id": "F_wsc_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "wsc",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ffn",
+    "source_candidate": "F_wsc_2x2_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_wsc_2x2_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 19791209299968,
+    "tensor_grain_rounded_flops": 19791209299968,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 8,
+    "reduction_input_elements": 3623878656,
+    "vector_input_elements_by_type": {
+      "elegelu": 805306368,
+      "matadd": 3623878656
+    },
+    "computation_events_by_type": {
+      "matmac": 68,
+      "elegelu": 64,
+      "matmul": 60,
+      "matadd": 8
+    },
+    "computation_events_by_stage": {
+      "MLPmlp1_conv1d": 64,
+      "MLP_act_elegelu": 64,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 9895604649984,
+      "MLPmlp2_conv1d": 9895604649984
+    },
+    "prebroadcast_events": 657,
+    "tensor_objects": 25,
+    "intermediate_tensor_elements_sum": 5737838592
+  },
+  {
+    "config_id": "F_wsc_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "wsc",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ln",
+    "source_candidate": "F_wsc_2x2_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_wsc_2x2_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 2,
+    "reduction_input_elements": 196608,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 25,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 700496
+  },
+  {
+    "config_id": "F_wsc_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "wsc",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "mha",
+    "source_candidate": "F_wsc_2x2_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_wsc_2x2_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 553648128,
+    "tensor_grain_rounded_flops": 570425344,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 524288,
+    "vector_input_elements_by_type": {
+      "transpose": 12288,
+      "redmax": 262144,
+      "vecadd": 262272,
+      "eleexp": 262144,
+      "redsum": 262144,
+      "vecdiv": 262272
+    },
+    "computation_events_by_type": {
+      "matmac": 96,
+      "transpose": 8,
+      "redmax": 8,
+      "vecadd": 8,
+      "eleexp": 8,
+      "redsum": 8,
+      "vecdiv": 8
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 8,
+      "MHA_kconv_conv1d": 8,
+      "MHA_ktrans_transpose": 8,
+      "MHA_qkt_conv1d": 64,
+      "MHA_s_softmax_redmax": 8,
+      "MHA_s_softmax_vecadd": 8,
+      "MHA_s_softmax_eleexp": 8,
+      "MHA_s_softmax_redsum": 8,
+      "MHA_s_softmax_vecdiv": 8,
+      "MHA_vconv_conv1d": 8,
+      "MHA_p_conv1d": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 150994944,
+      "MHA_kconv_conv1d": 150994944,
+      "MHA_qkt_conv1d": 50331648,
+      "MHA_vconv_conv1d": 150994944,
+      "MHA_p_conv1d": 50331648
+    },
+    "prebroadcast_events": 599,
+    "tensor_objects": 169,
+    "intermediate_tensor_elements_sum": 18529536
+  },
+  {
+    "config_id": "F_wsc_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "wsc",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "proj",
+    "source_candidate": "F_wsc_2x2_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_wsc_2x2_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 1207959552,
+    "tensor_grain_rounded_flops": 1207959552,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 983040,
+    "vector_input_elements_by_type": {
+      "matadd": 983040
+    },
+    "computation_events_by_type": {
+      "matmac": 8,
+      "matmul": 56,
+      "matadd": 16
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_proj_conv1d_matadd": 8,
+      "MHA_residual_matadd": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 1207959552
+    },
+    "prebroadcast_events": 292,
+    "tensor_objects": 13,
+    "intermediate_tensor_elements_sum": 38836224
+  },
+  {
+    "config_id": "F_wsc_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "wsc",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ffn",
+    "source_candidate": "F_wsc_2x2_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_wsc_2x2_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 9663676416,
+    "tensor_grain_rounded_flops": 9663676416,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 26,
+    "reduction_input_elements": 3538944,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592,
+      "matadd": 3342336,
+      "elegelu": 393216
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1,
+      "matmac": 20,
+      "matmul": 108,
+      "matadd": 24,
+      "elegelu": 16
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1,
+      "MLPmlp1_conv1d": 64,
+      "MLPmlp1_conv1d_matadd": 16,
+      "MLP_act_elegelu": 16,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 4831838208,
+      "MLPmlp2_conv1d": 4831838208
+    },
+    "prebroadcast_events": 628,
+    "tensor_objects": 42,
+    "intermediate_tensor_elements_sum": 306849872
+  },
+  {
+    "config_id": "F_watos_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "watos",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ln",
+    "source_candidate": "F_watos_2x2_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_watos_2x2_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "redsum": 402653184,
+      "elemul": 65536,
+      "vecadd": 402948096,
+      "elepow2": 201326592,
+      "eleadd": 32768,
+      "elesqrt": 32768,
+      "vecdiv": 201588736,
+      "vecmac": 201424896
+    },
+    "computation_events_by_type": {
+      "redsum": 128,
+      "elemul": 128,
+      "vecadd": 128,
+      "elepow2": 64,
+      "eleadd": 64,
+      "elesqrt": 64,
+      "vecdiv": 64,
+      "vecmac": 64
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 64,
+      "LN_layernorm_elemul": 64,
+      "LN_layernorm_var_vecadd": 64,
+      "LN_layernorm_var_elepow2": 64,
+      "LN_layernorm_var_redsum": 64,
+      "LN_layernorm_var_elemul": 64,
+      "LN_layernorm_var_eleadd": 64,
+      "LN_layernorm_var_elesqrt": 64,
+      "LN_layernorm_norm_vecadd": 64,
+      "LN_layernorm_norm_vecdiv": 64,
+      "LN_layernorm_norm_vecmac": 64
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 3948,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 1409462272
+  },
+  {
+    "config_id": "F_watos_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "watos",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "mha",
+    "source_candidate": "F_watos_2x2_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_watos_2x2_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 1133871366144,
+    "tensor_grain_rounded_flops": 1168231104512,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 1073741824,
+    "vector_input_elements_by_type": {
+      "transpose": 25165824,
+      "redmax": 536870912,
+      "vecadd": 537133056,
+      "eleexp": 536870912,
+      "redsum": 536870912,
+      "vecdiv": 537133056
+    },
+    "computation_events_by_type": {
+      "matmac": 192,
+      "transpose": 64,
+      "matmul": 128,
+      "redmax": 64,
+      "vecadd": 64,
+      "eleexp": 64,
+      "redsum": 64,
+      "vecdiv": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 64,
+      "MHA_kconv_conv1d": 64,
+      "MHA_ktrans_transpose": 64,
+      "MHA_qkt_matmul": 64,
+      "MHA_s_softmax_redmax": 64,
+      "MHA_s_softmax_vecadd": 64,
+      "MHA_s_softmax_eleexp": 64,
+      "MHA_s_softmax_redsum": 64,
+      "MHA_s_softmax_vecdiv": 64,
+      "MHA_vconv_conv1d": 64,
+      "MHA_p_matmul": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 309237645312,
+      "MHA_kconv_conv1d": 309237645312,
+      "MHA_qkt_matmul": 103079215104,
+      "MHA_vconv_conv1d": 309237645312,
+      "MHA_p_matmul": 103079215104
+    },
+    "prebroadcast_events": 2918,
+    "tensor_objects": 137,
+    "intermediate_tensor_elements_sum": 2489321728
+  },
+  {
+    "config_id": "F_watos_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "watos",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "proj",
+    "source_candidate": "F_watos_2x2_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_watos_2x2_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 2473901162496,
+    "tensor_grain_rounded_flops": 2473901162496,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 64,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "matadd": 402653184
+    },
+    "computation_events_by_type": {
+      "matmac": 64,
+      "matadd": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_residual_matadd": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 2473901162496
+    },
+    "prebroadcast_events": 895,
+    "tensor_objects": 5,
+    "intermediate_tensor_elements_sum": 641734656
+  },
+  {
+    "config_id": "F_watos_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "watos",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ffn",
+    "source_candidate": "F_watos_2x2_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_watos_2x2_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 19791209299968,
+    "tensor_grain_rounded_flops": 19791209299968,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 8,
+    "reduction_input_elements": 3623878656,
+    "vector_input_elements_by_type": {
+      "elegelu": 805306368,
+      "matadd": 3623878656
+    },
+    "computation_events_by_type": {
+      "matmac": 68,
+      "elegelu": 64,
+      "matmul": 60,
+      "matadd": 8
+    },
+    "computation_events_by_stage": {
+      "MLPmlp1_conv1d": 64,
+      "MLP_act_elegelu": 64,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 9895604649984,
+      "MLPmlp2_conv1d": 9895604649984
+    },
+    "prebroadcast_events": 658,
+    "tensor_objects": 25,
+    "intermediate_tensor_elements_sum": 5737838592
+  },
+  {
+    "config_id": "F_watos_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "watos",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ln",
+    "source_candidate": "F_watos_2x2_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_watos_2x2_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 2,
+    "reduction_input_elements": 196608,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 24,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 700496
+  },
+  {
+    "config_id": "F_watos_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "watos",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "mha",
+    "source_candidate": "F_watos_2x2_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_watos_2x2_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 553648128,
+    "tensor_grain_rounded_flops": 570425344,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 524288,
+    "vector_input_elements_by_type": {
+      "transpose": 12288,
+      "redmax": 262144,
+      "vecadd": 262272,
+      "eleexp": 262144,
+      "redsum": 262144,
+      "vecdiv": 262272
+    },
+    "computation_events_by_type": {
+      "matmac": 96,
+      "transpose": 8,
+      "redmax": 8,
+      "vecadd": 8,
+      "eleexp": 8,
+      "redsum": 8,
+      "vecdiv": 8
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 8,
+      "MHA_kconv_conv1d": 8,
+      "MHA_ktrans_transpose": 8,
+      "MHA_qkt_conv1d": 64,
+      "MHA_s_softmax_redmax": 8,
+      "MHA_s_softmax_vecadd": 8,
+      "MHA_s_softmax_eleexp": 8,
+      "MHA_s_softmax_redsum": 8,
+      "MHA_s_softmax_vecdiv": 8,
+      "MHA_vconv_conv1d": 8,
+      "MHA_p_conv1d": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 150994944,
+      "MHA_kconv_conv1d": 150994944,
+      "MHA_qkt_conv1d": 50331648,
+      "MHA_vconv_conv1d": 150994944,
+      "MHA_p_conv1d": 50331648
+    },
+    "prebroadcast_events": 607,
+    "tensor_objects": 169,
+    "intermediate_tensor_elements_sum": 18529536
+  },
+  {
+    "config_id": "F_watos_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "watos",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "proj",
+    "source_candidate": "F_watos_2x2_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_watos_2x2_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 1207959552,
+    "tensor_grain_rounded_flops": 1207959552,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 983040,
+    "vector_input_elements_by_type": {
+      "matadd": 983040
+    },
+    "computation_events_by_type": {
+      "matmac": 8,
+      "matmul": 56,
+      "matadd": 16
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_proj_conv1d_matadd": 8,
+      "MHA_residual_matadd": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 1207959552
+    },
+    "prebroadcast_events": 294,
+    "tensor_objects": 13,
+    "intermediate_tensor_elements_sum": 38836224
+  },
+  {
+    "config_id": "F_watos_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "watos",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ffn",
+    "source_candidate": "F_watos_2x2_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_watos_2x2_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 9663676416,
+    "tensor_grain_rounded_flops": 9663676416,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 26,
+    "reduction_input_elements": 3538944,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592,
+      "matadd": 3342336,
+      "elegelu": 393216
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1,
+      "matmac": 20,
+      "matmul": 108,
+      "matadd": 24,
+      "elegelu": 16
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1,
+      "MLPmlp1_conv1d": 64,
+      "MLPmlp1_conv1d_matadd": 16,
+      "MLP_act_elegelu": 16,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 4831838208,
+      "MLPmlp2_conv1d": 4831838208
+    },
+    "prebroadcast_events": 627,
+    "tensor_objects": 42,
+    "intermediate_tensor_elements_sum": 306849872
+  },
+  {
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ln",
+    "source_candidate": "F_face_2x2_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_face_2x2_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "redsum": 402653184,
+      "elemul": 65536,
+      "vecadd": 402948096,
+      "elepow2": 201326592,
+      "eleadd": 32768,
+      "elesqrt": 32768,
+      "vecdiv": 201588736,
+      "vecmac": 201424896
+    },
+    "computation_events_by_type": {
+      "redsum": 128,
+      "elemul": 128,
+      "vecadd": 128,
+      "elepow2": 64,
+      "eleadd": 64,
+      "elesqrt": 64,
+      "vecdiv": 64,
+      "vecmac": 64
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 64,
+      "LN_layernorm_elemul": 64,
+      "LN_layernorm_var_vecadd": 64,
+      "LN_layernorm_var_elepow2": 64,
+      "LN_layernorm_var_redsum": 64,
+      "LN_layernorm_var_elemul": 64,
+      "LN_layernorm_var_eleadd": 64,
+      "LN_layernorm_var_elesqrt": 64,
+      "LN_layernorm_norm_vecadd": 64,
+      "LN_layernorm_norm_vecdiv": 64,
+      "LN_layernorm_norm_vecmac": 64
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 3945,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 1409462272
+  },
+  {
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "mha",
+    "source_candidate": "F_face_2x2_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_face_2x2_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 1133871366144,
+    "tensor_grain_rounded_flops": 1168231104512,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 1073741824,
+    "vector_input_elements_by_type": {
+      "transpose": 25165824,
+      "redmax": 536870912,
+      "vecadd": 537133056,
+      "eleexp": 536870912,
+      "redsum": 536870912,
+      "vecdiv": 537133056
+    },
+    "computation_events_by_type": {
+      "matmac": 192,
+      "transpose": 64,
+      "matmul": 128,
+      "redmax": 64,
+      "vecadd": 64,
+      "eleexp": 64,
+      "redsum": 64,
+      "vecdiv": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 64,
+      "MHA_kconv_conv1d": 64,
+      "MHA_ktrans_transpose": 64,
+      "MHA_qkt_matmul": 64,
+      "MHA_s_softmax_redmax": 64,
+      "MHA_s_softmax_vecadd": 64,
+      "MHA_s_softmax_eleexp": 64,
+      "MHA_s_softmax_redsum": 64,
+      "MHA_s_softmax_vecdiv": 64,
+      "MHA_vconv_conv1d": 64,
+      "MHA_p_matmul": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 309237645312,
+      "MHA_kconv_conv1d": 309237645312,
+      "MHA_qkt_matmul": 103079215104,
+      "MHA_vconv_conv1d": 309237645312,
+      "MHA_p_matmul": 103079215104
+    },
+    "prebroadcast_events": 2931,
+    "tensor_objects": 137,
+    "intermediate_tensor_elements_sum": 2489321728
+  },
+  {
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "proj",
+    "source_candidate": "F_face_2x2_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_face_2x2_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 2473901162496,
+    "tensor_grain_rounded_flops": 2473901162496,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 64,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "matadd": 402653184
+    },
+    "computation_events_by_type": {
+      "matmac": 64,
+      "matadd": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_residual_matadd": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 2473901162496
+    },
+    "prebroadcast_events": 896,
+    "tensor_objects": 5,
+    "intermediate_tensor_elements_sum": 641734656
+  },
+  {
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ffn",
+    "source_candidate": "F_face_2x2_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_face_2x2_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 19791209299968,
+    "tensor_grain_rounded_flops": 19791209299968,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 8,
+    "reduction_input_elements": 3623878656,
+    "vector_input_elements_by_type": {
+      "elegelu": 805306368,
+      "matadd": 3623878656
+    },
+    "computation_events_by_type": {
+      "matmac": 68,
+      "elegelu": 64,
+      "matmul": 60,
+      "matadd": 8
+    },
+    "computation_events_by_stage": {
+      "MLPmlp1_conv1d": 64,
+      "MLP_act_elegelu": 64,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 9895604649984,
+      "MLPmlp2_conv1d": 9895604649984
+    },
+    "prebroadcast_events": 660,
+    "tensor_objects": 25,
+    "intermediate_tensor_elements_sum": 5737838592
+  },
+  {
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ln",
+    "source_candidate": "F_face_2x2_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_face_2x2_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 2,
+    "reduction_input_elements": 196608,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 23,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 700496
+  },
+  {
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "mha",
+    "source_candidate": "F_face_2x2_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_face_2x2_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 553648128,
+    "tensor_grain_rounded_flops": 570425344,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 524288,
+    "vector_input_elements_by_type": {
+      "transpose": 12288,
+      "redmax": 262144,
+      "vecadd": 262272,
+      "eleexp": 262144,
+      "redsum": 262144,
+      "vecdiv": 262272
+    },
+    "computation_events_by_type": {
+      "matmac": 96,
+      "transpose": 8,
+      "redmax": 8,
+      "vecadd": 8,
+      "eleexp": 8,
+      "redsum": 8,
+      "vecdiv": 8
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 8,
+      "MHA_kconv_conv1d": 8,
+      "MHA_ktrans_transpose": 8,
+      "MHA_qkt_conv1d": 64,
+      "MHA_s_softmax_redmax": 8,
+      "MHA_s_softmax_vecadd": 8,
+      "MHA_s_softmax_eleexp": 8,
+      "MHA_s_softmax_redsum": 8,
+      "MHA_s_softmax_vecdiv": 8,
+      "MHA_vconv_conv1d": 8,
+      "MHA_p_conv1d": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 150994944,
+      "MHA_kconv_conv1d": 150994944,
+      "MHA_qkt_conv1d": 50331648,
+      "MHA_vconv_conv1d": 150994944,
+      "MHA_p_conv1d": 50331648
+    },
+    "prebroadcast_events": 598,
+    "tensor_objects": 169,
+    "intermediate_tensor_elements_sum": 18529536
+  },
+  {
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "proj",
+    "source_candidate": "F_face_2x2_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_face_2x2_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 1207959552,
+    "tensor_grain_rounded_flops": 1207959552,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 983040,
+    "vector_input_elements_by_type": {
+      "matadd": 983040
+    },
+    "computation_events_by_type": {
+      "matmac": 8,
+      "matmul": 56,
+      "matadd": 16
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_proj_conv1d_matadd": 8,
+      "MHA_residual_matadd": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 1207959552
+    },
+    "prebroadcast_events": 296,
+    "tensor_objects": 13,
+    "intermediate_tensor_elements_sum": 38836224
+  },
+  {
+    "config_id": "F_face_2x2_fixed_d2d1",
+    "stage": "F",
+    "hardware_profile": "face",
+    "shape": "2x2",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ffn",
+    "source_candidate": "F_face_2x2_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\F_face_2x2_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 9663676416,
+    "tensor_grain_rounded_flops": 9663676416,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 26,
+    "reduction_input_elements": 3538944,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592,
+      "matadd": 3342336,
+      "elegelu": 393216
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1,
+      "matmac": 20,
+      "matmul": 108,
+      "matadd": 24,
+      "elegelu": 16
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1,
+      "MLPmlp1_conv1d": 64,
+      "MLPmlp1_conv1d_matadd": 16,
+      "MLP_act_elegelu": 16,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 4831838208,
+      "MLPmlp2_conv1d": 4831838208
+    },
+    "prebroadcast_events": 628,
+    "tensor_objects": 42,
+    "intermediate_tensor_elements_sum": 306849872
+  },
+  {
+    "config_id": "G_busybarn_2x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ln",
+    "source_candidate": "G_busybarn_2x3_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "redsum": 402653184,
+      "elemul": 65536,
+      "vecadd": 402948096,
+      "elepow2": 201326592,
+      "eleadd": 32768,
+      "elesqrt": 32768,
+      "vecdiv": 201588736,
+      "vecmac": 201424896
+    },
+    "computation_events_by_type": {
+      "redsum": 128,
+      "elemul": 128,
+      "vecadd": 128,
+      "elepow2": 64,
+      "eleadd": 64,
+      "elesqrt": 64,
+      "vecdiv": 64,
+      "vecmac": 64
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 64,
+      "LN_layernorm_elemul": 64,
+      "LN_layernorm_var_vecadd": 64,
+      "LN_layernorm_var_elepow2": 64,
+      "LN_layernorm_var_redsum": 64,
+      "LN_layernorm_var_elemul": 64,
+      "LN_layernorm_var_eleadd": 64,
+      "LN_layernorm_var_elesqrt": 64,
+      "LN_layernorm_norm_vecadd": 64,
+      "LN_layernorm_norm_vecdiv": 64,
+      "LN_layernorm_norm_vecmac": 64
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 3953,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 1409462272
+  },
+  {
+    "config_id": "G_busybarn_2x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "mha",
+    "source_candidate": "G_busybarn_2x3_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 1133871366144,
+    "tensor_grain_rounded_flops": 1168231104512,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 1073741824,
+    "vector_input_elements_by_type": {
+      "transpose": 25165824,
+      "redmax": 536870912,
+      "vecadd": 537133056,
+      "eleexp": 536870912,
+      "redsum": 536870912,
+      "vecdiv": 537133056
+    },
+    "computation_events_by_type": {
+      "matmac": 192,
+      "transpose": 64,
+      "matmul": 128,
+      "redmax": 64,
+      "vecadd": 64,
+      "eleexp": 64,
+      "redsum": 64,
+      "vecdiv": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 64,
+      "MHA_kconv_conv1d": 64,
+      "MHA_ktrans_transpose": 64,
+      "MHA_qkt_matmul": 64,
+      "MHA_s_softmax_redmax": 64,
+      "MHA_s_softmax_vecadd": 64,
+      "MHA_s_softmax_eleexp": 64,
+      "MHA_s_softmax_redsum": 64,
+      "MHA_s_softmax_vecdiv": 64,
+      "MHA_vconv_conv1d": 64,
+      "MHA_p_matmul": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 309237645312,
+      "MHA_kconv_conv1d": 309237645312,
+      "MHA_qkt_matmul": 103079215104,
+      "MHA_vconv_conv1d": 309237645312,
+      "MHA_p_matmul": 103079215104
+    },
+    "prebroadcast_events": 2935,
+    "tensor_objects": 137,
+    "intermediate_tensor_elements_sum": 2489321728
+  },
+  {
+    "config_id": "G_busybarn_2x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "proj",
+    "source_candidate": "G_busybarn_2x3_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 2473901162496,
+    "tensor_grain_rounded_flops": 2473901162496,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 64,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "matadd": 402653184
+    },
+    "computation_events_by_type": {
+      "matmac": 64,
+      "matadd": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_residual_matadd": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 2473901162496
+    },
+    "prebroadcast_events": 896,
+    "tensor_objects": 5,
+    "intermediate_tensor_elements_sum": 641734656
+  },
+  {
+    "config_id": "G_busybarn_2x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ffn",
+    "source_candidate": "G_busybarn_2x3_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 19791209299968,
+    "tensor_grain_rounded_flops": 19791209299968,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 8,
+    "reduction_input_elements": 3623878656,
+    "vector_input_elements_by_type": {
+      "elegelu": 805306368,
+      "matadd": 3623878656
+    },
+    "computation_events_by_type": {
+      "matmac": 68,
+      "elegelu": 64,
+      "matmul": 60,
+      "matadd": 8
+    },
+    "computation_events_by_stage": {
+      "MLPmlp1_conv1d": 64,
+      "MLP_act_elegelu": 64,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 9895604649984,
+      "MLPmlp2_conv1d": 9895604649984
+    },
+    "prebroadcast_events": 658,
+    "tensor_objects": 25,
+    "intermediate_tensor_elements_sum": 5737838592
+  },
+  {
+    "config_id": "G_busybarn_2x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ln",
+    "source_candidate": "G_busybarn_2x3_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 2,
+    "reduction_input_elements": 196608,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 25,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 700496
+  },
+  {
+    "config_id": "G_busybarn_2x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "mha",
+    "source_candidate": "G_busybarn_2x3_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 553648128,
+    "tensor_grain_rounded_flops": 570425344,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 524288,
+    "vector_input_elements_by_type": {
+      "transpose": 12288,
+      "redmax": 262144,
+      "vecadd": 262272,
+      "eleexp": 262144,
+      "redsum": 262144,
+      "vecdiv": 262272
+    },
+    "computation_events_by_type": {
+      "matmac": 96,
+      "transpose": 8,
+      "redmax": 8,
+      "vecadd": 8,
+      "eleexp": 8,
+      "redsum": 8,
+      "vecdiv": 8
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 8,
+      "MHA_kconv_conv1d": 8,
+      "MHA_ktrans_transpose": 8,
+      "MHA_qkt_conv1d": 64,
+      "MHA_s_softmax_redmax": 8,
+      "MHA_s_softmax_vecadd": 8,
+      "MHA_s_softmax_eleexp": 8,
+      "MHA_s_softmax_redsum": 8,
+      "MHA_s_softmax_vecdiv": 8,
+      "MHA_vconv_conv1d": 8,
+      "MHA_p_conv1d": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 150994944,
+      "MHA_kconv_conv1d": 150994944,
+      "MHA_qkt_conv1d": 50331648,
+      "MHA_vconv_conv1d": 150994944,
+      "MHA_p_conv1d": 50331648
+    },
+    "prebroadcast_events": 606,
+    "tensor_objects": 169,
+    "intermediate_tensor_elements_sum": 18529536
+  },
+  {
+    "config_id": "G_busybarn_2x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "proj",
+    "source_candidate": "G_busybarn_2x3_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 1207959552,
+    "tensor_grain_rounded_flops": 1207959552,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 983040,
+    "vector_input_elements_by_type": {
+      "matadd": 983040
+    },
+    "computation_events_by_type": {
+      "matmac": 8,
+      "matmul": 56,
+      "matadd": 16
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_proj_conv1d_matadd": 8,
+      "MHA_residual_matadd": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 1207959552
+    },
+    "prebroadcast_events": 295,
+    "tensor_objects": 13,
+    "intermediate_tensor_elements_sum": 38836224
+  },
+  {
+    "config_id": "G_busybarn_2x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ffn",
+    "source_candidate": "G_busybarn_2x3_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 9663676416,
+    "tensor_grain_rounded_flops": 9663676416,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 26,
+    "reduction_input_elements": 3538944,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592,
+      "matadd": 3342336,
+      "elegelu": 393216
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1,
+      "matmac": 20,
+      "matmul": 108,
+      "matadd": 24,
+      "elegelu": 16
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1,
+      "MLPmlp1_conv1d": 64,
+      "MLPmlp1_conv1d_matadd": 16,
+      "MLP_act_elegelu": 16,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 4831838208,
+      "MLPmlp2_conv1d": 4831838208
+    },
+    "prebroadcast_events": 626,
+    "tensor_objects": 42,
+    "intermediate_tensor_elements_sum": 306849872
+  },
+  {
+    "config_id": "G_busybarn_2x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ln",
+    "source_candidate": "G_busybarn_2x3_growth_d2d1__healthy_healthy_prefill_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_growth_d2d1__healthy_healthy_prefill_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 192,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "redsum": 402653184,
+      "elemul": 65536,
+      "vecadd": 402948096,
+      "elepow2": 201326592,
+      "eleadd": 32768,
+      "elesqrt": 32768,
+      "vecdiv": 201588736,
+      "vecmac": 201474048
+    },
+    "computation_events_by_type": {
+      "redsum": 192,
+      "elemul": 192,
+      "vecadd": 192,
+      "elepow2": 96,
+      "eleadd": 96,
+      "elesqrt": 96,
+      "vecdiv": 96,
+      "vecmac": 96
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 96,
+      "LN_layernorm_elemul": 96,
+      "LN_layernorm_var_vecadd": 96,
+      "LN_layernorm_var_elepow2": 96,
+      "LN_layernorm_var_redsum": 96,
+      "LN_layernorm_var_elemul": 96,
+      "LN_layernorm_var_eleadd": 96,
+      "LN_layernorm_var_elesqrt": 96,
+      "LN_layernorm_norm_vecadd": 96,
+      "LN_layernorm_norm_vecdiv": 96,
+      "LN_layernorm_norm_vecmac": 96
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 6381,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 1409462272
+  },
+  {
+    "config_id": "G_busybarn_2x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "mha",
+    "source_candidate": "G_busybarn_2x3_growth_d2d1__healthy_healthy_prefill_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_growth_d2d1__healthy_healthy_prefill_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 1133871366144,
+    "tensor_grain_rounded_flops": 1168231104512,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 192,
+    "reduction_input_elements": 1073741824,
+    "vector_input_elements_by_type": {
+      "transpose": 25165824,
+      "redmax": 536870912,
+      "vecadd": 537133056,
+      "eleexp": 536870912,
+      "redsum": 536870912,
+      "vecdiv": 537133056
+    },
+    "computation_events_by_type": {
+      "matmac": 288,
+      "transpose": 96,
+      "matmul": 192,
+      "redmax": 96,
+      "vecadd": 96,
+      "eleexp": 96,
+      "redsum": 96,
+      "vecdiv": 96
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 96,
+      "MHA_kconv_conv1d": 96,
+      "MHA_ktrans_transpose": 96,
+      "MHA_qkt_matmul": 96,
+      "MHA_s_softmax_redmax": 96,
+      "MHA_s_softmax_vecadd": 96,
+      "MHA_s_softmax_eleexp": 96,
+      "MHA_s_softmax_redsum": 96,
+      "MHA_s_softmax_vecdiv": 96,
+      "MHA_vconv_conv1d": 96,
+      "MHA_p_matmul": 96
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 309237645312,
+      "MHA_kconv_conv1d": 309237645312,
+      "MHA_qkt_matmul": 103079215104,
+      "MHA_vconv_conv1d": 309237645312,
+      "MHA_p_matmul": 103079215104
+    },
+    "prebroadcast_events": 5171,
+    "tensor_objects": 137,
+    "intermediate_tensor_elements_sum": 2489321728
+  },
+  {
+    "config_id": "G_busybarn_2x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "proj",
+    "source_candidate": "G_busybarn_2x3_growth_d2d1__healthy_healthy_prefill_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_growth_d2d1__healthy_healthy_prefill_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 2473901162496,
+    "tensor_grain_rounded_flops": 2473901162496,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 96,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "matadd": 402653184
+    },
+    "computation_events_by_type": {
+      "matmac": 96,
+      "matadd": 96
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 96,
+      "MHA_residual_matadd": 96
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 2473901162496
+    },
+    "prebroadcast_events": 1342,
+    "tensor_objects": 5,
+    "intermediate_tensor_elements_sum": 641734656
+  },
+  {
+    "config_id": "G_busybarn_2x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ffn",
+    "source_candidate": "G_busybarn_2x3_growth_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_growth_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 19791209299968,
+    "tensor_grain_rounded_flops": 19791209299968,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 12,
+    "reduction_input_elements": 3623878656,
+    "vector_input_elements_by_type": {
+      "elegelu": 805306368,
+      "matadd": 3623878656
+    },
+    "computation_events_by_type": {
+      "matmac": 102,
+      "elegelu": 96,
+      "matmul": 90,
+      "matadd": 12
+    },
+    "computation_events_by_stage": {
+      "MLPmlp1_conv1d": 96,
+      "MLP_act_elegelu": 96,
+      "MLPmlp2_conv1d": 96,
+      "MLPmlp2_conv1d_matadd": 6,
+      "MLP_residual_matadd": 6
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 9895604649984,
+      "MLPmlp2_conv1d": 9895604649984
+    },
+    "prebroadcast_events": 987,
+    "tensor_objects": 25,
+    "intermediate_tensor_elements_sum": 5737838592
+  },
+  {
+    "config_id": "G_busybarn_2x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ln",
+    "source_candidate": "G_busybarn_2x3_growth_d2d1__healthy_healthy_decode_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_growth_d2d1__healthy_healthy_decode_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 2,
+    "reduction_input_elements": 196608,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 25,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 700496
+  },
+  {
+    "config_id": "G_busybarn_2x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "mha",
+    "source_candidate": "G_busybarn_2x3_growth_d2d1__healthy_healthy_decode_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_growth_d2d1__healthy_healthy_decode_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 553648128,
+    "tensor_grain_rounded_flops": 570949632,
+    "tensor_padding_fraction": 0.03125,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 524288,
+    "vector_input_elements_by_type": {
+      "transpose": 12288,
+      "redmax": 262144,
+      "vecadd": 262272,
+      "eleexp": 262144,
+      "redsum": 262144,
+      "vecdiv": 262272
+    },
+    "computation_events_by_type": {
+      "matmac": 128,
+      "transpose": 8,
+      "redmax": 8,
+      "vecadd": 8,
+      "eleexp": 8,
+      "redsum": 8,
+      "vecdiv": 8
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 8,
+      "MHA_kconv_conv1d": 8,
+      "MHA_ktrans_transpose": 8,
+      "MHA_qkt_conv1d": 96,
+      "MHA_s_softmax_redmax": 8,
+      "MHA_s_softmax_vecadd": 8,
+      "MHA_s_softmax_eleexp": 8,
+      "MHA_s_softmax_redsum": 8,
+      "MHA_s_softmax_vecdiv": 8,
+      "MHA_vconv_conv1d": 8,
+      "MHA_p_conv1d": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 150994944,
+      "MHA_kconv_conv1d": 150994944,
+      "MHA_qkt_conv1d": 50331648,
+      "MHA_vconv_conv1d": 150994944,
+      "MHA_p_conv1d": 50331648
+    },
+    "prebroadcast_events": 796,
+    "tensor_objects": 169,
+    "intermediate_tensor_elements_sum": 18529536
+  },
+  {
+    "config_id": "G_busybarn_2x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "proj",
+    "source_candidate": "G_busybarn_2x3_growth_d2d1__healthy_healthy_decode_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_growth_d2d1__healthy_healthy_decode_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 1207959552,
+    "tensor_grain_rounded_flops": 1207959552,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 1376256,
+    "vector_input_elements_by_type": {
+      "matadd": 1376256
+    },
+    "computation_events_by_type": {
+      "matmac": 8,
+      "matmul": 88,
+      "matadd": 16
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 96,
+      "MHA_proj_conv1d_matadd": 8,
+      "MHA_residual_matadd": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 1207959552
+    },
+    "prebroadcast_events": 463,
+    "tensor_objects": 17,
+    "intermediate_tensor_elements_sum": 39229440
+  },
+  {
+    "config_id": "G_busybarn_2x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "2x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ffn",
+    "source_candidate": "G_busybarn_2x3_growth_d2d1__healthy_healthy_decode_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_2x3_growth_d2d1__healthy_healthy_decode_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 9663676416,
+    "tensor_grain_rounded_flops": 9663676416,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 30,
+    "reduction_input_elements": 4325376,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592,
+      "matadd": 4128768,
+      "elegelu": 393216
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1,
+      "matmac": 22,
+      "matmul": 170,
+      "matadd": 28,
+      "elegelu": 16
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1,
+      "MLPmlp1_conv1d": 96,
+      "MLPmlp1_conv1d_matadd": 16,
+      "MLP_act_elegelu": 16,
+      "MLPmlp2_conv1d": 96,
+      "MLPmlp2_conv1d_matadd": 6,
+      "MLP_residual_matadd": 6
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 4831838208,
+      "MLPmlp2_conv1d": 4831838208
+    },
+    "prebroadcast_events": 902,
+    "tensor_objects": 44,
+    "intermediate_tensor_elements_sum": 307636304
+  },
+  {
+    "config_id": "G_busybarn_3x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ln",
+    "source_candidate": "G_busybarn_3x3_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_fixed_d2d1__healthy_healthy_prefill_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "redsum": 402653184,
+      "elemul": 65536,
+      "vecadd": 402948096,
+      "elepow2": 201326592,
+      "eleadd": 32768,
+      "elesqrt": 32768,
+      "vecdiv": 201588736,
+      "vecmac": 201424896
+    },
+    "computation_events_by_type": {
+      "redsum": 128,
+      "elemul": 128,
+      "vecadd": 128,
+      "elepow2": 64,
+      "eleadd": 64,
+      "elesqrt": 64,
+      "vecdiv": 64,
+      "vecmac": 64
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 64,
+      "LN_layernorm_elemul": 64,
+      "LN_layernorm_var_vecadd": 64,
+      "LN_layernorm_var_elepow2": 64,
+      "LN_layernorm_var_redsum": 64,
+      "LN_layernorm_var_elemul": 64,
+      "LN_layernorm_var_eleadd": 64,
+      "LN_layernorm_var_elesqrt": 64,
+      "LN_layernorm_norm_vecadd": 64,
+      "LN_layernorm_norm_vecdiv": 64,
+      "LN_layernorm_norm_vecmac": 64
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 3959,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 1409462272
+  },
+  {
+    "config_id": "G_busybarn_3x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "mha",
+    "source_candidate": "G_busybarn_3x3_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_fixed_d2d1__healthy_healthy_prefill_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 1133871366144,
+    "tensor_grain_rounded_flops": 1168231104512,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 128,
+    "reduction_input_elements": 1073741824,
+    "vector_input_elements_by_type": {
+      "transpose": 25165824,
+      "redmax": 536870912,
+      "vecadd": 537133056,
+      "eleexp": 536870912,
+      "redsum": 536870912,
+      "vecdiv": 537133056
+    },
+    "computation_events_by_type": {
+      "matmac": 192,
+      "transpose": 64,
+      "matmul": 128,
+      "redmax": 64,
+      "vecadd": 64,
+      "eleexp": 64,
+      "redsum": 64,
+      "vecdiv": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 64,
+      "MHA_kconv_conv1d": 64,
+      "MHA_ktrans_transpose": 64,
+      "MHA_qkt_matmul": 64,
+      "MHA_s_softmax_redmax": 64,
+      "MHA_s_softmax_vecadd": 64,
+      "MHA_s_softmax_eleexp": 64,
+      "MHA_s_softmax_redsum": 64,
+      "MHA_s_softmax_vecdiv": 64,
+      "MHA_vconv_conv1d": 64,
+      "MHA_p_matmul": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 309237645312,
+      "MHA_kconv_conv1d": 309237645312,
+      "MHA_qkt_matmul": 103079215104,
+      "MHA_vconv_conv1d": 309237645312,
+      "MHA_p_matmul": 103079215104
+    },
+    "prebroadcast_events": 2937,
+    "tensor_objects": 137,
+    "intermediate_tensor_elements_sum": 2489321728
+  },
+  {
+    "config_id": "G_busybarn_3x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "proj",
+    "source_candidate": "G_busybarn_3x3_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_fixed_d2d1__healthy_healthy_prefill_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 2473901162496,
+    "tensor_grain_rounded_flops": 2473901162496,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 64,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "matadd": 402653184
+    },
+    "computation_events_by_type": {
+      "matmac": 64,
+      "matadd": 64
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_residual_matadd": 64
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 2473901162496
+    },
+    "prebroadcast_events": 895,
+    "tensor_objects": 5,
+    "intermediate_tensor_elements_sum": 641734656
+  },
+  {
+    "config_id": "G_busybarn_3x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ffn",
+    "source_candidate": "G_busybarn_3x3_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_fixed_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 19791209299968,
+    "tensor_grain_rounded_flops": 19791209299968,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 8,
+    "reduction_input_elements": 3623878656,
+    "vector_input_elements_by_type": {
+      "elegelu": 805306368,
+      "matadd": 3623878656
+    },
+    "computation_events_by_type": {
+      "matmac": 68,
+      "elegelu": 64,
+      "matmul": 60,
+      "matadd": 8
+    },
+    "computation_events_by_stage": {
+      "MLPmlp1_conv1d": 64,
+      "MLP_act_elegelu": 64,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 9895604649984,
+      "MLPmlp2_conv1d": 9895604649984
+    },
+    "prebroadcast_events": 657,
+    "tensor_objects": 25,
+    "intermediate_tensor_elements_sum": 5737838592
+  },
+  {
+    "config_id": "G_busybarn_3x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ln",
+    "source_candidate": "G_busybarn_3x3_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_fixed_d2d1__healthy_healthy_decode_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 2,
+    "reduction_input_elements": 196608,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 26,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 700496
+  },
+  {
+    "config_id": "G_busybarn_3x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "mha",
+    "source_candidate": "G_busybarn_3x3_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_fixed_d2d1__healthy_healthy_decode_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 553648128,
+    "tensor_grain_rounded_flops": 570425344,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 524288,
+    "vector_input_elements_by_type": {
+      "transpose": 12288,
+      "redmax": 262144,
+      "vecadd": 262272,
+      "eleexp": 262144,
+      "redsum": 262144,
+      "vecdiv": 262272
+    },
+    "computation_events_by_type": {
+      "matmac": 96,
+      "transpose": 8,
+      "redmax": 8,
+      "vecadd": 8,
+      "eleexp": 8,
+      "redsum": 8,
+      "vecdiv": 8
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 8,
+      "MHA_kconv_conv1d": 8,
+      "MHA_ktrans_transpose": 8,
+      "MHA_qkt_conv1d": 64,
+      "MHA_s_softmax_redmax": 8,
+      "MHA_s_softmax_vecadd": 8,
+      "MHA_s_softmax_eleexp": 8,
+      "MHA_s_softmax_redsum": 8,
+      "MHA_s_softmax_vecdiv": 8,
+      "MHA_vconv_conv1d": 8,
+      "MHA_p_conv1d": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 150994944,
+      "MHA_kconv_conv1d": 150994944,
+      "MHA_qkt_conv1d": 50331648,
+      "MHA_vconv_conv1d": 150994944,
+      "MHA_p_conv1d": 50331648
+    },
+    "prebroadcast_events": 604,
+    "tensor_objects": 169,
+    "intermediate_tensor_elements_sum": 18529536
+  },
+  {
+    "config_id": "G_busybarn_3x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "proj",
+    "source_candidate": "G_busybarn_3x3_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_fixed_d2d1__healthy_healthy_decode_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 1207959552,
+    "tensor_grain_rounded_flops": 1207959552,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 983040,
+    "vector_input_elements_by_type": {
+      "matadd": 983040
+    },
+    "computation_events_by_type": {
+      "matmac": 8,
+      "matmul": 56,
+      "matadd": 16
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 64,
+      "MHA_proj_conv1d_matadd": 8,
+      "MHA_residual_matadd": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 1207959552
+    },
+    "prebroadcast_events": 296,
+    "tensor_objects": 13,
+    "intermediate_tensor_elements_sum": 38836224
+  },
+  {
+    "config_id": "G_busybarn_3x3_fixed_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "fixed",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ffn",
+    "source_candidate": "G_busybarn_3x3_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_fixed_d2d1__healthy_healthy_decode_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 9663676416,
+    "tensor_grain_rounded_flops": 9663676416,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 26,
+    "reduction_input_elements": 3538944,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592,
+      "matadd": 3342336,
+      "elegelu": 393216
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1,
+      "matmac": 20,
+      "matmul": 108,
+      "matadd": 24,
+      "elegelu": 16
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1,
+      "MLPmlp1_conv1d": 64,
+      "MLPmlp1_conv1d_matadd": 16,
+      "MLP_act_elegelu": 16,
+      "MLPmlp2_conv1d": 64,
+      "MLPmlp2_conv1d_matadd": 4,
+      "MLP_residual_matadd": 4
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 4831838208,
+      "MLPmlp2_conv1d": 4831838208
+    },
+    "prebroadcast_events": 631,
+    "tensor_objects": 42,
+    "intermediate_tensor_elements_sum": 306849872
+  },
+  {
+    "config_id": "G_busybarn_3x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ln",
+    "source_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_prefill_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_growth_d2d1__healthy_healthy_prefill_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 288,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "redsum": 402653184,
+      "elemul": 65536,
+      "vecadd": 402948096,
+      "elepow2": 201326592,
+      "eleadd": 32768,
+      "elesqrt": 32768,
+      "vecdiv": 201588736,
+      "vecmac": 201547776
+    },
+    "computation_events_by_type": {
+      "redsum": 288,
+      "elemul": 288,
+      "vecadd": 288,
+      "elepow2": 144,
+      "eleadd": 144,
+      "elesqrt": 144,
+      "vecdiv": 144,
+      "vecmac": 144
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 144,
+      "LN_layernorm_elemul": 144,
+      "LN_layernorm_var_vecadd": 144,
+      "LN_layernorm_var_elepow2": 144,
+      "LN_layernorm_var_redsum": 144,
+      "LN_layernorm_var_elemul": 144,
+      "LN_layernorm_var_eleadd": 144,
+      "LN_layernorm_var_elesqrt": 144,
+      "LN_layernorm_norm_vecadd": 144,
+      "LN_layernorm_norm_vecdiv": 144,
+      "LN_layernorm_norm_vecmac": 144
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 9542,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 1409462272
+  },
+  {
+    "config_id": "G_busybarn_3x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "mha",
+    "source_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_prefill_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_growth_d2d1__healthy_healthy_prefill_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 1133871366144,
+    "tensor_grain_rounded_flops": 1168231104512,
+    "tensor_padding_fraction": 0.030303030303030276,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 288,
+    "reduction_input_elements": 1073741824,
+    "vector_input_elements_by_type": {
+      "transpose": 25165824,
+      "redmax": 536870912,
+      "vecadd": 537133056,
+      "eleexp": 536870912,
+      "redsum": 536870912,
+      "vecdiv": 537133056
+    },
+    "computation_events_by_type": {
+      "matmac": 432,
+      "transpose": 144,
+      "matmul": 288,
+      "redmax": 144,
+      "vecadd": 144,
+      "eleexp": 144,
+      "redsum": 144,
+      "vecdiv": 144
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 144,
+      "MHA_kconv_conv1d": 144,
+      "MHA_ktrans_transpose": 144,
+      "MHA_qkt_matmul": 144,
+      "MHA_s_softmax_redmax": 144,
+      "MHA_s_softmax_vecadd": 144,
+      "MHA_s_softmax_eleexp": 144,
+      "MHA_s_softmax_redsum": 144,
+      "MHA_s_softmax_vecdiv": 144,
+      "MHA_vconv_conv1d": 144,
+      "MHA_p_matmul": 144
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 309237645312,
+      "MHA_kconv_conv1d": 309237645312,
+      "MHA_qkt_matmul": 103079215104,
+      "MHA_vconv_conv1d": 309237645312,
+      "MHA_p_matmul": 103079215104
+    },
+    "prebroadcast_events": 9480,
+    "tensor_objects": 137,
+    "intermediate_tensor_elements_sum": 2489321728
+  },
+  {
+    "config_id": "G_busybarn_3x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "proj",
+    "source_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_prefill_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_growth_d2d1__healthy_healthy_prefill_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 2473901162496,
+    "tensor_grain_rounded_flops": 2473901162496,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 144,
+    "reduction_input_elements": 402653184,
+    "vector_input_elements_by_type": {
+      "matadd": 402653184
+    },
+    "computation_events_by_type": {
+      "matmac": 144,
+      "matadd": 144
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 144,
+      "MHA_residual_matadd": 144
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 2473901162496
+    },
+    "prebroadcast_events": 2016,
+    "tensor_objects": 5,
+    "intermediate_tensor_elements_sum": 641734656
+  },
+  {
+    "config_id": "G_busybarn_3x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "prefill",
+    "op": "ffn",
+    "source_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_growth_d2d1__healthy_healthy_prefill_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          2048,
+          6144
+        ],
+        "elements": 201326592
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 19791209299968,
+    "tensor_grain_rounded_flops": 19791209299968,
+    "tensor_padding_fraction": 0.0,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 18,
+    "reduction_input_elements": 3623878656,
+    "vector_input_elements_by_type": {
+      "elegelu": 805306368,
+      "matadd": 3623878656
+    },
+    "computation_events_by_type": {
+      "matmac": 153,
+      "elegelu": 144,
+      "matmul": 135,
+      "matadd": 18
+    },
+    "computation_events_by_stage": {
+      "MLPmlp1_conv1d": 144,
+      "MLP_act_elegelu": 144,
+      "MLPmlp2_conv1d": 144,
+      "MLPmlp2_conv1d_matadd": 9,
+      "MLP_residual_matadd": 9
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 9895604649984,
+      "MLPmlp2_conv1d": 9895604649984
+    },
+    "prebroadcast_events": 1482,
+    "tensor_objects": 25,
+    "intermediate_tensor_elements_sum": 5737838592
+  },
+  {
+    "config_id": "G_busybarn_3x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ln",
+    "source_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_ln_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_ln_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 0,
+    "tensor_grain_rounded_flops": 0,
+    "tensor_padding_fraction": null,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 2,
+    "reduction_input_elements": 196608,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1
+    },
+    "effective_tensor_flops_by_stage": {},
+    "prebroadcast_events": 26,
+    "tensor_objects": 14,
+    "intermediate_tensor_elements_sum": 700496
+  },
+  {
+    "config_id": "G_busybarn_3x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "mha",
+    "source_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": 8,
+    "mha_aggregation_multiplier": 8,
+    "tensor_effective_multiply_add_flops": 553648128,
+    "tensor_grain_rounded_flops": 571736064,
+    "tensor_padding_fraction": 0.032670454545454586,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 524288,
+    "vector_input_elements_by_type": {
+      "transpose": 12288,
+      "redmax": 262144,
+      "vecadd": 262272,
+      "eleexp": 262144,
+      "redsum": 262144,
+      "vecdiv": 262272
+    },
+    "computation_events_by_type": {
+      "matmac": 176,
+      "transpose": 8,
+      "redmax": 8,
+      "vecadd": 8,
+      "eleexp": 8,
+      "redsum": 8,
+      "vecdiv": 8
+    },
+    "computation_events_by_stage": {
+      "MHA_qconv_conv1d": 8,
+      "MHA_kconv_conv1d": 8,
+      "MHA_ktrans_transpose": 8,
+      "MHA_qkt_conv1d": 144,
+      "MHA_s_softmax_redmax": 8,
+      "MHA_s_softmax_vecadd": 8,
+      "MHA_s_softmax_eleexp": 8,
+      "MHA_s_softmax_redsum": 8,
+      "MHA_s_softmax_vecdiv": 8,
+      "MHA_vconv_conv1d": 8,
+      "MHA_p_conv1d": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_qconv_conv1d": 150994944,
+      "MHA_kconv_conv1d": 150994944,
+      "MHA_qkt_conv1d": 50331648,
+      "MHA_vconv_conv1d": 150994944,
+      "MHA_p_conv1d": 50331648
+    },
+    "prebroadcast_events": 1084,
+    "tensor_objects": 169,
+    "intermediate_tensor_elements_sum": 18529536
+  },
+  {
+    "config_id": "G_busybarn_3x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "proj",
+    "source_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_proj_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_proj_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 1207959552,
+    "tensor_grain_rounded_flops": 1358954496,
+    "tensor_padding_fraction": 0.125,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 16,
+    "reduction_input_elements": 1966080,
+    "vector_input_elements_by_type": {
+      "matadd": 1966080
+    },
+    "computation_events_by_type": {
+      "matmac": 8,
+      "matmul": 136,
+      "matadd": 16
+    },
+    "computation_events_by_stage": {
+      "MHA_proj_conv1d": 144,
+      "MHA_proj_conv1d_matadd": 8,
+      "MHA_residual_matadd": 8
+    },
+    "effective_tensor_flops_by_stage": {
+      "MHA_proj_conv1d": 1207959552
+    },
+    "prebroadcast_events": 689,
+    "tensor_objects": 23,
+    "intermediate_tensor_elements_sum": 39819264
+  },
+  {
+    "config_id": "G_busybarn_3x3_growth_d2d1",
+    "stage": "G",
+    "hardware_profile": "busybarn",
+    "shape": "3x3",
+    "split_mode": "growth",
+    "d2d_scale": 1.0,
+    "family": "healthy",
+    "fault_id": "healthy",
+    "phase": "decode",
+    "op": "ffn",
+    "source_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_ffn_A1_g0_l0",
+    "source_snapshot": "e2e\\fg\\out\\main\\snapshots\\G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_ffn_A1_g0_l0.pkl.gz",
+    "input_tensors": [
+      {
+        "tag": [
+          0,
+          0
+        ],
+        "name": "ifmap",
+        "shape": [
+          16,
+          1,
+          6144
+        ],
+        "elements": 98304
+      }
+    ],
+    "model_heads": 64,
+    "micro_mha_heads": null,
+    "mha_aggregation_multiplier": null,
+    "tensor_effective_multiply_add_flops": 9663676416,
+    "tensor_grain_rounded_flops": 10277093376,
+    "tensor_padding_fraction": 0.0634765625,
+    "tensor_bias_additions_in_flop_count": false,
+    "reduction_events": 36,
+    "reduction_input_elements": 5505024,
+    "vector_input_elements_by_type": {
+      "redsum": 196608,
+      "elemul": 32,
+      "vecadd": 196640,
+      "elepow2": 98304,
+      "eleadd": 16,
+      "elesqrt": 16,
+      "vecdiv": 98320,
+      "vecmac": 110592,
+      "matadd": 5308416,
+      "elegelu": 393216
+    },
+    "computation_events_by_type": {
+      "redsum": 2,
+      "elemul": 2,
+      "vecadd": 2,
+      "elepow2": 1,
+      "eleadd": 1,
+      "elesqrt": 1,
+      "vecdiv": 1,
+      "vecmac": 1,
+      "matmac": 25,
+      "matmul": 263,
+      "matadd": 34,
+      "elegelu": 16
+    },
+    "computation_events_by_stage": {
+      "LN_layernorm_redsum": 1,
+      "LN_layernorm_elemul": 1,
+      "LN_layernorm_var_vecadd": 1,
+      "LN_layernorm_var_elepow2": 1,
+      "LN_layernorm_var_redsum": 1,
+      "LN_layernorm_var_elemul": 1,
+      "LN_layernorm_var_eleadd": 1,
+      "LN_layernorm_var_elesqrt": 1,
+      "LN_layernorm_norm_vecadd": 1,
+      "LN_layernorm_norm_vecdiv": 1,
+      "LN_layernorm_norm_vecmac": 1,
+      "MLPmlp1_conv1d": 144,
+      "MLPmlp1_conv1d_matadd": 16,
+      "MLP_act_elegelu": 16,
+      "MLPmlp2_conv1d": 144,
+      "MLPmlp2_conv1d_matadd": 9,
+      "MLP_residual_matadd": 9
+    },
+    "effective_tensor_flops_by_stage": {
+      "MLPmlp1_conv1d": 4831838208,
+      "MLPmlp2_conv1d": 4831838208
+    },
+    "prebroadcast_events": 1309,
+    "tensor_objects": 47,
+    "intermediate_tensor_elements_sum": 308815952
+  }
+]

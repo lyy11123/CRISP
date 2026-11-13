@@ -42,7 +42,10 @@ def configuration_order(rows):
 
 def save(fig, out, name, source_rows, description):
     fig.savefig(out / f"{name}.png", dpi=220, bbox_inches="tight", facecolor="white")
-    fig.savefig(out / f"{name}.svg", bbox_inches="tight", facecolor="white")
+    svg = out / f"{name}.svg"
+    fig.savefig(svg, bbox_inches="tight", facecolor="white")
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text(encoding="utf-8").splitlines())
+                   + "\n", encoding="utf-8")
     plt.close(fig)
     (out / f"{name}.json").write_text(json.dumps(dict(description=description, rows=source_rows),
         ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

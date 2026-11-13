@@ -1,8 +1,10 @@
 # F/G 服务器运行记录
 
+**当前状态：2026-11-13 16:53:45，6813/6813全部完成。** 用户已关机，完整COS归档已下载到本机 `e2e/fg/dist/FG_20261113_complete.tar.gz`，解包到 `e2e/fg/out/main/` 并核对实验文件摘要。最终状态查看本机 `finish.batch.json`；数据与复算入口见 [fg/README.md](fg/README.md)。下面保留各次启动、接续和调度记录。
+
 2026-11-13（Codex）。服务器 `ubuntu@119.45.93.240`，工作目录 `/home/ubuntu/crisp_fg_20261113`；Python 使用 `/home/ubuntu/crisp-venv/bin/python`。原实例重新开机，既有 SSH 主机标识与环境匹配。
 
-**10:29后的当前入口：**主控制器PID2161783，`pipeline.log`、`e2e/fg/out/main/pipeline.status.json`；放行进程PID2161782，`release_pipeline.log`、`release.pipeline.json`。运行清单为`e2e/fg/out/pipeline_jobs.json`，实际命令和代码摘要在`pipeline.start.json`。合计上限128，系统余量3GiB，未来增长预留系数0.25。
+**10:29接续记录（已结束）：**主控制器PID2161783，`pipeline.log`、`e2e/fg/out/main/pipeline.status.json`；放行进程PID2161782，`release_pipeline.log`、`release.pipeline.json`。运行清单为`e2e/fg/out/pipeline_jobs.json`，实际命令和代码摘要在`pipeline.start.json`。合计上限128，系统余量3GiB，未来增长预留系数0.25。
 
 10:20实查6138/6813完成，只有G的3×3增长切分未齐；20个长搜索运行，CPU约16%、可用187GiB。原清单让故障选择等待全部224个A1/A3h健康候选，但实际只读取14个decode MHA A3h候选。`fg_pipeline.py`将该作业的外层调度依赖改为这14项，6813个作业的spec与身份全部不变；四个已完成配置的选优结果逐项一致。这样112个FULL搜索可在其余prefill搜索结束前开始。原始清单和结果保留，改动提交`c123b47`。
 
@@ -139,3 +141,12 @@ free -h
 ```
 
 `completed`包括已复用小批，`active`是全量队列自己启动的进程；`combined_active`加上仍运行的小批，合计上限128。`release.audit.json`记录各类核对结果，`waiting_for_release`为等待前置核对的作业。全流程最新测时文件是`e2e/fg/out/full_estimate_launch.json/md`，启动时仍有慢任务和修复未测，不能把已覆盖部分的小时数当作整批完成时间。
+
+
+## 2026-11-13 16:54：实验全部完成
+
+最终文件为 `e2e/fg/out/main/finish.batch.json`：6813/6813成功，无失败、无待运行项。最后五项于16:48:44以5并行补齐，16:53:45结束，298.18秒，最低可用214.76GiB。`finish.status.json`保留最后一次运行中采样，完成状态以最终batch和receipt为准。
+
+原OOM记录在 `patches/20261113_finish/`，实际命令在 `finish.start.json`。完整归档 `FG_20261113_complete.tar.gz` 与逐文件摘要 `FG_20261113_files.json` 已生成，正下载本机。结果汇总/核对进展见 `PROGRESS.md` 末条和 `fg/evidence/completion_audit.json`。
+
+用户更新的内存处理：有余量自动续跑，余量不足时通知并等待恢复，恢复后自动继续。SSH启动结束后继续读取状态；实验完成后接续已授权的下载、汇总和分支推送。
