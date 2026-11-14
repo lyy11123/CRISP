@@ -1,0 +1,94 @@
+{
+  "status": "passed",
+  "jobs": 108,
+  "methods": {
+    "A1": 56,
+    "A3h": 52
+  },
+  "initially_released": 108,
+  "dependent_jobs": 0,
+  "measured_classes": 4,
+  "new_classes": 4,
+  "priority_representatives": 4,
+  "process_hours": 50.968713628630894,
+  "queue_minutes_at_84_slots": 99.03238890264996,
+  "planning_minutes": [
+    99.03238890264996,
+    198.0647778052999
+  ],
+  "longest_job_minutes": 99.03238890264996,
+  "prior_observations": [
+    {
+      "candidate_id": "I_qwen3moe_watos_decode_mha_A3h_g0_s123",
+      "category": [
+        "qwen3moe",
+        "search",
+        "watos",
+        "2x2",
+        "fixed",
+        "decode",
+        "mha",
+        "A3h"
+      ],
+      "wall_seconds": 182.36519529100042,
+      "peak_rss_gb": 0.5753898620605469
+    },
+    {
+      "candidate_id": "I_qwen3moe_watos_decode_ffn_A3h_g0_s123",
+      "category": [
+        "qwen3moe",
+        "search",
+        "watos",
+        "2x2",
+        "fixed",
+        "decode",
+        "ffn",
+        "A3h"
+      ],
+      "wall_seconds": 1262.901958251001,
+      "peak_rss_gb": 0.7689323425292969
+    },
+    {
+      "candidate_id": "I_qwen3moe_watos_prefill_mha_A3h_g0_s123",
+      "category": [
+        "qwen3moe",
+        "search",
+        "watos",
+        "2x2",
+        "fixed",
+        "prefill",
+        "mha",
+        "A3h"
+      ],
+      "wall_seconds": 180.39463316199544,
+      "peak_rss_gb": 0.5723114013671875
+    },
+    {
+      "candidate_id": "I_qwen3moe_watos_prefill_ffn_A3h_g0_s123",
+      "category": [
+        "qwen3moe",
+        "search",
+        "watos",
+        "2x2",
+        "fixed",
+        "prefill",
+        "ffn",
+        "A3h"
+      ],
+      "wall_seconds": 5941.9433341589975,
+      "peak_rss_gb": 1.0413703918457031
+    }
+  ],
+  "live_search_snapshot_utc": "2026-11-14T09:02:20.200641+00:00",
+  "source_sha256": {
+    "e2e\\hi\\tables\\h3_i2_candidates.csv": "1ad367d48d7630aaa49e606c2c4a1d884b1deb4bf62be8b1646a2610ca141098",
+    "e2e\\hi\\tables\\h3_i2_timing_exclusive.csv": "a7f4be62e600dbe8578113f470b4527e4d0da95a245049ad8c4239f212d8368b",
+    "e2e\\hi\\evidence\\h3_i2_long_jobs_latest.json": "f0cf9f5655c73ac8af7976e8d800522a44822e3340f624fb04de182a81225345",
+    "e2e\\hi\\manifest\\all_candidates_planned.json": "52e510d35d21681efb207c1ea441410da050a837263d93048adadea2f50e4c16"
+  },
+  "combined_process_rule": "new active + (440 - validated old successful receipts) <= 128",
+  "memory_rule": "new free budget = system available - 3 GiB - own future growth reserve - old future growth reserve",
+  "includes": "full 1000-step job, calibration, ten backend evaluations, ten random CPCM evaluations, export and reload",
+  "excludes": "download, reports, later fault/joint experiments",
+  "old_run_untouched": true
+}

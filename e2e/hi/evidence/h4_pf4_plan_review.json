@@ -1,0 +1,373 @@
+{
+  "status": "passed",
+  "created_utc": "2026-11-14T09:56:20.593402+00:00",
+  "scope": "Read-only H4 PF4 plan and existing inputs; arithmetic stop-function checks only, no model simulation.",
+  "jobs": 264,
+  "counts": {
+    "fault_selection": 2,
+    "fault_select": 2,
+    "fault_pre": 16,
+    "fault_l1": 16,
+    "fault_stop": 48,
+    "fault_rep": 180
+  },
+  "healthy_inputs": 224,
+  "complete_14_candidate_input_groups": 16,
+  "new_healthy_searches": 0,
+  "a3h_pf4_units": 12,
+  "a1_decode_r0_only_units": 4,
+  "maximum_l2_jobs": 180,
+  "maximum_backend_calls": 2240,
+  "repair_seeds": [
+    123,
+    1,
+    2,
+    3,
+    4
+  ],
+  "independent_budgets": [
+    30,
+    100,
+    300
+  ],
+  "backend_seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "fixed_physical_links": [
+    [
+      [
+        0,
+        11
+      ],
+      [
+        1,
+        8
+      ]
+    ],
+    [
+      [
+        1,
+        8
+      ],
+      [
+        0,
+        11
+      ]
+    ]
+  ],
+  "cross_operator_and_phase_fault_selection": "same physical bidirectional pair; no per-operator reselection",
+  "selection_protocol": "backend mean across ten seeds, then candidate_order; random-CPCM selection retained as a separate field",
+  "repair_start": "Each 30/100/300 budget starts from the same saved L1 state; no continuation between budgets.",
+  "stop_semantics": [
+    {
+      "case": "zero_L1_gain",
+      "result": {
+        "stop": false,
+        "level": "L1",
+        "T": 120,
+        "T_pre": 100,
+        "export": "l1",
+        "source_job": "base",
+        "reason": "continue"
+      }
+    },
+    {
+      "case": "small_L1_gain",
+      "result": {
+        "stop": false,
+        "level": "L1",
+        "T": 119,
+        "T_pre": 100,
+        "export": "l1",
+        "source_job": "base",
+        "reason": "continue"
+      }
+    },
+    {
+      "case": "R0_within_epsilon",
+      "result": {
+        "stop": true,
+        "level": "R0",
+        "T": 101,
+        "T_pre": 100,
+        "export": "r0",
+        "source_job": "base",
+        "reason": "within_epsilon"
+      }
+    },
+    {
+      "case": "L1_within_epsilon",
+      "result": {
+        "stop": true,
+        "level": "L1",
+        "T": 101,
+        "T_pre": 100,
+        "export": "l1",
+        "source_job": "base",
+        "reason": "within_epsilon"
+      }
+    },
+    {
+      "case": "s30_continue",
+      "result": {
+        "stop": false,
+        "level": "s30",
+        "T": 119,
+        "T_pre": 100,
+        "export": "r2",
+        "source_job": "r2",
+        "seed": 2,
+        "backend_mean": 12,
+        "gain_from_previous": null,
+        "reason": "continue"
+      }
+    },
+    {
+      "case": "s100_tier_gain",
+      "result": {
+        "stop": true,
+        "level": "s100",
+        "T": 108.5,
+        "T_pre": 100,
+        "export": "r2",
+        "source_job": "r2",
+        "seed": 2,
+        "backend_mean": 12,
+        "gain_from_previous": 0.013636363636363636,
+        "reason": "tier_gain"
+      }
+    },
+    {
+      "case": "s100_within_epsilon",
+      "result": {
+        "stop": true,
+        "level": "s100",
+        "T": 101,
+        "T_pre": 100,
+        "export": "r2",
+        "source_job": "r2",
+        "seed": 2,
+        "backend_mean": 12,
+        "gain_from_previous": 0.08181818181818182,
+        "reason": "within_epsilon"
+      }
+    },
+    {
+      "case": "s300_budget",
+      "result": {
+        "stop": true,
+        "level": "s300",
+        "T": 105,
+        "T_pre": 100,
+        "export": "r2",
+        "source_job": "r2",
+        "seed": 2,
+        "backend_mean": 12,
+        "gain_from_previous": 0.045454545454545456,
+        "reason": "budget"
+      }
+    }
+  ],
+  "representative_selection": "Five repair-seed CPCM estimates determine stopping; median backend-mean seed supplies the exported representative.",
+  "mf6_split_status": "Not included in this PF4 batch; H4 has a later MF6/Split point.",
+  "combined_slots": "H4 active + all unfinished H3/I2 and I3 candidate IDs <= 128; unsuccessful IDs retain slots for OOM retries.",
+  "memory": "System available minus 3 GiB and each pool's future-growth budget; existing pool status supplies parent budgets.",
+  "fixed_spawn_job_id": true,
+  "source_sha256": {
+    "e2e\\hi_h4.py": "76825ffd39262faf3469e158b50cb015c743e5067fd48ba03133b53c1b5a7b35",
+    "e2e\\hi_fault.py": "85b917a498234530185b3cab05f3f6e74b49eb750bd56d8c699a958953b65113",
+    "e2e\\hi_next.py": "9dc145711138992f979a2125d9f5bcc21b3866e5c91f6eee1c616a43f19708ea",
+    "e2e\\fg_batch.py": "1430d736d79244fa244a7cf4db63661b30422f34eff72c6800b989004e5ce7f1",
+    "e2e\\fg_fault.py": "74a696deff9b5196ddd4ae4785d1334dfa48052e400abe950af95179a4e9be54",
+    "eir\\eir.py": "a0e34c9a4e5e4614689ff0fc404a38fd72892beb9c713d52e72184da86cc2694"
+  },
+  "manifest_sha256": "f85890bfb733027172f2cb5434fddfc8f0ff745b135d8bda3a0d281fa661b526",
+  "input_inventory_sha256": "336132297258031db93754128f22f4d2f5fb90f93274fc09da5de5f84090c0b3",
+  "selections": [
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "decode",
+        "ffn",
+        "A1"
+      ],
+      "candidate_id": "H_llama_busybarn_decode_ffn_A1_g0_l4",
+      "random_CPCM_pick": "H_llama_busybarn_decode_ffn_A1_g0_l4"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "decode",
+        "ffn",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_busybarn_decode_ffn_A3h_g0_s2",
+      "random_CPCM_pick": "H_llama_busybarn_decode_ffn_A3h_g0_s5"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "decode",
+        "ln",
+        "A1"
+      ],
+      "candidate_id": "H_llama_busybarn_decode_ln_A1_g0_l1",
+      "random_CPCM_pick": "H_llama_busybarn_decode_ln_A1_g0_l1"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "decode",
+        "ln",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_busybarn_decode_ln_A3h_g0_s123",
+      "random_CPCM_pick": "H_llama_busybarn_decode_ln_A3h_g0_s123"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "decode",
+        "mha",
+        "A1"
+      ],
+      "candidate_id": "H_llama_busybarn_decode_mha_A1_g0_l4",
+      "random_CPCM_pick": "H_llama_busybarn_decode_mha_A1_g0_l4"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "decode",
+        "mha",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_busybarn_decode_mha_A3h_g1_s123",
+      "random_CPCM_pick": "H_llama_busybarn_decode_mha_A3h_g1_s123"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "decode",
+        "proj",
+        "A1"
+      ],
+      "candidate_id": "H_llama_busybarn_decode_proj_A1_g0_l4",
+      "random_CPCM_pick": "H_llama_busybarn_decode_proj_A1_g0_l4"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "decode",
+        "proj",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_busybarn_decode_proj_A3h_g0_s1",
+      "random_CPCM_pick": "H_llama_busybarn_decode_proj_A3h_g0_s1"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "prefill",
+        "ffn",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_busybarn_prefill_ffn_A3h_g0_s3",
+      "random_CPCM_pick": "H_llama_busybarn_prefill_ffn_A3h_g0_s123"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "prefill",
+        "ln",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_busybarn_prefill_ln_A3h_g0_s6",
+      "random_CPCM_pick": "H_llama_busybarn_prefill_ln_A3h_g0_s1"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "prefill",
+        "mha",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_busybarn_prefill_mha_A3h_g0_s123",
+      "random_CPCM_pick": "H_llama_busybarn_prefill_mha_A3h_g0_s4"
+    },
+    {
+      "category": [
+        "llama",
+        "busybarn",
+        "prefill",
+        "proj",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_busybarn_prefill_proj_A3h_g0_s5",
+      "random_CPCM_pick": "H_llama_busybarn_prefill_proj_A3h_g0_s5"
+    },
+    {
+      "category": [
+        "llama",
+        "watos",
+        "decode",
+        "ffn",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_watos_decode_ffn_A3h_g1_s2",
+      "random_CPCM_pick": "H_llama_watos_decode_ffn_A3h_g1_s2"
+    },
+    {
+      "category": [
+        "llama",
+        "watos",
+        "decode",
+        "mha",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_watos_decode_mha_A3h_g1_s6",
+      "random_CPCM_pick": "H_llama_watos_decode_mha_A3h_g1_s6"
+    },
+    {
+      "category": [
+        "llama",
+        "watos",
+        "prefill",
+        "ffn",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_watos_prefill_ffn_A3h_g0_s1",
+      "random_CPCM_pick": "H_llama_watos_prefill_ffn_A3h_g0_s6"
+    },
+    {
+      "category": [
+        "llama",
+        "watos",
+        "prefill",
+        "mha",
+        "A3h"
+      ],
+      "candidate_id": "H_llama_watos_prefill_mha_A3h_g0_s6",
+      "random_CPCM_pick": "H_llama_watos_prefill_mha_A3h_g0_s6"
+    }
+  ]
+}
