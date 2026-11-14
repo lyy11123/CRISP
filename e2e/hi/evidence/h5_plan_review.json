@@ -1,0 +1,273 @@
+{
+  "status": "passed",
+  "created_utc": "2026-11-14T10:31:52.269385+00:00",
+  "scope": "Static entry and existing input review; no graph construction or backend run.",
+  "jobs": 110,
+  "counts": {
+    "P_exports": 2,
+    "graphs": 5,
+    "actual_paired_solos": 39,
+    "common_reference": 1,
+    "joint_units": 63
+  },
+  "logical_paired_solos": 42,
+  "aliased_identical_P_solos": 3,
+  "phases": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "backend_seeds": [
+    1,
+    2,
+    3
+  ],
+  "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+  "decode_chain": [
+    "dc_ln",
+    "dc_mha",
+    "dc_mha",
+    "dc_mha",
+    "dc_mha",
+    "dc_mha",
+    "dc_mha",
+    "dc_mha",
+    "dc_mha",
+    "dc_proj",
+    "dc_ffn"
+  ],
+  "decode_norms": "one separate RMSNorm plus FFN's embedded second RMSNorm",
+  "P_inputs": [
+    {
+      "arm": "A1",
+      "candidate_id": "H_llama_busybarn_prefill_mha_A1_g0_l4",
+      "candidates": 14,
+      "kv_logical_bytes": 8388608,
+      "tensor_names": [
+        "MHA_ktrans_ofmap",
+        "MHA_vconv_ofmap"
+      ]
+    },
+    {
+      "arm": "A3h",
+      "candidate_id": "H_llama_busybarn_prefill_mha_A3h_g0_s123",
+      "candidates": 14,
+      "kv_logical_bytes": 8388608,
+      "tensor_names": [
+        "MHA_ktrans_ofmap",
+        "MHA_vconv_ofmap"
+      ]
+    }
+  ],
+  "D_inputs": [
+    {
+      "state": "healthy_A1",
+      "operator": "dc_ln",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ln_A1__healthy.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ln_A1",
+      "sha256": "22d6a561b04382c4a27ebbc54e017323d4a259bdd2ee43fd7fad98acbb9c4a29"
+    },
+    {
+      "state": "healthy_A1",
+      "operator": "dc_mha",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_mha_A1__healthy.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_mha_A1",
+      "sha256": "ff4ea64f05f047811a5d50a6fc543dd20ca84cc2ad05fb67a0de877d95b1235c"
+    },
+    {
+      "state": "healthy_A1",
+      "operator": "dc_proj",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_proj_A1__healthy.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_proj_A1",
+      "sha256": "8eef44607735b000525cf7357319da7e2b5bec23e5cbbe16280261af1b387545"
+    },
+    {
+      "state": "healthy_A1",
+      "operator": "dc_ffn",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ffn_A1__healthy.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ffn_A1",
+      "sha256": "85faa54e49d6487dead6669d349ac36d304a317f003801aef34f2d7248da3221"
+    },
+    {
+      "state": "healthy_A3h",
+      "operator": "dc_ln",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ln_A3h__healthy.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ln_A3h",
+      "sha256": "7ccca697f1b2cf742417849e69ec21d69ac09d790a27ad8b9dc793824528f5c6"
+    },
+    {
+      "state": "healthy_A3h",
+      "operator": "dc_mha",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_mha_A3h__healthy.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_mha_A3h",
+      "sha256": "16de16ee2b94faf37e50f2d6d626c9a280b13b67b88a28406c1a1059dfbf540d"
+    },
+    {
+      "state": "healthy_A3h",
+      "operator": "dc_proj",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_proj_A3h__healthy.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_proj_A3h",
+      "sha256": "9593ca74ce748a7cd8e1e3ce2ccc8a8ecf63e9f048e6a59051997eb20f019fab"
+    },
+    {
+      "state": "healthy_A3h",
+      "operator": "dc_ffn",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ffn_A3h__healthy.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ffn_A3h",
+      "sha256": "a6785f2854a58242a95dd9ff6a9dd71cc6894b72fcf91efed3d265742963456c"
+    },
+    {
+      "state": "D_A1",
+      "operator": "dc_ln",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ln_A1_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ln_A1_PF4",
+      "sha256": "049eceb6b3221c6c11e4fe889601352186c54acea73ffc027ff660a76102cd66"
+    },
+    {
+      "state": "D_A1",
+      "operator": "dc_mha",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_mha_A1_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_mha_A1_PF4",
+      "sha256": "7f0f061e4586a778f48be934d1a1410c2478e8b4e121c8f2dd5ea8ae2602a4ac"
+    },
+    {
+      "state": "D_A1",
+      "operator": "dc_proj",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_proj_A1_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_proj_A1_PF4",
+      "sha256": "874ef4ae213b0fdf0adc52ff1fcf3bf2953336db371da36caf22241010dfe457"
+    },
+    {
+      "state": "D_A1",
+      "operator": "dc_ffn",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ffn_A1_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ffn_A1_PF4",
+      "sha256": "362951dec5a2dd1815b14fce4db1d475ce3d52aadc7d17b3d02cabb180b356ca"
+    },
+    {
+      "state": "D_A3hR0",
+      "operator": "dc_ln",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ln_A3h_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ln_A3h_PF4",
+      "sha256": "48eb60ae9d3a57d5999223d6a8ec452d88cd1eea641e7f44349c9c74eaa66040"
+    },
+    {
+      "state": "D_A3hR0",
+      "operator": "dc_mha",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_mha_A3h_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_mha_A3h_PF4",
+      "sha256": "d0dbaf075f90e568183b6c95f79b0d016804c9e95e251d72c5ffece61289a339"
+    },
+    {
+      "state": "D_A3hR0",
+      "operator": "dc_proj",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_proj_A3h_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_proj_A3h_PF4",
+      "sha256": "8916c0bbb3721db14e39b7c31029d694505043e375c0698ebb3886bafaad46a7"
+    },
+    {
+      "state": "D_A3hR0",
+      "operator": "dc_ffn",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ffn_A3h_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ffn_A3h_PF4",
+      "sha256": "8d206eb367d09cb0a8dcf7449c2f67442d664278668a972edf9926216ca890db"
+    },
+    {
+      "state": "D_A3hEIR",
+      "operator": "dc_ln",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ln_A3h_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__stop_dc_ln_PF4_300",
+      "sha256": "48eb60ae9d3a57d5999223d6a8ec452d88cd1eea641e7f44349c9c74eaa66040"
+    },
+    {
+      "state": "D_A3hEIR",
+      "operator": "dc_mha",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_mha_A3h_PF4__L1.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__stop_dc_mha_PF4_300",
+      "sha256": "cc4f3609377a6ff85adb878729f12dc47e0186c0f10771f58701bb5267732163"
+    },
+    {
+      "state": "D_A3hEIR",
+      "operator": "dc_proj",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_proj_A3h_PF4__R0.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__stop_dc_proj_PF4_300",
+      "sha256": "8916c0bbb3721db14e39b7c31029d694505043e375c0698ebb3886bafaad46a7"
+    },
+    {
+      "state": "D_A3hEIR",
+      "operator": "dc_ffn",
+      "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__rep_dc_ffn_PF4_s300_r1__final.pkl.gz",
+      "source_job": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__stop_dc_ffn_PF4_300",
+      "sha256": "c80676a0153eb154c4dbcf22dc03a8dba717d09cf49270e1e031018339d73660"
+    }
+  ],
+  "P_group": {
+    "0": 0,
+    "1": 1,
+    "2": 4,
+    "3": 5
+  },
+  "D_group": {
+    "0": 2,
+    "1": 3,
+    "2": 6,
+    "3": 7
+  },
+  "D_fault_links": [
+    [
+      [
+        2,
+        11
+      ],
+      [
+        3,
+        8
+      ]
+    ],
+    [
+      [
+        3,
+        8
+      ],
+      [
+        2,
+        11
+      ]
+    ]
+  ],
+  "cross_stream_causality": "No P-to-D dependency inserted: frozen graph_job builds two separate streams; only D operator barriers are added.",
+  "common_reference": "Healthy A1/original, mean of three P and three D solos; phase release, public deadlines and normalization retained for all arms.",
+  "C4_internal_priority": "Frozen C4 ranking still uses each graph's own hop CPCM estimates; public Lhat reference remains the common A1/original values.",
+  "DSTU": "All-link 256 KiB plus frozen C4 hop backend; no-DSTU retains original whole-message backend.",
+  "pilot_jobs": 14,
+  "pilot_actual_backend_calls": 9,
+  "pilot_target": "H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s1",
+  "pilot_formal_identity_equal": true,
+  "pilot_and_full_out_same": true,
+  "pilot_control_records_archived_on_full_launch": true,
+  "pilot_receipts_results_preserved_for_full_reuse": true,
+  "parent_job_counts": [
+    440,
+    108,
+    264,
+    201,
+    23
+  ],
+  "workers_limit": 128,
+  "reserve_gib": 3,
+  "solo_reuse_runtime_check": "platform hash, canonical stream fields and actual dependency/issue/target-set iteration hash must all match",
+  "frozen_joint_backend_sha256": {
+    "fg_joint.py": "246e45c0681576592adce7e11d8667301f6c0dd69872e51648b51efe40b45423",
+    "d_joint.py": "d8f2518e6a440afcdef53ee12d819c5ecb2481c839003fa6156796b4f092d42b"
+  },
+  "source_sha256": {
+    "e2e\\hi_h5.py": "488f3142b8588a4d665e210c39d9612226ee455c5464fa976b26c23cd4e96154",
+    "e2e\\hi_joint.py": "436e0fed38df08bdeda251b93ede4f21388f85ef7cb581247efc7501ef724269",
+    "e2e\\hi_i4.py": "79570bad432ade06ac589e2ff9601e082971eee5f03417eeb2b27b44152c9542",
+    "e2e\\hi_h4.py": "76825ffd39262faf3469e158b50cb015c743e5067fd48ba03133b53c1b5a7b35"
+  },
+  "manifest_sha256": "b7f60bed931664c0e3a089c279e6f42431686e112fb68f41ab7a701c3f419675",
+  "pilot_manifest_sha256": "6bfef275e884fac5bcb4589616bc43f00a4e1a5351278127061c228f0ebc6e75",
+  "input_inventory_sha256": "9b6dd1d7a4c9ed6f1009d820f87612e437e2141a1a18a050418057d5a7900cfc",
+  "pending": "One formal healthy A256 pilot checks actual graph/KV/order equality and timing before the remaining formal jobs."
+}

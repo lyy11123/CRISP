@@ -1,0 +1,5770 @@
+{
+  "status": "authorized_prepared_not_launched",
+  "jobs": [
+    {
+      "id": "H5_llama__P_export_A1",
+      "kind": "hi_joint_export",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__P_export_A1",
+        "kind": "hi_joint_export",
+        "depends_on": [],
+        "mapping": "A1"
+      },
+      "result": "results/H5_llama__P_export_A1.json",
+      "deps": [],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 4.00319434699486,
+      "peak_rss_gb": 0.6,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__P_export_A3h",
+      "kind": "hi_joint_export",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__P_export_A3h",
+        "kind": "hi_joint_export",
+        "depends_on": [],
+        "mapping": "A3h"
+      },
+      "result": "results/H5_llama__P_export_A3h.json",
+      "deps": [],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 4.00319434699486,
+      "peak_rss_gb": 0.6,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__graph_healthy_A1",
+      "kind": "joint_graph",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__graph_healthy_A1",
+        "kind": "joint_graph",
+        "depends_on": [
+          "H5_llama__P_export_A1"
+        ],
+        "sources": {
+          "dc_ln": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ln_A1__healthy.pkl.gz"
+          },
+          "dc_mha": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_mha_A1__healthy.pkl.gz"
+          },
+          "dc_proj": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_proj_A1__healthy.pkl.gz"
+          },
+          "dc_ffn": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ffn_A1__healthy.pkl.gz"
+          },
+          "P": {
+            "job": "H5_llama__P_export_A1",
+            "key": "export"
+          }
+        },
+        "condition": "healthy",
+        "backends": [
+          "orig"
+        ],
+        "mapping_state": "healthy_A1"
+      },
+      "result": "results/H5_llama__graph_healthy_A1.json",
+      "deps": [
+        "H5_llama__P_export_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 8.00518910199753,
+      "peak_rss_gb": 0.7145748138427734,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A1_orig_0_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A1_orig_0_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 1,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A1_orig_0_1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A1_orig_0_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A1_orig_0_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 2,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A1_orig_0_2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A1_orig_0_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A1_orig_0_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 3,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A1_orig_0_3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A1_orig_1_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A1_orig_1_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 1,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A1_orig_1_1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A1_orig_1_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A1_orig_1_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 2,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A1_orig_1_2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A1_orig_1_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A1_orig_1_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 3,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A1_orig_1_3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__graph_healthy_A3h",
+      "kind": "joint_graph",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__graph_healthy_A3h",
+        "kind": "joint_graph",
+        "depends_on": [
+          "H5_llama__P_export_A3h"
+        ],
+        "sources": {
+          "dc_ln": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ln_A3h__healthy.pkl.gz"
+          },
+          "dc_mha": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_mha_A3h__healthy.pkl.gz"
+          },
+          "dc_proj": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_proj_A3h__healthy.pkl.gz"
+          },
+          "dc_ffn": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__pre_dc_ffn_A3h__healthy.pkl.gz"
+          },
+          "P": {
+            "job": "H5_llama__P_export_A3h",
+            "key": "export"
+          }
+        },
+        "condition": "healthy",
+        "backends": [
+          "orig",
+          "hop"
+        ],
+        "mapping_state": "healthy_A3h"
+      },
+      "result": "results/H5_llama__graph_healthy_A3h.json",
+      "deps": [
+        "H5_llama__P_export_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 18.01510810000036,
+      "peak_rss_gb": 0.8728179931640625,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_orig_0_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_orig_0_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 1,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_orig_0_1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_orig_0_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_orig_0_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 2,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_orig_0_2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_orig_0_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_orig_0_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 3,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_orig_0_3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_orig_1_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_orig_1_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 1,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_orig_1_1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_orig_1_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_orig_1_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 2,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_orig_1_2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_orig_1_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_orig_1_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 3,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_orig_1_3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_hop_0_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_hop_0_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "hop",
+        "stream": 0,
+        "seed": 1,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_hop_0_1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.020844893006142,
+      "peak_rss_gb": 1.4882640838623047,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_hop_0_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_hop_0_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "hop",
+        "stream": 0,
+        "seed": 2,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_hop_0_2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.020844893006142,
+      "peak_rss_gb": 1.4882640838623047,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_hop_0_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_hop_0_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "hop",
+        "stream": 0,
+        "seed": 3,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_hop_0_3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.020844893006142,
+      "peak_rss_gb": 1.4882640838623047,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_hop_1_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_hop_1_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "hop",
+        "stream": 1,
+        "seed": 1,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_hop_1_1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012939783999173,
+      "peak_rss_gb": 1.4295215606689453,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_hop_1_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_hop_1_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "hop",
+        "stream": 1,
+        "seed": 2,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_hop_1_2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012939783999173,
+      "peak_rss_gb": 1.4295215606689453,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_healthy_A3h_hop_1_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_healthy_A3h_hop_1_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "backend": "hop",
+        "stream": 1,
+        "seed": 3,
+        "condition": "healthy"
+      },
+      "result": "results/H5_llama__solo_healthy_A3h_hop_1_3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012939783999173,
+      "peak_rss_gb": 1.4295215606689453,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__graph_D_A1",
+      "kind": "joint_graph",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__graph_D_A1",
+        "kind": "joint_graph",
+        "depends_on": [
+          "H5_llama__P_export_A1"
+        ],
+        "sources": {
+          "dc_ln": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ln_A1_PF4__R0.pkl.gz"
+          },
+          "dc_mha": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_mha_A1_PF4__R0.pkl.gz"
+          },
+          "dc_proj": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_proj_A1_PF4__R0.pkl.gz"
+          },
+          "dc_ffn": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ffn_A1_PF4__R0.pkl.gz"
+          },
+          "P": {
+            "job": "H5_llama__P_export_A1",
+            "key": "export"
+          }
+        },
+        "condition": "D",
+        "backends": [
+          "orig"
+        ],
+        "mapping_state": "D_A1"
+      },
+      "result": "results/H5_llama__graph_D_A1.json",
+      "deps": [
+        "H5_llama__P_export_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 8.00518910199753,
+      "peak_rss_gb": 0.7145748138427734,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A1_orig_0_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A1_orig_0_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 1,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A1_orig_0_1.json",
+      "deps": [
+        "H5_llama__graph_D_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A1_orig_0_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A1_orig_0_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 2,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A1_orig_0_2.json",
+      "deps": [
+        "H5_llama__graph_D_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A1_orig_0_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A1_orig_0_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 3,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A1_orig_0_3.json",
+      "deps": [
+        "H5_llama__graph_D_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A1_orig_1_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A1_orig_1_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 1,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A1_orig_1_1.json",
+      "deps": [
+        "H5_llama__graph_D_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A1_orig_1_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A1_orig_1_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 2,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A1_orig_1_2.json",
+      "deps": [
+        "H5_llama__graph_D_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A1_orig_1_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A1_orig_1_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 3,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A1_orig_1_3.json",
+      "deps": [
+        "H5_llama__graph_D_A1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__graph_D_A3hR0",
+      "kind": "joint_graph",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__graph_D_A3hR0",
+        "kind": "joint_graph",
+        "depends_on": [
+          "H5_llama__P_export_A3h"
+        ],
+        "sources": {
+          "dc_ln": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ln_A3h_PF4__R0.pkl.gz"
+          },
+          "dc_mha": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_mha_A3h_PF4__R0.pkl.gz"
+          },
+          "dc_proj": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_proj_A3h_PF4__R0.pkl.gz"
+          },
+          "dc_ffn": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ffn_A3h_PF4__R0.pkl.gz"
+          },
+          "P": {
+            "job": "H5_llama__P_export_A3h",
+            "key": "export"
+          }
+        },
+        "condition": "D",
+        "backends": [
+          "orig"
+        ],
+        "mapping_state": "D_A3hR0"
+      },
+      "result": "results/H5_llama__graph_D_A3hR0.json",
+      "deps": [
+        "H5_llama__P_export_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 8.00518910199753,
+      "peak_rss_gb": 0.7145748138427734,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hR0_orig_0_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hR0_orig_0_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 1,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hR0_orig_0_1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hR0_orig_0_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hR0_orig_0_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 2,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hR0_orig_0_2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hR0_orig_0_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hR0_orig_0_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "backend": "orig",
+        "stream": 0,
+        "seed": 3,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hR0_orig_0_3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012229544001457,
+      "peak_rss_gb": 1.364959716796875,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hR0_orig_1_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hR0_orig_1_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 1,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hR0_orig_1_1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hR0_orig_1_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hR0_orig_1_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 2,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hR0_orig_1_2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hR0_orig_1_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hR0_orig_1_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 3,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hR0_orig_1_3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__graph_D_A3hEIR",
+      "kind": "joint_graph",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__graph_D_A3hEIR",
+        "kind": "joint_graph",
+        "depends_on": [
+          "H5_llama__P_export_A3h"
+        ],
+        "sources": {
+          "dc_ln": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_ln_A3h_PF4__R0.pkl.gz"
+          },
+          "dc_mha": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_mha_A3h_PF4__L1.pkl.gz"
+          },
+          "dc_proj": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__l1_dc_proj_A3h_PF4__R0.pkl.gz"
+          },
+          "dc_ffn": {
+            "file": "e2e/hi/out/h4_pf4/exports/llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a__rep_dc_ffn_PF4_s300_r1__final.pkl.gz"
+          },
+          "P": {
+            "job": "H5_llama__P_export_A3h",
+            "key": "export"
+          }
+        },
+        "condition": "D",
+        "backends": [
+          "orig",
+          "hop"
+        ],
+        "mapping_state": "D_A3hEIR"
+      },
+      "result": "results/H5_llama__graph_D_A3hEIR.json",
+      "deps": [
+        "H5_llama__P_export_A3h"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 18.01510810000036,
+      "peak_rss_gb": 0.8728179931640625,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_orig_1_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_orig_1_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 1,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_orig_1_1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_orig_1_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_orig_1_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 2,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_orig_1_2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_orig_1_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_orig_1_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "orig",
+        "stream": 1,
+        "seed": 3,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_orig_1_3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.01205370700336,
+      "peak_rss_gb": 1.3750190734863281,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_hop_0_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_hop_0_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "hop",
+        "stream": 0,
+        "seed": 1,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_hop_0_1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.020844893006142,
+      "peak_rss_gb": 1.4882640838623047,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_hop_0_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_hop_0_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "hop",
+        "stream": 0,
+        "seed": 2,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_hop_0_2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.020844893006142,
+      "peak_rss_gb": 1.4882640838623047,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_hop_0_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_hop_0_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "hop",
+        "stream": 0,
+        "seed": 3,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_hop_0_3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.020844893006142,
+      "peak_rss_gb": 1.4882640838623047,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_hop_1_1",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_hop_1_1",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "hop",
+        "stream": 1,
+        "seed": 1,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_hop_1_1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012939783999173,
+      "peak_rss_gb": 1.4295215606689453,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_hop_1_2",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_hop_1_2",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "hop",
+        "stream": 1,
+        "seed": 2,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_hop_1_2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012939783999173,
+      "peak_rss_gb": 1.4295215606689453,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__solo_D_A3hEIR_hop_1_3",
+      "kind": "joint_solo",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__solo_D_A3hEIR_hop_1_3",
+        "kind": "joint_solo",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "backend": "hop",
+        "stream": 1,
+        "seed": 3,
+        "condition": "D"
+      },
+      "result": "results/H5_llama__solo_D_A3hEIR_hop_1_3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 12.012939783999173,
+      "peak_rss_gb": 1.4295215606689453,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__reference",
+      "kind": "joint_reference",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__reference",
+        "kind": "joint_reference",
+        "depends_on": [
+          "H5_llama__solo_healthy_A1_orig_0_1",
+          "H5_llama__solo_healthy_A1_orig_0_2",
+          "H5_llama__solo_healthy_A1_orig_0_3",
+          "H5_llama__solo_healthy_A1_orig_1_1",
+          "H5_llama__solo_healthy_A1_orig_1_2",
+          "H5_llama__solo_healthy_A1_orig_1_3"
+        ],
+        "P_solos": [
+          "H5_llama__solo_healthy_A1_orig_0_1",
+          "H5_llama__solo_healthy_A1_orig_0_2",
+          "H5_llama__solo_healthy_A1_orig_0_3"
+        ],
+        "D_solos": [
+          "H5_llama__solo_healthy_A1_orig_1_1",
+          "H5_llama__solo_healthy_A1_orig_1_2",
+          "H5_llama__solo_healthy_A1_orig_1_3"
+        ]
+      },
+      "result": "results/H5_llama__reference.json",
+      "deps": [
+        "H5_llama__solo_healthy_A1_orig_0_1",
+        "H5_llama__solo_healthy_A1_orig_0_2",
+        "H5_llama__solo_healthy_A1_orig_0_3",
+        "H5_llama__solo_healthy_A1_orig_1_1",
+        "H5_llama__solo_healthy_A1_orig_1_2",
+        "H5_llama__solo_healthy_A1_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 2.001179785002023,
+      "peak_rss_gb": 0.6,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_1",
+          "H5_llama__solo_healthy_A1_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_1",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_1",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_1",
+        "H5_llama__solo_healthy_A1_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_2",
+          "H5_llama__solo_healthy_A1_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_2",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_2",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_2",
+        "H5_llama__solo_healthy_A1_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_3",
+          "H5_llama__solo_healthy_A1_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_3",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_3",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.1_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_3",
+        "H5_llama__solo_healthy_A1_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_1",
+          "H5_llama__solo_healthy_A1_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_1",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_1",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_1",
+        "H5_llama__solo_healthy_A1_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_2",
+          "H5_llama__solo_healthy_A1_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_2",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_2",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_2",
+        "H5_llama__solo_healthy_A1_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_3",
+          "H5_llama__solo_healthy_A1_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_3",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_3",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.5_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_3",
+        "H5_llama__solo_healthy_A1_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_1",
+          "H5_llama__solo_healthy_A1_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_1",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_1",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_1",
+        "H5_llama__solo_healthy_A1_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_2",
+          "H5_llama__solo_healthy_A1_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_2",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_2",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_2",
+        "H5_llama__solo_healthy_A1_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A1_orig_0_3",
+          "H5_llama__solo_healthy_A1_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A1_orig_0_3",
+        "D_solo": "H5_llama__solo_healthy_A1_orig_1_3",
+        "arm": "A1_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A1_A1_no_DSTU_g0.9_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A1_orig_0_3",
+        "H5_llama__solo_healthy_A1_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_1",
+          "H5_llama__solo_healthy_A3h_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_1",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_1",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_1",
+        "H5_llama__solo_healthy_A3h_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_2",
+          "H5_llama__solo_healthy_A3h_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_2",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_2",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_2",
+        "H5_llama__solo_healthy_A3h_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_3",
+          "H5_llama__solo_healthy_A3h_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_3",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_3",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.1_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_3",
+        "H5_llama__solo_healthy_A3h_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_1",
+          "H5_llama__solo_healthy_A3h_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_1",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_1",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_1",
+        "H5_llama__solo_healthy_A3h_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_2",
+          "H5_llama__solo_healthy_A3h_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_2",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_2",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_2",
+        "H5_llama__solo_healthy_A3h_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_3",
+          "H5_llama__solo_healthy_A3h_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_3",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_3",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.5_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_3",
+        "H5_llama__solo_healthy_A3h_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_1",
+          "H5_llama__solo_healthy_A3h_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_1",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_1",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_1",
+        "H5_llama__solo_healthy_A3h_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_2",
+          "H5_llama__solo_healthy_A3h_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_2",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_2",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_2",
+        "H5_llama__solo_healthy_A3h_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_orig_0_3",
+          "H5_llama__solo_healthy_A3h_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_orig_0_3",
+        "D_solo": "H5_llama__solo_healthy_A3h_orig_1_3",
+        "arm": "A3h_no_DSTU",
+        "condition": "healthy",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_no_DSTU_g0.9_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_orig_0_3",
+        "H5_llama__solo_healthy_A3h_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_1",
+          "H5_llama__solo_healthy_A3h_hop_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_1",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_1",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.1,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_1",
+        "H5_llama__solo_healthy_A3h_hop_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_2",
+          "H5_llama__solo_healthy_A3h_hop_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_2",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_2",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.1,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_2",
+        "H5_llama__solo_healthy_A3h_hop_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_3",
+          "H5_llama__solo_healthy_A3h_hop_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_3",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_3",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.1,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.1_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_3",
+        "H5_llama__solo_healthy_A3h_hop_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_1",
+          "H5_llama__solo_healthy_A3h_hop_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_1",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_1",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.5,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_1",
+        "H5_llama__solo_healthy_A3h_hop_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_2",
+          "H5_llama__solo_healthy_A3h_hop_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_2",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_2",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.5,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_2",
+        "H5_llama__solo_healthy_A3h_hop_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_3",
+          "H5_llama__solo_healthy_A3h_hop_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_3",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_3",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.5,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.5_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_3",
+        "H5_llama__solo_healthy_A3h_hop_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_1",
+          "H5_llama__solo_healthy_A3h_hop_1_1"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_1",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_1",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.9,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s1.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_1",
+        "H5_llama__solo_healthy_A3h_hop_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_2",
+          "H5_llama__solo_healthy_A3h_hop_1_2"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_2",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_2",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.9,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s2.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_2",
+        "H5_llama__solo_healthy_A3h_hop_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_healthy_A3h",
+          "H5_llama__reference",
+          "H5_llama__solo_healthy_A3h_hop_0_3",
+          "H5_llama__solo_healthy_A3h_hop_1_3"
+        ],
+        "graph_job": "H5_llama__graph_healthy_A3h",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_healthy_A3h_hop_0_3",
+        "D_solo": "H5_llama__solo_healthy_A3h_hop_1_3",
+        "arm": "A3h_A256",
+        "condition": "healthy",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.9,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_healthy_A3h_A3h_A256_g0.9_s3.json",
+      "deps": [
+        "H5_llama__graph_healthy_A3h",
+        "H5_llama__reference",
+        "H5_llama__solo_healthy_A3h_hop_0_3",
+        "H5_llama__solo_healthy_A3h_hop_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_1",
+          "H5_llama__solo_D_A1_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_1",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_1",
+        "H5_llama__solo_D_A1_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_2",
+          "H5_llama__solo_D_A1_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_2",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_2",
+        "H5_llama__solo_D_A1_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_3",
+          "H5_llama__solo_D_A1_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_3",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.1_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_3",
+        "H5_llama__solo_D_A1_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_1",
+          "H5_llama__solo_D_A1_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_1",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_1",
+        "H5_llama__solo_D_A1_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_2",
+          "H5_llama__solo_D_A1_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_2",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_2",
+        "H5_llama__solo_D_A1_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_3",
+          "H5_llama__solo_D_A1_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_3",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.5_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_3",
+        "H5_llama__solo_D_A1_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_1",
+          "H5_llama__solo_D_A1_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_1",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_1",
+        "H5_llama__solo_D_A1_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_2",
+          "H5_llama__solo_D_A1_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_2",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_2",
+        "H5_llama__solo_D_A1_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A1",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A1_orig_0_3",
+          "H5_llama__solo_D_A1_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A1",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A1_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A1_orig_1_3",
+        "arm": "A1_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A1_A1_R0_no_DSTU_g0.9_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A1",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A1_orig_0_3",
+        "H5_llama__solo_D_A1_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_1",
+          "H5_llama__solo_D_A3hR0_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_1",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_1",
+        "H5_llama__solo_D_A3hR0_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_2",
+          "H5_llama__solo_D_A3hR0_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_2",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_2",
+        "H5_llama__solo_D_A3hR0_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_3",
+          "H5_llama__solo_D_A3hR0_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_3",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.1_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_3",
+        "H5_llama__solo_D_A3hR0_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_1",
+          "H5_llama__solo_D_A3hR0_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_1",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_1",
+        "H5_llama__solo_D_A3hR0_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_2",
+          "H5_llama__solo_D_A3hR0_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_2",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_2",
+        "H5_llama__solo_D_A3hR0_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_3",
+          "H5_llama__solo_D_A3hR0_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_3",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.5_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_3",
+        "H5_llama__solo_D_A3hR0_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_1",
+          "H5_llama__solo_D_A3hR0_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_1",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_1",
+        "H5_llama__solo_D_A3hR0_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_2",
+          "H5_llama__solo_D_A3hR0_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_2",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_2",
+        "H5_llama__solo_D_A3hR0_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hR0",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_3",
+          "H5_llama__solo_D_A3hR0_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hR0",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A3hR0_orig_1_3",
+        "arm": "A3h_R0_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hR0_A3h_R0_no_DSTU_g0.9_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hR0",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_3",
+        "H5_llama__solo_D_A3hR0_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_1",
+          "H5_llama__solo_D_A3hEIR_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_1",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_1",
+        "H5_llama__solo_D_A3hEIR_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_2",
+          "H5_llama__solo_D_A3hEIR_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_2",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_2",
+        "H5_llama__solo_D_A3hEIR_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_3",
+          "H5_llama__solo_D_A3hEIR_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_3",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.1,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.1_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_3",
+        "H5_llama__solo_D_A3hEIR_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_1",
+          "H5_llama__solo_D_A3hEIR_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_1",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_1",
+        "H5_llama__solo_D_A3hEIR_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_2",
+          "H5_llama__solo_D_A3hEIR_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_2",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_2",
+        "H5_llama__solo_D_A3hEIR_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_3",
+          "H5_llama__solo_D_A3hEIR_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_3",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.5,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.5_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_3",
+        "H5_llama__solo_D_A3hEIR_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_1",
+          "H5_llama__solo_D_A3hEIR_orig_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_1",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_1",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_1",
+        "H5_llama__solo_D_A3hEIR_orig_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_2",
+          "H5_llama__solo_D_A3hEIR_orig_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_2",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_2",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_2",
+        "H5_llama__solo_D_A3hEIR_orig_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hR0_orig_0_3",
+          "H5_llama__solo_D_A3hEIR_orig_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hR0_orig_0_3",
+        "D_solo": "H5_llama__solo_D_A3hEIR_orig_1_3",
+        "arm": "A3h_EIR_no_DSTU",
+        "condition": "D",
+        "backend": "orig",
+        "policy": "P1",
+        "phase": 0.9,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_no_DSTU_g0.9_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hR0_orig_0_3",
+        "H5_llama__solo_D_A3hEIR_orig_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 24.024283251004817,
+      "peak_rss_gb": 2.739978790283203,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_1",
+          "H5_llama__solo_D_A3hEIR_hop_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_1",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_1",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.1,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_1",
+        "H5_llama__solo_D_A3hEIR_hop_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_2",
+          "H5_llama__solo_D_A3hEIR_hop_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_2",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_2",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.1,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_2",
+        "H5_llama__solo_D_A3hEIR_hop_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_3",
+          "H5_llama__solo_D_A3hEIR_hop_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_3",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_3",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.1,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.1_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_3",
+        "H5_llama__solo_D_A3hEIR_hop_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_1",
+          "H5_llama__solo_D_A3hEIR_hop_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_1",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_1",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.5,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_1",
+        "H5_llama__solo_D_A3hEIR_hop_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_2",
+          "H5_llama__solo_D_A3hEIR_hop_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_2",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_2",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.5,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_2",
+        "H5_llama__solo_D_A3hEIR_hop_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_3",
+          "H5_llama__solo_D_A3hEIR_hop_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_3",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_3",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.5,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.5_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_3",
+        "H5_llama__solo_D_A3hEIR_hop_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s1",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s1",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_1",
+          "H5_llama__solo_D_A3hEIR_hop_1_1"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_1",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_1",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.9,
+        "seed": 1
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s1.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_1",
+        "H5_llama__solo_D_A3hEIR_hop_1_1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s2",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s2",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_2",
+          "H5_llama__solo_D_A3hEIR_hop_1_2"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_2",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_2",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.9,
+        "seed": 2
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s2.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_2",
+        "H5_llama__solo_D_A3hEIR_hop_1_2"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    },
+    {
+      "id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s3",
+      "kind": "joint",
+      "spec": {
+        "model": "llama",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1,
+        "config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "source_config_id": "llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a",
+        "module": "hi_h5",
+        "protocol_version": "hi_h5_formal_v1",
+        "model_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+        "p_op": "mha",
+        "job_id": "H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s3",
+        "kind": "joint",
+        "depends_on": [
+          "H5_llama__graph_D_A3hEIR",
+          "H5_llama__reference",
+          "H5_llama__solo_D_A3hEIR_hop_0_3",
+          "H5_llama__solo_D_A3hEIR_hop_1_3"
+        ],
+        "graph_job": "H5_llama__graph_D_A3hEIR",
+        "reference_job": "H5_llama__reference",
+        "P_solo": "H5_llama__solo_D_A3hEIR_hop_0_3",
+        "D_solo": "H5_llama__solo_D_A3hEIR_hop_1_3",
+        "arm": "A3h_EIR_A256",
+        "condition": "D",
+        "backend": "hop",
+        "policy": "C4",
+        "phase": 0.9,
+        "seed": 3
+      },
+      "result": "results/H5_llama__joint_D_A3hEIR_A3h_EIR_A256_g0.9_s3.json",
+      "deps": [
+        "H5_llama__graph_D_A3hEIR",
+        "H5_llama__reference",
+        "H5_llama__solo_D_A3hEIR_hop_0_3",
+        "H5_llama__solo_D_A3hEIR_hop_1_3"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_h5.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 28.016925701005675,
+      "peak_rss_gb": 1.5814132690429688,
+      "priority": 0
+    }
+  ],
+  "logical_paired_solos": 42,
+  "actual_paired_solos": 39,
+  "solo_aliases": [
+    {
+      "logical": [
+        "D_A3hEIR",
+        "orig",
+        0,
+        1
+      ],
+      "job": "H5_llama__solo_D_A3hR0_orig_0_1"
+    },
+    {
+      "logical": [
+        "D_A3hEIR",
+        "orig",
+        0,
+        2
+      ],
+      "job": "H5_llama__solo_D_A3hR0_orig_0_2"
+    },
+    {
+      "logical": [
+        "D_A3hEIR",
+        "orig",
+        0,
+        3
+      ],
+      "job": "H5_llama__solo_D_A3hR0_orig_0_3"
+    }
+  ]
+}

@@ -19,6 +19,10 @@ def sample(root, targets, previous):
     for name, prefix in targets:
         folder = root/'out'/name
         status = json.loads((folder/(prefix+'.status.json')).read_text())
+        finish_path = folder/'controller_finish.json'
+        finish = json.loads(finish_path.read_text()) if finish_path.exists() else None
+        if finish:
+            status.update(completed=finish['completed'], active=0, pending=finish['expected']-finish['completed'], running=[])
         phases = []
         for row in sorted(status['running'], key=lambda r: -r['seconds'])[:4]:
             path = folder/'progress'/(row['id']+'.json')
@@ -26,7 +30,7 @@ def sample(root, targets, previous):
             phases.append(dict(id=row['id'], phase=progress.get('phase'), step=progress.get('step'), seconds=row['seconds']))
         batches.append(dict(name=name, completed=status['completed'], active=status['active'], pending=status['pending'],
             failed=status['failed'], failed_attempt_count=status.get('failed_attempt_count', 0), phases=phases,
-            finished=(folder/'controller_finish.json').exists()))
+            finished=finish is not None, finish=finish))
     result = dict(utc=datetime.now(timezone.utc).isoformat(), cpu_percent=round(100*(1-idle/total),1),
         available_gib=memory['MemAvailable']/1048576, active=sum(b['active'] for b in batches), batches=batches)
     return result, current
