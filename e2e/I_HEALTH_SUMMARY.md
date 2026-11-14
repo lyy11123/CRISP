@@ -83,11 +83,12 @@ Prefill = 2×RMSNorm + 4×代表 MHA + projection + FFN + handoff；decode = RMS
 
 ## I3：Qwen WATOS 算子
 
-已完成 85/112 个候选、6/8 个完整算子×方法组，包括原 I1 四个 A3h 试点及新 I3 的 108 项。只覆盖 prefill/decode 的 MHA、FFN；未测 WATOS LN/projection，不组装 WATOS 完整层。
+已完成 112/112 个候选、8/8 个完整算子×方法组，包括原 I1 四个 A3h 试点及新 I3 的 108 项。只覆盖 prefill/decode 的 MHA、FFN；未测 WATOS LN/projection，不组装 WATOS 完整层。
 
 | 阶段 | 算子 | A1 后端选优 ms | A3h 后端选优 ms | A3h/A1−1 | 随机 CPCM 选优 A3h/A1−1 |
 |---|---|---|---|---|---|
 | prefill | mha | 3.7012 | 2.3311 | -37.02% | -37.02% |
+| prefill | ffn | 22.1574 | 21.9436 | -0.96% | -0.84% |
 | decode | mha | 0.0082 | 0.0061 | -25.74% | -25.74% |
 | decode | ffn | 0.3488 | 0.2815 | -19.32% | -19.32% |
 

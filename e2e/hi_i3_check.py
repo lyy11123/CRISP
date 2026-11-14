@@ -123,6 +123,8 @@ def completion_check(out):
     assert launch["command"][launch["command"].index("--workers") + 1] == "128"
     for filename,digest in launch["source_sha256"].items():
         assert sources[filename] == digest
+        assert sha(HERE / "runtime/i3_20261114" / filename) == digest
+        assert sha(ROOT / "e2e" / filename) == digest
     rows, failed_attempts = [], []
     for name,spec in sorted(chosen.items()):
         record = read(out / "results" / (name + ".json"))
@@ -170,22 +172,33 @@ def completion_check(out):
     assert batch["completed"] == 108 and not batch["failed"] and not batch["pending"]
     assert batch["workers"] <= 128 and batch["max_active"] <= 128
     all_specs = {s["candidate_id"]:s for s in read(HERE / "manifest/all_candidates_planned.json")["jobs"]}
-    all_records = {}
+    all_records, all_terminals = {}, {}
     for folder in ("h1_main","next_344","h3_i2_440","i3_108"):
         for path in (HERE / "out" / folder / "results").glob("*.json"):
             record = read(path)
             if record["kind"] == "search":
                 assert record["candidate_id"] not in all_records
                 all_records[record["candidate_id"]] = record
+            elif record["kind"] == "terminal":
+                assert record["from_search"] not in all_terminals
+                all_terminals[record["from_search"]] = record
     assert set(all_records) == set(all_specs) and len(all_records) == 896
     for name,record in all_records.items():
         assert all(record[k] == v for k,v in all_specs[name].items())
     groups = Counter(tuple(r[k] for k in KEYS) for r in all_records.values())
     assert len(groups) == 64 and set(groups.values()) == {14}
+    assert sum(len(r["backend"]) for r in all_records.values()) == 8960
+    assert sum(len(r["T_hat_rand"]) for r in all_records.values()) == 8960
+    expected_terminal_parents={n for n,r in all_records.items() if r["method"]=="Gemini" and r["x"]==123}
+    assert set(all_terminals)==expected_terminal_parents and len(all_terminals)==16
+    assert all(r["status"]=="ok" and len(r["backend"])==10 and r["random_cpcm_evaluations"]==0 for r in all_terminals.values())
     resources = combined_resources(out)
     result = dict(status="passed",scope="Saved I3 outputs and 896 healthy candidate identities; no simulation.",
         new_candidates=108,all_healthy_candidates=896,complete_14_candidate_groups=64,
         new_backend_samples=1080,new_random_cpcm_samples=1080,new_terminal_states=0,
+        all_main_backend_samples=8960,all_terminal_states=16,all_terminal_backend_samples=160,
+        all_backend_samples=9120,all_random_cpcm_samples=8960,
+        runtime_source_sha256=launch["source_sha256"],
         final_failed_candidates=0,recorded_memory_retry_attempts=len(failed_attempts),
         completed_formal_logs=108,preserved_first348=old_files(),controller_completion=finish,
         candidates=rows,failed_attempts=failed_attempts,combined_resources=resources)
