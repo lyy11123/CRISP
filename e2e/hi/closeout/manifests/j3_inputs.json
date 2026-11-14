@@ -1,0 +1,296 @@
+{
+  "status": "planned",
+  "cases": {
+    "gpt64": {
+      "base": {
+        "model": "gpt",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "phase": "decode",
+        "op": "mha",
+        "phase_op": "dc_mha",
+        "method": "A3h",
+        "g": 0,
+        "x": 2,
+        "start_arm": "A3h",
+        "fault_id": "PF4",
+        "config_id": "J3_GPT64_busybarn_2x2_fixed",
+        "workload_version": "W1",
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "source_mapping": "e2e/c/inputs/a3h_dc_mha.pkl.gz",
+        "source_mapping_sha256": "cb81fa88df6289a827f25a15fd6f685068d28f23618536d1f8a269e9163786ff"
+      },
+      "source": {
+        "candidate_id": "C_A3h_dc_mha_g0_s2",
+        "record": "e2e/hi/closeout/j3_inputs/gpt64_record.json",
+        "raw": "e2e/hi/closeout/j3_inputs/gpt64_mapping.pkl.gz"
+      },
+      "pre_sink": "e2e/c/out/prep/pre/pre_a3h_dc_mha.pkl.gz",
+      "old_l1_sink": "e2e/c/out/prep/l1/l1_a3h_dc_mha_PF4.pkl.gz",
+      "physical_fault": {
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              0,
+              11
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          [
+            [
+              1,
+              8
+            ],
+            [
+              0,
+              11
+            ]
+          ]
+        ],
+        "failed_pes": [],
+        "kind": "link ch2ch, both directions",
+        "rule": "D2D link of die pair (0, 1) nearer to the group centre (the pair has (0,7)-(1,4) and (0,11)-(1,8))",
+        "set": "a",
+        "same_as": null
+      },
+      "original_mapping": "e2e/c/inputs/a3h_dc_mha.pkl.gz",
+      "estimate_l1_seconds": 373.1162650740007,
+      "estimate_search_step_seconds": 0.5217595558664471,
+      "estimate_backend_seconds": 124.0076983100007,
+      "estimate_source": "GPT144 measured cost proxy until the first GPT64 serial measurement",
+      "input_sha256": {
+        "e2e/c/out/prep/pre/pre_a3h_dc_mha.pkl.gz": "89f34448baa745627f04658859b8d67d1c5b729aa17a506ca9f14d9b0112d0b7",
+        "e2e/c/out/prep/l1/l1_a3h_dc_mha_PF4.pkl.gz": "88b7e1264a7df8aac8cc7852fd4c4a26ed9909b0df4ec02fa5037c5b01405d01",
+        "e2e/hi/closeout/j3_inputs/gpt64_record.json": "459a2fd01de9d1d0eee54a93945b46d6a279663f3f346c213768f2d07b15d1e4",
+        "e2e/hi/closeout/j3_inputs/gpt64_mapping.pkl.gz": "6b52bee21793e566ce5337c04b4193f4c829a5c89a13f86ce559d45eb979277f",
+        "e2e/c/inputs/a3h_dc_mha.pkl.gz": "cb81fa88df6289a827f25a15fd6f685068d28f23618536d1f8a269e9163786ff"
+      }
+    },
+    "gpt144": {
+      "base": {
+        "stage": "G",
+        "hardware_profile": "busybarn",
+        "shape": "3x3",
+        "split_mode": "growth",
+        "d2d_scale": 1.0,
+        "config_id": "G_busybarn_3x3_growth_d2d1",
+        "module": "fg_fault",
+        "search_steps": 1000,
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "protocol_version": "FG_W1_fixedLN_v1",
+        "job_id": "G_busybarn_3x3_growth_d2d1__l1_dc_mha_A3h_PF4",
+        "kind": "fault_l1",
+        "depends_on": [
+          "G_busybarn_3x3_growth_d2d1__pre_dc_mha_A3h",
+          "G_busybarn_3x3_growth_d2d1__fault_select"
+        ],
+        "phase": "decode",
+        "op": "mha",
+        "phase_op": "dc_mha",
+        "start_arm": "A3h",
+        "fault_id": "PF4",
+        "pre_sink": "e2e/fg/out/main/raw/G_busybarn_3x3_growth_d2d1__pre_dc_mha_A3h.pkl.gz",
+        "model": "gpt"
+      },
+      "source": {
+        "candidate_id": "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123",
+        "record": "e2e/fg/out/main/results/G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123.json",
+        "raw": "e2e/fg/out/main/raw/G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123.pkl.gz",
+        "snapshot": "e2e/fg/out/main/snapshots/G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123.pkl.gz",
+        "backend_mean": 10595,
+        "candidate_median": 16759.45,
+        "random_CPCM_pick": "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123",
+        "random_CPCM_pick_backend_mean": 10595
+      },
+      "pre_sink": "e2e/fg/out/main/raw/G_busybarn_3x3_growth_d2d1__pre_dc_mha_A3h.pkl.gz",
+      "old_l1_sink": "e2e/fg/out/main/raw/G_busybarn_3x3_growth_d2d1__l1_dc_mha_A3h_PF4.pkl.gz",
+      "physical_fault": {
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              0,
+              11
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          [
+            [
+              1,
+              8
+            ],
+            [
+              0,
+              11
+            ]
+          ]
+        ],
+        "failed_pes": [],
+        "kind": "D2D bidirectional physical connection",
+        "rule": "C PF4 fixed physical link, die 0 core 11 to die 1 core 8, both directions",
+        "anchor_operator": "dc_mha",
+        "anchor_candidate": "G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123",
+        "backend_seed": 1,
+        "failed_compute_group_fraction": 0,
+        "failed_compute_die_fraction": 0,
+        "failed_D2D_pair_fraction": 0.5,
+        "failed_DDR_port_fraction_die": 0,
+        "failed_bandwidth_fraction_by_type": {
+          "co2co": 0.0,
+          "ch2ch": 0.041666666666666664,
+          "ddr2co": 0.0,
+          "co2ddr": 0.0
+        }
+      },
+      "estimate_l1_seconds": 373.1162650740007,
+      "estimate_search_step_seconds": 0.5217595558664471,
+      "estimate_backend_seconds": 124.0076983100007,
+      "estimate_source": "e2e/fg/out/main/results/G_busybarn_3x3_growth_d2d1__rep_dc_mha_PF4_s30_r123.json",
+      "input_sha256": {
+        "e2e/fg/out/main/raw/G_busybarn_3x3_growth_d2d1__pre_dc_mha_A3h.pkl.gz": "331fe3089e4dc4a89090b0e990b223ce7c946ef348454f3b1ab611433879c76f",
+        "e2e/fg/out/main/raw/G_busybarn_3x3_growth_d2d1__l1_dc_mha_A3h_PF4.pkl.gz": "6ae0b96f084b493c118052e7bc27b2be3408acdbc2adf5c80cfa85f504b1b53b",
+        "e2e/fg/out/main/results/G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123.json": "f1e5279fd22e40b91f8854349bea73e12db06263aed107cf8613e83251b01e69",
+        "e2e/fg/out/main/raw/G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123.pkl.gz": "d1559556ed046724a7131156218f76da23ffff59bb1e7106c5d68723f8bb14a3",
+        "e2e/fg/out/main/snapshots/G_busybarn_3x3_growth_d2d1__healthy_healthy_decode_mha_A3h_g0_s123.pkl.gz": "4a86d22bea9722c33c79c0964d5d0c72d473270a433b92317d8bf57309bee54e"
+      }
+    },
+    "qwen": {
+      "base": {
+        "model": "qwen3moe",
+        "hardware_profile": "busybarn",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "config_id": "qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf",
+        "model_contract_sha256": "49668fb8bfeb48fe14cd85756e82c610532ae6d9a67aeb8271b5b4cd3917c166",
+        "model_contract_version": "hi_model_v1",
+        "graph_order_version": "hi_native_order_v1",
+        "workload_version": "W1_8Q_1KV_v1",
+        "module": "hi_i4",
+        "search_steps": 1000,
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "protocol_version": "hi_fault_v1",
+        "launch_status": "authorized_I4_ready_PF4_subset",
+        "job_id": "qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__l1_dc_ffn_A3h_PF4",
+        "kind": "fault_l1",
+        "depends_on": [
+          "qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__pre_dc_ffn_A3h",
+          "qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__fault_select"
+        ],
+        "phase": "decode",
+        "op": "ffn",
+        "phase_op": "dc_ffn",
+        "start_arm": "A3h",
+        "fault_id": "PF4",
+        "pre_sink": "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__pre_dc_ffn_A3h.pkl.gz"
+      },
+      "source": {
+        "candidate_id": "I_qwen3moe_busybarn_decode_ffn_A3h_g0_s6",
+        "record": "e2e/hi/out/h3_i2_440/results/I_qwen3moe_busybarn_decode_ffn_A3h_g0_s6.json",
+        "raw": "e2e/hi/out/h3_i2_440/raw/I_qwen3moe_busybarn_decode_ffn_A3h_g0_s6.pkl.gz",
+        "snapshot": "e2e/hi/out/h3_i2_440/snapshots/I_qwen3moe_busybarn_decode_ffn_A3h_g0_s6.pkl.gz",
+        "backend_mean": 277315.8,
+        "candidate_median": 302184.85,
+        "random_CPCM_pick": "I_qwen3moe_busybarn_decode_ffn_A3h_g0_s6",
+        "random_CPCM_pick_backend_mean": 277315.8
+      },
+      "pre_sink": "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__pre_dc_ffn_A3h.pkl.gz",
+      "old_l1_sink": "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__l1_dc_ffn_A3h_PF4.pkl.gz",
+      "physical_fault": {
+        "failed_nodes": [],
+        "failed_links": [
+          [
+            [
+              0,
+              11
+            ],
+            [
+              1,
+              8
+            ]
+          ],
+          [
+            [
+              1,
+              8
+            ],
+            [
+              0,
+              11
+            ]
+          ]
+        ],
+        "failed_pes": [],
+        "kind": "fixed bidirectional D2D connection",
+        "rule": "Fixed die0/core11 <-> die1/core8; no busy-time selection",
+        "anchor_operator": "dc_mha",
+        "anchor_candidate": "I_qwen3moe_busybarn_decode_mha_A3h_g0_s1",
+        "backend_seed": null,
+        "failed_compute_group_fraction": 0,
+        "failed_compute_die_fraction": 0,
+        "failed_D2D_pair_fraction": 0.5,
+        "failed_bandwidth_fraction_by_type": {
+          "co2co": 0.0,
+          "ch2ch": 0.125,
+          "ddr2co": 0.0,
+          "co2ddr": 0.0
+        },
+        "selection_backend_calls": 0
+      },
+      "estimate_l1_seconds": 720.0627774640016,
+      "estimate_search_step_seconds": 1.5804571794133275,
+      "estimate_backend_seconds": 331.5858145320017,
+      "estimate_source": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s300_r123.json",
+      "input_sha256": {
+        "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__pre_dc_ffn_A3h.pkl.gz": "fa4181ae1860f5da5a38098391c5de4a9e083792536249bb5e95de7ce11d5a7f",
+        "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__l1_dc_ffn_A3h_PF4.pkl.gz": "525ce930dc75994179f26f8d1f397b67004dfb7ac1827382d2194d234fe2f6d7",
+        "e2e/hi/out/h3_i2_440/results/I_qwen3moe_busybarn_decode_ffn_A3h_g0_s6.json": "26039e6760ff12b45ce598563c9e37b1bc0602d4f692c94d3543c4483ae5d353",
+        "e2e/hi/out/h3_i2_440/raw/I_qwen3moe_busybarn_decode_ffn_A3h_g0_s6.pkl.gz": "c1e62c8a9bdc81a7de8eafa1e7dbb60ae6e12f06202da84aac8ca15477117cf0",
+        "e2e/hi/out/h3_i2_440/snapshots/I_qwen3moe_busybarn_decode_ffn_A3h_g0_s6.pkl.gz": "1d7a7b4624e028b45c28d3cd36b50f043a699c3cc00bf8174ca3de10ac737e78"
+      }
+    }
+  },
+  "source_note": "GPT64 wraps the existing C mapping; no new healthy search"
+}

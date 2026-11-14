@@ -1,0 +1,418 @@
+{
+  "version": "hi_closeout_s_v1",
+  "target": "S_wsc__joint_101_g0.5_s1",
+  "jobs": [
+    {
+      "id": "S_wsc__graph_A3hEIR",
+      "kind": "s_graph",
+      "spec": {
+        "stage": "F",
+        "hardware_profile": "wsc",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "config_id": "F_wsc_2x2_fixed_d2d1",
+        "source_config_id": "F_wsc_2x2_fixed_d2d1",
+        "module": "hi_closeout_s",
+        "protocol_version": "hi_closeout_s_v1",
+        "workload_version": "W1",
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "job_id": "S_wsc__graph_A3hEIR",
+        "kind": "s_graph",
+        "depends_on": [],
+        "mapping_state": "A3hEIR",
+        "condition": "D",
+        "p_op": "mha"
+      },
+      "result": "results/S_wsc__graph_A3hEIR.json",
+      "deps": [],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_closeout_s.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 90,
+      "peak_rss_gb": 2.0,
+      "priority": 2
+    },
+    {
+      "id": "S_wsc__graph_A3hR0",
+      "kind": "s_graph",
+      "spec": {
+        "stage": "F",
+        "hardware_profile": "wsc",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "config_id": "F_wsc_2x2_fixed_d2d1",
+        "source_config_id": "F_wsc_2x2_fixed_d2d1",
+        "module": "hi_closeout_s",
+        "protocol_version": "hi_closeout_s_v1",
+        "workload_version": "W1",
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "job_id": "S_wsc__graph_A3hR0",
+        "kind": "s_graph",
+        "depends_on": [],
+        "mapping_state": "A3hR0",
+        "condition": "D",
+        "p_op": "mha"
+      },
+      "result": "results/S_wsc__graph_A3hR0.json",
+      "deps": [],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_closeout_s.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 90,
+      "peak_rss_gb": 2.0,
+      "priority": 2
+    },
+    {
+      "id": "S_wsc__solo_A3hEIR_A256_0_s1",
+      "kind": "s_solo",
+      "spec": {
+        "stage": "F",
+        "hardware_profile": "wsc",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "config_id": "F_wsc_2x2_fixed_d2d1",
+        "source_config_id": "F_wsc_2x2_fixed_d2d1",
+        "module": "hi_closeout_s",
+        "protocol_version": "hi_closeout_s_v1",
+        "workload_version": "W1",
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "job_id": "S_wsc__solo_A3hEIR_A256_0_s1",
+        "kind": "s_solo",
+        "depends_on": [
+          "S_wsc__graph_A3hEIR"
+        ],
+        "mapping_state": "A3hEIR",
+        "condition": "D",
+        "graph_job": "S_wsc__graph_A3hEIR",
+        "transport": "A256",
+        "stream": 0,
+        "seed": 1,
+        "prior_solos": []
+      },
+      "result": "results/S_wsc__solo_A3hEIR_A256_0_s1.json",
+      "deps": [
+        "S_wsc__graph_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_closeout_s.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 50,
+      "peak_rss_gb": 2.0,
+      "priority": 2
+    },
+    {
+      "id": "S_wsc__solo_A3hEIR_A256_1_s1",
+      "kind": "s_solo",
+      "spec": {
+        "stage": "F",
+        "hardware_profile": "wsc",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "config_id": "F_wsc_2x2_fixed_d2d1",
+        "source_config_id": "F_wsc_2x2_fixed_d2d1",
+        "module": "hi_closeout_s",
+        "protocol_version": "hi_closeout_s_v1",
+        "workload_version": "W1",
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "job_id": "S_wsc__solo_A3hEIR_A256_1_s1",
+        "kind": "s_solo",
+        "depends_on": [
+          "S_wsc__graph_A3hEIR"
+        ],
+        "mapping_state": "A3hEIR",
+        "condition": "D",
+        "graph_job": "S_wsc__graph_A3hEIR",
+        "transport": "A256",
+        "stream": 1,
+        "seed": 1,
+        "prior_solos": []
+      },
+      "result": "results/S_wsc__solo_A3hEIR_A256_1_s1.json",
+      "deps": [
+        "S_wsc__graph_A3hEIR"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_closeout_s.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 50,
+      "peak_rss_gb": 2.0,
+      "priority": 2
+    },
+    {
+      "id": "S_wsc__solo_A3hR0_A256_0_s1",
+      "kind": "s_solo",
+      "spec": {
+        "stage": "F",
+        "hardware_profile": "wsc",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "config_id": "F_wsc_2x2_fixed_d2d1",
+        "source_config_id": "F_wsc_2x2_fixed_d2d1",
+        "module": "hi_closeout_s",
+        "protocol_version": "hi_closeout_s_v1",
+        "workload_version": "W1",
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "job_id": "S_wsc__solo_A3hR0_A256_0_s1",
+        "kind": "s_solo",
+        "depends_on": [
+          "S_wsc__graph_A3hR0",
+          "S_wsc__solo_A3hEIR_A256_0_s1"
+        ],
+        "mapping_state": "A3hR0",
+        "condition": "D",
+        "graph_job": "S_wsc__graph_A3hR0",
+        "transport": "A256",
+        "stream": 0,
+        "seed": 1,
+        "prior_solos": [
+          "S_wsc__solo_A3hEIR_A256_0_s1"
+        ]
+      },
+      "result": "results/S_wsc__solo_A3hR0_A256_0_s1.json",
+      "deps": [
+        "S_wsc__graph_A3hR0",
+        "S_wsc__solo_A3hEIR_A256_0_s1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_closeout_s.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 50,
+      "peak_rss_gb": 2.0,
+      "priority": 2
+    },
+    {
+      "id": "S_wsc__solo_A3hR0_A256_1_s1",
+      "kind": "s_solo",
+      "spec": {
+        "stage": "F",
+        "hardware_profile": "wsc",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "config_id": "F_wsc_2x2_fixed_d2d1",
+        "source_config_id": "F_wsc_2x2_fixed_d2d1",
+        "module": "hi_closeout_s",
+        "protocol_version": "hi_closeout_s_v1",
+        "workload_version": "W1",
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "job_id": "S_wsc__solo_A3hR0_A256_1_s1",
+        "kind": "s_solo",
+        "depends_on": [
+          "S_wsc__graph_A3hR0",
+          "S_wsc__solo_A3hEIR_A256_1_s1"
+        ],
+        "mapping_state": "A3hR0",
+        "condition": "D",
+        "graph_job": "S_wsc__graph_A3hR0",
+        "transport": "A256",
+        "stream": 1,
+        "seed": 1,
+        "prior_solos": [
+          "S_wsc__solo_A3hEIR_A256_1_s1"
+        ]
+      },
+      "result": "results/S_wsc__solo_A3hR0_A256_1_s1.json",
+      "deps": [
+        "S_wsc__graph_A3hR0",
+        "S_wsc__solo_A3hEIR_A256_1_s1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_closeout_s.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 50,
+      "peak_rss_gb": 2.0,
+      "priority": 2
+    },
+    {
+      "id": "S_wsc__joint_101_g0.5_s1",
+      "kind": "s_joint",
+      "spec": {
+        "stage": "F",
+        "hardware_profile": "wsc",
+        "shape": "2x2",
+        "split_mode": "fixed",
+        "d2d_scale": 1.0,
+        "config_id": "F_wsc_2x2_fixed_d2d1",
+        "source_config_id": "F_wsc_2x2_fixed_d2d1",
+        "module": "hi_closeout_s",
+        "protocol_version": "hi_closeout_s_v1",
+        "workload_version": "W1",
+        "backend_seeds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "job_id": "S_wsc__joint_101_g0.5_s1",
+        "kind": "s_joint",
+        "depends_on": [
+          "S_wsc__graph_A3hR0",
+          "S_wsc__solo_A3hR0_A256_0_s1",
+          "S_wsc__solo_A3hR0_A256_1_s1"
+        ],
+        "mapping_state": "A3hR0",
+        "condition": "D",
+        "graph_job": "S_wsc__graph_A3hR0",
+        "transport": "A256",
+        "arm_bits": "101",
+        "phase": 0.5,
+        "seed": 1,
+        "P_solo": "S_wsc__solo_A3hR0_A256_0_s1",
+        "D_solo": "S_wsc__solo_A3hR0_A256_1_s1"
+      },
+      "result": "results/S_wsc__joint_101_g0.5_s1.json",
+      "deps": [
+        "S_wsc__graph_A3hR0",
+        "S_wsc__solo_A3hR0_A256_0_s1",
+        "S_wsc__solo_A3hR0_A256_1_s1"
+      ],
+      "argv": [
+        "{python}",
+        "-u",
+        "-B",
+        "e2e/hi_closeout_s.py",
+        "child",
+        "--spec",
+        "{spec}",
+        "--out",
+        "{out}"
+      ],
+      "estimated_seconds": 50,
+      "peak_rss_gb": 2.0,
+      "priority": 2
+    }
+  ],
+  "counts": {
+    "s_graph": 2,
+    "s_solo": 4,
+    "s_joint": 1
+  },
+  "formal_jobs_reused_in_full": true,
+  "identity_equal_to_full": true,
+  "dependency_closed": true
+}

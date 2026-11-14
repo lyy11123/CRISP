@@ -88,7 +88,9 @@ CSV 中各算子样本最小值之和、最大值之和仅是组成项的范围�
 
 四种选择共 12 行的常数项及每条连接增量见 `hi/tables/next_fullmodel_reference.csv`。这一参考重复使用同一层实测算子成本，B 保留为参数；未指定 80 层分组形状、模拟全模型同时驻留或检查容量，组间共享链路竞争与流水重叠也未加入。
 
-## WATOS 与 Qwen 试点
+## WATOS 与 Qwen 历史试点
+
+以下表格保留 2026-11-14 第一批试点记录。后续 H/I 健康候选已全部完成（各 448，共 896）；完整十四候选结果见 [H3/I2/I3 汇总](hi/H3_I2_REPORT.md)，Qwen 主硬件完整层结果与 WATOS MHA/FFN 子集见 [I_HEALTH_SUMMARY.md](I_HEALTH_SUMMARY.md)。本节的“试点”描述对应当时进度。
 
 WATOS 的 Llama 四项、Qwen 两种硬件共八项都只是预定 A3h g0/s123 完整试点。它们计入后续正式候选，尚未覆盖各算子十四候选和完整 LN/projection 链。跨硬件比较采用相同 g0/s123 候选；这里仅报告实际测到的 MHA/FFN，不据此生成完整层 TTFT/TPOT。
 
