@@ -10,6 +10,11 @@ for file in "$ROOT"/BUNDLE*.json "$ROOT"/*.start.json "$ROOT"/e2e/post_fg_*.py "
   upload_if_ready "$file" input 10
 done
 upload_if_ready "$HOME/POST_FG_initial.tar.gz" input 0
+for file in "$ROOT"/e2e/post_fg/*.md; do
+  upload_if_ready "$file" reports 10
+done
+upload_if_ready "$ROOT/e2e/post_fg/dist/POST_FG_20261113_complete.tar.gz" archive "$MIN_AGE"
+upload_if_ready "$ROOT/e2e/post_fg/dist/POST_FG_20261113_complete.tar.gz.json" archive "$MIN_AGE"
 for group in manifest evidence tables figures out; do
   folder="$ROOT/e2e/post_fg/$group"
   [[ -d "$folder" ]] || continue

@@ -144,6 +144,15 @@ def evaluation_identity(spec, events, hp, release):
                       rank=spec["rank"],seed=spec["seed"],release=release))
 
 
+def execution_order_digest(events, semantic_digest=None):
+    rows=[]
+    for tag,event in events.items():
+        rows.append(dict(tag=tag,dependencies=list(event.dependency_set),successors=list(event.issue_set),
+                         targets=list(event.target_location) if event.event_type=="communication" and isinstance(event.target_location,set) else None))
+    value=dict(semantics=semantic_digest or graph_digest(events),iteration=rows)
+    return hashlib.sha256(json.dumps(plain(value),separators=(",",":"),sort_keys=True).encode()).hexdigest()
+
+
 def save_transform(spec, out, metadata, stats):
     path=Path(out)/"transforms"/(spec["job_id"]+".json.gz")
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -169,6 +178,7 @@ def simulate(spec, out):
     else:
         release = {0: 0, 1: spec["tau"]}
     evaluated_identity=evaluation_identity(spec,events,hp,release)
+    initial_order=execution_order_digest(events,evaluated_identity["graph_sha256"]) if spec.get("fresh_protocol") else None
     deps = {t: set(e.dependency_set) for t, e in events.items()}
     trace_path = Path(out) / "traces" / (spec["job_id"] + ".issues.jsonl.gz")
     trace_handle = None
@@ -235,6 +245,7 @@ def simulate(spec, out):
                   candidate_counters_available=bool(spec.get("trace") or mode=="MsgCont"), audit=dict(n=audit.n, bad=audit.bad),
                   input_graph_sha256=spec["graph_sha256"], rank=rank,
                   evaluation_identity=evaluated_identity,backend_calls=1,
+                  fresh_protocol=spec.get("fresh_protocol"),initial_order_sha256=initial_order,
                   message_transform=str(transform_path),
                   issue_trace=str(trace_path) if spec.get("trace") else None,
                   message_trace=str(trace_summary) if trace_summary else None,
@@ -345,6 +356,36 @@ def child(spec, out):
         result["trace_comparison_rule"]=("BB0 historical single-run difference retained; mechanism interpretation uses this trace run"
                                           if spec["arm"]=="BB0" else "same Hop graph, policy and seed must match")
         if spec["arm"]!="BB0":assert all(r["equal"] for r in result["old_result_comparison"].values())
+    if spec.get("historical_reference_job"):
+        reference=source_result(spec,spec["historical_reference_job"])
+        assert sha(reference)==spec["historical_reference_sha256"]
+        old=read_json(reference)
+        if spec["run_type"]=="joint":
+            fields=("P_completion","D_latency","Lhat_P","Lhat_D","Lhat_max")
+            previous={k:old["metrics"][k] for k in fields}
+            current={k:result["metrics"][k] for k in fields}
+        else:
+            stream=str(spec["stream"])
+            previous={"completion_ns":old["simulation"]["streams"][stream]["C"]}
+            current={"completion_ns":result["completion"][spec["stream"]]}
+        result["historical_result_comparison"]={k:dict(old=previous[k],new=value,delta=value-previous[k],equal=value==previous[k]) for k,value in current.items()}
+        result["historical_reference_job"]=spec["historical_reference_job"]
+        result["historical_reference_sha256"]=spec["historical_reference_sha256"]
+        if spec.get("trace"):
+            result["old_result_comparison"]=result["historical_result_comparison"]
+    if spec.get("compare_baseline_job"):
+        reference=result_path(out,spec["compare_baseline_job"])
+        baseline=read_json(reference)
+        assert spec["fresh_protocol"]==baseline["spec"]["fresh_protocol"]=="fresh_transform_v1"
+        assert result["evaluation_identity"]==baseline["evaluation_identity"]
+        assert result["initial_order_sha256"]==baseline["initial_order_sha256"]
+        fields=("P_completion","D_latency","Lhat_P","Lhat_D","Lhat_max")
+        result["same_protocol_result_comparison"]={k:dict(baseline=baseline["metrics"][k],trace=result["metrics"][k],
+                                                         delta=result["metrics"][k]-baseline["metrics"][k],
+                                                         equal=result["metrics"][k]==baseline["metrics"][k]) for k in fields}
+        result["same_protocol_reference_sha256"]=sha(reference)
+        result["trace_comparison_rule"]="same fresh-transform graph including set iteration order, policy and seed; historical difference reported separately"
+        assert all(row["equal"] for row in result["same_protocol_result_comparison"].values())
     import e2e_pilot_peak
     result.update(job_id=spec["job_id"], kind=spec["kind"], status="ok", spec=spec,
                   wall_seconds=time.perf_counter()-started, peak_rss_gb=e2e_pilot_peak.peak()/2**30)
@@ -401,6 +442,11 @@ def manifest(source_root, output, condition="healthy", selected=None):
             spec.update(alias_job=name,depends_on=[name],alias_rule="identical filtered D graph, C4, platform, release and seed")
         if condition=="healthy" and not spec.get("reuse_job") and spec["run_type"]=="joint" and spec["seed"]==1:
             spec["trace"]=(spec["hardware_profile"]=="wsc" and spec["phase"] in (.1,.9)) or (spec["hardware_profile"]=="face" and spec["phase"]==.9)
+        if condition!="healthy":
+            spec["fresh_protocol"]="fresh_transform_v1"
+            if spec.get("reuse_job"):
+                spec["historical_reference_job"]=spec.pop("reuse_job")
+                spec["historical_reference_sha256"]=spec.pop("reuse_sha256")
     payload = dict(version=VERSION, jobs=jobs, logical_units=len(jobs),
                    old_result_reuses=sum("reuse_job" in s for s in jobs),
                    new_batch_aliases=sum("alias_job" in s for s in jobs),

@@ -1067,3 +1067,31 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
 - Split九张图与m1身份、小矩阵M/N重组、片段覆盖、硬件取整、因果依赖、健康落点和失效计算资源检查通过，独立复核证据split_independent_checks.json。只拆失效PE的张量孤儿，向量孤儿按原粒度迁移；三个案例各m1/m2/m4、三个后端种子，共27次新后端，尚未运行。9张图与元信息已上传并核对内容摘要。
 - 已上传后续清单：wp2_remaining_cloud.json为2完整图+3条保存L1 EIR，串行计时；quality_smoke_cloud.json为24 DSTU+FACE m1 seed1；quality_health_cloud.json为180 DSTU+27 Split+6基线日志，完成冒烟计入正式清单。质量批次待计时完成和冒烟通过后按128上限调度。
 - 新Post-FG三分钟COS上传被自动审批拒绝，理由为此前授权限于F/G，新增数据与POST_FG_20261113目的地需确认。已向用户发出具体授权问题，尚未开启；旧D/F/G定时任务保留。实验和最终本机下载继续按已授权安排。
+
+
+## 2026-11-13 22:03 F/G后续：提速验证完成，质量冒烟启动（Codex）
+
+- WP2四张真实保存图、六条30步SA、三条30步EIR共13项全部完成；另85个合成图通过。prefill/decode的三种执行方式逐动作、接受、校准、完整Schedule、最终状态和选中映射一致；EIR三方式质量与轨迹一致，32次回滚核对零差异。13项manifest/spec/result/receipt身份一致，0次独立后端评估，成功进程时间1.151998小时，峰值2.096GiB。归档WP2_complete_20261113.tar.gz为3118037字节，SHA-256=3bc477d67b797171dc98c377d44afdb8fb04a4161f296986282e27b9cf43e2f2，64成员摘要全部通过。
+- 完整含广播图的确定性CPCM稳态推演加速decode3.284倍、prefill2.800倍。正常执行增加Numba后，30步SA分别减少10.91%/22.65%，完整短任务减少2.37%/10.24%；相对checks完整短任务减少15.75%/17.26%。这是每方式一条确定性短轨迹的配对实测，未当作1000步搜索或新模型的实际耗时。首次BcCache广播构造分别19.940/332.546秒，已在BB_SPEEDUP.md与timing.csv单列。
+- EIR搜索调用checks/normal/fast分别22.461/14.305/13.384秒，完整作业76.424/65.636/64.880秒。阶段报告和新H/I候选计数已生成：896个主候选，最多复用28个旧Qwen decode FFN候选，新增868–896；新模型墙钟待其代表小批实测。论文串行计时仍留J。
+- 独立Split云端构图计时没有新增后端或SA：15个候选构图选9图，3个identity和9个canonical digest均与正式已上传图一致；原清单和9图文件摘要保持不变。完整入口19.744秒；FACE/G23/G33全流程3.176/5.028/11.461秒，候选构图与选轴1.458/1.526/2.771秒。原图附带的build/decision字段来自Windows本机，云端计时另表保存。
+- 该计时首次在导入tensorcore前遇到artifact路径不同：云端源码在e2e/work/artifact。仅在新post_fg_split.setup中使用f_config.artifact_root()，冻结模块源码不改；首次错误日志保留out/split_cloud_timing。修正后源码SHA-256=47e03054fa56c5538d89ad172b8e99c9a35912bc6a87171a6231355ec3854ecc，本机/云端一致。云构图归档27成员核对通过。
+- 所有计时工作进程退出后，启动quality_smoke控制器PID2990687，25项清单、workers上限128、系统余量3GiB。初次30秒状态22/25完成、3项A256-M仍运行，无失败，最低可用237.51GiB；质量正式批等待冒烟结束后直接放行。新增COS授权仍待用户回复，未启用。阶段代码与已有自检已推送codex/e2e-handoff至787b2a4，后续真实结果将继续追加。
+
+## 2026-11-13 22:40 F/G后续：健康初批与统一构图补评（Codex）
+
+- WP2 13项、Split 27项均完成并保存本机。Split-m2相对R0均值改善FACE投影23.01%、2×3 FFN15.17%、3×3 FFN14.87%，九个样本均低于固定原块的有效计算下界；m4的3×3长尾由输入就绪相差23ns后接收核先服务两个健康块引起，末端链上的子块排队16.773ms，证据与三案例主图已生成。
+- quality_smoke完成25/25，512.12秒，最多17活跃、最低可用234.52GiB；quality_health初批210/213，600.522秒，最多54活跃、最低可用219.73GiB。3个A256日志任务已完成仿真，在与历史值比较时失败，未发生内存不足。初批完整1050文件归档SHA-256=31ecd0b4e503243f4f82adb635fac71e0485b3deed6884f57b36f3a19aeb1773，本机解包摘要全部相同。
+- 差异定位：历史fg_joint分别恢复分块图后合并并再次pickle，新入口从原图直接transform；图的规范化内容相同，但dependency_set/issue_set实际遍历顺序不同，改变同刻活动进入仲裁的顺序。不能把旧A256与fresh新策略直接当同初态对照。两硬件A256/A256-M、BB0/H0及H0-D/S256-D实际事件、依赖和后继遍历顺序均逐项相等，证据dstu_ordercheck_wsc/face.json。因此现有114个新策略结果和6个批内复用可保留。
+- 修正为统一fresh_transform_v1：原公共窗口、期限、排名和种子不变，补60项BB0/A256；3条A256日志随后与同批新基线核对图内容、实际顺序及五项指标。22:38:54云端顺序控制器PID1604232启动，workers上限128、系统余量3GiB；原63项258文件已复制out/attempts/20261113_before_fresh_baselines。最终总清单quality_health_fresh_cloud.json，原清单和初批归档保留。根据原批耗时预计这两步15–25分钟，PF4与归档另计。
+- 连续服务策略独立实现验证：48小图及1个完整WSC A256-M检查通过；333627条发放、消息/消费者时刻、资源占用与13项结果字段一致。新增后端1次，独立列账，正式实现未替换。完整验证归档SHA-256=0cef554d861470682ce54930b6007ca81ef46b15553edb572334c62c3dc1a63a，10文件摘要通过。并发现场的371.549秒后端时间不用于宣称独占提速比。
+- 下一步统一健康结果后选择一个新方案做两硬件PF4。三个方案都按fresh构图评估，计90项实际后端；无新映射搜索。H/I/J与系统八组合仍只准备清单。新增COS备份许可尚未收到，未启用；持续SSH监控和本机归档照常执行。
+
+## 2026-11-14 09:30 F/G后续：恢复检查、健康补评完成与PF4确认（Codex）
+
+- 当前公网地址为 `118.195.219.207`，云端仍为 `/home/ubuntu/crisp_post_fg_20261113`，旧F/G输入和环境保留。11月13日的地址 `1.13.251.45` 只作为历史记录。工作范围仍为WP1–WP5，系统八组合、H/I/J未启动。
+- 09:25恢复后确认昨晚补评已结束：`dstu_fresh_baselines.batch.json`为60/60新评估、0失败、260.215秒；`dstu_fresh_verify.batch.json`为63/63成功，其中60项复用、3条新日志核对，484.098秒。`dstu_fresh_patch.finished.json`记录status=ok、新后端63次、总744.326秒；文件写成时间为11月13日22:51:18北京时间。这是昨晚实际完成时间，与本次恢复检查时间分别记录。健康正式比较180项齐备，即174次实际后端加6项批内复用；代表日志独立列账。
+- SSH核对原始尝试实际目录是 `e2e/post_fg/out/main/attempts/20261113_before_fresh_baselines/`。inventory列出的258份文件逐项SHA-256一致，另有inventory本身和 `source/post_fg_dstu.py`，共260文件。此前进度条目里的 `out/attempts/` 是路径简写错误，本条补正，旧条目保留。恢复证据保存于 `post_fg/evidence/resume_remote_checks_20261114.json`。
+- 健康结果已选择S256作为本轮PF4确认方案，配合BB0/A256；不按每行改选策略。09:26:57启动 `dstu_fault`，PID831370，清单 `post_fg/manifest/dstu_fault_fresh_cloud.json`，共90项：54项联合、36项P/D单跑，均采用fresh构图。09:30为66/90完成、24活跃、0失败，最高73活跃、最低可用210.446GiB。状态和日志位于 `post_fg/out/main/dstu_fault.status.json`、`dstu_fault.log`；本批结果待完成、下载核对后汇总。
+- 用户已明确授权本轮每三分钟备份到 `cos://crisp/crisp/POST_FG_20261113`；cron调用 `/home/ubuntu/crisp_post_fg_20261113/e2e/post_fg_cos_backup.sh`，日志 `/home/ubuntu/crisp_post_fg_cos_backup.log`。09:25首轮PID760004，09:25:53已有trace文件上传成功。09:30更新脚本以纳入报告和最终包时，首轮因读到变更后的EOF退出；语法复查通过，已启动续传并跳过已上传文件，完整一轮完成记录待追加。授权及首个成功上传证据见 `post_fg/evidence/cos_backup_enabled_20261114.json`；旧D/F/G定时任务保留。
+- 已同步AGENTS、PROJECT_MEMORY、POST_FG_PLAN、POST_FG_REMOTE_GUIDE和POST_FG_NEXT的当前地址、补评状态及COS状态。下一批计数继续为八组合144项、若复用本轮PF4的110/111共36项则新增108项；H/I最多复用28个旧Qwen FFN候选，新增868–896次搜索，尚未开跑。A1-EIR另计8项L1及最多120个L2档位作业。

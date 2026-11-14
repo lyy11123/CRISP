@@ -1,0 +1,18 @@
+part,scope,unit,logical_total,reuse_min,reuse_max,new_min,new_max,notes
+WP3_health_main,current_WP3,backend logical unit,180,6,6,174,174,includes the 60 fresh BB0/A256 corrections; 6 aliases are healthy S256 D-only from H0 D-only
+WP3_health_baseline_correction,subset_of_health_main,backend evaluation,60,0,0,60,60,"included in 174 above, not additive; 36 joint + 24 solo"
+WP3_PF4_main,current_WP3_after_strategy_selection,backend logical unit,90,0,0,90,90,54 joint + 36 solo; BB0/A256/one selected policy; zero healthy aliases
+system_eight_way,next_batch_not_started,joint backend logical unit,144,36,36,108,108,reuse 110 and 111 only from current PF4; paired solo jobs counted separately
+A1_EIR_L1,next_batch_not_started,fault operator preparation,8,0,0,8,8,2 hardware x 4 decode operators; existing A1 l1 files contain R0 only
+A1_EIR_L2_seed_cases,next_batch_not_started,fault operator x seed,40,0,0,0,40,upper bound if all 8 enter L2; not 40 FULL searches or 40 fixed jobs
+A1_EIR_L2_tiers,next_batch_not_started,L2 tier job,120,0,0,0,120,40 seed cases x at most 3 tiers (30/100/300); early stop reduces count
+HI_health_candidates,next_batch_not_started,candidate search,896,0,28,868,896,64 rows x 14; 28 Qwen decode FFN A1/A3h states require identity checks
+HI_primary_backend,next_batch_not_started,independent backend sample,8960,0,280,8680,8960,10 samples per primary candidate
+HI_primary_random_CPCM,next_batch_not_started,random tie CPCM sample,8960,0,280,8680,8960,10 estimates per primary candidate
+HI_Gemini_end_backend,next_batch_not_started,independent backend sample,160,0,160,0,160,16 seed123 ending states; reuse only when best and ending states identical
+HI_WATOS_LN_proj_optional,optional_next_batch_not_started,candidate search,224,0,0,224,224,excluded from base 896; add only for complete WATOS layer TTFT/TPOT
+HI_fault_operator_units,proposed_next_batch_not_started,fault operator preparation,26,0,0,26,26,16 primary PF4 + 2 primary PE + 8 WATOS PF4; R0/L1 preparation distinct from L2
+HI_fault_L2_seed_cases,proposed_next_batch_not_started,fault operator x seed,130,0,0,0,130,26 x 5; only those entering L2
+HI_fault_L2_tiers,proposed_next_batch_not_started,L2 tier job,390,0,0,0,390,26 x 5 x up to 3 tiers; does not include Split backend checks
+HI_joint,next_batch_not_started,not yet fixed,,,,,,"arms, faults, phases and paired solo counts to be fixed after model graph checks"
+J_serial_timing,next_batch_not_started,not yet fixed,,,,,,"cases, repetitions and platform to be fixed after algorithm freeze"

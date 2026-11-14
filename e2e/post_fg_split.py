@@ -34,6 +34,7 @@ VERSION = "post_fg_split_v1"
 
 
 def setup():
+    static.ARTIFACT = f_config.artifact_root()
     static.pickle_types()
     for path in (static.ARTIFACT / "utils", static.ARTIFACT / "src/backend/analytical", ROOT / "cpcm"):
         sys.path.insert(0, str(path))

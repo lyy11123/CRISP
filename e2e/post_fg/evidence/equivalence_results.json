@@ -1,5 +1,10 @@
 {
-  "status": "pending",
+  "status": "passed",
+  "synthetic": {
+    "status": "passed",
+    "count": 85,
+    "source": "evidence/bb_synthetic_checks.json"
+  },
   "graph_jobs": [
     {
       "job_id": "WP2_graph_decode_mha_3x3",
@@ -7,6 +12,50 @@
       "activities": 6290,
       "attribution_equal": true,
       "events": 1085,
+      "schedule_fields": [
+        "r",
+        "S",
+        "S_last",
+        "F",
+        "term",
+        "a_ev",
+        "a_res",
+        "a_s",
+        "a_f",
+        "a_par",
+        "ev_acts",
+        "res_seq",
+        "T"
+      ]
+    },
+    {
+      "job_id": "WP2_graph_full_decode_mha_3x3",
+      "T": 10442,
+      "activities": 11500,
+      "attribution_equal": true,
+      "events": 1117,
+      "schedule_fields": [
+        "r",
+        "S",
+        "S_last",
+        "F",
+        "term",
+        "a_ev",
+        "a_res",
+        "a_s",
+        "a_f",
+        "a_par",
+        "ev_acts",
+        "res_seq",
+        "T"
+      ]
+    },
+    {
+      "job_id": "WP2_graph_full_prefill_mha_3x3",
+      "T": 3232364,
+      "activities": 171633,
+      "attribution_equal": true,
+      "events": 10050,
       "schedule_fields": [
         "r",
         "S",
@@ -46,8 +95,82 @@
       ]
     }
   ],
-  "searches": [],
+  "searches": [
+    {
+      "phase": "decode",
+      "status": "passed",
+      "checks": {
+        "trajectory": true,
+        "calibration": true,
+        "terminal_state": true,
+        "terminal_schedule": true,
+        "selected": true,
+        "best_step": true,
+        "accept_reject_targeted_present": true,
+        "checks_revert_exact": true,
+        "same_short_function": true,
+        "thirty_step_prefix_of_1000": true
+      },
+      "jobs": [
+        "WP2_search_decode_checks_n30",
+        "WP2_search_decode_fast_n30",
+        "WP2_search_decode_normal_n30"
+      ],
+      "cooling_steps": 1000,
+      "executed_steps": 30
+    },
+    {
+      "phase": "prefill",
+      "status": "passed",
+      "checks": {
+        "trajectory": true,
+        "calibration": true,
+        "terminal_state": true,
+        "terminal_schedule": true,
+        "selected": true,
+        "best_step": true,
+        "accept_reject_targeted_present": true,
+        "checks_revert_exact": true,
+        "same_short_function": true,
+        "thirty_step_prefix_of_1000": true
+      },
+      "jobs": [
+        "WP2_search_prefill_checks_n30",
+        "WP2_search_prefill_fast_n30",
+        "WP2_search_prefill_normal_n30"
+      ],
+      "cooling_steps": 1000,
+      "executed_steps": 30
+    }
+  ],
   "search_pairs": [
+    {
+      "phase": "decode",
+      "comparison": "normal_vs_checks",
+      "semantic_equal": true,
+      "calibration_change_percent": -16.72300223733926,
+      "sa_change_percent": -48.64643813838778,
+      "complete_change_percent": -13.699807443613777,
+      "complete_speedup": 1.1587459661189365
+    },
+    {
+      "phase": "decode",
+      "comparison": "fast_vs_normal",
+      "semantic_equal": true,
+      "calibration_change_percent": -9.360628633009693,
+      "sa_change_percent": -10.909878685276952,
+      "complete_change_percent": -2.3731253125755636,
+      "complete_speedup": 1.0243081151596185
+    },
+    {
+      "phase": "decode",
+      "comparison": "fast_vs_checks",
+      "semantic_equal": true,
+      "calibration_change_percent": -24.518252734621726,
+      "sa_change_percent": -54.24904943805833,
+      "complete_change_percent": -15.747819157970833,
+      "complete_speedup": 1.186912896504099
+    },
     {
       "phase": "prefill",
       "comparison": "normal_vs_checks",
@@ -56,9 +179,37 @@
       "sa_change_percent": -44.96529974381397,
       "complete_change_percent": -7.8158933033465665,
       "complete_speedup": 1.0847856922784533
+    },
+    {
+      "phase": "prefill",
+      "comparison": "fast_vs_normal",
+      "semantic_equal": true,
+      "calibration_change_percent": -22.48532263266939,
+      "sa_change_percent": -22.647381185241954,
+      "complete_change_percent": -10.24276041114801,
+      "complete_speedup": 1.114116259123684
+    },
+    {
+      "phase": "prefill",
+      "comparison": "fast_vs_checks",
+      "semantic_equal": true,
+      "calibration_change_percent": -16.11025577817715,
+      "sa_change_percent": -57.42921809498775,
+      "complete_change_percent": -17.258090489441834,
+      "complete_speedup": 1.2085773774321662
     }
   ],
-  "eir": null,
+  "eir": {
+    "status": "passed",
+    "quality_equal": true,
+    "checks_revert_exact": true,
+    "coverage_present": true,
+    "jobs": [
+      "WP2_eir_decode_PF4_checks_n30",
+      "WP2_eir_decode_PF4_fast_n30",
+      "WP2_eir_decode_PF4_normal_n30"
+    ]
+  },
   "input_root": "e2e\\post_fg\\out\\main",
-  "records": 4
+  "records": 13
 }
