@@ -2,7 +2,7 @@
 
 2026-11-13，Codex。依据 `CRISP_POST_FG_CODEX_HANDOFF.md`，代码基线 `e4956b3ec757c9190b5fafd273cf01a837130ff7`。用户已确认：计划与自检通过后直接执行；本机短冒烟，较长任务放服务器。新增结果独立保存，A–G 的原始结果继续保留。
 
-2026-11-14更新：本轮实验已完成，进入WP5详细报告及总归档下载核对。最后PF4批90/90成功、0失败、274.280秒；云端最终主清单316项全部通过身份和结果核对，包括13项计时验证、297次实际后端、6项批内复用，成功作业累计8.505053进程小时。完整总包仍在下载收尾。当前公网地址为 `118.195.219.207`，用户已授权的三分钟COS备份于09:33:20完成首个完整上传轮次。
+2026-11-14更新：本轮WP1–WP5实验、报告和总归档下载核对均已完成。最后PF4批90/90成功、0失败、274.280秒；云端最终主清单316项全部通过身份和结果核对，包括13项计时验证、297次实际后端、6项批内复用，成功作业累计8.505053进程小时。完整包124852269字节，4639文件核对全通过，本机结果out、云端源码dist/server_runtime均已齐。当前公网地址为 `118.195.219.207`，用户已授权的三分钟COS备份于09:33:20完成首个完整上传轮次。
 
 ## 1. 本轮要回答的问题
 
@@ -132,7 +132,7 @@ bb 内核第一版单线程、严格数值运算；图解析与标签保留 Pyth
 
 已有F/G文件不重算。本轮首次运行成本还不能从旧128并行简单换算；WSC冒烟测出构图、CPCM、后端和峰值后，分别估算进程小时与按依赖排程墙钟。任何预计超过1小时的批次在启动前说明范围、估时和依据。首批质量任务与稳态计时分时运行，以免用争用中的墙钟报告内核提速。
 
-用户于11月14日明确授权本轮三分钟COS备份，目的地 `cos://crisp/crisp/POST_FG_20261113`，与旧目录分开。cron每3分钟调用云端 `e2e/post_fg_cos_backup.sh`，日志 `/home/ubuntu/crisp_post_fg_cos_backup.log`；09:33:20已记录 `Post-F/G backup cycle finished`，完成首个完整上传轮次，先前脚本更新引起的EOF退出已通过续传解决。版本、启动命令、manifest、spec、日志、结果和状态快照随本轮保存。当前继续下载总归档到本机post_fg/dist，解包至out并核对完整清单。代码/报告/表图推 `origin/codex/e2e-handoff`，原始包保留本机及获准的备份位置。
+用户于11月14日明确授权本轮三分钟COS备份，目的地 `cos://crisp/crisp/POST_FG_20261113`，与旧目录分开。cron每3分钟调用云端 `e2e/post_fg_cos_backup.sh`，日志 `/home/ubuntu/crisp_post_fg_cos_backup.log`；09:33:20已记录 `Post-F/G backup cycle finished`，完成首个完整上传轮次，先前脚本更新引起的EOF退出已通过续传解决。版本、启动命令、manifest、spec、日志、结果和状态快照随本轮保存。总归档已下载到本机post_fg/dist，解包至out和dist/server_runtime，4639文件清单全部通过；COS完整包于09:45:05上传成功。代码/报告/表图推 `origin/codex/e2e-handoff`，原始包保留本机及获准的备份位置。
 
 ## 9. 下一批清单
 
@@ -143,6 +143,6 @@ WP5给出系统八组合144个联合逻辑单元的确切复用/新增数。沿�
 - Origin Skill: academic-research-suite / experiment-agent
 - Origin Mode: plan → run
 - Origin Date: 2026-11-13
-- Verification Status: 本轮实验完成，最终主清单316项核对passed；详细报告和完整总包下载核对收尾
+- Verification Status: 本轮实验完成，最终主清单316项核对passed；详细报告完成，完整总包4639文件下载与解包摘要全部通过
 - Version Label: post_fg_v4_runs_complete_reporting
 - 来源：用户交接文档、当前仓库与本机已核对F/G结果；服务器环境为本轮SSH实查。

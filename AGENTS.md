@@ -22,7 +22,7 @@ CRISP：面向晶圆级芯片上 LLM 推理的关键路径感知映射与故障�
 
 ## 当前阶段
 
-2026-11-14 F/G后续实验全部完成，当前做WP5详细报告与完整总归档下载核对，交接 `e2e/CRISP_POST_FG_CODEX_HANDOFF.md`，计划 `e2e/POST_FG_PLAN.md`。当前服务器 `ubuntu@118.195.219.207`（11月13日旧地址 `1.13.251.45`），云端目录 `/home/ubuntu/crisp_post_fg_20261113`，本机新增 `e2e/post_fg/`。WP1诊断、WP2的13项等价计时、Split27项均已完成；健康180项为174次实际后端与6项批内复用。最后S256/BB0/A256的PF4批90/90成功、0失败、274.280秒。云端最终主清单316项全部核对passed：13项计时验证、297次实际后端、6项批内复用，成功作业累计8.505053进程小时，证据 `e2e/post_fg/evidence/completion_audit.json`。完整总包尚在下载核对。三分钟COS目的地 `cos://crisp/crisp/POST_FG_20261113` 已获准并启用，09:33:20完成首个完整上传轮次。继续完成已授权的本机归档、详细汇总和 `origin/codex/e2e-handoff` 推送。系统八组合与H/I/J只准备下一批清单和估时，尚未启动。以下为已完成阶段记录。
+2026-11-14 F/G后续WP1–WP5已完成，详细报告、完整归档和本机解包核对均已完成，交接 `e2e/CRISP_POST_FG_CODEX_HANDOFF.md`，计划 `e2e/POST_FG_PLAN.md`。当前服务器 `ubuntu@118.195.219.207`（11月13日旧地址 `1.13.251.45`），云端目录 `/home/ubuntu/crisp_post_fg_20261113`，本机新增 `e2e/post_fg/`。WP1诊断、WP2的13项等价计时、Split27项均已完成；健康180项为174次实际后端与6项批内复用。最后S256/BB0/A256的PF4批90/90成功、0失败、274.280秒。云端最终主清单316项全部核对passed：13项计时验证、297次实际后端、6项批内复用，成功作业累计8.505053进程小时，证据 `e2e/post_fg/evidence/completion_audit.json`。完整总包post_fg/dist/POST_FG_20261113_complete.tar.gz已保存本机，4639个文件长度及SHA-256全部通过；结果在out，实际云端源码在dist/server_runtime。三分钟COS目的地 `cos://crisp/crisp/POST_FG_20261113` 已获准并启用，09:33:20完成首个完整上传轮次。详细汇总与表图已推送 `origin/codex/e2e-handoff`（05f3b25），归档核对证据随后同分支追加。COS同包于09:45:05上传成功。系统八组合与H/I/J只准备下一批清单和估时，尚未启动。以下为已完成阶段记录。
 
 本轮方法取舍：默认DSTU继续All256+C4（A256），S256为P完成时间与D延迟之间的可选取舍；健康18点D改善14点、PF4改善12点，均保留回退值。消息连续优先未形成稳定额外改善。本轮不追加TieFIFO或时间门控；Split-m2保留为跨模型PE点的主要候选，下一批按 `e2e/post_fg/POST_FG_NEXT.md` 另行开展。
 

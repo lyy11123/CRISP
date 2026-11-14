@@ -26,7 +26,7 @@
 7. 11月13日22:38:54启动统一构图补评，顺序控制器PID1604232，先60项BB0/A256，再3条A256日志；11月14日09:25恢复时已确认全部成功。`dstu_fresh_baselines.batch.json`记录60/60、260.215秒；`dstu_fresh_verify.batch.json`记录63/63，其中60项复用、3项新日志核对，484.098秒。`dstu_fresh_patch.finished.json`记录新后端63次、总744.326秒、status=ok；最后文件于11月13日22:51写成。日志为 `out/main/dstu_fresh_patch.log`。最终健康清单为 `quality_health_fresh_cloud.json`，初批清单保留。健康质量180项中174次实际后端、6项批内复用；另6条代表日志独立记账。输入修正及证明见POST_FG_PLAN.md。
 8. 11月14日09:26:57启动 `dstu_fault`，PID831370，清单 `dstu_fault_fresh_cloud.json`。从健康结果选定S256，与BB0/A256完成两硬件PF4确认：54项联合、36项P/D单跑，共90次实际后端；90/90成功、0失败，274.280秒，最高73活跃进程、最低可用210.446GiB。最终记录与日志分别为 `out/main/dstu_fault.batch.json`、`dstu_fault.log`，旧status保留最后一次轮询快照。
 
-本轮实验均已完成。云端五份最终清单合计316项的manifest/spec/result/receipt核对全部passed：13项计时验证、297次实际后端、6项批内复用，成功作业累计8.505053进程小时。本机已取得 `post_fg/evidence/completion_audit.json`；完整总归档仍在下载核对，详细报告同步收尾。独立执行器验证另列，不混入316项主清单。
+本轮实验均已完成。云端五份最终清单合计316项的manifest/spec/result/receipt核对全部passed：13项计时验证、297次实际后端、6项批内复用，成功作业累计8.505053进程小时。本机已取得 `post_fg/evidence/completion_audit.json`；完整总归档已保存本机post_fg/dist，4639文件全部核对通过，解包结果在out，实际云端源码在dist/server_runtime。独立执行器验证另列，不混入316项主清单。
 
 独立连续策略优化验证另外执行1次完整WSC A256-M：333627条发放记录完全一致，输出在 `out/policy_validation/`，报告DSTU_POLICY_SPEEDUP.md。它未替换本轮正式策略实现，不并入健康180项。
 
@@ -60,6 +60,6 @@ cd ~/crisp_post_fg_20261113
 */3 * * * * /home/ubuntu/crisp_post_fg_20261113/e2e/post_fg_cos_backup.sh >> /home/ubuntu/crisp_post_fg_cos_backup.log 2>&1
 ```
 
-授权与首轮证据保存于 `post_fg/evidence/cos_backup_enabled_20261114.json`。09:33:20日志已出现 `Post-F/G backup cycle finished`，完成首个完整上传轮次。最终总包下载、文件摘要核对和报告交付仍在收尾，完成记录另行追加。
+授权与首轮证据保存于 `post_fg/evidence/cos_backup_enabled_20261114.json`。09:33:20日志已出现 `Post-F/G backup cycle finished`，完成首个完整上传轮次。最终总包已下载并逐文件核对通过；同一完整包于09:45:05上传COS成功，大小124852269字节。报告与表图已推Codex分支05f3b25，完整下载证据见post_fg/evidence/complete_download.json。
 
 09:30扩充脚本以包含报告和最终包时，正在执行的首轮读到更新后的文件末尾并因EOF退出；经语法检查后续传，已上传文件跳过，09:33:20的完整轮次已确认该次续传成功。

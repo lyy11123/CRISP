@@ -1095,3 +1095,14 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
 - 健康结果已选择S256作为本轮PF4确认方案，配合BB0/A256；不按每行改选策略。09:26:57启动 `dstu_fault`，PID831370，清单 `post_fg/manifest/dstu_fault_fresh_cloud.json`，共90项：54项联合、36项P/D单跑，均采用fresh构图。09:30为66/90完成、24活跃、0失败，最高73活跃、最低可用210.446GiB。状态和日志位于 `post_fg/out/main/dstu_fault.status.json`、`dstu_fault.log`；本批结果待完成、下载核对后汇总。
 - 用户已明确授权本轮每三分钟备份到 `cos://crisp/crisp/POST_FG_20261113`；cron调用 `/home/ubuntu/crisp_post_fg_20261113/e2e/post_fg_cos_backup.sh`，日志 `/home/ubuntu/crisp_post_fg_cos_backup.log`。09:25首轮PID760004，09:25:53已有trace文件上传成功。09:30更新脚本以纳入报告和最终包时，首轮因读到变更后的EOF退出；语法复查通过，已启动续传并跳过已上传文件，完整一轮完成记录待追加。授权及首个成功上传证据见 `post_fg/evidence/cos_backup_enabled_20261114.json`；旧D/F/G定时任务保留。
 - 已同步AGENTS、PROJECT_MEMORY、POST_FG_PLAN、POST_FG_REMOTE_GUIDE和POST_FG_NEXT的当前地址、补评状态及COS状态。下一批计数继续为八组合144项、若复用本轮PF4的110/111共36项则新增108项；H/I最多复用28个旧Qwen FFN候选，新增868–896次搜索，尚未开跑。A1-EIR另计8项L1及最多120个L2档位作业。
+
+## 2026-11-14 09:47 F/G后续：全部完成、完整本机归档与详细汇总（Codex）
+
+- 用户恢复工作并给出新地址118.195.219.207；09:24连接确认128 vCPU、约244GiB可用，旧环境和输出保留。昨晚统一构图60项基线+3条日志已在22:51完成，63/63成功，总744.326秒；三个A256日志与同输入基线的五指标、事件内容和实际遍历顺序全部相等。未重跑这些已完成任务。
+- 健康结果统一选择S256做PF4确认，09:26:57启动dstu_fault控制器831370；90/90成功、0失败，274.280秒，最高73活跃进程、最低可用210.446GiB。健康与PF4的正常C4排名12项均保持D优先，无需另跑改变排名的任务；这一步仅8次CPCM。
+- 健康S256的P平均改善9.95%、D平均改善1.80%，14/18双改善，WSC有最坏17.95%的D回退。PF4中S256的P18/18改善、D12/18改善；WSC均P−14.10%/D+2.06%，FACE均P−8.16%/D−4.86%。因此保留全链路256KiB+C4默认，S256作可选取舍；MsgCont没有稳定额外优势，本轮没有追加TieFIFO或时间门控。完整回退点、单跑自身变化、联合干扰和消息/消费者记录见DSTU_REFINEMENT.md。
+- 主清单316项在云端和本机均核对通过，结果SHA与receipt身份逐项一致：13计时等价、297次实际后端、6批内复用，成功作业8.505053进程小时。独立策略实现验证1次和初批3次已完成仿真但历史比较失败另计，实际后端总301次、计入记录的全部作业9.069632进程小时。三失败receipt与258份原件全部保留，正确位置out/main/attempts/20261113_before_fresh_baselines；该目录另有inventory和当时源码两份文件，共260文件。
+- 详细报告、全量CSV/JSON、三张主图及复算脚本齐备。DSTU 324条O/J等式误差0、168条期限/Lhat检查通过、98225条消息—消费者比较已导出；两大JSON同时提供确定mtime=0的gzip并逐项核对解压内容，完整CSV正常推送Git。两张DSTU图与Split图通过目视核对，报告55条本地链接均存在。科学结果和实现由独立子任务复核，无冻结历史源码改动。
+- 完整包已保存本机e2e/post_fg/dist/POST_FG_20261113_complete.tar.gz：124852269字节，SHA-256=3623a52df463ab04e778862562288d970751177dcc1bcacb6ef777cc1f909c20。4639个文件、624297895内容字节全部长度及SHA一致；原始结果解包至post_fg/out，云端实际源码及完整运行材料在post_fg/dist/server_runtime。三个DSTU入口历史版本另存out/main/runtime_history。证据complete_download.json、complete_file_inventory.json、completion_audit_local.json及final_execution_ledger.json。
+- 用户已明确批准本轮三分钟COS。cron已启用至crisp/POST_FG_20261113，09:33:20完成首个完整轮次；完整包及SHA侧文件于09:45:05上传成功。实验、归档进程均已退出，未启动下一批。服务器仍由现有定时任务保留备份。
+- 详细代码、报告和表图已推送origin/codex/e2e-handoff，提交05f3b25；本次完整归档证据及最终协作记录继续在同分支追加。阅读入口post_fg/README.md和POST_FG_SUMMARY.md；系统八组合与H/I/J清单在POST_FG_NEXT.md，当前仅计划，未开跑。下一批fresh八组合144项可复用36项、剩108联合；H/I健康最多896候选，旧Qwen FFN输入一致时新增868。
