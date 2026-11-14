@@ -280,6 +280,7 @@ def check():
         parent_slot_samples=len(statuses),max_parent_reserved_plus_own_active=max(r["active"]+r["parent_reserved_slots"] for r in statuses),
         run_wall_seconds=batch["wall_seconds"],runtime_files=sum(p.is_file() for p in OUT.rglob("*")),
         report_checks=dict(backend_sample_rows=len(samples),unit_rows=13,final_representative_states=9),
+        report_artifact_sha256={str(p.relative_to(ROOT)):sha(p) for p in [ROOT/"e2e/hi_i4_report.py",ROOT/"e2e/hi_h4_report.py",HERE/"I4_LIGHT_REPORT.md",HERE/"evidence/i4_completion_audit.json"]+sorted((HERE/"tables").glob("i4_*.csv"))},
         remains="All prefill FFN, WATOS decode FFN and MF6/Split are outside this completed ready-operator PF4 subset.",
         final_states=finals,stops=stop_rows,candidates=log_evidence,raw_outputs=raw_evidence,dependency_checks=dependency_rows)
     write(HERE/"evidence/i4_completion_review.json",evidence)

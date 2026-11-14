@@ -227,6 +227,7 @@ def check():
         minimum_sampled_available_gib=min(batch["min_available_gib"],pilot["min_available_gib"]),
         pilot_wall_seconds=pilot["wall_seconds"],remaining96_wall_seconds=batch["wall_seconds"],
         source_sha256=source_checks,report_joints_sha256=sha(HERE/"tables/h5_joints.csv"),
+        report_artifact_sha256={str(p.relative_to(ROOT)):sha(p) for p in [ROOT/"e2e/hi_h5_report.py",HERE/"H5_REPORT.md",HERE/"evidence/h5_completion_audit.json"]+sorted((HERE/"tables").glob("h5_*.csv"))+sorted((HERE/"figures").glob("h5_joint*"))},
         initial_manifest_sha256=plan["manifest_sha256"],final_manifest_sha256=sha(HERE/"manifest/h5.json"),
         manifest_changes_only=["estimated_seconds","peak_rss_gb"],
         actual_runtime_files=sum(p.is_file() for p in OUT.rglob("*")),job_checks=records,dependency_checks=margins)

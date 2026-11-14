@@ -113,6 +113,16 @@ def render(audit,units,groups,rows,timing,decode):
         other=f"{r['relative_to_A1_R0']:+.2%}" if "relative_to_A1_R0" in r else "—"
         text.append(f"| {r['start_arm']} | {r['state']} | {r['operator_sum_ns']/1e6:.5f} | {r['handoff_ns']:.0f} | {r['decode_ns']/1e6:.5f} | {r['relative_to_same_arm_healthy']:+.2%} | {other} |")
     text += ["","本批没有prefill FFN，因此不生成完整prefill、TTFT或P+2048D请求结果。WATOS只测MHA，也不组装WATOS完整decode。48层、容量、流水线与共享链路没有在这里模拟。","",
+        "## 结果解释",""]
+    if audit["status"]=="complete":
+        dc={r["state"]:r for r in decode if r["start_arm"]=="A3h"}
+        ffn=next(r for r in units if r["hardware_profile"]=="busybarn" and r["phase_op"]=="dc_ffn" and r["start_arm"]=="A3h")
+        residual=(ffn["EIR_backend_mean_ns"]-ffn["healthy_backend_mean_ns"])/(dc["EIR"]["decode_ns"]-dc["healthy"]["decode_ns"])
+        text += [f"主硬件 A3h decode 的解析层延迟从健康 {dc['healthy']['decode_ns']/1e6:.6f} ms 增至 R0 的 {dc['R0']['decode_ns']/1e6:.6f} ms；EIR 后为 {dc['EIR']['decode_ns']/1e6:.6f} ms，比 R0 减少 {1-dc['EIR']['decode_ns']/dc['R0']['decode_ns']:.2%}，仍比健康高 {dc['EIR']['relative_to_same_arm_healthy']:.2%}。相对 A1-R0，A3h+EIR 减少 {-dc['EIR']['relative_to_A1_R0']:.2%}。",
+            f"剩余退化主要来自 decode FFN：R0 比健康高 {ffn['R0_relative_to_healthy']:.2%}，修复后仍高 {ffn['EIR_relative_to_healthy']:.2%}，约占整层剩余增加量的 {residual:.2%}。它在300步预算终点停止；主硬件 decode MHA 也用满300步，后端仍比健康高6.30%。这两个点没有恢复到健康2%以内。",
+            "停止条件和后端结果有所区别。主硬件 decode projection 在30步档以平均 CPCM +1.05% 停止，其最终代表后端为 +2.28%；WATOS decode MHA 在100步档因相邻档估值改善不足2%停止，后端仍高14.81%。prefill MHA 两种硬件也在100步档因档间改善不足2%停止，后端残差分别为4.16%和6.25%。",
+            "跨预算后端均值并不总是单调下降：主硬件 decode MHA 的五轨迹中位后端从100步的6965.2 ns到300步的7013.4 ns略增，而平均CPCM继续改善；主硬件prefill MHA的100步代表后端也略高于30步。最终状态按原停止流程取当前档代表，未事后改选较早档的后端赢家。",""]
+    text += [
         "## 迁移与分项时间","",
         "状态表保留实际行为搬迁、DDR读源变化字节、唯一搬迁块字节/块数，以及故障链路原健康忙时和关键阻塞信息。修复种子的明细、健康重放与原结果差值均保留。A1只提供R0对照，不报告A1-EIR。",
         f"已完成作业累计 {audit['execution']['completed_job_process_hours']:.4f} 进程小时；其中复用和停档的短进程也计入。"]
