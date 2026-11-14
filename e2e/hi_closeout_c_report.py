@@ -31,7 +31,42 @@ def graph_metrics(export, spec, dead):
     hp = run.split.platform(spec, dead)
     metrics = run.split.event_metrics(events, hp)
     bounds = run.split.tensor_bounds(events, hp)
-    return metrics, bounds
+    return metrics, bounds, block_times(events, hp)
+
+
+def block_times(events, hp):
+    values = [run.split.service(e, hp) for e in events.values()
+              if e.event_type == "computation" and e.comp_device == "tensorcore"]
+    return dict(min_ns=min(values), max_ns=max(values), mean_ns=statistics.mean(values),
+                total_ns=sum(values), counts=dict(Counter(map(str, values))))
+
+
+def structural_rows(model, method, metrics, bounds, blocks, rigid_bound, info=None):
+    load = dict(model=model, method=method, tensor_blocks=bounds["blocks"], live_tensor_units=bounds["live_units"],
+        block_time_min_ns=blocks["min_ns"], block_time_max_ns=blocks["max_ns"],
+        block_time_mean_ns=blocks["mean_ns"], block_time_total_ns=blocks["total_ns"],
+        block_time_distribution_ns=blocks["counts"], basic_lower_bound_ns=bounds["basic_ns"],
+        count_lower_bound_ns=bounds["count_ns"], current_tensor_lower_bound_ns=bounds["lower_bound_ns"],
+        original_post_fault_lower_bound_ns=None if method == "healthy" else rigid_bound,
+        busiest_tensor_ns=metrics["compute_peak_ns"]["tensorcore"],
+        effective_flops=metrics["tensor_effective_flops"], rounded_flops=metrics["tensor_rounded_flops"])
+    communication = dict(model=model, method=method, **metrics["communication"])
+    if info is not None:
+        communication.update(affected_weight_input_bytes_before=info["affected_weight_network_bytes_before"],
+            affected_weight_input_bytes_after=info["affected_weight_network_bytes_after"],
+            affected_activation_input_bytes_after=info["affected_activation_network_bytes_after"],
+            healthy_computation_moved=info["healthy_computation_moved"])
+    return load, communication
+
+
+def quality_row(model, phase_op, method, values, estimate, healthy, r0mean, bound):
+    return dict(model=model, phase_op=phase_op, method=method, backend_samples=len(values),
+        backend_mean_ns=statistics.mean(values), backend_min_ns=min(values), backend_max_ns=max(values), T_hat_ns=estimate,
+        relative_to_healthy=statistics.mean(values)/healthy-1,
+        relative_to_R0=statistics.mean(values)/r0mean-1 if r0mean is not None else None,
+        rigid_tensor_lower_bound_ns=bound,
+        backend_below_rigid_bound=sum(v<bound for v in values) if method != "healthy" else None,
+        all_backend_below_rigid_bound=max(values)<bound if method != "healthy" else None)
 
 
 def offline_migration(state, info):
@@ -145,6 +180,7 @@ def collect(out, progress=False):
 
     stops, _, trajectories = fault_report.stop_tables(jobs, present) if any(j["kind"] == "fault_stop" for j in jobs.values()) else ([], [], [])
     quality, static_rows, choices, coverage, migrations = [], [], [], [], []
+    loads, communications, comparisons, arm_coverage = [], [], [], []
     for model in run.hi_config.MODELS:
         prefix = "C_" + model + "__"
         rep_path = local / "representatives" / (model + ".json")
@@ -154,37 +190,40 @@ def collect(out, progress=False):
         representative = run.frozen.read_json(rep_path)
         coverage.append(dict(model=model, phase_op=representative["phase_op"], applicable=representative["applicable"],
                              failed_pe=representative["failed_pe"], reason=representative["reason"],
-                             rule=representative["rule"], inspections=representative["inspections"]))
+                             rule=representative["rule"], inspections=representative["inspections"],
+                             planned_jobs=sum(n.startswith(prefix) for n in jobs),
+                             complete_jobs=sum(n.startswith(prefix) for n in present)))
         if not representative["applicable"]:
             continue
-        needed = [prefix + k for k in ("pre", "l1", "stop300", "split_prepare")]
-        needed += [prefix + f"m{m}_s{s}" for m in (1, 2) for s in range(1, 11)]
-        if any(name not in present for name in needed):
+        if prefix + "pre" not in present:
             continue
         pre = present[prefix + "pre"]["result"]
-        l1 = present[prefix + "l1"]["result"]
-        stop = present[prefix + "stop300"]["result"]
         pre_raw = run.frozen.read_pickle(pre["sink"])
-        l1_raw = run.frozen.read_pickle(l1["sink"])
-        selected_raw = run.frozen.read_pickle(present[stop["source_job"]]["result"]["sink"])
-        final_record = selected_raw[stop["level"]] if stop["level"] in ("R0", "L1") else selected_raw["record"]
         healthy = statistics.mean(backend(pre_raw["record"]))
-        r0mean = statistics.mean(backend(l1_raw["R0"]))
         s = present[prefix + "pre"]["spec"]
+        prepared_item = present.get(prefix + "split_prepare")
+        if prepared_item is None:
+            continue
+        prepared = prepared_item["result"]
         chosen_state = run.load_split_state(present[prefix + "split_prepare"]["spec"], local)
-        prepared = present[prefix + "split_prepare"]["result"]
         choices += [dict(model=model, **r) for r in prepared["choices"]]
         bound = run.frozen.read_json(local / "metadata" / f"C_{model}_m1.json")["rigid_tensor_load_bound"]["lower_bound_ns"]
-        final_arms = [("healthy", backend(pre_raw["record"]), pre_raw["record"]["T"], pre["exports"]["healthy"], pre_raw["record"]),
-                      ("R0", backend(l1_raw["R0"]), l1_raw["R0"]["T"], l1["exports"]["R0"], l1_raw["R0"]),
-                      ("rigid EIR", backend(final_record), final_record["T"], stop["export"], final_record)]
+        final_arms = [("healthy", backend(pre_raw["record"]), pre_raw["record"]["T"], pre["exports"]["healthy"], pre_raw["record"])]
+        r0mean, stop = None, None
+        if prefix + "l1" in present:
+            l1 = present[prefix + "l1"]["result"]
+            l1_raw = run.frozen.read_pickle(l1["sink"])
+            r0mean = statistics.mean(backend(l1_raw["R0"]))
+            final_arms.append(("R0", backend(l1_raw["R0"]), l1_raw["R0"]["T"], l1["exports"]["R0"], l1_raw["R0"]))
+        if prefix + "stop300" in present:
+            stop = present[prefix + "stop300"]["result"]
+            selected_raw = run.frozen.read_pickle(present[stop["source_job"]]["result"]["sink"])
+            final_record = selected_raw[stop["level"]] if stop["level"] in ("R0", "L1") else selected_raw["record"]
+            final_arms.append(("rigid EIR", backend(final_record), final_record["T"], stop["export"], final_record))
         for method, values, estimate, exported, raw_record in final_arms:
             dead = None if method == "healthy" else tuple(representative["failed_pe"])
-            metrics, state_bound = graph_metrics(exported, s, dead)
-            row = dict(model=model, phase_op=s["phase_op"], method=method, backend_mean_ns=statistics.mean(values),
-                backend_min_ns=min(values), backend_max_ns=max(values), T_hat_ns=estimate,
-                relative_to_healthy=statistics.mean(values)/healthy-1, relative_to_R0=statistics.mean(values)/r0mean-1,
-                rigid_tensor_lower_bound_ns=bound, all_backend_below_rigid_bound=max(values)<bound,
+            metrics, state_bound, blocks = graph_metrics(exported, s, dead)
+            row = dict(quality_row(model, s["phase_op"], method, values, estimate, healthy, r0mean, bound),
                 tensor_peak_ns=metrics["compute_peak_ns"]["tensorcore"], tensor_load_bound_ns=state_bound["lower_bound_ns"],
                 EIR_stop_level=stop["level"] if method == "rigid EIR" else None,
                 EIR_stop_reason=stop["reason"] if method == "rigid EIR" else None,
@@ -192,17 +231,27 @@ def collect(out, progress=False):
             quality.append(row)
             static_rows.append(dict(model=model, method=method, **metrics))
             migrations.append(dict(model=model, method=method, **raw_record.get("migration_vs_start", {})))
+            load, traffic = structural_rows(model, method, metrics, state_bound, blocks, bound)
+            loads.append(load); communications.append(traffic)
         for factor, method in ((1, "Local-m1"), (2, "Split-m2")):
+            if any(prefix + f"m{factor}_s{seed}" not in present for seed in range(1, 11)):
+                continue
             members = [present[prefix + f"m{factor}_s{seed}"]["result"] for seed in range(1, 11)]
             info = run.frozen.read_json(local / "metadata" / f"C_{model}_m{factor}.json")
+            graph_info = prepared["graphs"][str(factor)]
+            payload = run.frozen.read_pickle(graph_info["graph"])
+            events = pickle.loads(payload["events_blob"])
+            hp = run.split.platform(s, tuple(representative["failed_pe"]))
+            metrics = run.split.event_metrics(events, hp)
+            state_bound = run.split.tensor_bounds(events, hp)
+            assert metrics == info["metrics"] and state_bound == info["tensor_load_bound"]
+            assert run.split.graph_digest(events) == graph_info["graph_sha256"]
+            assert all(r["graph_sha256"] == graph_info["graph_sha256"] for r in members)
             values = [r["backend_triple_ns"][0] for r in members]
             assert len({r["T_hat_ns"] for r in members}) == 1
             assert info["coverage_checked"] and info["healthy_computation_moved"] == 0
             assert info["metrics"]["tensor_effective_flops"] == info["baseline_metrics"]["tensor_effective_flops"]
-            quality.append(dict(model=model, phase_op=s["phase_op"], method=method, backend_mean_ns=statistics.mean(values),
-                backend_min_ns=min(values), backend_max_ns=max(values), T_hat_ns=members[0]["T_hat_ns"],
-                relative_to_healthy=statistics.mean(values)/healthy-1, relative_to_R0=statistics.mean(values)/r0mean-1,
-                rigid_tensor_lower_bound_ns=bound, all_backend_below_rigid_bound=max(values)<bound,
+            quality.append(dict(quality_row(model, s["phase_op"], method, values, members[0]["T_hat_ns"], healthy, r0mean, bound),
                 tensor_peak_ns=info["metrics"]["compute_peak_ns"]["tensorcore"],
                 tensor_load_bound_ns=info["tensor_load_bound"]["lower_bound_ns"], axis=info["axis"],
                 decision_seconds=info["axis_selection_seconds"]))
@@ -213,6 +262,25 @@ def collect(out, progress=False):
                 affected_weight_network_bytes_after=info["affected_weight_network_bytes_after"],
                 affected_activation_network_bytes_after=info["affected_activation_network_bytes_after"]))
             migrations.append(dict(model=model, method=method, **offline_migration(chosen_state, info)))
+            load, traffic = structural_rows(model, method, metrics, state_bound, block_times(events, hp), bound, info)
+            loads.append(load); communications.append(traffic)
+        model_quality = {r["method"]: r for r in quality if r["model"] == model}
+        for method in ("healthy", "R0", "rigid EIR", "Local-m1", "Split-m2"):
+            arm_coverage.append(dict(model=model, method=method, status="complete" if method in model_quality else "pending"))
+        if all(method in model_quality for method in ("Local-m1", "Split-m2")):
+            left, right = (model_quality[method] for method in ("Local-m1", "Split-m2"))
+            traffic = {r["method"]: r for r in communications if r["model"] == model}
+            comparison = dict(model=model, phase_op=s["phase_op"], old_rigid_bound_ns=bound,
+                backend_mean_ratio_m2_vs_m1=right["backend_mean_ns"]/left["backend_mean_ns"]-1,
+                tensor_peak_ratio_m2_vs_m1=right["tensor_peak_ns"]/left["tensor_peak_ns"]-1,
+                tensor_bound_ratio_m2_vs_m1=right["tensor_load_bound_ns"]/left["tensor_load_bound_ns"]-1,
+                m1_backend_below_old_bound=left["backend_below_rigid_bound"], m2_backend_below_old_bound=right["backend_below_rigid_bound"],
+                backend_samples_per_arm=10)
+            for key in ("affected_activation_input_bytes_after", "route_link_bytes", "ddr_read_bytes"):
+                comparison[key+"_m1"] = traffic["Local-m1"][key]
+                comparison[key+"_m2"] = traffic["Split-m2"][key]
+                comparison[key+"_ratio_m2_vs_m1"] = traffic["Split-m2"][key]/traffic["Local-m1"][key]-1
+            comparisons.append(comparison)
 
     summary = dict(status="running" if missing else "complete", planned_jobs=len(jobs), complete_jobs=len(present),
         missing=missing, actual_search_trajectories=sum(r["actual_search_trajectories"] for r in costs),
@@ -226,26 +294,135 @@ def collect(out, progress=False):
         newly_run_by_report=dict(backend_calls=0, search_trajectories=0))
     return summary, dict(c_quality=quality, c_backend_samples=samples, c_all_EIR_states=all_states,
         c_costs=costs, c_stops=stops, c_trajectories=trajectories, c_static=static_rows,
-        c_axis_choices=choices, c_migration=migrations), dict(job_checks=checks, raw_inventory=inventories)
+        c_axis_choices=choices, c_migration=migrations, c_block_load=loads, c_communication=communications,
+        c_split_comparison=comparisons, c_arm_coverage=arm_coverage), dict(job_checks=checks, raw_inventory=inventories)
+
+
+def plot_figures(summary, tables):
+    comparisons = {r["model"]: r for r in tables["c_split_comparison"]}
+    if set(comparisons) != set(run.hi_config.MODELS):
+        return []
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    folder = run.DEST / "figures"
+    folder.mkdir(parents=True, exist_ok=True)
+    models = ("llama", "qwen3moe")
+    names = dict(llama="Llama", qwen3moe="Qwen3-MoE")
+    methods = ("healthy", "R0", "rigid EIR", "Local-m1", "Split-m2")
+    colors = ("#8c939b", "#d98939", "#43856a", "#427ca5", "#7b63a3")
+    coverage = {r["model"]: r for r in summary["coverage"]}
+    plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False,
+                         "svg.fonttype": "none", "figure.facecolor": "white"})
+    files = []
+    def save(fig, name):
+        for suffix in ("png", "svg"):
+            path = folder / (name + "." + suffix)
+            fig.savefig(path, dpi=180, bbox_inches="tight")
+            files.append(dict(path=path.relative_to(run.DEST).as_posix(), sha256=sha(path)))
+        plt.close(fig)
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8))
+    for ax, model in zip(axes, models):
+        quality = {r["method"]: r for r in summary["quality"] if r["model"] == model}
+        top = max(r["backend_max_ns"] for r in quality.values()) / 1e6
+        for index, method in enumerate(methods):
+            if method not in quality:
+                ax.text(index, top * .035, "Pending", ha="center", va="bottom", fontsize=9, rotation=90)
+                continue
+            row = quality[method]
+            mean, low, high = (row[k] / 1e6 for k in ("backend_mean_ns", "backend_min_ns", "backend_max_ns"))
+            ax.bar(index, mean, width=.64, color=colors[index],
+                   yerr=[[mean-low], [high-mean]], error_kw=dict(capsize=3, lw=1, ecolor="#343434"))
+            ax.text(index, high + .025*top, f"{mean:.1f}", ha="center", va="bottom", fontsize=9)
+        bound = comparisons[model]["old_rigid_bound_ns"] / 1e6
+        ax.axhline(bound, color="#555555", linestyle="--", lw=1, label="Original-block bound")
+        ax.set_xticks(range(len(methods)), ("Healthy", "R0", "Rigid\nEIR", "Local-m1", "Split-m2"))
+        ax.set_ylim(0, top*1.18)
+        ax.set_ylabel("Backend latency (million ns)")
+        cov = coverage[model]
+        ax.set_title(f"{names[model]} ({cov['complete_jobs']}/{cov['planned_jobs']} jobs)")
+        ax.grid(axis="y", alpha=.2);ax.set_axisbelow(True)
+    axes[0].legend(loc="upper left", frameon=False, fontsize=8)
+    fig.suptitle("Ten backend seeds per completed state; whiskers show min–max", fontsize=11)
+    fig.tight_layout()
+    save(fig, "c_backend_latency")
+    labels = ("Busiest Tensor", "Tensor lower bound", "Affected activation\ninput bytes", "All route-link bytes", "Backend mean")
+    keys = ("tensor_peak_ratio_m2_vs_m1", "tensor_bound_ratio_m2_vs_m1",
+            "affected_activation_input_bytes_after_ratio_m2_vs_m1", "route_link_bytes_ratio_m2_vs_m1", "backend_mean_ratio_m2_vs_m1")
+    fig, axes = plt.subplots(1, 2, figsize=(11, 3.8))
+    for ax, model in zip(axes, models):
+        values = [comparisons[model][k] * 100 for k in keys]
+        ax.barh(range(len(keys)), values, color=["#427ca5" if v<=0 else "#d98939" for v in values], height=.57)
+        span = max(20, max(abs(v) for v in values))
+        for i, value in enumerate(values):
+            ax.text(value + (span*.025 if value>=0 else -span*.025), i, f"{value:+.2f}%",
+                    ha="left" if value>=0 else "right", va="center", fontsize=9)
+        ax.set_yticks(range(len(labels)), labels);ax.invert_yaxis()
+        ax.set_xlim(min(values)-span*.5, max(values)+span*.4)
+        ax.axvline(0, color="#555555", lw=1)
+        ax.grid(axis="x", alpha=.2);ax.set_axisbelow(True)
+        ax.set_title(names[model]);ax.set_xlabel("Change from Local-m1 (%)")
+    fig.suptitle("Split-m2: saved compute-load and communication changes", fontsize=11)
+    fig.tight_layout()
+    save(fig, "c_split_tradeoff")
+    return files
 
 
 def report(out, progress=False):
     summary, tables, evidence = collect(out, progress)
     for name, rows in tables.items():
         table(run.DEST / "tables" / (name + ".csv"), rows)
-    run.frozen.write_json(run.DEST / "evidence/c_completion.json", dict(summary=summary, **evidence))
+    figures = plot_figures(summary, tables)
+    run.frozen.write_json(run.DEST / "evidence/c_completion.json", dict(summary=summary, **evidence, figures=figures))
     text = ["# 两个新模型的 MF6 与局部切分", "", "本报告只读取保存结果；不调用后端或搜索。", "",
         f"已完成 {summary['complete_jobs']}/{summary['planned_jobs']} 个作业；实际新增后端 {summary['actual_backend_calls']} 次、L2 搜索 {summary['actual_search_trajectories']} 条。停档复用 {summary['reused_stop_jobs']} 项、健康状态复用 {summary['reused_healthy_jobs']} 项。", "",
         "故障由健康 A3h decode MHA 的一次 seed1 后端选定：非角落 PE 的 Tensor/Vector 忙碌时间最大者，平局按坐标。PE 的计算单元失效，路由器与链路保留。随后按预先固定的 FFN、projection 顺序选择有孤儿 Tensor 且可合法二分的算子，没有用修复结果筛选位置或算子。", ""]
     for row in summary["coverage"]:
-        text.append(f"- {row['model']}：{row.get('phase_op') or '尚无合法代表点'}；{row.get('reason', row.get('state'))}。")
-    text += ["", "| 模型/算子 | 状态 | 后端均值ns [最小,最大] | 相对健康 | 相对R0 | 全部十样本低于原固定块下界 |", "|---|---|---:|---:|---:|---|"]
+        text.append(f"- {row['model']}：{row.get('phase_op') or '尚无合法代表点'}，已完成 {row.get('complete_jobs', 0)}/{row.get('planned_jobs', 45)} 项。")
+    pending = [r for r in tables["c_arm_coverage"] if r["status"] == "pending"]
+    if pending:
+        text += ["", "待完成状态：" + "、".join(f"{r['model']} {r['method']}" for r in pending) + "。下表仅纳入已有十个后端种子的状态；未完成 EIR 不提前选取修复结果。"]
+    text += ["", "| 模型/算子 | 状态 | 后端均值ns [最小,最大] | 相对健康 | 相对R0 | 低于故障后原固定块下界的样本 |", "|---|---|---:|---:|---:|---|"]
     for r in summary["quality"]:
-        text.append(f"| {r['model']}/{r['phase_op']} | {r['method']} | {r['backend_mean_ns']:,.1f} [{r['backend_min_ns']:,}, {r['backend_max_ns']:,}] | {r['relative_to_healthy']:+.2%} | {r['relative_to_R0']:+.2%} | {'是' if r['all_backend_below_rigid_bound'] else '否'} |")
+        relative = "—" if r["relative_to_R0"] is None else f"{r['relative_to_R0']:+.2%}"
+        below = "—（健康平台）" if r["method"] == "healthy" else f"{r['backend_below_rigid_bound']}/10"
+        text.append(f"| {r['model']}/{r['phase_op']} | {r['method']} | {r['backend_mean_ns']:,.1f} [{r['backend_min_ns']:,}, {r['backend_max_ns']:,}] | {r['relative_to_healthy']:+.2%} | {relative} | {below} |")
     text += ["", "rigid EIR 按原 2% 及 30/100/300 独立预算停止，内部五条修复轨迹和每条十次后端全部计入成本；上表取原停止档的后端中位代表，完整五种子结果另表保存。Local-m1 与 Split-m2 从同一健康图的故障孤儿块出发，用同一放置和路径规则，健康核原计算落点不变。", "",
         "Split 仅比较合法的 N、M 轴，依次最小化实际取整 FLOP 增量、完整图链路字节、固定轴顺序。表中保存所有候选轴、实际输入复制、输出区域覆盖和取整变化；不假设通信按二分比例减少。", "",
         "固定块下界按真实块时长和故障后可用 Tensor 单元计算：max(max c、sum c/P、ceil(K/P) min c)。同时报告新图下界与最忙核负载。只有后端总延迟实际低于旧块下界，才构成超出旧分块放置可达到范围的证据。", "",
         "唯一权重迁移字节沿用 EIR 的 DDR 来源新增副本定义；局部切分保留原 DDR 源，额外 PE 输入复制和链路传输另列。健康输入和全体原始候选未修改。", "",
+        "### 实际块大小、下界和计算负载", "",
+        "服务时间由保存图里的真实 Tensor 形状及当前硬件计算。原固定块下界使用故障后 63 个 Tensor 单元；健康行使用 64 个。计数项为 ceil(K/P) × 最短块，基本项包含最长块及总工作量/P，两者取较大值。", "",
+        "| 模型 | 状态 | Tensor块数 | 存活单元 | 块时长最小/最大（Mns） | 基本下界（Mns） | 计数下界（Mns） | 实际分块下界（Mns） | 最忙Tensor负载（Mns） |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|"]
+    for r in tables["c_block_load"]:
+        text.append(f"| {r['model']} | {r['method']} | {r['tensor_blocks']} | {r['live_tensor_units']} | {r['block_time_min_ns']/1e6:.3f}/{r['block_time_max_ns']/1e6:.3f} | {r['basic_lower_bound_ns']/1e6:.3f} | {r['count_lower_bound_ns']/1e6:.3f} | {r['current_tensor_lower_bound_ns']/1e6:.3f} | {r['busiest_tensor_ns']/1e6:.3f} |")
+    text += ["", "### 通信与复制", "",
+        "下表用十进制 MB/GB（1 MB = 10⁶字节，1 GB = 10⁹字节）。route-link 字节对每条实际链路计数；受影响输入字节只统计局部改图部分，不与全图 DDR 读取相加。复制量是实际传输，不表示新增独立权重副本，也不表示峰值 SRAM 占用。", "",
+        "| 模型 | 状态 | 全图逻辑传输（GB） | 全图route-link（GB） | DDR读取（GB） | 受影响权重输入（MB） | 受影响激活输入（MB） |",
+        "|---|---|---:|---:|---:|---:|---:|"]
+    for r in tables["c_communication"]:
+        weight = f"{r['affected_weight_input_bytes_after']/1e6:.3f}" if "affected_weight_input_bytes_after" in r else "—"
+        activation = f"{r['affected_activation_input_bytes_after']/1e6:.3f}" if "affected_activation_input_bytes_after" in r else "—"
+        text.append(f"| {r['model']} | {r['method']} | {r['logical_network_bytes']/1e9:.3f} | {r['route_link_bytes']/1e9:.3f} | {r['ddr_read_bytes']/1e9:.3f} | {weight} | {activation} |")
+    text += ["", "### 从这两个保存点能看到什么", ""]
+    for r in tables["c_split_comparison"]:
+        text.append(f"- {r['model']}：m2 相对 m1 的最忙 Tensor 负载变化 {r['tensor_peak_ratio_m2_vs_m1']:+.2%}，实际分块下界变化 {r['tensor_bound_ratio_m2_vs_m1']:+.2%}；受影响激活输入变化 {r['affected_activation_input_bytes_after_ratio_m2_vs_m1']:+.2%}，全图 route-link 字节变化 {r['route_link_bytes_ratio_m2_vs_m1']:+.2%}。后端均值变化 {r['backend_mean_ratio_m2_vs_m1']:+.2%}，m1/m2 分别有 {r['m1_backend_below_old_bound']}/10、{r['m2_backend_below_old_bound']}/10 个样本低于旧分块下界 {r['old_rigid_bound_ns']/1e6:.3f} Mns。")
+    for model in run.hi_config.MODELS:
+        group = {r["method"]: r for r in tables["c_block_load"] if r["model"] == model}
+        if "Local-m1" not in group or "Split-m2" not in group:
+            continue
+        left, right = group["Local-m1"], group["Split-m2"]
+        before = "块数及最短块形成的计数项" if left["count_lower_bound_ns"] > left["basic_lower_bound_ns"] else "总工作量/P与最长块形成的基本项"
+        after = "计数项" if right["count_lower_bound_ns"] > right["basic_lower_bound_ns"] else "基本项"
+        text.append(f"{model} 的原图有 {left['tensor_blocks']} 个 Tensor 块，块时长分为 {len(left['block_time_distribution_ns'])} 档。m1 下界由{before}决定；m2 把块数增加到 {right['tensor_blocks']} 后，下界由{after}决定，最忙 Tensor 实际负载为 {right['busiest_tensor_ns']/1e6:.3f} Mns。计算负载、输入复制和真实后端时间一起说明该点的切分效果。")
+    text += [""]
+    if figures:
+        text += ["![十种子后端延迟](figures/c_backend_latency.png)", "",
+            "柱为十种子均值，线段为最小至最大值；Pending 表示该状态尚未收齐。虚线为故障后旧分块下界。", "",
+            "![切分的计算与通信变化](figures/c_split_tradeoff.png)", "",
+            "所有变化以同模型 Local-m1 为参照。对应 SVG 与 PNG 一并保存在 figures；绝对值与逐种子样本在表中。", ""]
+    text += [
         f"累计作业成本 {summary['process_hours']:.4f} 进程小时，最长作业 {summary['maximum_job_seconds']/60:.2f} 分钟，最高 RSS {summary['peak_rss_gb']:.3f} GiB。这是并行质量运行成本；正式单进程计时由 J 报告。", "",
         "复算：`python e2e/hi_closeout_c_report.py --out e2e/hi/out/closeout_20261115`。逐种子样本、全部 EIR 档位、停止决策、通信/下界、轴选择、迁移及逐项成本在 `tables/c_*.csv`；输入/回执/原始状态摘要在 `evidence/c_completion.json`。", ""]
     (run.DEST / "C_NEW_MODEL_SPLIT.md").write_text("\n".join(text), encoding="utf-8")
