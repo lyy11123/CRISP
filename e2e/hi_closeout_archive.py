@@ -42,6 +42,12 @@ def input_files(root, source_maps=()):
             add(path, digest, "closeout_J3")
     for row in archive.read(BASE / "evidence/s_report_inputs.json")["files"]:
         add(row["path"], row["sha256"], "closeout_S_report")
+    for ledger, key, role in (
+        ("j_offline_cost_inputs.json", "files", "closeout_J_fourteen_candidate_costs"),
+        ("j2_first_complete_review.json", "input_files", "closeout_J2_first_review"),
+    ):
+        for row in archive.read(BASE / "evidence" / ledger)[key]:
+            add(row["path"], row["sha256"], role)
 
     for relative, item in sorted(expected.items()):
         source = resolve_input(root, relative)
@@ -53,7 +59,7 @@ def input_files(root, source_maps=()):
             source_root=str(root), source_scope="closeout", archive_path=str(target),
             bytes=source.stat().st_size, sha256=item["sha256"], roles=sorted(item["roles"]),
             jobs=[], local_path=str(source), required_repository_path=relative))
-    return dict(scope="Exact inputs of the previous J batch, closeout quality, J3 and S postprocessing.",
+    return dict(scope="Exact inputs of the previous J batch, closeout quality, J3, S and J cost postprocessing.",
         files=files, unique_files=len({r["archive_path"] for r in files}),
         closeout_declared_files=len(expected),
         role_file_counts=dict(archive.Counter(role for row in files for role in row["roles"])))

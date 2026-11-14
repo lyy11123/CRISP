@@ -312,7 +312,7 @@ def detail_sections(rows, paired, checkpoint_change, states):
         lines.append(f"| {r['repair_seed']} | {r['calibration_seconds']:.3f} | {r['search_seconds']:.3f} | {r['restore_best_seconds']+r['final_cpcm_seconds']:.3f} | {r['backend_validation_seconds']:.3f} | {r['other_job_seconds']:.3f} | {r['full_job_seconds']/60:.3f} | {r['peak_rss_gib']:.3f} |")
     cost=sum(r["new_decision_seconds"] for r in new)
     oldcost=sum(r["new_decision_seconds"] for r in rows if r["budget"]==300)
-    lines += ["", f"本次 5000 个正式提议加 75 个校准提议；五条新轨迹决策累计 {cost:.3f} s，十种子后端验证累计 {sum(r['backend_validation_seconds'] for r in new):.3f} s，其中真实后端函数 {sum(r['backend_actual_calls_seconds'] for r in new):.3f} s，其余为复制与种子准备。完整进程累计 {sum(r['full_job_seconds'] for r in new)/3600:.3f} 进程小时，最长单进程 {max(r['full_job_seconds'] for r in new)/60:.3f} min。",
+    lines += ["", f"本次 5000 个正式提议加 75 个校准提议；五条新轨迹决策累计 {cost:.3f} s，十种子后端验证累计 {sum(r['backend_validation_seconds'] for r in new):.3f} s，其中真实后端函数 {sum(r['backend_actual_calls_seconds'] for r in new):.3f} s，其余为复制与种子准备。任务体累计 {sum(r['full_job_seconds'] for r in new)/3600:.3f} 进程小时，最长单进程 {max(r['full_job_seconds'] for r in new)/60:.3f} min。",
         f"相对于原五条独立 300 步，新五条 1000 步决策总成本为 {cost/oldcost:.3f} 倍；后端中位改善 11.257%，中位迁移字节增加。这个成本—恢复幅度的取舍作为 A 的预算诊断单列，正式停止规则与原 300 步结果保持原样。", "",
         "可复算入口：`python -B e2e/hi_closeout_a_report.py`。全部20个独立预算终态、200个后端样本、30个检查点、13状态诊断和5个成功回执均在CSV/审计记录中；其中新增只占5条1000步轨迹和50个最终后端样本。本次报告新增13次确定性CPCM解释，后端与搜索新增0。", ""]
     return lines

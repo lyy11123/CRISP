@@ -1,6 +1,7 @@
 """Read the saved J timing records; never launch search, CPCM or a backend."""
 import argparse
 from collections import Counter, defaultdict
+import csv
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -100,7 +101,13 @@ def collect(out):
                     records.append(row)
                     env = row.get("environment", row.get("j_environment"))
                     assert env and all(value == "1" for value in env["thread_settings"].values())
-                    environments.append(dict(job_id=name, batch=batch, **env,
+                    reported_env=dict(env)
+                    if spec["kind"] not in ("j1", "j1_startup"):
+                        reported_env["raw_environment_timing_protocol"]=env.get("timing_protocol")
+                        reported_env["raw_environment_protocol_scope"]="generic J1 helper metadata; use actual_job_protocol for this job"
+                        reported_env["timing_protocol"]=row.get("j_protocol", "one complete control preparation or repair in one fresh process")
+                    reported_env["actual_job_protocol"]=reported_env.get("timing_protocol")
+                    environments.append(dict(job_id=name, batch=batch, **reported_env,
                         result_source_sha256=row.get("source_sha256", {}),
                         execution_source_sha256=row.get("execution_source_sha256", {}),
                         gpt_adapter_sha256=row.get("gpt_adapter_sha256")))
@@ -164,11 +171,59 @@ def j2_costs(record):
         offline_generation_measured_seconds=sum(pieces[k] for k in ("configure_seconds", "template_seconds",
             "initial_graph_noncalibration_nondiagnostic_seconds", "calibration_seconds", "algorithm_search_seconds",
             "best_restore_seconds", "export_seconds")),
+        recording_and_reload_measured_seconds=sum(pieces[k] for k in ("initial_A1_monitor_seconds",
+            "loop_A1_monitor_seconds", "progress_callback_seconds", "search_interval_other_seconds",
+            "snapshot_reload_seconds", "final_accounting_seconds")),
         wall_seconds=record["wall_seconds"], timing_entry_seconds=record["timing_entry_seconds"],
         entry_other_seconds=record["timing_entry_seconds"]-record["wall_seconds"],
         sum_exclusive_seconds=sum(pieces.values()),
         final_CPCM_seconds=None,
         final_CPCM_note="Contained in evaluation_other_seconds; the frozen final_eval has no independent final-CPCM timer")
+
+
+def historical_fourteen_costs():
+    """Actual process cost of complete historical groups, apart from serial J2."""
+    index=HI/"tables/h3_i2_candidates.csv"
+    inventory={index.relative_to(ROOT).as_posix():dict(bytes=index.stat().st_size,sha256=digest(index))}
+    with index.open(encoding="utf-8-sig",newline="") as stream:
+        candidates=list(csv.DictReader(stream))
+    groups,details=[],[]
+    for label,model,phase,op in (("Llama_prefill_mha","llama","prefill","mha"),
+                                ("Qwen_decode_ffn","qwen3moe","decode","ffn")):
+        for method in ("A1","A3h"):
+            selected=[r for r in candidates if (r["model"],r["hardware_profile"],r["phase"],r["op"],r["method"])
+                      ==(model,"busybarn",phase,op,method)]
+            assert len(selected)==14 and len({r["candidate_id"] for r in selected})==14
+            measured=[]
+            for item in selected:
+                path=local(item["source"]);record=read(path)
+                inventory[path.relative_to(ROOT).as_posix()]=dict(bytes=path.stat().st_size,sha256=SOURCES[path.relative_to(ROOT).as_posix()])
+                assert record["search_steps"]==1000 and len(record["backend"])==len(record["T_hat_rand"])==10
+                timing=record["timing"];milestones=timing["milestones_seconds"];evaluation=timing["evaluation"]
+                generation=milestones["evaluation_begin"]+timing["export_seconds"]
+                backend=evaluation["evaluation_prepare_and_backend_seconds"]
+                ties=evaluation["random_cpcm_with_compile_seconds"]
+                other=record["wall_seconds"]-generation-backend-ties
+                assert other>=0
+                entry=dict(input_id=label,method=method,candidate_id=record["candidate_id"],
+                    source=path.relative_to(ROOT).as_posix(),search_steps=1000,backend_calls=10,random_cpcm_calls=10,
+                    generation_including_existing_monitors_seconds=generation,
+                    random_selector_evaluation_with_compile_seconds=ties,
+                    backend_selector_evaluation_with_prepare_seconds=backend,
+                    backend_calls_seconds=sum(evaluation["backend_individual_seconds"]),
+                    random_cpcm_calls_seconds=sum(evaluation["random_cpcm_individual_seconds"]),
+                    other_job_seconds=other,all_research_evaluations_wall_seconds=record["wall_seconds"],
+                    generation_plus_random_selector_measured_seconds=generation+ties,
+                    generation_plus_backend_selector_measured_seconds=generation+backend)
+                measured.append(entry);details.append(entry)
+            group=dict(input_id=label,method=method,candidates=14,search_steps=14000,
+                backend_calls=140,random_cpcm_calls=140,cost_basis="sum of historical concurrent-process elapsed seconds",
+                generation_timing_scope="includes original CPCM monitors and progress callbacks; legacy timers do not separate these",
+                selection_timing_scope="candidate scoring measured; final list reduction not separately timed")
+            for key in measured[0]:
+                if key.endswith("seconds"):group[key]=sum(row[key] for row in measured)
+            groups.append(group)
+    return groups,details,[dict(path=path,**info) for path,info in sorted(inventory.items())]
 
 
 def build_tables(records):
@@ -315,6 +370,44 @@ def input_inventory(inputs, old_audit):
     return result + list(semantic.values())
 
 
+def serial_conditions(out):
+    files = {name:out/name for name in ("idle_window_gate.json", "closeout.start.json", "closeout.status.json", "monitor_history.jsonl")}
+    if not all(path.exists() for path in files.values()):
+        return dict(status="pending_local_serial_evidence")
+    gate, start, status = (read(files[name]) for name in ("idle_window_gate.json", "closeout.start.json", "closeout.status.json"))
+    digest(files["monitor_history.jsonl"])
+    history = [json.loads(line) for line in files["monitor_history.jsonl"].read_text(encoding="utf-8").splitlines() if line.strip()]
+    observed = [r for r in history if r.get("event") == "status"] + [status]
+    assert gate["status"] == "passed" and gate["quality_completion"]["completed"] == gate["quality_completion"]["expected"] == 549
+    assert gate["quality_controller_exited"] and gate["quality_workers_remaining"] == 0
+    assert gate["workers"] == start["workers"] == 1
+    assert all(r["active"] <= 1 and r["max_active"] == 1 and not r["failed"] for r in observed)
+    quality_end = datetime.fromisoformat(gate["quality_completion"]["utc"])
+    j_start = datetime.fromisoformat(start["utc"])
+    assert quality_end < j_start
+    return dict(status="passed", gate=gate, start=start, latest_downloaded_status=status,
+        sampled_statuses=len(observed)-1, current_status_checked=True,
+        observed_max_active=max(r["max_active"] for r in observed),
+        quality_to_J_seconds=(j_start-quality_end).total_seconds(),
+        observed_min_available_gib=min(r["available_gib"] for r in observed),
+        recorded_files_sha256={name:digest(path) for name,path in files.items()})
+
+
+def speedups(wide):
+    result=[]
+    for name in sorted({r["input_id"] for r in wide if r["kind"] == "j1"}):
+        groups={mode:[r for r in wide if r["kind"] == "j1" and r["input_id"] == name and r["implementation"] == mode]
+                for mode in ("original","fast")}
+        if any(len(rows)!=3 for rows in groups.values()):continue
+        row=dict(input_id=name,batch=groups["fast"][0]["batch"],processes_per_implementation=3,
+            definition="ratio of medians across three processes; each process uses median of five steady calls")
+        for key, short in (("forward_complete_seconds","forward"),("full_call_seconds","full_call")):
+            for mode,rows in groups.items():row[f"{mode}_{short}_seconds"]=statistics.median(r[key] for r in rows)
+            row[f"{short}_speedup"]=row[f"original_{short}_seconds"]/row[f"fast_{short}_seconds"]
+        result.append(row)
+    return result
+
+
 def render(inputs, records, summaries, cumulative, environments, audit):
     counts = []
     for batch in ("old45", "micro", "search", "eir"):
@@ -336,6 +429,14 @@ def render(inputs, records, summaries, cumulative, environments, audit):
     chosen = [r for r in summaries if r["kind"] == "J1" and r["metric"] in ("forward_complete_seconds", "full_call_seconds")]
     lines += markdown_table(chosen, [("input_id", "输入"), ("implementation", "实现"), ("metric", "计时项"),
         ("process_count", "进程数"), ("median", "中位秒"), ("minimum", "最小秒"), ("maximum", "最大秒")])
+    new_speedups=[r for r in audit["J1_speedups"] if r["batch"]=="micro"]
+    if new_speedups:
+        lines += ["", "本轮新增三图的加速倍数按‘原实现三进程中位数 / 加速实现三进程中位数’计算：", ""]
+        lines += markdown_table(new_speedups,[("input_id","输入"),("original_forward_seconds","原前向秒"),
+            ("fast_forward_seconds","快前向秒"),("forward_speedup","前向倍数"),
+            ("original_full_call_seconds","原完整调用秒"),("fast_full_call_seconds","快完整调用秒"),("full_call_speedup","完整调用倍数")])
+        new_fast=[r for r in records if r["report_batch"]=="micro" and r["spec"]["kind"]=="j1" and r["implementation"]=="fast"]
+        lines += ["",f"本轮 {len(new_fast)} 个加速进程中，新增 Numba 签名为 {sum(bool(r['new_numba_signatures']) for r in new_fast)} 个进程；当前签名与旧 JIT/缓存测量一致。每个新进程的首次调用保留为 warmup，启动开销单列，未并入稳态；签名一致与缓存是否命中是不同信息，本批没有单独记录缓存命中计数。完整调用还包含构图与分析，因此其提速小于只看前向推演的提速。"]
     lines += ["", "## J2：完整映射搜索", "",
         "initial_graph_and_calibration_seconds 已包含校准；互斥表将校准取出，同时单列初始 A1 CPCM 监测。raw_sa_seconds 只覆盖循环，不含校准。algorithm_search_seconds 扣除循环 A1 CPCM 监测和进度回调，保留原始观测值供核对。搜索时间段与 raw_sa 的小差值记为 search_interval_other_seconds。",
         "广播总时间包含在原时间段中，仅作内部明细。退火标记开销亦为内部明细，不再次从各段中扣减。互斥分项之和逐行等于完整作业时间；最外层入口与该时间的差值单列。",
@@ -344,7 +445,31 @@ def render(inputs, records, summaries, cumulative, environments, audit):
               ("offline_generation_measured_seconds", "algorithm_search_seconds", "calibration_seconds", "backend_calls_seconds", "random_cpcm_calls_seconds", "wall_seconds")]
     lines += markdown_table(picked, [("input_id", "输入"), ("method", "方法"), ("metric", "分项"),
         ("process_count", "n"), ("median", "中位秒"), ("minimum", "最小秒"), ("maximum", "最大秒")]) if picked else ["J2 尚无完整结果；表项 pending。"]
-    lines += ["", "GPT144 prefill MHA 明确 n=1；该行最小/最大相同只是同一次测量，不表示稳定性。所有 J2 质量结果仅随计时保存，不替换健康主表。",
+    complete_searches=[r for r in records if r["spec"]["kind"]=="search"]
+    if complete_searches:
+        measured=[dict(job_id=r["job_id"],**j2_costs(r)) for r in complete_searches]
+        lines += ["", "以下五项互不重叠，相加为完整作业时间。映射生成列包含已单独计时的初始化、校准、搜索、最佳状态恢复及导出；记录/复查列包含 A1 的 CPCM 监测、进度回调、快照重载和余下记账时间。最终 CPCM 与评估准备仍留在最后一列，不将它归入纯搜索或真实后端调用。", ""]
+        lines += markdown_table(measured,[("job_id","独立进程"),("offline_generation_measured_seconds","映射生成 s"),
+            ("recording_and_reload_measured_seconds","记录/复查 s"),("backend_calls_seconds","十次后端 s"),
+            ("random_cpcm_calls_seconds","十次随机 CPCM s"),("evaluation_other_seconds","最终 CPCM/评估准备 s"),
+            ("wall_seconds","合计 s")])
+        lines += ["", "A1 用聚合代价做搜索；额外的十次随机 CPCM 用于统一的候选选择比较，不属于 A1 的原生搜索循环。完整作业、外层入口、调度回执分别计时，进程启动和退出后的轮询差值不计作算法成本。每行是一条完整 1000 步轨迹；环境 helper 中通用的‘五次稳态’字符串只适用于 J1 的内核重复，J2 的实际次数以自身协议、轨迹和回执为准。"]
+    first_review=BASE/"evidence/j2_first_complete_review.json"
+    if first_review.exists():
+        first=json.loads(first_review.read_text(encoding="utf-8"))
+        lines += ["", f"首个 Qwen decode FFN A1 独立进程已核对 1000 个正式提议、{first['counts']['calibration_proposals']} 个校准提议、10 次后端与 10 次随机 CPCM；与历史同候选的 1000 条非计时轨迹逐项一致。详见[首项复查](evidence/j2_first_complete_review.json)。它的调度回执耗时为 {first['costs']['receipt_wall_seconds']:.3f} 秒（{first['costs']['receipt_wall_seconds']/60:.3f} 分钟），该类旧的并行实测估计为 {first['historical_estimate_seconds']:.3f} 秒。该实测只更新同输入、同方法的剩余重复，不用于缩放其他图或方法的预计耗时。"]
+    historical=audit["historical_fourteen_candidate_costs"]
+    lines += ["", "十四候选整体费用另取历史同输入的完整记录累计：下表每行实际读取 14 个候选、14000 个正式提议、140 次后端及 140 次随机 CPCM。单位为各并行进程经历时间之和（进程分钟），其中包含当时的共享资源竞争；本轮 J2 表是空闲服务器上的固定候选串行实测。", ""]
+    historic_minutes=[dict(row,**{key.removesuffix("_seconds")+"_minutes":value/60 for key,value in row.items() if key.endswith("_seconds")}) for row in historical]
+    lines += markdown_table(historic_minutes,[("input_id","历史十四候选输入"),("method","方法"),
+        ("generation_including_existing_monitors_minutes","生成含原监测 min"),
+        ("random_selector_evaluation_with_compile_minutes","随机 CPCM 选择评估 min"),
+        ("backend_selector_evaluation_with_prepare_minutes","后端选择评估及准备 min"),
+        ("generation_plus_random_selector_measured_minutes","生成+随机 CPCM min"),
+        ("generation_plus_backend_selector_measured_minutes","生成+后端 min"),
+        ("all_research_evaluations_wall_minutes","含全部研究评估 min")])
+    lines += ["", "历史‘生成’由初始化至恢复最佳状态，再加导出组成；旧版 SA 记录包含原有 CPCM 监测和进度回调。随机 CPCM 选择评估含 140 次估值及其编译；后端选择评估含 140 次真实后端及其复制/最终 CPCM 等准备。两种选择流程分别与生成相加，包含两种选择评估的完整研究作业另列；最终对 14 个分数取最小值的程序耗时没有单独秒表。历史与本轮单候选各自保留计时方式，完整候选来源和 SHA-256 见 [j_offline_cost_inputs.json](evidence/j_offline_cost_inputs.json)。",
+        "", "GPT144 prefill MHA 计划每方法测 n=1；最小/最大相同表示同一次测量。其余输入每方法计划测三个独立进程，目前 n 随已完成结果更新。J2 质量结果随计时保存，健康主表继续使用原来的候选组。",
         "", "## J3：EIR 的分档与累计成本", "",
         "每个修复种子先计一次 R0/L1，再分别从同一 L1 运行 30、100、300 步。累计到 300 步计 430 个正式提议以及三次独立校准；每档重新开始温度日程，不把 300 步轨迹当成前三档的全部代价。R0/L1 原数值也保存在后续 raw 中，但累计表忽略这些继承字段。",
         "measured_control_with_finalize_export_seconds = 新增 R0/L1 或校准+搜索+恢复 + 最终 CPCM + 状态导出。后端调用及其复制准备独立计费。读取/初始化、原快照整理、未单独计时的诊断与记录保留为 other_job_seconds，不将它伪称为纯算法成本；完整 observed wall 同时列出。",
@@ -360,6 +485,18 @@ def render(inputs, records, summaries, cumulative, environments, audit):
             (r["kind"] == "J5" and r["metric"] in ("resident_decision_seconds", "complete_case_seconds"))]
     lines += markdown_table(ctrl, [("input_id", "输入"), ("metric", "分项"), ("process_count", "n"),
         ("median", "中位秒"), ("minimum", "最小秒"), ("maximum", "最大秒")])
+    new_j5=[r for r in records if r["report_batch"]=="micro" and r["spec"]["kind"]=="j5"]
+    if new_j5:
+        rows=[]
+        for model in sorted({r["model"] for r in new_j5}):
+            selected=[r for r in new_j5 if r["model"]==model]
+            assert len({tuple(r["legal_axes"]) for r in selected})==1 and len({r["axis"] for r in selected})==1
+            rows.append(dict(model=model,legal_axes="/".join(selected[0]["legal_axes"]),selected_axis=selected[0]["axis"],
+                repeats=len(selected),resident_seconds=statistics.median(r["resident_decision_seconds"] for r in selected),
+                full_case_seconds=statistics.median(r["complete_case_seconds"] for r in selected)))
+        lines += ["", "新模型的 J5 使用 C 中已固定的真实 MF6 点。合法轴全部参与构造和评分：", ""]
+        lines += markdown_table(rows,[("model","模型"),("legal_axes","完整评估轴"),("selected_axis","选中轴"),
+            ("repeats","独立进程"),("resident_seconds","常驻决策中位秒"),("full_case_seconds","含读入/平台/核对/导出秒")])
     lines += ["", "## 环境、来源与复算", "",
         "J_INPUTS.json/CSV 保存逐项清单、实际完成状态、输入哈希、结果及回执身份；J_ENVIRONMENT.json/CSV 保存每个实际进程的 CPU、系统、Python/NumPy/Numba、线程设置、空闲采样与运行源码哈希。旧批与新批保持标签，不以旧环境代替尚未生成的新环境。",
         "新批单进程与空闲证明读取 out 中保存的 batch 和现场证据；只有结果中的线程设置不能独立证明没有其他进程。已完成旧批的现场证据保存在 hi/evidence/j_serial_conditions.json。", "",
@@ -367,6 +504,13 @@ def render(inputs, records, summaries, cumulative, environments, audit):
         "", "生成命令：", "", "```text",
         "e2e/post_fg/dist/venv/Scripts/python.exe -B e2e/hi_closeout_j_report.py --progress",
         "```", "", "去掉 --progress 时要求本地 125 项全部齐备。J_TIMING.csv 是逐进程宽表；tables/j_timing_summary.csv 是独立进程统计，j1_calls.csv 保留所有稳态/预热调用，j2_costs.csv 与 j3_costs.csv 保留分项，j3_cumulative.csv 保存各档累计，j5_axis_costs.csv 保存全轴成本。", ""]
+    serial=audit["new_serial_conditions"]
+    if serial["status"]=="passed":
+        lines += [f"本轮质量池 549/549 完成且控制器退出后，等待 {serial['quality_to_J_seconds']:.3f} 秒启动 J。下载的串行现场记录截至 {serial['latest_downloaded_status']['utc']}，{serial['sampled_statuses']} 条状态记录的最大活跃实验数为 {serial['observed_max_active']}；启动条件记录中质量实验剩余进程为 0。",
+            "本轮运行环境为 AMD EPYC 9K65（实例分配128 vCPU）、Linux 5.15、Python 3.13.18、NumPy 2.5.4、Numba 0.68.1；四项数值库线程设置均为1。现场记录随后续结果下载继续更新。", ""]
+    review=BASE/"evidence/j_micro_24_review.json"
+    if review.exists():
+        lines += ["首24项的[独立复查记录](evidence/j_micro_24_review.json)逐项核对成功回执、输入文件与运行源码哈希：三个J1图的各36次调用具有相同T̂、活动规模和关键链/等待摘要；两个J5冻结图及六个重新导出图的事件语义摘要均一致。J5图的语义摘要与gzip文件字节SHA分别保存。复查没有启动CPCM、后端或搜索。", ""]
     return "\n".join(lines)
 
 
@@ -403,6 +547,9 @@ def main():
     assert all(r["result_sha256"] == old_hashes[r["job_id"]] for r in receipts if r["job_id"] in old_hashes)
     verified_inputs = input_inventory(inputs, old_audit)
     batches = {p.relative_to(ROOT).as_posix(): read(p) for p in sorted(args.out.glob("*.batch.json"))}
+    serial = serial_conditions(args.out)
+    acceleration = speedups(wide)
+    historical_groups,historical_candidates,historical_inputs=historical_fourteen_costs()
     preparations = [read(p) for folder in (HI / "out/j1_prepare/results", BASE / "j_prepare/results")
                     for p in sorted(folder.glob("*.json"))]
     for path in (Path(__file__), ROOT / "e2e/hi_closeout_j_search.py", ROOT / "e2e/hi_closeout_j_eir.py",
@@ -415,6 +562,8 @@ def main():
         source_results_edited=False, new_searches=0, new_backend_calls=0,
         sources_sha256=dict(SOURCES), receipts=receipts, exact_forward_equality=equality,
         verified_input_files=verified_inputs, old45_result_hashes_unchanged=True,
+        new_serial_conditions=serial, J1_speedups=acceleration,
+        historical_fourteen_candidate_costs=historical_groups,
         previous_serial_evidence=sidecars, new_batch_records=batches,
         postprocessing_seconds=time.perf_counter()-started)
     csv_write(BASE / "J_INPUTS.csv", inputs)
@@ -422,15 +571,21 @@ def main():
         input_files=verified_inputs))
     csv_write(BASE / "J_ENVIRONMENT.csv", environments)
     json_write(BASE / "J_ENVIRONMENT.json", dict(processes=environments, old_serial_evidence=sidecars,
-        new_batch_records=batches, observed_local_source_sha256={k: v for k, v in SOURCES.items() if k.endswith(".py")}))
+        new_batch_records=batches, new_serial_conditions=serial,
+        observed_local_source_sha256={k: v for k, v in SOURCES.items() if k.endswith(".py")}))
     csv_write(BASE / "J_TIMING.csv", wide)
     json_write(BASE / "J_TIMING.json", dict(processes=wide, summaries=summary, cumulative_EIR=cumulative,
         cost_classes=["offline mapping and selection", "runtime control", "paper quality validation"],
         source_timing_records=[dict(job_id=r["job_id"], timing=r.get("timing"),
             j_diagnostic_timing=r.get("j_diagnostic_timing"), J3_timing=r.get("J3_timing")) for r in records]))
     for name, rows in (("j1_calls", calls), ("j5_axis_costs", axes), ("j2_costs", j2), ("j3_costs", j3),
-                       ("j3_cumulative", cumulative), ("j_timing_summary", summary)):
+                       ("j3_cumulative", cumulative), ("j_timing_summary", summary), ("j1_speedups", acceleration)):
         csv_write(BASE / "tables" / (name+".csv"), rows)
+    csv_write(BASE/"tables/j_offline_fourteen_costs.csv",historical_groups)
+    csv_write(BASE/"tables/j_offline_candidate_costs.csv",historical_candidates)
+    json_write(BASE/"evidence/j_offline_cost_inputs.json",dict(status="passed",groups=4,candidates=56,
+        input_file_count=len(historical_inputs),files=historical_inputs,only_files_actually_read=True,
+        new_searches=0,new_backend_calls=0,new_CPCM_evaluations=0))
     json_write(BASE / "evidence/j_report_audit.json", audit)
     (BASE / "J_SUMMARY.md").write_text(render(inputs, records, summary, cumulative, environments, audit), encoding="utf-8")
     print(json.dumps({k: audit[k] for k in ("status", "planned_maximum", "completed", "pending", "old45_preserved", "postprocessing_seconds")}, indent=2))
