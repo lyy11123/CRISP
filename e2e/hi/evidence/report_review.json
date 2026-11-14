@@ -1,0 +1,228 @@
+{
+  "status": "passed",
+  "review_date": "2026-11-14",
+  "scope": "read-only source, manifest and saved-result review; no experiment/backend calls",
+  "checks": {
+    "896_unique_candidates": true,
+    "448_per_model": true,
+    "four_pilots_are_formal_subset": true,
+    "all_frozen_protocols": true,
+    "candidate_contract_hashes": true,
+    "batch_counts": true,
+    "four_pilots_count_once": true,
+    "llama_core_contract_matches_file": true,
+    "llama_8Q_1KV_groups": true,
+    "llama_normalization_counts": true,
+    "llama_kv_bytes_distinct": true,
+    "llama_W1_zero_recorded": true,
+    "llama_joint_chain": true,
+    "llama_no_cross_stream_dependency": true,
+    "llama_kv_payload_conserved": true,
+    "qwen3moe_core_contract_matches_file": true,
+    "qwen3moe_8Q_1KV_groups": true,
+    "qwen3moe_normalization_counts": true,
+    "qwen3moe_kv_bytes_distinct": true,
+    "qwen3moe_W1_zero_recorded": true,
+    "qwen3moe_joint_chain": true,
+    "qwen3moe_no_cross_stream_dependency": true,
+    "qwen3moe_kv_payload_conserved": true,
+    "40_model_graphs_successful": true,
+    "12_MHA_W1_zero": true,
+    "16_semantics_pairs": true,
+    "I0_zero_reuse_28_rerun": true,
+    "I0_476_reconstructable_checks": true,
+    "H_llama_busybarn_decode_mha_A3h_g0_s123_1000_10_10": true,
+    "H_llama_busybarn_decode_mha_A3h_g0_s123_display_numbers": true,
+    "H_llama_busybarn_decode_mha_A3h_g0_s123_exclusive_timing": true,
+    "H_llama_busybarn_decode_ffn_A3h_g0_s123_1000_10_10": true,
+    "H_llama_busybarn_decode_ffn_A3h_g0_s123_display_numbers": true,
+    "H_llama_busybarn_decode_ffn_A3h_g0_s123_exclusive_timing": true,
+    "H_llama_busybarn_prefill_mha_A3h_g0_s123_1000_10_10": true,
+    "H_llama_busybarn_prefill_mha_A3h_g0_s123_display_numbers": true,
+    "H_llama_busybarn_prefill_mha_A3h_g0_s123_exclusive_timing": true,
+    "H_llama_busybarn_prefill_ffn_A3h_g0_s123_1000_10_10": true,
+    "H_llama_busybarn_prefill_ffn_A3h_g0_s123_display_numbers": true,
+    "H_llama_busybarn_prefill_ffn_A3h_g0_s123_exclusive_timing": true,
+    "4000_steps_40_backend_40_ties": true,
+    "four_graph_replays_pass": true,
+    "892_remaining_estimates": true,
+    "h2d_release_coverage": true,
+    "h2d_planned_only": true,
+    "h2p_release_coverage": true,
+    "h2p_planned_only": true,
+    "h1c_release_coverage": true,
+    "h1c_planned_only": true,
+    "i1_release_coverage": true,
+    "i1_planned_only": true,
+    "H2D_forecast_recomputed": true,
+    "H2P_forecast_recomputed": true,
+    "H1c_forecast_recomputed": true,
+    "I1_forecast_recomputed": true,
+    "H2D+H2P_forecast_recomputed": true,
+    "next344_forecast_recomputed": true,
+    "Gemini_terminal_evaluation_estimates": true,
+    "scientific_scope_stated": true,
+    "actual_activity_sidecar_disclosed": true
+  },
+  "check_count": 60,
+  "passed": 60,
+  "contract_facts": {
+    "llama": {
+      "batch": 8,
+      "head_groups": 8,
+      "prefill_kv_output_bytes_per_group": 8388608,
+      "decode_new_kv_output_bytes_per_group": 4096,
+      "decode_history_kv_logical_bytes_per_group": 1048576
+    },
+    "qwen3moe": {
+      "batch": 16,
+      "head_groups": 4,
+      "prefill_kv_output_bytes_per_group": 8388608,
+      "decode_new_kv_output_bytes_per_group": 4096,
+      "decode_history_kv_logical_bytes_per_group": 524288
+    }
+  },
+  "totals": {
+    "planned_candidates": 896,
+    "complete_candidates": 4,
+    "remaining_candidates": 892,
+    "I0_reusable": 0,
+    "full_steps": 4000,
+    "backend_samples": 40,
+    "random_cpcm": 40,
+    "mapped_model_graphs": 40
+  },
+  "forecast_independent_recomputation": [
+    {
+      "batch": "H2D",
+      "dependency_queue_minutes": 3.24095486036238,
+      "planning_minutes": [
+        4.86143229054357,
+        9.72286458108714
+      ],
+      "max_active": 81,
+      "peak_reserved_gib": 55.82183278241745
+    },
+    {
+      "batch": "H2P",
+      "dependency_queue_minutes": 16.04853069489928,
+      "planning_minutes": [
+        24.072796042348923,
+        48.145592084697846
+      ],
+      "max_active": 92,
+      "peak_reserved_gib": 106.35233686172793
+    },
+    {
+      "batch": "H1c",
+      "dependency_queue_minutes": 5.125127543114701,
+      "planning_minutes": [
+        7.687691314672051,
+        15.375382629344102
+      ],
+      "max_active": 4,
+      "peak_reserved_gib": 2.878258500775571
+    },
+    {
+      "batch": "I1",
+      "dependency_queue_minutes": 14.771386606111914,
+      "planning_minutes": [
+        22.15707990916787,
+        44.31415981833574
+      ],
+      "max_active": 8,
+      "peak_reserved_gib": 27.08588223662492
+    },
+    {
+      "batch": "H2D+H2P",
+      "dependency_queue_minutes": 16.04853069489928,
+      "planning_minutes": [
+        24.072796042348923,
+        48.145592084697846
+      ],
+      "max_active": 117,
+      "peak_reserved_gib": 106.35233686172793
+    },
+    {
+      "batch": "next344",
+      "dependency_queue_minutes": 16.04853069489928,
+      "planning_minutes": [
+        24.072796042348923,
+        48.145592084697846
+      ],
+      "max_active": 128,
+      "peak_reserved_gib": 119.02708854372663
+    }
+  ],
+  "resolved_findings": [
+    {
+      "issue": "ETA initially omitted waiting for the first candidate of each unmeasured method/operator class",
+      "resolution": "Added prerequisite completion to scheduling; independent recomputation matches all six batch summaries"
+    }
+  ],
+  "remaining_scientific_qualifications": [
+    "A1/Gemini and Qwen full search cost not yet measured; estimates use complete A3h pilots and graph proxies.",
+    "H1 graph.activities is a preserved path-reference field; actual scheduled activity counts are in the replay sidecar.",
+    "Historical I0 backend set iteration was not recorded; reconstructable equality is not historical full-identity certification.",
+    "Joint input probes use initialization states for some operators and execute no joint backend.",
+    "No H2D/H2P/H1c/I1 full batches were started by this review."
+  ],
+  "files": [
+    {
+      "path": "e2e\\hi\\H1_PILOT_REPORT.md",
+      "sha256": "42b40ff5b6cad9c2f4c126d7aff5e06914ff92c0347ca1761ae3968c0d044b4d"
+    },
+    {
+      "path": "e2e\\hi\\H0_I0_MODEL_REPORT.md",
+      "sha256": "aab5434d6b11152169e7a411fcda5bf53b52ca46ebdfc72a5150b067107f9d38"
+    },
+    {
+      "path": "e2e\\hi\\I0_REUSE.md",
+      "sha256": "08f4fa2c9eb05aa4d303989e4c86e895721d982bc1016156e58943c659f9a553"
+    },
+    {
+      "path": "e2e\\hi\\JOINT_INTERFACE.md",
+      "sha256": "765ce044e0f7941090d0b69fcb9f3e6c3fa33daafaaa2c09d7ff66e88efa02ae"
+    },
+    {
+      "path": "e2e\\hi\\evidence\\next_batch_estimates.json",
+      "sha256": "5a1d11f6baf159606259ff490f67b448fbe0ebcbbb06950543a2edea3f2a7cf6"
+    },
+    {
+      "path": "e2e\\hi\\evidence\\h1_pilot_audit.json",
+      "sha256": "896a97a26418cc3b06625881a7fbf4dd36fd60d1c98e2169d647f14b7f31fd9b"
+    },
+    {
+      "path": "e2e\\hi\\manifest\\all_candidates_planned.json",
+      "sha256": "52e510d35d21681efb207c1ea441410da050a837263d93048adadea2f50e4c16"
+    },
+    {
+      "path": "e2e\\hi\\manifest\\h1_main.json",
+      "sha256": "ce56930fe739e08d6bec04c19953304b03e2c0f9aa31219f8b7f752d5aef0988"
+    },
+    {
+      "path": "e2e\\hi\\manifest\\next_batch_release_plan.json",
+      "sha256": "ba8232a13e70a4d582035a992325faceca75338e1d9f661de690b9f9350b78c5"
+    },
+    {
+      "path": "e2e\\hi_report.py",
+      "sha256": "8a59c5a58cc094d29fac68b2cdebaa1271d7f224d36ee98e2ac59af847bc6990"
+    },
+    {
+      "path": "e2e\\hi_manifest.py",
+      "sha256": "685dd66c7ccfbe8b18e8e58c66e7695d2b24d4ceae8a0225e377fe9f60c25095"
+    },
+    {
+      "path": "e2e\\hi_config.py",
+      "sha256": "aab3f709a977cf21218a6a3780f51bc5a2debba15888a59cbb96979dea85e3fd"
+    },
+    {
+      "path": "e2e\\hi\\models\\llama\\model_contract.json",
+      "sha256": "908082a698f0ed23d8e4385d08e2b51d5b60b4dd591ec4a12cda188bc62fb455"
+    },
+    {
+      "path": "e2e\\hi\\models\\qwen3moe\\model_contract.json",
+      "sha256": "09e639fc65dbb7fdcaf9d9e8c6e24ff1ed31d0855d622217fe282ef1f8696a58"
+    }
+  ]
+}

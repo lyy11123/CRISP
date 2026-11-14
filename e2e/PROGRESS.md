@@ -1106,3 +1106,21 @@ Colab 指南改为最终版，共 7 个笔记本（`W1_COLAB_GUIDE.md`）。
 - 完整包已保存本机e2e/post_fg/dist/POST_FG_20261113_complete.tar.gz：124852269字节，SHA-256=3623a52df463ab04e778862562288d970751177dcc1bcacb6ef777cc1f909c20。4639个文件、624297895内容字节全部长度及SHA一致；原始结果解包至post_fg/out，云端实际源码及完整运行材料在post_fg/dist/server_runtime。三个DSTU入口历史版本另存out/main/runtime_history。证据complete_download.json、complete_file_inventory.json、completion_audit_local.json及final_execution_ledger.json。
 - 用户已明确批准本轮三分钟COS。cron已启用至crisp/POST_FG_20261113，09:33:20完成首个完整轮次；完整包及SHA侧文件于09:45:05上传成功。实验、归档进程均已退出，未启动下一批。服务器仍由现有定时任务保留备份。
 - 详细代码、报告和表图已推送origin/codex/e2e-handoff，提交05f3b25；本次完整归档证据及最终协作记录继续在同分支追加。阅读入口post_fg/README.md和POST_FG_SUMMARY.md；系统八组合与H/I/J清单在POST_FG_NEXT.md，当前仅计划，未开跑。下一批fresh八组合144项可复用36项、剩108联合；H/I健康最多896候选，旧Qwen FFN输入一致时新增868。
+
+## 2026-11-14 H/I/J首批获准并启动（Codex）
+
+- 用户批准HIJ_STAGED_PLAN.md首批P0/H0/I0及H1a/H1b四个完整A3h试点；四项计入H448。云端118.195.219.207:~/crisp_hi_20261114，本机e2e/hi；其他H/I全量未派发。
+- 40项模型构图通过，原/快真实MHA/FFN完整结果一致；共享历史KV与当前token缓存分开记录。hi_run保留1000步和10后端/10随机CPCM，关闭额外checks、保留精确回滚。
+- I0旧28的可重构字段一致，但历史集合遍历未保存，按用户完整身份底线不复用。63项既有Split补充成功且完整拉回；三例m2十种子均低于刚性下界。更多逐项事实与运行位置见hi/PROGRESS.md，本条不表示四个H1或J已经结束。
+
+## 2026-11-14 12:15 H/I/J第一批全部完成（Codex）
+
+- P0/H0/I0、四个完整H1与旧Split63、已有J45正式计时全部完成，0失败。四个H1完整1000步，墙钟310.066秒，正式候选H已完成4/448、I仍0/448。
+- 模型合同与40图清单、完整分项耗时、I0身份核对、后续分片估时均已生成，入口hi/README.md；H2D/H2P/H1c/I1合计344项规划24–48分钟，尚未启动。旧Qwen28可重构字段全部相同，历史实际集合遍历未记录，按用户要求全部重搜。
+- J45单进程正式计时770.194秒，CPCM前向2.84–3.23倍、完整调用1.19–1.54倍。三例旧Split-m2合并十种子后30/30低于原分块刚性下界。细节与运行证据见hi/PROGRESS.md及各报告；正在进行最终归档与同分支推送。
+
+## 2026-11-14 12:18 完整结果归档与备份核对（Codex）
+
+- 完整归档已下载至 `e2e/hi/dist/HIJ_FIRST_BATCH_20261114_complete.tar.gz`：33690348字节、3698个数据文件，SHA-256 `6f389575013da3b953e12a7576b1e3c3e8dcf63b0d2f50766b00e190f3443016`。逐文件长度和SHA全部一致，内容合计376950965字节。包含2642个源码/配置文件及36个实际引用旧输入，输入原路径和摘要在dist/server_runtime/external_inputs.json；H1当时源码另存runtime/h1_20261114。
+- COS完整包于12:16:48上传成功，SHA侧文件于12:16:45成功，12:16:54备份轮次完成，目的地crisp/HIJ_20261114/dist；证据cos_complete_backup.json。本机最终清点first_batch_completion.json通过；六批清单无失败、无pending。
+- 服务器约243GiB可用，无实验工作进程，仍开机；没有启动H2D/H2P/H1c/I1。此次结果、表格、合同、源码与核对记录提交至codex/e2e-handoff，完整原始输出/压缩包保留本机和COS，Git不收大原始包。

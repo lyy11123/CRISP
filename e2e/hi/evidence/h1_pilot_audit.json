@@ -1,0 +1,921 @@
+{
+  "status": "passed",
+  "candidates": 4,
+  "full_searches": 4,
+  "full_search_steps": 4000,
+  "backend_samples": 40,
+  "random_cpcm_evaluations": 40,
+  "audits": [
+    {
+      "candidate_id": "H_llama_busybarn_decode_mha_A3h_g0_s123",
+      "raw_sha256": "6128b49e36defdfad2c1ae6ec812b6e05c85ad9b5bdee05d7dfa76daf0aed5f1",
+      "result_sha256": "cb809ac8e49c7f6a569efdb1f19e9d807321dfed76f14983fb4ff0d2a01bdd83",
+      "snapshot_sha256": "13434aed8b6ab7b6323d5b7c4aaf1765fb786dd0d92f069a9a858560a371b62a",
+      "full_steps": true,
+      "exact_rollback_kept": true,
+      "debug_checks_off": true,
+      "original_temperature_schedule": true,
+      "raw_backend_and_random_cpcm_match": true,
+      "receipt_identity_matches": true,
+      "independent_snapshot_mapping_routes_layout_and_T_match": true
+    },
+    {
+      "candidate_id": "H_llama_busybarn_decode_ffn_A3h_g0_s123",
+      "raw_sha256": "929dd89bdf36b54afa1726f9bc3832c41a3c7e62e6fce48689d9f38af386114b",
+      "result_sha256": "f4234dcd58da27317d9b3b2816903ee1c30f7526567fefcb954799226aa543e5",
+      "snapshot_sha256": "60ccc012097b49bf5b84d4f5fc6f285b4b224e595b6fdd228b11a65d051fd96b",
+      "full_steps": true,
+      "exact_rollback_kept": true,
+      "debug_checks_off": true,
+      "original_temperature_schedule": true,
+      "raw_backend_and_random_cpcm_match": true,
+      "receipt_identity_matches": true,
+      "independent_snapshot_mapping_routes_layout_and_T_match": true
+    },
+    {
+      "candidate_id": "H_llama_busybarn_prefill_mha_A3h_g0_s123",
+      "raw_sha256": "b93bc2723bcb9c4e61dc4309b933ffc5f1afb7d9c38689e7cdb3c27cbcc088e3",
+      "result_sha256": "7474c4c26d19d6190e3a54a01b8a9575d033db1f255b6dcc44e3d948fe6d144c",
+      "snapshot_sha256": "ced466d833ef8c23cb143ed166e34071ac9635add0db776b9d6e1d853062ca1b",
+      "full_steps": true,
+      "exact_rollback_kept": true,
+      "debug_checks_off": true,
+      "original_temperature_schedule": true,
+      "raw_backend_and_random_cpcm_match": true,
+      "receipt_identity_matches": true,
+      "independent_snapshot_mapping_routes_layout_and_T_match": true
+    },
+    {
+      "candidate_id": "H_llama_busybarn_prefill_ffn_A3h_g0_s123",
+      "raw_sha256": "44f962197b7a7a5a75b1f7fd11c2e9125cc3d4802c5d470e2300018498bf52da",
+      "result_sha256": "1aa547d80d73104c48fcb2bb4d922c5a8a77f36e5131f0cd71f7ad309f60a302",
+      "snapshot_sha256": "bf7e017d3e2479967f3bdb73c8e47f3b3a63f241ed357b56dd635d56540614fc",
+      "full_steps": true,
+      "exact_rollback_kept": true,
+      "debug_checks_off": true,
+      "original_temperature_schedule": true,
+      "raw_backend_and_random_cpcm_match": true,
+      "receipt_identity_matches": true,
+      "independent_snapshot_mapping_routes_layout_and_T_match": true
+    }
+  ],
+  "algorithm_wall_process_hours": 0.14920728145194315,
+  "receipt_process_hours": 0.15114485103944186,
+  "batch": {
+    "completed": 4,
+    "failed": [],
+    "pending": [],
+    "wall_seconds": 310.06631790299434,
+    "max_active": 4,
+    "min_available_gib": 238.3722686767578
+  },
+  "forecast": {
+    "created_date": "2026-11-14",
+    "source": "four complete 1000-step A3h pilots plus 40 static graph checks",
+    "g0_graph_proxies": true,
+    "A1_Gemini_search_times_measured": false,
+    "fixed_evaluation_seconds": 12.697462109012122,
+    "size_scale": "mean(target_events/anchor_events, target_(compute+branch_hops)/anchor_(compute+branch_hops))",
+    "formula": "configure + min_observed_evaluation_other + scaled_template_build + size_scale*(anchor_full - configure - min_observed_evaluation_other - anchor_template)",
+    "queue": "same-class first-candidate completion gates remaining candidates; longest ready job first, 128 processes maximum, individual memory hints at 1.25*estimated RSS, 3 GiB reserve",
+    "planning_factor": [
+      1.5,
+      3.0
+    ],
+    "forecast_includes": "search, calibration, state export/reload, 10 backend and 10 CPCM calls; Gemini seed123 adds 10 terminal-state backend calls; excludes later faults/joint/J and transfer/reporting"
+  },
+  "planned_release_batches": [
+    {
+      "batch": "H2D",
+      "total": 166,
+      "initial_release": 36,
+      "class_calibrations": [
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "ffn",
+            "A1"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_ffn_A1_g0_l0",
+          "release_after_success": [
+            "H_llama_busybarn_decode_ffn_A1_g0_l1",
+            "H_llama_busybarn_decode_ffn_A1_g0_l2",
+            "H_llama_busybarn_decode_ffn_A1_g0_l3",
+            "H_llama_busybarn_decode_ffn_A1_g0_l4",
+            "H_llama_busybarn_decode_ffn_A1_g0_l5",
+            "H_llama_busybarn_decode_ffn_A1_g0_l6",
+            "H_llama_busybarn_decode_ffn_A1_g1_l0",
+            "H_llama_busybarn_decode_ffn_A1_g1_l1",
+            "H_llama_busybarn_decode_ffn_A1_g1_l2",
+            "H_llama_busybarn_decode_ffn_A1_g1_l3",
+            "H_llama_busybarn_decode_ffn_A1_g1_l4",
+            "H_llama_busybarn_decode_ffn_A1_g1_l5",
+            "H_llama_busybarn_decode_ffn_A1_g1_l6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "ffn",
+            "Gemini"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_ffn_Gemini_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s1",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s2",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s3",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s4",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s5",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s6",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s7",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s8",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s9",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s10",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s11",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s12",
+            "H_llama_busybarn_decode_ffn_Gemini_g0_s13"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "ln",
+            "A1"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_ln_A1_g0_l0",
+          "release_after_success": [
+            "H_llama_busybarn_decode_ln_A1_g0_l1",
+            "H_llama_busybarn_decode_ln_A1_g0_l2",
+            "H_llama_busybarn_decode_ln_A1_g0_l3",
+            "H_llama_busybarn_decode_ln_A1_g0_l4",
+            "H_llama_busybarn_decode_ln_A1_g0_l5",
+            "H_llama_busybarn_decode_ln_A1_g0_l6",
+            "H_llama_busybarn_decode_ln_A1_g1_l0",
+            "H_llama_busybarn_decode_ln_A1_g1_l1",
+            "H_llama_busybarn_decode_ln_A1_g1_l2",
+            "H_llama_busybarn_decode_ln_A1_g1_l3",
+            "H_llama_busybarn_decode_ln_A1_g1_l4",
+            "H_llama_busybarn_decode_ln_A1_g1_l5",
+            "H_llama_busybarn_decode_ln_A1_g1_l6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "ln",
+            "A3h"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_ln_A3h_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_decode_ln_A3h_g0_s1",
+            "H_llama_busybarn_decode_ln_A3h_g0_s2",
+            "H_llama_busybarn_decode_ln_A3h_g0_s3",
+            "H_llama_busybarn_decode_ln_A3h_g0_s4",
+            "H_llama_busybarn_decode_ln_A3h_g0_s5",
+            "H_llama_busybarn_decode_ln_A3h_g0_s6",
+            "H_llama_busybarn_decode_ln_A3h_g1_s123",
+            "H_llama_busybarn_decode_ln_A3h_g1_s1",
+            "H_llama_busybarn_decode_ln_A3h_g1_s2",
+            "H_llama_busybarn_decode_ln_A3h_g1_s3",
+            "H_llama_busybarn_decode_ln_A3h_g1_s4",
+            "H_llama_busybarn_decode_ln_A3h_g1_s5",
+            "H_llama_busybarn_decode_ln_A3h_g1_s6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "ln",
+            "Gemini"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_ln_Gemini_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_decode_ln_Gemini_g0_s1",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s2",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s3",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s4",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s5",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s6",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s7",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s8",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s9",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s10",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s11",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s12",
+            "H_llama_busybarn_decode_ln_Gemini_g0_s13"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "mha",
+            "A1"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_mha_A1_g0_l0",
+          "release_after_success": [
+            "H_llama_busybarn_decode_mha_A1_g0_l1",
+            "H_llama_busybarn_decode_mha_A1_g0_l2",
+            "H_llama_busybarn_decode_mha_A1_g0_l3",
+            "H_llama_busybarn_decode_mha_A1_g0_l4",
+            "H_llama_busybarn_decode_mha_A1_g0_l5",
+            "H_llama_busybarn_decode_mha_A1_g0_l6",
+            "H_llama_busybarn_decode_mha_A1_g1_l0",
+            "H_llama_busybarn_decode_mha_A1_g1_l1",
+            "H_llama_busybarn_decode_mha_A1_g1_l2",
+            "H_llama_busybarn_decode_mha_A1_g1_l3",
+            "H_llama_busybarn_decode_mha_A1_g1_l4",
+            "H_llama_busybarn_decode_mha_A1_g1_l5",
+            "H_llama_busybarn_decode_mha_A1_g1_l6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "mha",
+            "Gemini"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_mha_Gemini_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_decode_mha_Gemini_g0_s1",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s2",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s3",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s4",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s5",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s6",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s7",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s8",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s9",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s10",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s11",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s12",
+            "H_llama_busybarn_decode_mha_Gemini_g0_s13"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "proj",
+            "A1"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_proj_A1_g0_l0",
+          "release_after_success": [
+            "H_llama_busybarn_decode_proj_A1_g0_l1",
+            "H_llama_busybarn_decode_proj_A1_g0_l2",
+            "H_llama_busybarn_decode_proj_A1_g0_l3",
+            "H_llama_busybarn_decode_proj_A1_g0_l4",
+            "H_llama_busybarn_decode_proj_A1_g0_l5",
+            "H_llama_busybarn_decode_proj_A1_g0_l6",
+            "H_llama_busybarn_decode_proj_A1_g1_l0",
+            "H_llama_busybarn_decode_proj_A1_g1_l1",
+            "H_llama_busybarn_decode_proj_A1_g1_l2",
+            "H_llama_busybarn_decode_proj_A1_g1_l3",
+            "H_llama_busybarn_decode_proj_A1_g1_l4",
+            "H_llama_busybarn_decode_proj_A1_g1_l5",
+            "H_llama_busybarn_decode_proj_A1_g1_l6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "proj",
+            "A3h"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_proj_A3h_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_decode_proj_A3h_g0_s1",
+            "H_llama_busybarn_decode_proj_A3h_g0_s2",
+            "H_llama_busybarn_decode_proj_A3h_g0_s3",
+            "H_llama_busybarn_decode_proj_A3h_g0_s4",
+            "H_llama_busybarn_decode_proj_A3h_g0_s5",
+            "H_llama_busybarn_decode_proj_A3h_g0_s6",
+            "H_llama_busybarn_decode_proj_A3h_g1_s123",
+            "H_llama_busybarn_decode_proj_A3h_g1_s1",
+            "H_llama_busybarn_decode_proj_A3h_g1_s2",
+            "H_llama_busybarn_decode_proj_A3h_g1_s3",
+            "H_llama_busybarn_decode_proj_A3h_g1_s4",
+            "H_llama_busybarn_decode_proj_A3h_g1_s5",
+            "H_llama_busybarn_decode_proj_A3h_g1_s6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "decode",
+            "proj",
+            "Gemini"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_decode_proj_Gemini_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_decode_proj_Gemini_g0_s1",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s2",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s3",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s4",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s5",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s6",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s7",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s8",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s9",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s10",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s11",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s12",
+            "H_llama_busybarn_decode_proj_Gemini_g0_s13"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        }
+      ],
+      "already_measured_A3h_groups_released": true,
+      "launch_example": "python e2e/fg_batch.py --manifest e2e/hi/manifest/h2d_planned.json --out <shared-output> --workers 128 --reserve-gib 3 --name h2d --release-file e2e/hi/manifest/h2d_initial_release.json",
+      "note": "Planned only. In a combined queue, merge these unchanged job specs and release IDs so total concurrency remains <=128."
+    },
+    {
+      "batch": "H2P",
+      "total": 166,
+      "initial_release": 36,
+      "class_calibrations": [
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "ffn",
+            "A1"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_ffn_A1_g0_l0",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_ffn_A1_g0_l1",
+            "H_llama_busybarn_prefill_ffn_A1_g0_l2",
+            "H_llama_busybarn_prefill_ffn_A1_g0_l3",
+            "H_llama_busybarn_prefill_ffn_A1_g0_l4",
+            "H_llama_busybarn_prefill_ffn_A1_g0_l5",
+            "H_llama_busybarn_prefill_ffn_A1_g0_l6",
+            "H_llama_busybarn_prefill_ffn_A1_g1_l0",
+            "H_llama_busybarn_prefill_ffn_A1_g1_l1",
+            "H_llama_busybarn_prefill_ffn_A1_g1_l2",
+            "H_llama_busybarn_prefill_ffn_A1_g1_l3",
+            "H_llama_busybarn_prefill_ffn_A1_g1_l4",
+            "H_llama_busybarn_prefill_ffn_A1_g1_l5",
+            "H_llama_busybarn_prefill_ffn_A1_g1_l6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "ffn",
+            "Gemini"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_ffn_Gemini_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s1",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s2",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s3",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s4",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s5",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s6",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s7",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s8",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s9",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s10",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s11",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s12",
+            "H_llama_busybarn_prefill_ffn_Gemini_g0_s13"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "ln",
+            "A1"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_ln_A1_g0_l0",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_ln_A1_g0_l1",
+            "H_llama_busybarn_prefill_ln_A1_g0_l2",
+            "H_llama_busybarn_prefill_ln_A1_g0_l3",
+            "H_llama_busybarn_prefill_ln_A1_g0_l4",
+            "H_llama_busybarn_prefill_ln_A1_g0_l5",
+            "H_llama_busybarn_prefill_ln_A1_g0_l6",
+            "H_llama_busybarn_prefill_ln_A1_g1_l0",
+            "H_llama_busybarn_prefill_ln_A1_g1_l1",
+            "H_llama_busybarn_prefill_ln_A1_g1_l2",
+            "H_llama_busybarn_prefill_ln_A1_g1_l3",
+            "H_llama_busybarn_prefill_ln_A1_g1_l4",
+            "H_llama_busybarn_prefill_ln_A1_g1_l5",
+            "H_llama_busybarn_prefill_ln_A1_g1_l6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "ln",
+            "A3h"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_ln_A3h_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_ln_A3h_g0_s1",
+            "H_llama_busybarn_prefill_ln_A3h_g0_s2",
+            "H_llama_busybarn_prefill_ln_A3h_g0_s3",
+            "H_llama_busybarn_prefill_ln_A3h_g0_s4",
+            "H_llama_busybarn_prefill_ln_A3h_g0_s5",
+            "H_llama_busybarn_prefill_ln_A3h_g0_s6",
+            "H_llama_busybarn_prefill_ln_A3h_g1_s123",
+            "H_llama_busybarn_prefill_ln_A3h_g1_s1",
+            "H_llama_busybarn_prefill_ln_A3h_g1_s2",
+            "H_llama_busybarn_prefill_ln_A3h_g1_s3",
+            "H_llama_busybarn_prefill_ln_A3h_g1_s4",
+            "H_llama_busybarn_prefill_ln_A3h_g1_s5",
+            "H_llama_busybarn_prefill_ln_A3h_g1_s6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "ln",
+            "Gemini"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_ln_Gemini_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s1",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s2",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s3",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s4",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s5",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s6",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s7",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s8",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s9",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s10",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s11",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s12",
+            "H_llama_busybarn_prefill_ln_Gemini_g0_s13"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "mha",
+            "A1"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_mha_A1_g0_l0",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_mha_A1_g0_l1",
+            "H_llama_busybarn_prefill_mha_A1_g0_l2",
+            "H_llama_busybarn_prefill_mha_A1_g0_l3",
+            "H_llama_busybarn_prefill_mha_A1_g0_l4",
+            "H_llama_busybarn_prefill_mha_A1_g0_l5",
+            "H_llama_busybarn_prefill_mha_A1_g0_l6",
+            "H_llama_busybarn_prefill_mha_A1_g1_l0",
+            "H_llama_busybarn_prefill_mha_A1_g1_l1",
+            "H_llama_busybarn_prefill_mha_A1_g1_l2",
+            "H_llama_busybarn_prefill_mha_A1_g1_l3",
+            "H_llama_busybarn_prefill_mha_A1_g1_l4",
+            "H_llama_busybarn_prefill_mha_A1_g1_l5",
+            "H_llama_busybarn_prefill_mha_A1_g1_l6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "mha",
+            "Gemini"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_mha_Gemini_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s1",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s2",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s3",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s4",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s5",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s6",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s7",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s8",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s9",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s10",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s11",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s12",
+            "H_llama_busybarn_prefill_mha_Gemini_g0_s13"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "proj",
+            "A1"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_proj_A1_g0_l0",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_proj_A1_g0_l1",
+            "H_llama_busybarn_prefill_proj_A1_g0_l2",
+            "H_llama_busybarn_prefill_proj_A1_g0_l3",
+            "H_llama_busybarn_prefill_proj_A1_g0_l4",
+            "H_llama_busybarn_prefill_proj_A1_g0_l5",
+            "H_llama_busybarn_prefill_proj_A1_g0_l6",
+            "H_llama_busybarn_prefill_proj_A1_g1_l0",
+            "H_llama_busybarn_prefill_proj_A1_g1_l1",
+            "H_llama_busybarn_prefill_proj_A1_g1_l2",
+            "H_llama_busybarn_prefill_proj_A1_g1_l3",
+            "H_llama_busybarn_prefill_proj_A1_g1_l4",
+            "H_llama_busybarn_prefill_proj_A1_g1_l5",
+            "H_llama_busybarn_prefill_proj_A1_g1_l6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "proj",
+            "A3h"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_proj_A3h_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_proj_A3h_g0_s1",
+            "H_llama_busybarn_prefill_proj_A3h_g0_s2",
+            "H_llama_busybarn_prefill_proj_A3h_g0_s3",
+            "H_llama_busybarn_prefill_proj_A3h_g0_s4",
+            "H_llama_busybarn_prefill_proj_A3h_g0_s5",
+            "H_llama_busybarn_prefill_proj_A3h_g0_s6",
+            "H_llama_busybarn_prefill_proj_A3h_g1_s123",
+            "H_llama_busybarn_prefill_proj_A3h_g1_s1",
+            "H_llama_busybarn_prefill_proj_A3h_g1_s2",
+            "H_llama_busybarn_prefill_proj_A3h_g1_s3",
+            "H_llama_busybarn_prefill_proj_A3h_g1_s4",
+            "H_llama_busybarn_prefill_proj_A3h_g1_s5",
+            "H_llama_busybarn_prefill_proj_A3h_g1_s6"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "busybarn",
+            "prefill",
+            "proj",
+            "Gemini"
+          ],
+          "prerequisite_candidate": "H_llama_busybarn_prefill_proj_Gemini_g0_s123",
+          "release_after_success": [
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s1",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s2",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s3",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s4",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s5",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s6",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s7",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s8",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s9",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s10",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s11",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s12",
+            "H_llama_busybarn_prefill_proj_Gemini_g0_s13"
+          ],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        }
+      ],
+      "already_measured_A3h_groups_released": true,
+      "launch_example": "python e2e/fg_batch.py --manifest e2e/hi/manifest/h2p_planned.json --out <shared-output> --workers 128 --reserve-gib 3 --name h2p --release-file e2e/hi/manifest/h2p_initial_release.json",
+      "note": "Planned only. In a combined queue, merge these unchanged job specs and release IDs so total concurrency remains <=128."
+    },
+    {
+      "batch": "H1c",
+      "total": 4,
+      "initial_release": 4,
+      "class_calibrations": [
+        {
+          "category": [
+            "llama",
+            "watos",
+            "decode",
+            "ffn",
+            "A3h"
+          ],
+          "prerequisite_candidate": "H_llama_watos_decode_ffn_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "watos",
+            "decode",
+            "mha",
+            "A3h"
+          ],
+          "prerequisite_candidate": "H_llama_watos_decode_mha_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "watos",
+            "prefill",
+            "ffn",
+            "A3h"
+          ],
+          "prerequisite_candidate": "H_llama_watos_prefill_ffn_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "llama",
+            "watos",
+            "prefill",
+            "mha",
+            "A3h"
+          ],
+          "prerequisite_candidate": "H_llama_watos_prefill_mha_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        }
+      ],
+      "already_measured_A3h_groups_released": true,
+      "launch_example": "python e2e/fg_batch.py --manifest e2e/hi/manifest/h1c_planned.json --out <shared-output> --workers 128 --reserve-gib 3 --name h1c --release-file e2e/hi/manifest/h1c_initial_release.json",
+      "note": "Planned only. In a combined queue, merge these unchanged job specs and release IDs so total concurrency remains <=128."
+    },
+    {
+      "batch": "I1",
+      "total": 8,
+      "initial_release": 8,
+      "class_calibrations": [
+        {
+          "category": [
+            "qwen3moe",
+            "busybarn",
+            "decode",
+            "ffn",
+            "A3h"
+          ],
+          "prerequisite_candidate": "I_qwen3moe_busybarn_decode_ffn_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "qwen3moe",
+            "busybarn",
+            "decode",
+            "mha",
+            "A3h"
+          ],
+          "prerequisite_candidate": "I_qwen3moe_busybarn_decode_mha_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "qwen3moe",
+            "busybarn",
+            "prefill",
+            "ffn",
+            "A3h"
+          ],
+          "prerequisite_candidate": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "qwen3moe",
+            "busybarn",
+            "prefill",
+            "mha",
+            "A3h"
+          ],
+          "prerequisite_candidate": "I_qwen3moe_busybarn_prefill_mha_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "qwen3moe",
+            "watos",
+            "decode",
+            "ffn",
+            "A3h"
+          ],
+          "prerequisite_candidate": "I_qwen3moe_watos_decode_ffn_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "qwen3moe",
+            "watos",
+            "decode",
+            "mha",
+            "A3h"
+          ],
+          "prerequisite_candidate": "I_qwen3moe_watos_decode_mha_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "qwen3moe",
+            "watos",
+            "prefill",
+            "ffn",
+            "A3h"
+          ],
+          "prerequisite_candidate": "I_qwen3moe_watos_prefill_ffn_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        },
+        {
+          "category": [
+            "qwen3moe",
+            "watos",
+            "prefill",
+            "mha",
+            "A3h"
+          ],
+          "prerequisite_candidate": "I_qwen3moe_watos_prefill_mha_A3h_g0_s123",
+          "release_after_success": [],
+          "update_using": [
+            "complete job seconds including all evaluations",
+            "peak RSS",
+            "successful matching receipt"
+          ]
+        }
+      ],
+      "already_measured_A3h_groups_released": true,
+      "launch_example": "python e2e/fg_batch.py --manifest e2e/hi/manifest/i1_planned.json --out <shared-output> --workers 128 --reserve-gib 3 --name i1 --release-file e2e/hi/manifest/i1_initial_release.json",
+      "note": "Planned only. In a combined queue, merge these unchanged job specs and release IDs so total concurrency remains <=128."
+    }
+  ]
+}

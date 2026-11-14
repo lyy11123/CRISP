@@ -1,0 +1,257 @@
+{
+  "model": "llama",
+  "model_contract_version": "hi_model_v1",
+  "graph_order_version": "hi_native_order_v1",
+  "workload_version": "W1_8Q_1KV_v1",
+  "batch": 8,
+  "hidden": 8192,
+  "q_heads": 64,
+  "head_dim": 128,
+  "q_heads_per_graph": 8,
+  "kv_heads_per_graph": 1,
+  "head_groups": 8,
+  "ffn_dim": 28672,
+  "layers": 80,
+  "sequence_length": 2048,
+  "dtype": "bf16",
+  "q_loop": "range(heads), heads=8",
+  "decode_chain": {
+    "norm": 1,
+    "mha": 8,
+    "proj": 1,
+    "ffn": 1
+  },
+  "prefill_chain": {
+    "norm": 2,
+    "mha": 8,
+    "proj": 1,
+    "ffn": 1
+  },
+  "decode_ffn_includes_rmsnorm": true,
+  "prefill_ffn_includes_rmsnorm": false,
+  "llama_decode_gate_input": "both MLPmlp1 and MLPmlp2 read ln_data_tag; residual reads activation_data_tag",
+  "kv_identity": "cache_list tensor tags and generating behaviours, not GPT kconv/vconv names",
+  "kv_cache_length": 2048,
+  "prefill_kv_output_bytes_per_group": 8388608,
+  "decode_new_kv_output_bytes_per_group": 4096,
+  "decode_history_kv_logical_bytes_per_group": 1048576,
+  "decode_history": "one shared Ktranspose/V offline tensor pair for eight Q heads; history is shared across batch; per-head biases and arithmetic retained",
+  "native_mha_broadcast": "cache_list=[kt_data_tag,v_data_tag]; QKT/S are not appended",
+  "w1_filter": "construct native broadcast with its routes, remove qkt/s_softmax added messages; expected zero for native H/I templates",
+  "expert_assignment": null,
+  "capacity_assumption": "single-layer/operator simulation; capacity metadata is not an admission check",
+  "layer_count_use": "analytical accumulation only; full model simultaneous residency not simulated",
+  "generated_sources": [
+    {
+      "phase": "decode",
+      "op": "ln",
+      "method": "A3h",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_decode\\ln.py",
+      "template_sha256": "d6059ebea665732469efa75f3496711e6d0d09ab688939ed3e77ca7d92aca62d",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_decode\\py\\ln_sq2048_greedy0_lossratio0_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "11f22c37d10cdf354e8f05fcc175ac26fcb685d3c4e5ed741713dd1124c8da02"
+    },
+    {
+      "phase": "decode",
+      "op": "ln",
+      "method": "Gemini",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_decode\\ln.py",
+      "template_sha256": "d6059ebea665732469efa75f3496711e6d0d09ab688939ed3e77ca7d92aca62d",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_decode\\py\\ln_sq2048_gemini_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "a4c6e4772d9b5edfe6a200ed5d225c43aaea57eed6809d0f434b3aba49efaae5"
+    },
+    {
+      "phase": "decode",
+      "op": "mha",
+      "method": "A3h",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_decode\\mha.py",
+      "template_sha256": "a9eb915644e1d5c5f2da6bd58a9db8eaebb415fc3fa72ad3f78f003e043064a5",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_decode\\py\\mha_sq2048_greedy0_lossratio0_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "c27934d279b16bb79406f9c796374203cc2a70ab683ab5b0441fb45d75807501"
+    },
+    {
+      "phase": "decode",
+      "op": "mha",
+      "method": "Gemini",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_decode\\mha.py",
+      "template_sha256": "a9eb915644e1d5c5f2da6bd58a9db8eaebb415fc3fa72ad3f78f003e043064a5",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_decode\\py\\mha_sq2048_gemini_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "04b5f398208ecabede8adabc039836fd96cb0e1e8d8093a77093ec90393df081"
+    },
+    {
+      "phase": "decode",
+      "op": "proj",
+      "method": "A3h",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_decode\\proj.py",
+      "template_sha256": "085ef8a1d46d59fb3eab7d46d1a048a18f404feee65caa001eb0731127a87128",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_decode\\py\\proj_sq2048_greedy0_lossratio0_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "4b646697d1bb82f3d1897a792fe39ca925e0618f1be9ab52cf6d1fb9041a9236"
+    },
+    {
+      "phase": "decode",
+      "op": "proj",
+      "method": "Gemini",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_decode\\proj.py",
+      "template_sha256": "085ef8a1d46d59fb3eab7d46d1a048a18f404feee65caa001eb0731127a87128",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_decode\\py\\proj_sq2048_gemini_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "9fba684fae1653b9ed72d5fee90643871a32b4ba2a040fe7089c5d4d315a9b65"
+    },
+    {
+      "phase": "decode",
+      "op": "ffn",
+      "method": "A3h",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_decode\\ffn.py",
+      "template_sha256": "d419a227c3fde3792af21ded91ce7fe310df8197079e555d706427efb5cc5967",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_decode\\py\\ffn_sq2048_greedy0_lossratio0_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "b0653e6231dcab9b3624f5f2c1cebd09d2d65b092b31382a027e6a3fc682bcb4"
+    },
+    {
+      "phase": "decode",
+      "op": "ffn",
+      "method": "Gemini",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_decode\\ffn.py",
+      "template_sha256": "d419a227c3fde3792af21ded91ce7fe310df8197079e555d706427efb5cc5967",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_decode\\py\\ffn_sq2048_gemini_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "1eb8f2e190694afbd9666fc07163e5e7d0d39b71b65c9c48b11aef7277a17091"
+    },
+    {
+      "phase": "prefill",
+      "op": "ln",
+      "method": "A3h",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_prefill\\ln.py",
+      "template_sha256": "d7e482d20ed6af8a04fdd64f38b68ff39b18c73fa079fd7377774471e9f97049",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_prefill\\py\\ln_sq2048_greedy0_lossratio0_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "0bc73860aa9884128a14de08a2b753f56d7deb8949e258f81dd3281d8e881e98"
+    },
+    {
+      "phase": "prefill",
+      "op": "ln",
+      "method": "Gemini",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_prefill\\ln.py",
+      "template_sha256": "d7e482d20ed6af8a04fdd64f38b68ff39b18c73fa079fd7377774471e9f97049",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_prefill\\py\\ln_sq2048_gemini_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "ab3991b0b20b9ea7ab2233bbe9972e44ba21cd4457917792e9171ba2d8858388"
+    },
+    {
+      "phase": "prefill",
+      "op": "mha",
+      "method": "A3h",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_prefill\\mha.py",
+      "template_sha256": "4f055a8c82765dcc7557831b7dae5998252e678bc6f581dab759d41833b37fa0",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_prefill\\py\\mha_sq2048_greedy0_lossratio0_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "291f676188c92ca9333d69e88669f9cc13fcf32a76df0d4bd55c638be2a2a4cf"
+    },
+    {
+      "phase": "prefill",
+      "op": "mha",
+      "method": "Gemini",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_prefill\\mha.py",
+      "template_sha256": "4f055a8c82765dcc7557831b7dae5998252e678bc6f581dab759d41833b37fa0",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_prefill\\py\\mha_sq2048_gemini_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "f7631c75fe4ea8bf67e7e015580058938cc51d539c11830796ad96ec9080bc64"
+    },
+    {
+      "phase": "prefill",
+      "op": "proj",
+      "method": "A3h",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_prefill\\proj.py",
+      "template_sha256": "3abf7c5679fdda0f9a39539139c69f3a5fb881a0b981265cc908317eeeceb8af",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_prefill\\py\\proj_sq2048_greedy0_lossratio0_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "e5cff59bb5178cc432a8ccdeaf6c97bb8838ce8b438534a2986470f1c0d63041"
+    },
+    {
+      "phase": "prefill",
+      "op": "proj",
+      "method": "Gemini",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_prefill\\proj.py",
+      "template_sha256": "3abf7c5679fdda0f9a39539139c69f3a5fb881a0b981265cc908317eeeceb8af",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_prefill\\py\\proj_sq2048_gemini_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "3d29cfea6ab06f2174186d3e3de431d61dfc681fa21485e1f0cba23bd00f2d67"
+    },
+    {
+      "phase": "prefill",
+      "op": "ffn",
+      "method": "A3h",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_prefill\\ffn.py",
+      "template_sha256": "bfdd42e81a69df0340ec331dbbe1ca7772f67cf683246dc62c50e642ed3bfc83",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_prefill\\py\\ffn_sq2048_greedy0_lossratio0_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "a28046e88003f443a3250d6645e3713af891e3baf216cf2f0fff2e37cbd324bc"
+    },
+    {
+      "phase": "prefill",
+      "op": "ffn",
+      "method": "Gemini",
+      "template": "e2e\\work\\artifact\\models\\intra_mapping_llama_prefill\\ffn.py",
+      "template_sha256": "bfdd42e81a69df0340ec331dbbe1ca7772f67cf683246dc62c50e642ed3bfc83",
+      "generated": "e2e\\work\\artifact\\models\\hi_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a_prefill\\py\\ffn_sq2048_gemini_ch2x2_hi_model_v1_llama_busybarn_2x2_fixed_668547c78787_11d1a7d97a.py",
+      "generated_sha256": "394940ec18065c1e3474d0415b3f7c8b82c5154b3ebfef089fd2b5f310c9d8ea"
+    }
+  ],
+  "validation": {
+    "status": "passed",
+    "core_contract_sha256": "11d1a7d97abdfbae27597b1dbcc172c10e7dfe9dc36b174d91c556f05acf2166",
+    "evidence": "../../evidence/model_contract_validation.json",
+    "mapped_graphs": 20,
+    "busybarn_gemini_semantics_pairs": 8,
+    "watos_parameter_and_route_checks": 4,
+    "q_heads_per_graph": 8,
+    "kv_heads_per_graph": 1,
+    "decode_chain_head_groups": 8,
+    "w1_native_qkt_s_final_broadcasts": 0,
+    "w1_removed_final_messages": 0,
+    "w1_explanation": "Native H/I final broadcasts request only cache_list, so QKT/S produce no final broadcast messages. The W1 wrapper remains installed during search and final evaluation.",
+    "shared_history_evidence": "../../evidence/history_kv_sharing.json",
+    "native_history_change": "Each Q head originally allocated separate offline K/V tensors. Generated decode scripts reuse the first K and first V weight tags for all 8 Q heads; arithmetic, output tensors and per-head biases are unchanged.",
+    "gemini_interface_checks": 8,
+    "gemini_seeds": [
+      123,
+      1
+    ],
+    "gemini_steps_per_seed": 2,
+    "gemini_backend_evaluations": 0,
+    "gemini_initialization_seed": 123,
+    "gemini_different_proposal_traces": true,
+    "kv_message_evidence": [
+      "../../evidence/kv_llama_decode.json",
+      "../../evidence/kv_llama_prefill.json"
+    ],
+    "split_prefilter": [
+      {
+        "model": "llama",
+        "op": "proj",
+        "tensor_blocks": 64,
+        "legal_m2_blocks": 64,
+        "legal_axes": {
+          "N": 64,
+          "M": 64
+        },
+        "terminal_tensor_broadcasts": 0,
+        "covered_pes": 64,
+        "min_blocks_per_pe": 1,
+        "max_blocks_per_pe": 1,
+        "legal_tensor_flops": 2199023255552,
+        "preference": "alternative",
+        "fixed_MF6_pe_not_yet_selected": true
+      },
+      {
+        "model": "llama",
+        "op": "ffn",
+        "tensor_blocks": 192,
+        "legal_m2_blocks": 192,
+        "legal_axes": {
+          "N": 192,
+          "M": 192
+        },
+        "terminal_tensor_broadcasts": 0,
+        "covered_pes": 64,
+        "min_blocks_per_pe": 3,
+        "max_blocks_per_pe": 3,
+        "legal_tensor_flops": 23089744183296,
+        "preference": "first choice",
+        "fixed_MF6_pe_not_yet_selected": true
+      }
+    ],
+    "initial_graph_peak_rss_gib": 0.38672637939453125,
+    "initial_graph_max_build_seconds": 7.054085976000351
+  }
+}

@@ -1,0 +1,298 @@
+{
+  "model": "qwen3moe",
+  "protocol": "hi_joint_inputs_v1",
+  "status": "ok",
+  "model_contract_sha256": "49668fb8bfeb48fe14cd85756e82c610532ae6d9a67aeb8271b5b4cd3917c166",
+  "source_kind": "initial_graph_interface_check",
+  "new_searches": 0,
+  "new_backend_simulations": 0,
+  "source_by_operator": {
+    "dc_ln": "initial_graph_interface_check",
+    "dc_mha": "initial_graph_interface_check",
+    "dc_proj": "initial_graph_interface_check",
+    "dc_ffn": "initial_graph_interface_check",
+    "P": "initial_graph_interface_check"
+  },
+  "chain": {
+    "order": [
+      "dc_ln",
+      "dc_mha",
+      "dc_mha",
+      "dc_mha",
+      "dc_mha",
+      "dc_proj",
+      "dc_ffn"
+    ],
+    "mha_groups": 4,
+    "external_norms": 1,
+    "ffn_embedded_norms": 1,
+    "stages": 7,
+    "barrier_edges": 22602,
+    "events": 10211,
+    "acyclic": true
+  },
+  "cache_tensors": {
+    "tensors": [
+      {
+        "tensor_tag": [
+          0,
+          10
+        ],
+        "tensor_name": "MHA_ktrans_ofmap",
+        "shape": [
+          16,
+          64,
+          2048
+        ],
+        "logical_bytes": 4194304,
+        "messages": [
+          {
+            "tag": [
+              1,
+              0,
+              0,
+              3,
+              0,
+              2
+            ],
+            "producer": [
+              0,
+              0,
+              0,
+              3,
+              0
+            ],
+            "producer_name": "MHA_ktrans_transpose_0",
+            "source": [
+              3,
+              4
+            ],
+            "payload_bytes": 1048576,
+            "target_ports": 32
+          },
+          {
+            "tag": [
+              1,
+              0,
+              0,
+              3,
+              1,
+              2
+            ],
+            "producer": [
+              0,
+              0,
+              0,
+              3,
+              1
+            ],
+            "producer_name": "MHA_ktrans_transpose_1",
+            "source": [
+              3,
+              5
+            ],
+            "payload_bytes": 1048576,
+            "target_ports": 32
+          },
+          {
+            "tag": [
+              1,
+              0,
+              0,
+              3,
+              2,
+              2
+            ],
+            "producer": [
+              0,
+              0,
+              0,
+              3,
+              2
+            ],
+            "producer_name": "MHA_ktrans_transpose_2",
+            "source": [
+              3,
+              3
+            ],
+            "payload_bytes": 1048576,
+            "target_ports": 32
+          },
+          {
+            "tag": [
+              1,
+              0,
+              0,
+              3,
+              3,
+              2
+            ],
+            "producer": [
+              0,
+              0,
+              0,
+              3,
+              3
+            ],
+            "producer_name": "MHA_ktrans_transpose_3",
+            "source": [
+              2,
+              0
+            ],
+            "payload_bytes": 1048576,
+            "target_ports": 32
+          }
+        ],
+        "payload_bytes": 4194304,
+        "ddr_copy_bytes": 134217728
+      },
+      {
+        "tensor_tag": [
+          0,
+          11
+        ],
+        "tensor_name": "MHA_vconv_ofmap",
+        "shape": [
+          16,
+          2048,
+          64
+        ],
+        "logical_bytes": 4194304,
+        "messages": [
+          {
+            "tag": [
+              1,
+              0,
+              0,
+              4,
+              0,
+              4
+            ],
+            "producer": [
+              0,
+              0,
+              0,
+              4,
+              0
+            ],
+            "producer_name": "MHA_vconv_conv1d_0",
+            "source": [
+              3,
+              8
+            ],
+            "payload_bytes": 1048576,
+            "target_ports": 32
+          },
+          {
+            "tag": [
+              1,
+              0,
+              0,
+              4,
+              1,
+              4
+            ],
+            "producer": [
+              0,
+              0,
+              0,
+              4,
+              1
+            ],
+            "producer_name": "MHA_vconv_conv1d_1",
+            "source": [
+              0,
+              12
+            ],
+            "payload_bytes": 1048576,
+            "target_ports": 32
+          },
+          {
+            "tag": [
+              1,
+              0,
+              0,
+              4,
+              2,
+              4
+            ],
+            "producer": [
+              0,
+              0,
+              0,
+              4,
+              2
+            ],
+            "producer_name": "MHA_vconv_conv1d_2",
+            "source": [
+              0,
+              15
+            ],
+            "payload_bytes": 1048576,
+            "target_ports": 32
+          },
+          {
+            "tag": [
+              1,
+              0,
+              0,
+              4,
+              3,
+              4
+            ],
+            "producer": [
+              0,
+              0,
+              0,
+              4,
+              3
+            ],
+            "producer_name": "MHA_vconv_conv1d_3",
+            "source": [
+              0,
+              7
+            ],
+            "payload_bytes": 1048576,
+            "target_ports": 32
+          }
+        ],
+        "payload_bytes": 4194304,
+        "ddr_copy_bytes": 134217728
+      }
+    ],
+    "logical_bytes": 8388608,
+    "payload_bytes": 8388608,
+    "messages": 8,
+    "ddr_copy_bytes": 268435456,
+    "identification": "cache_list equals broadcast_datatags, tensor tag, producer and exact region-byte multiset"
+  },
+  "kv_transfer": {
+    "messages": 8,
+    "payload_bytes": 8388608,
+    "routed_unique_link_bytes": 742391808,
+    "ddr_copy_bytes": 268435456,
+    "target_ports": 32,
+    "crossing_links": 4
+  },
+  "group_checks": {
+    "L": {
+      "links_bad": 0,
+      "links_22": 272,
+      "links_24_in_group": 272,
+      "modules_equal": true
+    },
+    "R": {
+      "links_bad": 0,
+      "links_22": 272,
+      "links_24_in_group": 272,
+      "modules_equal": true
+    }
+  },
+  "shared": {
+    "P_D_links": 0,
+    "KV_D_links": 163
+  },
+  "cross_stream_dependency_edges": 0,
+  "stream_meaning": "independent P and D requests sharing resources; P cache completion does not release this D chain",
+  "wall_seconds": 17.65417290001642
+}
