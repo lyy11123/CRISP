@@ -1,0 +1,102 @@
+{
+  "status": "passed",
+  "jobs": 72,
+  "component_rows": 792,
+  "exclusive_task_components": [
+    "backend_seconds",
+    "backend_copy_prepare_seconds",
+    "R0_prepare_seconds",
+    "L1_search_seconds",
+    "calibration_seconds",
+    "search_seconds",
+    "restore_seconds",
+    "final_cpcm_seconds",
+    "evaluation_CPCM_seconds",
+    "split_axis_construction_seconds",
+    "other_task_seconds"
+  ],
+  "task_body_seconds": 12414.430747632,
+  "startup_wrapper_poll_seconds": 112.75625183097475,
+  "receipt_seconds": 12527.186999462974,
+  "task_max_abs_error_seconds": 9.094947017729282e-13,
+  "receipt_max_abs_error_seconds": 9.094947017729282e-13,
+  "finalize_restore_counted_once": true,
+  "split_build_charged_only_to_prepare": true,
+  "old_healthy_work_not_recharged": true,
+  "quality_completed_states": 9,
+  "quality_backend_calls": 192,
+  "source_sha256": "c5564a21a016083fe034be6658e8e9c85dff8fe8ac7ec1cd5339beec091b98e4",
+  "new_searches": 0,
+  "new_backend_calls": 0,
+  "Qwen_current_L1": {
+    "model": "qwen3moe",
+    "phase_op": "pf_ffn",
+    "source_job": "C_qwen3moe__l1",
+    "backend_mean_ns": "42510367.6",
+    "backend_min_ns": "40836019",
+    "backend_max_ns": "44367860",
+    "relative_to_healthy": "0.06594805889402622",
+    "relative_to_R0": "-0.009173708830020222",
+    "T_hat_ns": "40879753",
+    "T_hat_relative_to_healthy": "0.1673094664886643",
+    "final_rigid_EIR_status": "pending"
+  },
+  "Qwen_comparison": {
+    "model": "qwen3moe",
+    "phase_op": "pf_ffn",
+    "old_rigid_bound_ns": "28760941.714285713",
+    "backend_mean_ratio_m2_vs_m1": "0.0024709372517608408",
+    "tensor_peak_ratio_m2_vs_m1": "0.0",
+    "tensor_bound_ratio_m2_vs_m1": "0.0",
+    "m1_backend_below_old_bound": "0",
+    "m2_backend_below_old_bound": "0",
+    "backend_samples_per_arm": "10",
+    "affected_activation_input_bytes_after_m1": "1417674752",
+    "affected_activation_input_bytes_after_m2": "1736441856",
+    "affected_activation_input_bytes_after_ratio_m2_vs_m1": "0.2248520710059172",
+    "route_link_bytes_m1": "385436031232",
+    "route_link_bytes_m2": "386339644672",
+    "route_link_bytes_ratio_m2_vs_m1": "0.002344392757240854",
+    "ddr_read_bytes_m1": "4712038400",
+    "ddr_read_bytes_m2": "4712038400",
+    "ddr_read_bytes_ratio_m2_vs_m1": "0.0",
+    "L1_backend_mean_ns": "42510367.6",
+    "m1_backend_relative_to_L1": "-0.07039526988235223",
+    "m2_backend_relative_to_L1": "-0.06809827492529152",
+    "m1_backend_relative_to_R0": "-0.07892319300346107",
+    "m2_backend_relative_to_R0": "-0.07664727000932037"
+  },
+  "Qwen_final_EIR": "pending",
+  "physical_fault_unchanged": true,
+  "Qwen_physical_fault": {
+    "failed_nodes": [],
+    "failed_links": [],
+    "failed_pes": [
+      [
+        3,
+        5
+      ]
+    ],
+    "kind": "PE only; router retained",
+    "rule": "A3h decode MHA backend-seed1 tensor+vector busy time; noncorner maximum; tie smallest die/core",
+    "anchor_compute_busy_ns": 710,
+    "anchor_operator": "dc_mha",
+    "anchor_candidate": "I_qwen3moe_busybarn_decode_mha_A3h_g0_s1",
+    "backend_seed": 1,
+    "failed_compute_group_fraction": 0.015625,
+    "failed_compute_die_fraction": 0.0625,
+    "failed_D2D_pair_fraction": 0,
+    "failed_bandwidth_fraction_by_type": {
+      "co2co": 0.0,
+      "ch2ch": 0.0,
+      "ddr2co": 0.0,
+      "co2ddr": 0.0
+    }
+  },
+  "Qwen_L1_cost_seconds": {
+    "task": 4863.938073339,
+    "backend_calls": 4720.925588607788,
+    "L1_search": 33.26812892600083,
+    "R0_prepare": 5.348820870999589
+  }
+}

@@ -3,6 +3,7 @@ import argparse
 from collections import Counter
 import hashlib
 import json
+import math
 from pathlib import Path
 import pickle
 import statistics
@@ -13,6 +14,9 @@ import hi_h4_report as fault_report
 from post_fg_diag import table
 
 ROOT = run.ROOT
+COST_COMPONENTS = ("backend_seconds", "backend_copy_prepare_seconds", "R0_prepare_seconds", "L1_search_seconds",
+    "calibration_seconds", "search_seconds", "restore_seconds", "final_cpcm_seconds",
+    "evaluation_CPCM_seconds", "split_axis_construction_seconds", "other_task_seconds")
 
 
 def sha(path):
@@ -67,6 +71,20 @@ def quality_row(model, phase_op, method, values, estimate, healthy, r0mean, boun
         rigid_tensor_lower_bound_ns=bound,
         backend_below_rigid_bound=sum(v<bound for v in values) if method != "healthy" else None,
         all_backend_below_rigid_bound=max(values)<bound if method != "healthy" else None)
+
+
+def complete_cost(cost):
+    measured = sum(cost[key] for key in COST_COMPONENTS if key != "other_task_seconds")
+    cost["other_task_seconds"] = cost["task_body_seconds"] - measured
+    cost["startup_wrapper_poll_seconds"] = cost["wall_seconds"] - cost["task_body_seconds"]
+    assert all(cost[key] >= -1e-6 for key in COST_COMPONENTS), cost
+    assert cost["startup_wrapper_poll_seconds"] >= -1e-6, cost
+    cost["exclusive_task_sum_seconds"] = sum(cost[key] for key in COST_COMPONENTS)
+    cost["task_partition_error_seconds"] = cost["exclusive_task_sum_seconds"] - cost["task_body_seconds"]
+    cost["receipt_partition_error_seconds"] = cost["exclusive_task_sum_seconds"] + cost["startup_wrapper_poll_seconds"] - cost["wall_seconds"]
+    assert math.isclose(cost["exclusive_task_sum_seconds"], cost["task_body_seconds"], abs_tol=1e-6)
+    assert abs(cost["receipt_partition_error_seconds"]) < 1e-6
+    return cost
 
 
 def offline_migration(state, info):
@@ -124,10 +142,12 @@ def collect(out, progress=False):
                     wall_seconds=item["receipt"]["wall_seconds"], task_body_seconds=r["wall_seconds"],
                     peak_rss_gb=item["receipt"]["peak_rss_gb"],
                     actual_search_trajectories=0, actual_backend_calls=0,
-                    backend_seconds=0., calibration_seconds=0., search_seconds=0.,
-                    restore_seconds=0., inherited_R0_seconds=0., inherited_L1_seconds=0.)
+                    **dict.fromkeys(COST_COMPONENTS, 0.),
+                    inherited_R0_seconds=0., inherited_L1_seconds=0.,
+                    receipt_reconstructed_from_task=item["receipt"].get("recovered_after_controller_restart", False),
+                    backend_timer_scope="not separately timed; any backend work remains in other_task_seconds")
         if r["status"] == "reused":
-            costs.append(cost)
+            costs.append(complete_cost(cost))
             continue
         if s["kind"] == "fault_select":
             assert r["anchor_backend_calls"] == 1
@@ -145,6 +165,7 @@ def collect(out, progress=False):
             elif s["kind"] == "fault_l1":
                 entries = [("R0", raw["R0"]), ("L1", raw["L1"])]
                 reused = False
+                cost.update(R0_prepare_seconds=raw["t_R0"], L1_search_seconds=raw["t_L1"])
             else:
                 entries = [("L2", raw["record"])]
                 reused = False
@@ -157,7 +178,8 @@ def collect(out, progress=False):
                     search_seconds=raw["search"]["t_L2_search"], restore_seconds=raw["search"]["t_restore_best"],
                     inherited_R0_seconds=raw["timing"]["t_R0"], inherited_L1_seconds=raw["timing"]["t_L1"],
                     calibration_proposals=raw["proposals"]["calibration"], search_proposals=raw["proposals"]["steps"],
-                    best_step=raw["search"]["best_step"])
+                    best_step=raw["search"]["best_step"], finalize_inclusive_seconds=raw["timing"]["t_finalize"])
+                assert math.isclose(raw["timing"]["t_finalize"], raw["search"]["t_restore_best"] + raw["record"]["t_finalize"], abs_tol=1e-9)
             for label, record in entries:
                 backend(record)
                 state_row = fault_report.state_rows(s, label, record, r, samples)
@@ -166,21 +188,27 @@ def collect(out, progress=False):
             if not reused:
                 cost["actual_backend_calls"] = 10 * len(entries)
                 cost["backend_seconds"] = sum(sum(rec["backend_wall"]) for _, rec in entries)
+                cost["backend_copy_prepare_seconds"] = sum(rec["t_backend"] for _, rec in entries) - cost["backend_seconds"]
+                cost["final_cpcm_seconds"] = sum(rec["t_finalize"] for _, rec in entries)
+                cost["backend_timer_scope"] = "EIR direct backend calls; deep-copy and setup measured separately"
             inventories.append(dict(job_id=name, raw_sha256=sha(ROOT / r["sink"]),
                 exports_sha256={k: sha(ROOT / p) for k, p in r["exports"].items()}))
         elif s["kind"] == "c_split_eval":
             assert r["seed"] == s["seed"] and r["actual_backend_calls"] == 1
             cost.update(actual_backend_calls=1, backend_seconds=r["backend_seconds"],
-                        evaluation_CPCM_seconds=r["cpcm_seconds"])
+                        evaluation_CPCM_seconds=r["cpcm_seconds"],
+                        backend_timer_scope="Split saved backend interval includes the platform copy passed to event_driver; event copy is in other_task_seconds")
             samples.append(dict(job_id=name, model=s["model"], phase_op=s["phase_op"],
                 state=s["method"], backend_seed=s["seed"], backend_ns=r["backend_triple_ns"][0],
                 unhidden_compute_ns=r["backend_triple_ns"][1], unhidden_communication_ns=r["backend_triple_ns"][2],
                 backend_call_seconds=r["backend_seconds"]))
-        costs.append(cost)
+        elif s["kind"] == "c_split_prepare":
+            cost["split_axis_construction_seconds"] = sum(row["build_seconds"] for row in r["choices"])
+        costs.append(complete_cost(cost))
 
     stops, _, trajectories = fault_report.stop_tables(jobs, present) if any(j["kind"] == "fault_stop" for j in jobs.values()) else ([], [], [])
     quality, static_rows, choices, coverage, migrations = [], [], [], [], []
-    loads, communications, comparisons, arm_coverage = [], [], [], []
+    loads, communications, comparisons, arm_coverage, current_l1 = [], [], [], [], []
     for model in run.hi_config.MODELS:
         prefix = "C_" + model + "__"
         rep_path = local / "representatives" / (model + ".json")
@@ -265,6 +293,14 @@ def collect(out, progress=False):
             load, traffic = structural_rows(model, method, metrics, state_bound, block_times(events, hp), bound, info)
             loads.append(load); communications.append(traffic)
         model_quality = {r["method"]: r for r in quality if r["model"] == model}
+        l1_state = next((r for r in all_states if r["model"] == model and r["state"] == "L1"), None)
+        if l1_state is not None and stop is None:
+            current_l1.append(dict(model=model, phase_op=s["phase_op"], source_job=l1_state["job_id"],
+                backend_mean_ns=l1_state["backend_mean_ns"], backend_min_ns=l1_state["backend_min_ns"],
+                backend_max_ns=l1_state["backend_max_ns"], relative_to_healthy=l1_state["backend_mean_ns"]/healthy-1,
+                relative_to_R0=l1_state["backend_mean_ns"]/r0mean-1, T_hat_ns=l1_state["T_hat_ns"],
+                T_hat_relative_to_healthy=l1_state["T_hat_ns"]/pre_raw["record"]["T"]-1,
+                final_rigid_EIR_status="pending"))
         for method in ("healthy", "R0", "rigid EIR", "Local-m1", "Split-m2"):
             arm_coverage.append(dict(model=model, method=method, status="complete" if method in model_quality else "pending"))
         if all(method in model_quality for method in ("Local-m1", "Split-m2")):
@@ -280,6 +316,11 @@ def collect(out, progress=False):
                 comparison[key+"_m1"] = traffic["Local-m1"][key]
                 comparison[key+"_m2"] = traffic["Split-m2"][key]
                 comparison[key+"_ratio_m2_vs_m1"] = traffic["Split-m2"][key]/traffic["Local-m1"][key]-1
+            if l1_state is not None:
+                comparison.update(L1_backend_mean_ns=l1_state["backend_mean_ns"],
+                    m1_backend_relative_to_L1=left["backend_mean_ns"]/l1_state["backend_mean_ns"]-1,
+                    m2_backend_relative_to_L1=right["backend_mean_ns"]/l1_state["backend_mean_ns"]-1,
+                    m1_backend_relative_to_R0=left["relative_to_R0"], m2_backend_relative_to_R0=right["relative_to_R0"])
             comparisons.append(comparison)
 
     summary = dict(status="running" if missing else "complete", planned_jobs=len(jobs), complete_jobs=len(present),
@@ -288,14 +329,26 @@ def collect(out, progress=False):
         reused_stop_jobs=sum(r["status"] == "reused" for r in costs),
         reused_healthy_jobs=sum(r.get("healthy_reused", False) for r in costs),
         process_hours=sum(r["wall_seconds"] for r in costs)/3600,
+        task_body_seconds=sum(r["task_body_seconds"] for r in costs),
+        startup_wrapper_poll_seconds=sum(r["startup_wrapper_poll_seconds"] for r in costs),
+        task_cost_component_totals={key: sum(r[key] for r in costs) for key in COST_COMPONENTS},
+        task_partition_max_abs_error_seconds=max((abs(r["task_partition_error_seconds"]) for r in costs), default=0),
+        receipt_partition_max_abs_error_seconds=max((abs(r["receipt_partition_error_seconds"]) for r in costs), default=0),
         maximum_job_seconds=max((r["wall_seconds"] for r in costs), default=0),
         peak_rss_gb=max((r["peak_rss_gb"] for r in costs), default=0),
         coverage=coverage, quality=quality, manifest_sha256=sha(run.MANIFEST),
         newly_run_by_report=dict(backend_calls=0, search_trajectories=0))
+    cost_components = [dict(job_id=row["job_id"], model=row["model"], kind=row["kind"], component=key, seconds=row[key])
+                       for row in costs for key in COST_COMPONENTS]
     return summary, dict(c_quality=quality, c_backend_samples=samples, c_all_EIR_states=all_states,
         c_costs=costs, c_stops=stops, c_trajectories=trajectories, c_static=static_rows,
         c_axis_choices=choices, c_migration=migrations, c_block_load=loads, c_communication=communications,
-        c_split_comparison=comparisons, c_arm_coverage=arm_coverage), dict(job_checks=checks, raw_inventory=inventories)
+        c_split_comparison=comparisons, c_arm_coverage=arm_coverage, c_cost_components=cost_components,
+        c_current_L1=current_l1), dict(job_checks=checks, raw_inventory=inventories,
+        cost_accounting=dict(status="passed", jobs=len(costs), exclusive_task_components=list(COST_COMPONENTS),
+            equations=["sum(exclusive_task_components) = task_body_seconds", "task_body_seconds + startup_wrapper_poll_seconds = receipt wall_seconds"],
+            inherited_R0_L1_and_finalize_inclusive_are_informational_only=True,
+            reconstructed_receipt_jobs=[r["job_id"] for r in costs if r["receipt_reconstructed_from_task"]]))
 
 
 def plot_figures(summary, tables):
@@ -387,6 +440,13 @@ def report(out, progress=False):
         relative = "—" if r["relative_to_R0"] is None else f"{r['relative_to_R0']:+.2%}"
         below = "—（健康平台）" if r["method"] == "healthy" else f"{r['backend_below_rigid_bound']}/10"
         text.append(f"| {r['model']}/{r['phase_op']} | {r['method']} | {r['backend_mean_ns']:,.1f} [{r['backend_min_ns']:,}, {r['backend_max_ns']:,}] | {r['relative_to_healthy']:+.2%} | {relative} | {below} |")
+    if tables["c_current_L1"]:
+        text += ["", "正在继续的刚性 EIR：已完成 L1 阶段", "",
+            "| 模型 | L1后端均值ns [最小,最大] | 相对健康 | 相对R0 | L1 CPCM ns | CPCM相对健康 | 最终EIR状态 |",
+            "|---|---:|---:|---:|---:|---:|---|"]
+        for r in tables["c_current_L1"]:
+            text.append(f"| {r['model']} | {r['backend_mean_ns']:,.1f} [{r['backend_min_ns']:,}, {r['backend_max_ns']:,}] | {r['relative_to_healthy']:+.2%} | {r['relative_to_R0']:+.2%} | {r['T_hat_ns']:,} | {r['T_hat_relative_to_healthy']:+.2%} | 后续L2进行中 |")
+        text += ["", "这一行保留已经完成的 L1 十种子评估；最终刚性 EIR 行等待既定 30/100/300 档停止规则给出结果。"]
     text += ["", "rigid EIR 按原 2% 及 30/100/300 独立预算停止，内部五条修复轨迹和每条十次后端全部计入成本；上表取原停止档的后端中位代表，完整五种子结果另表保存。Local-m1 与 Split-m2 从同一健康图的故障孤儿块出发，用同一放置和路径规则，健康核原计算落点不变。", "",
         "Split 仅比较合法的 N、M 轴，依次最小化实际取整 FLOP 增量、完整图链路字节、固定轴顺序。表中保存所有候选轴、实际输入复制、输出区域覆盖和取整变化；不假设通信按二分比例减少。", "",
         "固定块下界按真实块时长和故障后可用 Tensor 单元计算：max(max c、sum c/P、ceil(K/P) min c)。同时报告新图下界与最忙核负载。只有后端总延迟实际低于旧块下界，才构成超出旧分块放置可达到范围的证据。", "",
@@ -408,6 +468,8 @@ def report(out, progress=False):
     text += ["", "### 从这两个保存点能看到什么", ""]
     for r in tables["c_split_comparison"]:
         text.append(f"- {r['model']}：m2 相对 m1 的最忙 Tensor 负载变化 {r['tensor_peak_ratio_m2_vs_m1']:+.2%}，实际分块下界变化 {r['tensor_bound_ratio_m2_vs_m1']:+.2%}；受影响激活输入变化 {r['affected_activation_input_bytes_after_ratio_m2_vs_m1']:+.2%}，全图 route-link 字节变化 {r['route_link_bytes_ratio_m2_vs_m1']:+.2%}。后端均值变化 {r['backend_mean_ratio_m2_vs_m1']:+.2%}，m1/m2 分别有 {r['m1_backend_below_old_bound']}/10、{r['m2_backend_below_old_bound']}/10 个样本低于旧分块下界 {r['old_rigid_bound_ns']/1e6:.3f} Mns。")
+        if "L1_backend_mean_ns" in r:
+            text.append(f"  与同点 R0 相比，m1/m2 的后端均值分别变化 {r['m1_backend_relative_to_R0']:+.2%}/{r['m2_backend_relative_to_R0']:+.2%}；与已完成 L1 相比分别为 {r['m1_backend_relative_to_L1']:+.2%}/{r['m2_backend_relative_to_L1']:+.2%}。m1 与 m2 的差值单独反映本次二分带来的变化。")
     for model in run.hi_config.MODELS:
         group = {r["method"]: r for r in tables["c_block_load"] if r["model"] == model}
         if "Local-m1" not in group or "Split-m2" not in group:
@@ -422,7 +484,21 @@ def report(out, progress=False):
             "柱为十种子均值，线段为最小至最大值；Pending 表示该状态尚未收齐。虚线为故障后旧分块下界。", "",
             "![切分的计算与通信变化](figures/c_split_tradeoff.png)", "",
             "所有变化以同模型 Local-m1 为参照。对应 SVG 与 PNG 一并保存在 figures；绝对值与逐种子样本在表中。", ""]
-    text += [
+    text += ["### 运行成本逐项相加", "",
+        "任务体采用互不重叠的计时项。EIR 的 final_cpcm_seconds 读取 raw.record.t_finalize；raw.timing.t_finalize 已包含恢复最佳状态，只作为说明列，不能再相加。继承的 R0/L1 时间以及复用的健康评估时间均不计作本次新增成本。", "",
+        "| 类型 | 作业数 | 后端及复制准备秒 | R0/L1秒 | 校准与搜索秒 | 恢复及最终CPCM秒 | 全轴切分构图秒 | 其他任务体秒 | 任务体总秒 |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    for kind in dict.fromkeys(r["kind"] for r in tables["c_costs"]):
+        rows = [r for r in tables["c_costs"] if r["kind"] == kind]
+        total = lambda *keys: sum(r[k] for r in rows for k in keys)
+        text.append(f"| {kind} | {len(rows)} | {total('backend_seconds','backend_copy_prepare_seconds'):.3f} | {total('R0_prepare_seconds','L1_search_seconds'):.3f} | {total('calibration_seconds','search_seconds'):.3f} | {total('restore_seconds','final_cpcm_seconds','evaluation_CPCM_seconds'):.3f} | {total('split_axis_construction_seconds'):.3f} | {total('other_task_seconds'):.3f} | {total('task_body_seconds'):.3f} |")
+    text += ["", "后端明细中，EIR 的直接调用与复制准备分开计时；Split 保存的后端时间段包含调用参数里的平台复制，事件复制归入其他任务体。未单独计时的锚点后端、输入加载、快照导出、检查及记录都保留在其他任务体。切分构图列相加全部实际候选轴的构造时间，每次只计入准备作业，不随十个后端样本重复收费。", "",
+        "| 模型 | 作业数 | 任务体秒 | 启动、包装及轮询差秒 | 回执总秒 |",
+        "|---|---:|---:|---:|---:|"]
+    for model in run.hi_config.MODELS:
+        rows = [r for r in tables["c_costs"] if r["model"] == model]
+        text.append(f"| {model} | {len(rows)} | {sum(r['task_body_seconds'] for r in rows):.3f} | {sum(r['startup_wrapper_poll_seconds'] for r in rows):.3f} | {sum(r['wall_seconds'] for r in rows):.3f} |")
+    text += ["", f"逐行核对：全部 {len(tables['c_costs'])} 项的任务体分项之和等于任务体总时，再加启动、包装及轮询差等于回执总时。最大绝对差分别为 {summary['task_partition_max_abs_error_seconds']:.3g} 秒、{summary['receipt_partition_max_abs_error_seconds']:.3g} 秒；未四舍五入的值在 c_costs.csv 和 c_cost_components.csv。", "",
         f"累计作业成本 {summary['process_hours']:.4f} 进程小时，最长作业 {summary['maximum_job_seconds']/60:.2f} 分钟，最高 RSS {summary['peak_rss_gb']:.3f} GiB。这是并行质量运行成本；正式单进程计时由 J 报告。", "",
         "复算：`python e2e/hi_closeout_c_report.py --out e2e/hi/out/closeout_20261115`。逐种子样本、全部 EIR 档位、停止决策、通信/下界、轴选择、迁移及逐项成本在 `tables/c_*.csv`；输入/回执/原始状态摘要在 `evidence/c_completion.json`。", ""]
     (run.DEST / "C_NEW_MODEL_SPLIT.md").write_text("\n".join(text), encoding="utf-8")

@@ -2,9 +2,9 @@
 
 Execution files and previous estimates are never changed. Unfinished jobs use
 the median of completed, non-reused jobs in the same experimental class. Before
-B/C fault measurements arrive, current healthy backend time replaces only the
-historical backend part of their estimates. An overdue live job has unknown
-remaining time and is reported separately.
+B/C full-job fault measurements arrive, completed fault backend calls (then
+healthy calls) replace only the historical backend part of their estimates.
+An overdue live job has unknown remaining time and is reported separately.
 """
 import argparse
 import collections
@@ -137,24 +137,85 @@ def healthy_backend_observations(jobs, completed, evidence):
     return initial, observed
 
 
-def full_estimate(job, same_class, initial_backends, healthy_observed):
+def fault_backend_observations(jobs, completed, evidence):
+    """Measure saved ten-seed R0/L1/L2 evaluations, without their search time."""
+    observed = collections.defaultdict(list)
+    prepared_pickle_types = False
+    for job in jobs:
+        if package(job) not in ("A", "B", "C") or job["kind"] not in ("fault_l1", "fault_rep"):
+            continue
+        result = completed.get(job["id"])
+        if result is None or is_reused(result):
+            continue
+        if not prepared_pickle_types:
+            import post_fg_split
+            post_fg_split.setup()
+            prepared_pickle_types = True
+        path = root_path(result["sink"])
+        with gzip.open(path, "rb") as stream:
+            raw = pickle.load(stream)
+        assert raw["backend_seeds"] == list(range(1, 11))
+        spec = job["spec"]
+        entries = ([("R0", raw["R0"]), ("L1", raw["L1"])] if job["kind"] == "fault_l1"
+                   else [("L2", raw["record"])])
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        for state, record in entries:
+            assert set(record["backend"]) == set(range(1, 11)) and len(record["backend_wall"]) == 10
+            observed[operator_key(spec)].append(dict(job_id=job["id"], package=package(job),
+                fault_id=spec["fault_id"], state=state, steps=spec.get("steps", 0), repair_seed=spec.get("seed"),
+                source_candidate=result["source_candidate"],
+                backend_ten_seconds=sum(record["backend_wall"]), backend_individual_seconds=record["backend_wall"],
+                evidence=evidence[job["id"]], raw=result["sink"], raw_sha256=digest,
+                meaning="completed fault-state ten-backend calls only; not complete job runtime"))
+    return observed
+
+
+def latest_fault_stage(samples):
+    """Keep one stage: highest completed L2 budget, otherwise L1, otherwise R0."""
+    if not samples:
+        return []
+    stage = lambda r: ({"R0":0, "L1":1, "L2":2}[r["state"]], r["steps"] if r["state"] == "L2" else 0)
+    latest = max(stage(r) for r in samples)
+    return [r for r in samples if stage(r) == latest]
+
+
+def full_estimate(job, same_class, initial_backends, healthy_observed, fault_observed=None, start_candidates=None):
     initial = float(job["estimated_seconds"])
     if same_class:
         return statistics.median(x["seconds"] for x in same_class), "same_class_measured_median", {}
     if package(job) in ("B", "C") and job["kind"] in ("fault_l1", "fault_rep"):
         key = operator_key(job["spec"])
+        faults = (fault_observed or {}).get(key, [])
+        source_candidate = (start_candidates or {}).get((package(job), key))
+        if start_candidates is not None:
+            faults = [r for r in faults if source_candidate is not None and r["source_candidate"] == source_candidate]
+        matched = [r for r in faults if r["fault_id"] == job["spec"]["fault_id"]]
+        selected_faults = latest_fault_stage(matched or faults)
         healthy = healthy_observed.get(key, [])
-        if healthy:
+        chosen = selected_faults or healthy
+        if chosen:
             old = initial_backends[package(job), key]
-            new = statistics.median(r["backend_ten_seconds"] for r in healthy)
+            new = statistics.median(r["backend_ten_seconds"] for r in chosen)
             multiplier = 2 if job["kind"] == "fault_l1" else 1
             non_backend = initial - multiplier * old
             assert non_backend >= 0
-            return non_backend + multiplier * new, "current_healthy_backend_projection", dict(
+            details = dict(
                 backend_replacement_multiplier=multiplier, original_backend_ten_seconds=old,
-                current_healthy_backend_ten_seconds=new, preserved_non_backend_seconds=non_backend,
-                healthy_backend_source_jobs=[r["job_id"] for r in healthy],
+                preserved_non_backend_seconds=non_backend)
+            if selected_faults:
+                details.update(current_fault_backend_ten_seconds=new,
+                    fault_backend_source_jobs=sorted({r["job_id"] for r in chosen}),
+                    fault_backend_sources=[{k:r[k] for k in ("job_id", "fault_id", "state", "steps", "repair_seed", "backend_ten_seconds")}
+                                           for r in chosen],
+                    fault_source_match="same_fault_id" if matched else "other_fault_id_same_operator",
+                    fault_source_candidate=source_candidate,
+                    fault_stage_selection="highest completed L2 budget, otherwise L1, otherwise R0; other stages excluded",
+                    projection_note="Completed fault backend calls replace only the backend component; search and fixed cost retain their initial estimates.")
+                return non_backend + multiplier * new, "current_fault_backend_projection", details
+            details.update(current_healthy_backend_ten_seconds=new,
+                healthy_backend_source_jobs=[r["job_id"] for r in chosen],
                 projection_note="Healthy backend runtime projected onto fault evaluations; fault runtime is not measured yet.")
+            return non_backend + multiplier * new, "current_healthy_backend_projection", details
     return initial, "manifest_initial_estimate", {}
 
 
@@ -242,12 +303,15 @@ def estimate(out, registry_path, destination, live=False):
         if not is_reused(record):
             observations[category(by_id[name])].append(dict(job_id=name, seconds=measured_wall[name], evidence=completion_evidence[name]))
     initial_backends, healthy_observed = healthy_backend_observations(jobs, completed, completion_evidence)
+    fault_observed = fault_backend_observations(jobs, completed, completion_evidence)
+    start_candidates = {(package(j), operator_key(j["spec"])): completed[j["id"]]["source_candidate"]
+                        for j in jobs if package(j) in ("B", "C") and j["kind"] == "fault_pre" and j["id"] in completed}
     rows, stopped = {}, {}
     for job in jobs:
         name, spec = job["id"], job["spec"]
         samples = observations[category(job)]
         initial = float(job["estimated_seconds"])
-        full, source, projection = full_estimate(job, samples, initial_backends, healthy_observed)
+        full, source, projection = full_estimate(job, samples, initial_backends, healthy_observed, fault_observed, start_candidates)
         row = dict(job_id=name, package=package(job), kind=job["kind"], model=spec.get("model", "gpt"),
                    hardware=spec.get("hardware_profile"), phase=spec.get("phase"), op=spec.get("op", spec.get("phase_op")),
                    steps=spec.get("steps"), initial_seconds=initial, current_full_seconds=full,
@@ -312,6 +376,10 @@ def estimate(out, registry_path, destination, live=False):
                     median_backend_ten_seconds=statistics.median(v["backend_ten_seconds"] for v in values))
                     for key,values in healthy_observed.items()],
                   healthy_backend_projection_jobs=sum(r["estimate_source"] == "current_healthy_backend_projection" for r in rows.values()),
+                  fault_backend_observations=[dict(operator=list(key), samples=values,
+                    median_backend_ten_seconds=statistics.median(v["backend_ten_seconds"] for v in values))
+                    for key,values in fault_observed.items()],
+                  fault_backend_projection_jobs=sum(r["estimate_source"] == "current_fault_backend_projection" for r in rows.values()),
                   class_observations=[dict(category=list(key), count=len(values), median_seconds=statistics.median(v["seconds"] for v in values),
                                            minimum_seconds=min(v["seconds"] for v in values), maximum_seconds=max(v["seconds"] for v in values),
                                            samples=values) for key, values in observations.items() if values],
@@ -333,12 +401,20 @@ def estimate(out, registry_path, destination, live=False):
         ph = f"{row['remaining_process_hours']:.2f}" if row["remaining_process_hours"] is not None else f"未定；已知部分 {row['remaining_known_estimate_process_hours']:.2f}"
         chain = f"{row['longest_dependency_minutes']:.1f} 分钟" if row["longest_dependency_minutes"] is not None else f"未定；已知部分 {row['longest_known_component_minutes']:.1f} 分钟"
         text.append(f"| {row['package']} | {row['completed']}/{row['registered_jobs']} | {row['running']} | {row['pending']} | {ph} | {chain} |")
-    text += ["", "同类故障作业有完整实测时，优先使用实测中位数。B/C尚无同类L1/L2实测时，用本轮同模型、硬件和算子健康pre的十次后端耗时替换原估时的后端部分；L1替换两份，L2替换一份，搜索和固定成本保留。这是健康后端对故障时长的推算，尚未测得的故障开销会在首项完成后更新。其余类别保留原清单初值。", "",
+    text += ["", "同类故障作业有完整实测时，优先使用实测中位数。B/C尚无同类L1/L2完整实测时，先用本轮相同模型、硬件、布局、算子及实际起点候选的故障后端耗时替换原估时的后端部分：同一故障优先，若只有另一故障则标明来源。只取最高已完成L2档；尚无L2时取L1，再次R0。同档不同种子取中位数，不混合修复前后各阶段。故障实测尚无时，使用健康pre后端推算；都没有时保留原清单初值。L1替换两份十种子后端，L2替换一份，搜索和固定成本保留。纯后端耗时不作为完整作业耗时。", "",
              "复用记录不用于估算搜索/后端耗时，明确停档后的作业只计短控制时间。各项原始初值、保留成本与替换来源保留在CSV中。", "",
              "依赖链假设任务就绪后有可用进程和内存；总进程小时除以128不能替代它。上述范围只包含当前登记的质量任务，不含后续新增任务、J串行计时、下载与汇总。"]
     for key,values in healthy_observed.items():
         value = statistics.median(r["backend_ten_seconds"] for r in values)
         text += [f"", f"健康后端参考：{key[0]} / {key[1]} / {key[2]}，十次后端中位累计{value/60:.2f}分钟，来源 " + ", ".join(r["job_id"] for r in values) + "。"]
+    fault_groups = collections.defaultdict(list)
+    for key,values in fault_observed.items():
+        for value in values:
+            fault_groups[key, value["fault_id"], value["state"], value["steps"]].append(value)
+    for (key, fault, state, steps), values in fault_groups.items():
+        value = statistics.median(r["backend_ten_seconds"] for r in values)
+        text += ["", f"故障后端参考：{key[0]} / {key[1]} / {key[2]} / {fault} / {state}（{steps}步），"
+                 f"{len(values)}组十次后端中位累计{value/60:.2f}分钟；只替换后端成本，完整来源见JSON与逐作业CSV。"]
     if not live:
         text += ["", "这是本机文件快照，不能代表服务器此刻的完成数或据此给出结束时刻。"]
     if status_age is not None and status_age > 120:
