@@ -10,8 +10,12 @@ from e_run import ROOT, write_json
 
 
 def build(output, includes):
-    files={p.relative_to(ROOT).as_posix():p for folder in includes for p in (ROOT/folder).rglob('*')
-           if p.is_file() and '__pycache__' not in p.parts and not p.name.endswith('.part')}
+    files = {}
+    for item in includes:
+        source = ROOT / item
+        for path in ([source] if source.is_file() else source.rglob('*')):
+            if path.is_file() and '__pycache__' not in path.parts and not path.name.endswith('.part'):
+                files[path.relative_to(ROOT).as_posix()] = path
     listing=dict(created_utc=datetime.now(timezone.utc).isoformat(),files=[])
     output.parent.mkdir(parents=True,exist_ok=True)
     temporary=output.with_suffix('.part')

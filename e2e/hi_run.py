@@ -193,9 +193,13 @@ def child(spec, out):
         if capture["terminal"] is not None:
             save_snapshot(stage / "snapshots" / (name + "_terminal.pkl.gz"), capture["terminal"])
             terminal = evaluate(capture["terminal"], capture["ctx"], add_communication.add_broadcast, backend, False)
-            write_json(stage / "results" / (name + "_terminal.json"), dict(
-                candidate_id=name+"_terminal", status="ok", from_search=name,
-                backend=terminal["backend"], timing=terminal["timing"]))
+            write_json(stage / "results" / (name + "_terminal.json"), dict(spec,
+                candidate_id=name+"_terminal", kind="terminal", status="ok", from_search=name,
+                backend=terminal["backend"], timing=terminal["timing"],
+                workload_signature=terminal["workload_signature"],
+                backend_input_orders=terminal["backend_input_orders"],
+                graph=terminal["graph"], T_hat=terminal["T_bc"],
+                T_hat_pre=terminal["T_pre"], random_cpcm_evaluations=0))
     else:
         c.make_anneal, instrumentation = instrument_anneal(c, mark, progress)
         try:

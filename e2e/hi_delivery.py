@@ -20,7 +20,7 @@ def package():
             folder=f'models/intra_mapping_{model}_{phase}'
             for p in (ROOT/'third_party/isca2026-busybarn-artifact'/folder).glob('*.py'):
                 paths[f'e2e/work/artifact/{folder}/{p.name}']=p
-    for name in ('AGENTS.md','PROJECT_MEMORY.md','e2e/PROGRESS.md','e2e/HIJ_STAGED_PLAN.md'):
+    for name in ('AGENTS.md','PROJECT_MEMORY.md','e2e/PROGRESS.md','e2e/HIJ_STAGED_PLAN.md','e2e/H_HEALTH_SUMMARY.md'):
         p=ROOT/name
         paths[p.relative_to(ROOT).as_posix()]=p
     for prefix,name in (('cpcm_sa/out/s2','ffn_A3h_g0_s123'),('e2e/out/b4','pf_mha_w1_A3h_g0_s123')):
