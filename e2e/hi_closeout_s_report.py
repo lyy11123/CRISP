@@ -301,9 +301,60 @@ def report(out, destination):
     return summary
 
 
+def report_with_input_inventory(out, destination):
+    """Record data actually read by one report run, including historical costs."""
+    accessed = collections.defaultdict(collections.Counter)
+    original_json, original_pickle, original_sha = run.READ, audit.raw_read, audit.sha
+
+    def record(filename, operation):
+        path = audit.local(filename).resolve()
+        accessed[path][operation] += 1
+
+    def json_read(filename):
+        record(filename, "json_reads")
+        return original_json(filename)
+
+    def pickle_read(filename):
+        record(filename, "pickle_reads")
+        return original_pickle(filename)
+
+    def hash_read(filename):
+        record(filename, "hash_reads")
+        return original_sha(filename)
+
+    run.READ, audit.raw_read, audit.sha = json_read, pickle_read, hash_read
+    try:
+        summary = report(out, destination)
+    finally:
+        run.READ, audit.raw_read, audit.sha = original_json, original_pickle, original_sha
+
+    hi = (run.ROOT / "e2e/hi").resolve()
+    files = [dict(path=path.relative_to(run.ROOT).as_posix(), sha256=original_sha(path),
+                  bytes=path.stat().st_size, outside_hi=not path.is_relative_to(hi),
+                  reads=dict(accessed[path])) for path in sorted(accessed)]
+    outside = [r for r in files if r["outside_hi"]]
+    groups = collections.defaultdict(list)
+    for row in outside:
+        groups["/".join(Path(row["path"]).parts[:3])].append(row)
+    inventory = dict(status="passed", report="S_FACTORIAL_SUMMARY.md", file_count=len(files),
+        bytes=sum(r["bytes"] for r in files), outside_hi_files=len(outside),
+        outside_hi_bytes=sum(r["bytes"] for r in outside),
+        outside_hi_by_folder={k:dict(files=len(v), bytes=sum(r["bytes"] for r in v)) for k,v in sorted(groups.items())},
+        source_sha256={audit.relative(Path(p)):original_sha(p) for p in (__file__, audit.__file__, run.__file__)},
+        read_scope="JSON inputs, raw pickles and explicitly hashed graph files read during this report run; code imports listed separately",
+        new_searches=0, new_backend_calls=0, result_summary=summary, files=files)
+    run.WRITE(Path(destination) / "evidence/s_report_inputs.json", inventory)
+    return inventory
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", default=str(run.OUT))
     parser.add_argument("--destination", default=str(run.HERE))
+    parser.add_argument("--record-inputs", action="store_true")
     args = parser.parse_args()
-    print(json.dumps(report(run.fault.path(args.out), run.fault.path(args.destination))))
+    if args.record_inputs:
+        value = report_with_input_inventory(run.fault.path(args.out), run.fault.path(args.destination))
+        print(json.dumps({k:value[k] for k in ("status", "file_count", "bytes", "outside_hi_files", "outside_hi_bytes", "outside_hi_by_folder")}))
+    else:
+        print(json.dumps(report(run.fault.path(args.out), run.fault.path(args.destination))))

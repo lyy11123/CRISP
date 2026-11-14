@@ -1,17 +1,20 @@
 """Read closeout receipts and the dynamic registry; write dated ETA snapshots.
 
 Execution files and previous estimates are never changed. Unfinished jobs use
-the median of completed, non-reused jobs in the same experimental class, or the
-manifest's original estimate when no such measurement exists. An overdue live
-job has unknown remaining time and is reported separately.
+the median of completed, non-reused jobs in the same experimental class. Before
+B/C fault measurements arrive, current healthy backend time replaces only the
+historical backend part of their estimates. An overdue live job has unknown
+remaining time and is reported separately.
 """
 import argparse
 import collections
 from datetime import datetime, timezone, timedelta
 import csv
+import gzip
 import hashlib
 import json
 from pathlib import Path
+import pickle
 import statistics
 
 import fg_batch
@@ -97,6 +100,64 @@ def completed_records(jobs, out):
     return records, evidence, timings, unconfirmed
 
 
+def operator_key(spec):
+    return (spec["model"], spec["hardware_profile"], spec["phase_op"], spec["shape"],
+            spec["split_mode"], spec.get("d2d_scale", 1), spec["workload_version"], spec["start_arm"])
+
+
+def healthy_backend_observations(jobs, completed, evidence):
+    """Use the ten backend calls themselves, excluding reuse and preparation."""
+    initial, observed = {}, collections.defaultdict(list)
+    prepared_pickle_types = False
+    for job in jobs:
+        if package(job) not in ("B", "C") or job["kind"] != "fault_pre":
+            continue
+        key = operator_key(job["spec"])
+        # Both approved planners define healthy pre as old ten-backend + 20s.
+        initial[package(job), key] = float(job["estimated_seconds"]) - 20.
+        assert initial[package(job), key] > 0
+        result = completed.get(job["id"])
+        if result is None or is_reused(result):
+            continue
+        if not prepared_pickle_types:
+            import post_fg_split
+            post_fg_split.setup()
+            prepared_pickle_types = True
+        path = root_path(result["sink"])
+        with gzip.open(path, "rb") as stream:
+            raw = pickle.load(stream)
+        assert raw["backend_seeds"] == list(range(1, 11))
+        record = raw["record"]
+        assert set(record["backend"]) == set(range(1, 11)) and len(record["backend_wall"]) == 10
+        observed[key].append(dict(job_id=job["id"], package=package(job),
+            backend_ten_seconds=sum(record["backend_wall"]),
+            backend_individual_seconds=record["backend_wall"], evidence=evidence[job["id"]],
+            raw=result["sink"], raw_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+            meaning="current healthy ten-backend calls; not a fault measurement"))
+    return initial, observed
+
+
+def full_estimate(job, same_class, initial_backends, healthy_observed):
+    initial = float(job["estimated_seconds"])
+    if same_class:
+        return statistics.median(x["seconds"] for x in same_class), "same_class_measured_median", {}
+    if package(job) in ("B", "C") and job["kind"] in ("fault_l1", "fault_rep"):
+        key = operator_key(job["spec"])
+        healthy = healthy_observed.get(key, [])
+        if healthy:
+            old = initial_backends[package(job), key]
+            new = statistics.median(r["backend_ten_seconds"] for r in healthy)
+            multiplier = 2 if job["kind"] == "fault_l1" else 1
+            non_backend = initial - multiplier * old
+            assert non_backend >= 0
+            return non_backend + multiplier * new, "current_healthy_backend_projection", dict(
+                backend_replacement_multiplier=multiplier, original_backend_ten_seconds=old,
+                current_healthy_backend_ten_seconds=new, preserved_non_backend_seconds=non_backend,
+                healthy_backend_source_jobs=[r["job_id"] for r in healthy],
+                projection_note="Healthy backend runtime projected onto fault evaluations; fault runtime is not measured yet.")
+    return initial, "manifest_initial_estimate", {}
+
+
 def running_records(out, by_id, completed, now, live):
     filename = out / "closeout.status.json"
     status = read(filename) if filename.exists() else None
@@ -180,19 +241,19 @@ def estimate(out, registry_path, destination, live=False):
     for name, record in completed.items():
         if not is_reused(record):
             observations[category(by_id[name])].append(dict(job_id=name, seconds=measured_wall[name], evidence=completion_evidence[name]))
+    initial_backends, healthy_observed = healthy_backend_observations(jobs, completed, completion_evidence)
     rows, stopped = {}, {}
     for job in jobs:
         name, spec = job["id"], job["spec"]
         samples = observations[category(job)]
         initial = float(job["estimated_seconds"])
-        full = statistics.median(x["seconds"] for x in samples) if samples else initial
-        source = "same_class_measured_median" if samples else "manifest_initial_estimate"
+        full, source, projection = full_estimate(job, samples, initial_backends, healthy_observed)
         row = dict(job_id=name, package=package(job), kind=job["kind"], model=spec.get("model", "gpt"),
                    hardware=spec.get("hardware_profile"), phase=spec.get("phase"), op=spec.get("op", spec.get("phase_op")),
                    steps=spec.get("steps"), initial_seconds=initial, current_full_seconds=full,
                    estimate_source=source, observed_count=len(samples), observed_jobs=[x["job_id"] for x in samples],
                    state="completed" if name in completed else "running" if name in active else "pending",
-                   elapsed_seconds=0., overdue_seconds=0., stopped_by=None)
+                   elapsed_seconds=0., overdue_seconds=0., stopped_by=None, **projection)
         if name in completed:
             row.update(remaining_seconds=0., actual_seconds=measured_wall[name], reused=is_reused(completed[name]),
                        completion_evidence=completion_evidence[name])
@@ -247,6 +308,10 @@ def estimate(out, registry_path, destination, live=False):
                   earliest_dependency_only_utc=(now + timedelta(seconds=longest_point)).isoformat()
                     if live and status_age is not None and status_age <= 120 and longest_point is not None else None,
                   unconfirmed_results=unconfirmed, source_manifests=sources,
+                  healthy_backend_observations=[dict(operator=list(key), samples=values,
+                    median_backend_ten_seconds=statistics.median(v["backend_ten_seconds"] for v in values))
+                    for key,values in healthy_observed.items()],
+                  healthy_backend_projection_jobs=sum(r["estimate_source"] == "current_healthy_backend_projection" for r in rows.values()),
                   class_observations=[dict(category=list(key), count=len(values), median_seconds=statistics.median(v["seconds"] for v in values),
                                            minimum_seconds=min(v["seconds"] for v in values), maximum_seconds=max(v["seconds"] for v in values),
                                            samples=values) for key, values in observations.items() if values],
@@ -268,8 +333,12 @@ def estimate(out, registry_path, destination, live=False):
         ph = f"{row['remaining_process_hours']:.2f}" if row["remaining_process_hours"] is not None else f"未定；已知部分 {row['remaining_known_estimate_process_hours']:.2f}"
         chain = f"{row['longest_dependency_minutes']:.1f} 分钟" if row["longest_dependency_minutes"] is not None else f"未定；已知部分 {row['longest_known_component_minutes']:.1f} 分钟"
         text.append(f"| {row['package']} | {row['completed']}/{row['registered_jobs']} | {row['running']} | {row['pending']} | {ph} | {chain} |")
-    text += ["", "同类真实完成作业使用实测中位数；没有实测的类别保留原清单初值。复用记录不用于估算搜索/后端耗时，明确停档后的作业只计短控制时间。各项原始初值和采用的实测来源保留在 CSV 中。", "",
+    text += ["", "同类故障作业有完整实测时，优先使用实测中位数。B/C尚无同类L1/L2实测时，用本轮同模型、硬件和算子健康pre的十次后端耗时替换原估时的后端部分；L1替换两份，L2替换一份，搜索和固定成本保留。这是健康后端对故障时长的推算，尚未测得的故障开销会在首项完成后更新。其余类别保留原清单初值。", "",
+             "复用记录不用于估算搜索/后端耗时，明确停档后的作业只计短控制时间。各项原始初值、保留成本与替换来源保留在CSV中。", "",
              "依赖链假设任务就绪后有可用进程和内存；总进程小时除以128不能替代它。上述范围只包含当前登记的质量任务，不含后续新增任务、J串行计时、下载与汇总。"]
+    for key,values in healthy_observed.items():
+        value = statistics.median(r["backend_ten_seconds"] for r in values)
+        text += [f"", f"健康后端参考：{key[0]} / {key[1]} / {key[2]}，十次后端中位累计{value/60:.2f}分钟，来源 " + ", ".join(r["job_id"] for r in values) + "。"]
     if not live:
         text += ["", "这是本机文件快照，不能代表服务器此刻的完成数或据此给出结束时刻。"]
     if status_age is not None and status_age > 120:
