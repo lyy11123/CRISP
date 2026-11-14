@@ -1,21 +1,22 @@
 # I4 PF4 完成范围
 
-当前本机正式结果覆盖 10/12 个预定 A3h PF4 点。两个独立批次的完成数和计时分别列出。
+当前本机正式结果已覆盖12/12个预定A3h PF4点：I4-light九点、WATOS decode FFN一点、本轮两种硬件prefill FFN两点。
 
-| 硬件 | 算子 | 来源 | 最终 EIR 状态已齐 |
+| 硬件 | 算子 | 批次 | 最终EIR状态已齐 |
 |---|---|---|---|
 | busybarn | dc_ffn | i4_light | 是 |
 | busybarn | dc_ln | i4_light | 是 |
 | busybarn | dc_mha | i4_light | 是 |
 | busybarn | dc_proj | i4_light | 是 |
-| busybarn | pf_ffn | planned_later | 否 |
+| busybarn | pf_ffn | closeout_B | 是 |
 | busybarn | pf_ln | i4_light | 是 |
 | busybarn | pf_mha | i4_light | 是 |
 | busybarn | pf_proj | i4_light | 是 |
 | watos | dc_ffn | i4_watos_dffn | 是 |
 | watos | dc_mha | i4_light | 是 |
-| watos | pf_ffn | planned_later | 否 |
+| watos | pf_ffn | closeout_B | 是 |
 | watos | pf_mha | i4_light | 是 |
 
-I4-light 本机作业数：201/201；WATOS decode FFN：23/23。A1-R0 四点属于 I4-light 对照，未计入12个 A3h PF4点。两个prefill FFN、MF6与Split仍未补齐；本页不生成完整prefill、请求或WATOS整层结果。
-两批合计 224/224 个作业，实际 L2 80 条，停止后复用 70 条；后端样本共 1180 个。两个独立队列有时间重叠，不能相加其经过时间。
+三个批次共270个作业。实际L2 105 条、停档复用 75 条；后端共 1490 次。四个A1-R0对照属于原I4-light，未计入12个A3h点。
+
+详细新结果、原十点合并、主硬件P/D与固定KV的P+2048D参考见 [B_I4_PF4_COMPLETE.md](closeout/B_I4_PF4_COMPLETE.md)。WATOS仅有MHA/FFN四类结果，不生成完整层。MF6/Split是C的独立工作包，不混入PF4覆盖。

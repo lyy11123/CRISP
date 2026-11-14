@@ -270,6 +270,8 @@ def report(out, destination):
                    actual_backend_calls=sum(r["backend_calls"] for r in ledger),
                    solo_logical=96, solo_actual=sum(r["backend_calls"] for r in ledger if r["kind"] == "s_solo"),
                    solo_reused=sum(r["status"] == "reused" for r in ledger if r["kind"] == "s_solo"),
+                   existing_backend_samples_reused=sum(r["status"] == "reused" for r in ledger if r["kind"] == "s_joint_reuse"),
+                   within_batch_backend_samples_reused=sum(r["status"] == "reused" for r in ledger if r["kind"] == "s_solo"),
                    process_hours=sum(r["wall_seconds"] for r in ledger) / 3600,
                    peak_task_rss_gb=max(r["peak_rss_gb"] for r in ledger))
     run.WRITE(destination / "s_completion_check.json", summary)
@@ -284,7 +286,7 @@ def report(out, destination):
                                                 for method in ("A1", "A3h")},
         new_searches=0, new_backend_calls=0, checks=timing_evidence))
     plot(summaries, destination)
-    lines = ["# GPT S 系统八组合", "", f"144 项联合已齐：108 项新增、36 项由 fresh_transform_v1 同身份复用。共 {summary['actual_L2']} 条实际 A1 修复搜索、{summary['actual_backend_calls']} 次新增后端；96 项逻辑配对单跑中实际运行 {summary['solo_actual']} 次，另24项按实际图及执行身份复用。", "",
+    lines = ["# GPT S 系统八组合", "", f"144 项联合已齐：108 项新增、36 项由此前的 fresh_transform_v1 同身份结果复用。共 {summary['actual_L2']} 条实际 A1 修复搜索、{summary['actual_backend_calls']} 次新增后端；96 项逻辑配对单跑中实际运行 {summary['solo_actual']} 次，另24项复用本批已经完成、实际图及执行身份相同的单跑。", "",
              "三位数字依次表示映射、修复和传输选择。P 是一个 prefill MHA 流，D 是 LN、8个代表MHA、projection与FFN组成的decode链；PF4故障施加于D侧。M切换时P和D映射一起切换；R只修复D侧；S采用All256+C4。", "",
              "| 组合 | 映射 | 故障后状态 | 传输 |", "|---|---|---|---|"]
     for bits, (method,repair_mode,transport) in ARMS.items():
@@ -312,7 +314,7 @@ def report(out, destination):
         m = next(v for v in mapping if (v["hardware"],v["state"],v["op"]) == (r["hardware"],"A1EIR",r["op"]))
         c = next(v for v in mapping_costs if (v["hardware"],v["method"],v["op"]) == (r["hardware"],"A1",r["op"]))
         lines.append(f"| {r['hardware']} | {r['op']} | {r['selected_level']} | {r['actual_L2_trajectories']} | {c['research_five_seed_decision_seconds']:.3f} | {c['backend_validation_seconds']:.3f} | {m['unique_block_bytes']/2**20:.3f} | {m['moved_behas_share']:.2%} |")
-    lines += ["", f"本轮S作业体累计{summary['process_hours']:.5f}进程小时、最高RSS {summary['peak_task_rss_gb']:.3f} GiB。840次新增后端 = 8×20次A1 R0/L1 + 50×10次实际L2 + 72次配对单跑 + 108次联合。搜索提议3900次，校准另列于质量总账；已有36次联合与24次单跑复用不计新增后端。", "",
+    lines += ["", f"本轮S作业体累计{summary['process_hours']:.5f}进程小时、最高RSS {summary['peak_task_rss_gb']:.3f} GiB。840次新增后端 = 8×20次A1 R0/L1 + 50×10次实际L2 + 72次配对单跑 + 108次联合。搜索提议3900次，校准另列于质量总账；36次既有联合结果复用、24次本批单跑结果复用分别记录，均不计新增后端。", "",
               "迁移按每个算子相对自身健康映射计算，包含行为落点、DDR读取源变化和去重权重副本字节；32个完整状态见[s_mapping_states.csv](tables/s_mapping_states.csv)。它们是模板算子的迁移量，未简单乘8当成整个MHA链的物理权重迁移。三相位、三种子和两种传输共享同一映射状态，不重复计算修复成本。", "",
               "[s_mapping_costs.csv](tables/s_mapping_costs.csv)同时保存新增A1与历史A3h修复成本，并标明来源。研究五种子累计决策包含R0/L1、各已执行档校准、搜索及t_finalize；t_finalize已包含恢复最佳状态和最终CPCM，两个分项另列展示，累计时只加一次。十种子后端验证另外列示。逐条原始记录核对见[s_finalize_timing_check.json](evidence/s_finalize_timing_check.json)。这些并行时长与J阶段的空闲单进程计时分开。", "",
               "[s_arm_summary.csv](tables/s_arm_summary.csv)保留每个组合P、D、L̂与干扰的均值、中位数和极值；[s_conditional_pairs.csv](tables/s_conditional_pairs.csv)保留全部216个条件配对；[s_phase_conditionals.csv](tables/s_phase_conditionals.csv)按相位拆分。图中的点是中位数、线段是最小至最大，两个符号分别表示P和D。", "",

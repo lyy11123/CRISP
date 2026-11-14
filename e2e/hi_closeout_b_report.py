@@ -140,7 +140,42 @@ def coverage(merged, complete_configs):
     return rows
 
 
-def render(audit, units, groups, costs, layers, requests, coverage_rows):
+def plot_layer_recovery(layers, requests):
+    if not any(r["state"] == "EIR" for r in requests):
+        return []
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    lookup = {(r["phase"], r["state"]): r["relative_to_healthy"] for r in layers}
+    lookup.update({("request", r["state"]): r["relative_to_healthy"] for r in requests})
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    width = .24
+    for i, (state, color) in enumerate((("R0", "#d88934"), ("L1", "#477fa3"), ("EIR", "#46876a"))):
+        values = [100 * lookup[phase, state] for phase in ("prefill", "decode", "request")]
+        positions = [x + (i-1)*width for x in range(3)]
+        ax.bar(positions, values, width=width, color=color, label=state)
+        for x, value in zip(positions, values):
+            ax.text(x, value+1, f"{value:+.1f}%", ha="center", va="bottom", fontsize=9)
+    ax.set_xticks(range(3), ["Prefill layer", "Decode layer", "P + 2048 D"])
+    ax.set_ylabel("Latency change from healthy (%)")
+    ax.set_ylim(0, max(100*v for v in lookup.values())*1.22)
+    ax.grid(axis="y", alpha=.2); ax.set_axisbelow(True)
+    ax.legend(frameon=False, ncol=3, loc="upper left")
+    ax.set_title("Qwen3-MoE / BusyBarn: PF4 recovery", pad=12)
+    fig.text(.5, .025, "Serial layer reference, fixed KV = 2048. WATOS has operator-only results and is omitted here.",
+             ha="center", fontsize=9)
+    fig.tight_layout(rect=(0, .06, 1, 1))
+    folder = DEST / "figures"; folder.mkdir(exist_ok=True)
+    files = []
+    for ext in ("png", "svg"):
+        path = folder / ("b_main_layer_recovery." + ext)
+        fig.savefig(path, dpi=170, metadata={"Date": None} if ext == "svg" else {})
+        files.append(dict(path=path.relative_to(ROOT).as_posix(), sha256=shared.sha(path)))
+    plt.close(fig)
+    return files
+
+
+def render(audit, units, groups, costs, layers, requests, coverage_rows, watos_operators, figures):
     text = ["# Qwen 两个 prefill FFN / PF4 点及完整层参考", "",
         f"本批已完成 {audit['completed_jobs']}/46 作业，真实 L2 {audit['actual_repair_trajectories']} 条，停档复用 {audit['reused_repair_jobs']} 条，新增后端 {audit['backend_samples']} 次。与旧十个 PF4 点合并，当前已核对 {sum(r['complete'] for r in coverage_rows)}/12 点。", "",
         "两种硬件各复用已有十四候选中的正式 A3h 赢家；固定故障仍为 `(die0,core11) ↔ (die1,core8)` 双向连接失效。健康重放、R0、L1 和每条实际 L2 的后端种子均为1–10。旧896健康候选和此前完成的故障记录保持不变。", "",
@@ -156,6 +191,9 @@ def render(audit, units, groups, costs, layers, requests, coverage_rows):
     for r in groups:
         spread = f"[{r['trajectory_backend_mean_min_ns']}, {r['trajectory_backend_mean_max_ns']}]" if "trajectory_backend_mean_min_ns" in r else "—"
         text.append(f"| {r['hardware_profile']} | {r['budget']} | {r['actual_trajectories']} | {r['reused']} | {r['pending']} | {r.get('T_hat_mean_ns','—')} | {r.get('trajectory_backend_mean_median_ns','—')} | {spread} |")
+    for r in units:
+        if r["EIR_complete"]:
+            text.append(f"\n{r['hardware_profile']} 的最终档平均 CPCM 仍比健康高 {r['EIR_stop_T_hat_relative_to_healthy']:+.2%}；停止原因按上述五轨迹均值计算。最终后端中位代表为修复 seed{r['EIR_repair_seed']}，十种子范围 {r['EIR_backend_min_ns']/1e6:.3f}–{r['EIR_backend_max_ns']/1e6:.3f} ms。后端恢复程度与 CPCM 的停止条件分别报告。")
     text += ["", "主硬件层参考", "",
         "Prefill = 2×RMSNorm + 4×代表MHA + projection + FFN + 524308ns handoff。Decode = RMSNorm + 4×代表MHA + projection + FFN + 276ns handoff；decode FFN已经包含第二次RMSNorm。每个MHA代表图含8个Q头和一组K/V，Qwen层乘4。", "",
         "| 阶段 | 状态 | 算子和ms | handoff ns | 层参考ms | 相对健康 | 相对R0 |", "|---|---|---:|---:|---:|---:|---:|"]
@@ -164,7 +202,17 @@ def render(audit, units, groups, costs, layers, requests, coverage_rows):
     text += ["", "| 状态 | P ms | D ms | P+2048D 秒 | 相对健康 | 相对R0 |", "|---|---:|---:|---:|---:|---:|"]
     for r in requests:
         text.append(f"| {r['state']} | {r['prefill_ns']/1e6:.6f} | {r['decode_ns']/1e6:.6f} | {r['request_ns']/1e9:.6f} | {r['relative_to_healthy']:+.2%} | {r['relative_to_R0']:+.2%} |")
-    text += ["", "这是同一模型、同一PF4下算子均值的串行组装。KV固定2048；没有逐token增长，也不是48层或流水线联合仿真。组内故障不改变解析handoff项。WATOS只保留prefill/decode MHA与FFN四类独立算子，不补造缺失的LN/projection或整层指标。", "",
+    text += ["", "这是同一模型、同一PF4下算子均值的串行组装。KV固定2048；没有逐token增长，也不是48层或流水线联合仿真。组内故障不改变解析handoff项。WATOS只保留prefill/decode MHA与FFN四类独立算子，不补造缺失的LN/projection或整层指标。", ""]
+    if figures:
+        text += ["![主硬件P/D层与请求的恢复](figures/b_main_layer_recovery.png)", "",
+            "图中三个指标各自以健康状态为基准，均由上表的算子均值与固定handoff组装。WATOS没有完整层结果，因此不放入此图。", ""]
+    text += ["WATOS四类独立算子", "",
+        "| 算子 | 健康ms | R0 ms | 最终EIR ms | EIR/健康−1 | EIR/R0−1 |",
+        "|---|---:|---:|---:|---:|---:|"]
+    for r in watos_operators:
+        end = f"{r['EIR_backend_mean_ns']/1e6:.6f} | {r['EIR_relative_to_healthy']:+.2%} | {r['EIR_relative_to_R0']:+.2%}" if r["EIR_complete"] else "待完成 | — | —"
+        text.append(f"| {r['phase_op']} | {r['healthy_backend_mean_ns']/1e6:.6f} | {r['R0_backend_mean_ns']/1e6:.6f} | {end} |")
+    text += ["",
         "迁移与成本", "",
         "每状态的行为搬迁、DDR读取源变化、唯一迁移块字节与块数保存在逐状态表；最终代表和全部修复种子都保留，后端范围不省略。", "",
         "| 类型 | 作业数 | 后端调用秒 | 后端复制/准备秒 | 校准秒 | 搜索秒 | 恢复与最终CPCM秒 | 其他秒 |", "|---|---:|---:|---:|---:|---:|---:|---:|"]
@@ -227,8 +275,11 @@ def report(out, progress):
         watos_operators=[r for r in merged if r["hardware_profile"] == "watos" and r["start_arm"] == "A3h"])
     for name, rows in values.items():
         table(DEST / "tables" / ("b_" + name + ".csv"), rows)
+    figures = plot_layer_recovery(layers, requests)
+    audit["figures"] = figures
     shared.write(DEST / "evidence/b_completion.json", audit)
-    (DEST / "B_I4_PF4_COMPLETE.md").write_text(render(audit, units, groups, costs, layers, requests, coverage_rows), encoding="utf-8")
+    (DEST / "B_I4_PF4_COMPLETE.md").write_text(render(audit, units, groups, costs, layers, requests, coverage_rows,
+        values["watos_operators"], figures), encoding="utf-8")
     if complete:
         assert audit["I4_PF4_complete"] == 12 and len(layers) == 8 and len(requests) == 4
         table(HERE / "tables/i4_pf4_coverage.csv", coverage_rows)

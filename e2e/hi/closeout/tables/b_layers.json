@@ -99,6 +99,38 @@
     "model": "qwen3moe",
     "hardware_profile": "busybarn",
     "start_arm": "A3h",
+    "phase": "prefill",
+    "state": "EIR",
+    "weights": {
+      "ln": 2,
+      "mha": 4,
+      "proj": 1,
+      "ffn": 1
+    },
+    "batch": 16,
+    "sequence_or_KV_length": 2048,
+    "Q_heads_per_representative": 8,
+    "Q_head_groups": 4,
+    "external_norm_count": 2,
+    "ffn_embedded_norm_count": 0,
+    "operator_sum_ns": 56382712.300000004,
+    "handoff_bytes": 134217728,
+    "handoff_ns": 524308.0,
+    "layer_ns": 56907020.300000004,
+    "relative_to_healthy": 0.02228876131792079,
+    "relative_to_R0": -0.06527946470963775,
+    "source_jobs": {
+      "ln": "qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__l1_pf_ln_A3h_PF4",
+      "mha": "qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_pf_mha_PF4_s100_r4",
+      "proj": "qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__l1_pf_proj_A3h_PF4",
+      "ffn": "B__qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_pf_ffn_PF4_s300_r4"
+    },
+    "measurement": "actual operator backend means serially added, plus unchanged adjacent-group handoff; one-layer reference"
+  },
+  {
+    "model": "qwen3moe",
+    "hardware_profile": "busybarn",
+    "start_arm": "A3h",
     "phase": "decode",
     "state": "healthy",
     "weights": {

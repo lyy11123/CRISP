@@ -135,7 +135,9 @@ def backend_record(record):
 def costs(package, job, result, out):
     spec, kind = job["spec"], job["kind"]
     row = dict(actual_search_trajectories=0, search_proposals=0, calibration_proposals=0,
-               accepted_proposals=0, actual_backend_calls=0, historical_backend_samples_reused=0,
+               accepted_proposals=0, actual_backend_calls=0, backend_samples_reused=0,
+               existing_backend_samples_reused=0, within_batch_backend_samples_reused=0,
+               historical_backend_samples_reused=0,
                backend_call_seconds=0., calibration_seconds=0., search_seconds=0.,
                restore_best_seconds=0., reused=result["status"] == "reused",
                healthy_reused="reused_healthy_record" in result)
@@ -159,7 +161,15 @@ def costs(package, job, result, out):
             if kind == "s_joint_reuse":
                 assert row["reuse_source_sha256"] == spec["reuse_sha256"] == result["reused_sha256"]
                 assert old["spec"]["reference"] == result["resolved_simulation_spec"]["reference"]
-            row["historical_backend_samples_reused"] = 1
+                row.update(existing_backend_samples_reused=1, reuse_scope="existing_before_batch")
+            else:
+                assert result["reused_from_job"] in spec["prior_solos"]
+                assert old["job_id"] == result["reused_from_job"] and old["kind"] == "s_solo"
+                assert old["status"] == "ok" and old["backend_calls"] == 1
+                assert all(old["spec"][k] == spec[k] for k in ("hardware_profile", "seed", "stream"))
+                assert old["completion"] == result["completion"]
+                row.update(within_batch_backend_samples_reused=1, reuse_scope="within_current_batch")
+            row.update(backend_samples_reused=1, historical_backend_samples_reused=1)
         else:
             raise AssertionError((job["id"], "unexpected reuse kind", kind))
         return row
@@ -172,7 +182,9 @@ def costs(package, job, result, out):
         measured = [backend_record(rec) for rec in entries]
         if row["healthy_reused"]:
             assert kind == "fault_pre" and result["actual_backend_calls"] == 0
-            row["historical_backend_samples_reused"] = sum(n for n, _ in measured)
+            count = sum(n for n, _ in measured)
+            row.update(backend_samples_reused=count, existing_backend_samples_reused=count,
+                       historical_backend_samples_reused=count, reuse_scope="existing_before_batch")
             row["reuse_source"] = result["reused_healthy_record"]
         else:
             row["actual_backend_calls"] = sum(n for n, _ in measured)
@@ -255,7 +267,8 @@ def collect(jobs, out):
 def totals(rows):
     done = [r for r in rows if r["complete"]]
     fields = ("actual_search_trajectories", "search_proposals", "calibration_proposals", "accepted_proposals",
-              "actual_backend_calls", "historical_backend_samples_reused", "backend_call_seconds")
+              "actual_backend_calls", "backend_samples_reused", "existing_backend_samples_reused",
+              "within_batch_backend_samples_reused", "historical_backend_samples_reused", "backend_call_seconds")
     return dict(expected_jobs=len(rows), completed_jobs=len(done),
                 **{k:sum(r[k] for r in done) for k in fields},
                 reused_jobs=sum(r["reused"] for r in done), healthy_reused_jobs=sum(r["healthy_reused"] for r in done),
@@ -283,8 +296,23 @@ def monitor(out, jobs, completed):
     timestamps = sorted(r["utc"] for r in records if "utc" in r)
     starts = [read(p) for p in [out / "closeout.start.json", *out.glob("controller_restarts/*/closeout.start.json")] if p.exists()]
     first = min((r["utc"] for r in starts), default=timestamps[0] if timestamps else None)
+    status_rows = [r for r in records if r.get("event") == "status" and "utc" in r]
+    last_status = max(status_rows, key=lambda r:r["utc"], default=None)
+    finish_path, batch_path = out / "controller_finish.json", out / "closeout.batch.json"
+    finish = read(finish_path) if finish_path.exists() else None
+    finish_verified = False
+    if finish and batch_path.exists() and completed == set(jobs):
+        batch = read(batch_path)
+        assert finish["rc"] == 0 and finish["completed"] == finish["expected"] == len(jobs) == 549
+        assert batch["completed"] == 549 and not batch["failed"] and not batch["pending"]
+        runs = {r["id"]:r for r in batch["runs"]}
+        assert len(runs) == len(batch["runs"]) == 549 and set(runs) == set(jobs)
+        assert all(runs[name]["rc"] == 0 and runs[name]["identity"] == identity(job) for name, (_, job) in jobs.items())
+        finish_verified = True
+    endpoint = finish["utc"] if finish_verified else last_status["utc"] if last_status else None
+    # Host monitoring continues while J runs; quality statistics stop here.
+    records = [r for r in records if first and endpoint and first <= r["utc"] <= endpoint]
     finished = sorted(r["utc"] for r in records if r.get("jobs") == 549 and r.get("completed") == 549)
-    endpoint = finished[0] if finished else timestamps[-1] if timestamps else None
     elapsed = (datetime.fromisoformat(endpoint)-datetime.fromisoformat(first)).total_seconds() if endpoint and first else None
     failures = []
     for path in sorted(out.glob("failed_attempts/*/*/receipt.json")):
@@ -302,9 +330,17 @@ def monitor(out, jobs, completed):
     available = [r[k] for r in records for k in ("available_gib", "min_available_gib") if k in r]
     maximum = max(active, default=None)
     minimum = min(available, default=None)
-    return dict(first_start_utc=first, snapshot_utc=timestamps[-1] if timestamps else None,
-        first_all_549_observed_utc=finished[0] if finished else None,
-        elapsed_seconds=elapsed, elapsed_scope="to first complete observation" if finished else "to latest saved observation; still partial",
+    return dict(first_start_utc=first, snapshot_utc=endpoint,
+        quality_finished=finish_verified,
+        controller_finish_utc=finish["utc"] if finish_verified else None,
+        completion_evidence="controller_finish_and_identity_checked_batch" if finish_verified else "no verified final controller result",
+        controller_finish_sha256=sha(finish_path) if finish_verified else None,
+        final_batch_sha256=sha(batch_path) if finish_verified else None,
+        first_all_549_observed_utc=min(finished + [finish["utc"]]) if finish_verified else finished[0] if finished else None,
+        last_status_utc=last_status["utc"] if last_status else None,
+        last_status_completed=last_status.get("completed") if last_status else None,
+        latest_saved_host_or_status_utc=timestamps[-1] if timestamps else None,
+        elapsed_seconds=elapsed, elapsed_scope="quality start through verified controller finish" if finish_verified else "to last saved quality status; still partial",
         controller_starts=starts, peak_active_workers=maximum, configured_worker_limit=128,
         worker_limit_observed=maximum is not None and maximum <= 128,
         minimum_available_gib=minimum, configured_reserve_gib=3,
@@ -380,13 +416,15 @@ def audit(out, jout, destination, progress):
     checks = package_reports(packages)
     completed = overall["completed_jobs"] == 549
     report_ready = all(r["status"] == "passed" and r["report_status"] in ("passed", "complete") for r in checks)
-    passed = completed and not errors and inputs["status"] == "passed" and report_ready
+    passed = completed and observations["quality_finished"] and not errors and inputs["status"] == "passed" and report_ready
     value = dict(status="passed" if passed else "in_progress", generated_utc=datetime.now(timezone.utc).isoformat(),
         source=relative(Path(__file__)), source_sha256=sha(__file__), output=relative(out),
         read_only=True, newly_executed=dict(searches=0, backend_calls=0),
         totals=overall, packages=packages, manifests=manifests, missing_jobs=missing, errors=errors,
         source_inputs=inputs, monitoring=observations, package_report_crosschecks=checks, j_timing=j_inventory(jout),
         accounting_notes=["Only identity-matched successful receipts and results enter quality totals.",
+            "backend_samples_reused = existing_backend_samples_reused + within_batch_backend_samples_reused.",
+            "historical_backend_samples_reused is a legacy alias for backend_samples_reused and includes within-batch reuse; it does not mean all samples predate this batch.",
             "Actual search trajectories count independent L2 trajectories; L1 candidates are not separate L2 searches.",
             "Search proposals exclude calibration proposals, reported separately.",
             "Inherited R0/L1 timings and reused historical backend samples are not new work.",
