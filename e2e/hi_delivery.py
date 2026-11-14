@@ -1,12 +1,13 @@
 """Package only H/I/J source additions and native model templates for this batch."""
 import hashlib
+import argparse
 import json
 from pathlib import Path
 import tarfile
 from e_run import ROOT, write_json
 
 
-def package():
+def package(destination=None):
     paths={}
     for pattern in ("hi_*.py","hi_*.sh","j_timing.py"):
         for p in (ROOT/"e2e").glob(pattern):
@@ -28,7 +29,7 @@ def package():
             p=ROOT/prefix/folder/(name+'.pkl.gz')
             paths[p.relative_to(ROOT).as_posix()]=p
     inventory=[dict(path=name,size=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for name,p in sorted(paths.items())]
-    dest=ROOT/'e2e/hi/dist/HI_FIRST_INPUTS.tar.gz'
+    dest=Path(destination) if destination else ROOT/'e2e/hi/dist/HI_FIRST_INPUTS.tar.gz'
     dest.parent.mkdir(parents=True,exist_ok=True)
     with tarfile.open(dest.with_suffix('.part'),'w:gz') as archive:
         for name,p in sorted(paths.items()):
@@ -39,4 +40,6 @@ def package():
 
 
 if __name__=='__main__':
-    package()
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output',type=Path)
+    package(parser.parse_args().output)
