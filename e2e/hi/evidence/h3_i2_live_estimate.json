@@ -1,0 +1,1324 @@
+{
+  "status": "dated_manual_estimate",
+  "snapshot_utc": "2026-11-14T09:02:20.200641+00:00",
+  "snapshot_beijing": "2026-11-14T17:02:20.200641+08:00",
+  "completed_at_snapshot": 180,
+  "active_at_snapshot": 128,
+  "available_gib_at_snapshot": 184.3880729675293,
+  "scope": "Remaining full H3/I2 440-job completion, conditional on other jobs finishing inside the measured prefill-FFN tail; excludes downloads, validation, reports, later stages. Detailed live evidence covers 41 Qwen BusyBarn prefill FFN workers.",
+  "startup_plan_preserved_minutes": [
+    117.31086210812028,
+    234.62172421624055
+  ],
+  "summary": {
+    "remaining_center_minutes": 101.64626328328387,
+    "remaining_scenario_minutes": [
+      87.51407287351795,
+      132.9688022531327
+    ],
+    "finish_center_beijing": "2026-11-14T18:43:58.976438+08:00",
+    "finish_scenario_beijing": [
+      "2026-11-14T18:29:51.045013+08:00",
+      "2026-11-14T19:15:18.328776+08:00"
+    ],
+    "longest_candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s123",
+    "principal_tail": "Gemini seed123 must finish best-state backends and then ten terminal-state backends; primary raw file is absent at this snapshot."
+  },
+  "method_summary": [
+    {
+      "method": "A1",
+      "active_jobs": 14,
+      "maximum_remaining_minutes": 76.35252806543528,
+      "longest_candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g0_l6",
+      "remaining_job_range_minutes": [
+        52.34233487571727,
+        76.35252806543528
+      ],
+      "maximum_remaining_scenario_minutes": [
+        65.30782291711766,
+        101.53722555675989
+      ]
+    },
+    {
+      "method": "A3h",
+      "active_jobs": 13,
+      "maximum_remaining_minutes": 87.93452256898382,
+      "longest_candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s3",
+      "remaining_job_range_minutes": [
+        78.43869883470246,
+        87.93452256898382
+      ],
+      "maximum_remaining_scenario_minutes": [
+        67.48004787551325,
+        101.25311438712819
+      ]
+    },
+    {
+      "method": "Gemini",
+      "active_jobs": 14,
+      "maximum_remaining_minutes": 101.64626328328387,
+      "longest_candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s123",
+      "remaining_job_range_minutes": [
+        45.34200814913492,
+        101.64626328328387
+      ],
+      "maximum_remaining_scenario_minutes": [
+        87.51407287351795,
+        132.9688022531327
+      ]
+    }
+  ],
+  "measured_backend_inputs": {
+    "prior_A3h_candidate": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s123",
+    "prior_ten_backend_seconds": 2451.570972704001,
+    "prior_seed_mean_seconds": 245.15709727040013,
+    "prior_seed_range_seconds": [
+      234.77643356000044,
+      252.73050566299935
+    ],
+    "prior_post_search_nonbackend_seconds": 56.938899456996296,
+    "current_Gemini_completed_seed_intervals": [
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s123",
+        "seconds": 315.3306974829975
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s1",
+        "seconds": 315.74031947500043
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s3",
+        "seconds": 358.4216678130033
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s4",
+        "seconds": 304.7964482470052
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s5",
+        "seconds": 365.20392946599895
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s6",
+        "seconds": 305.05751164299727
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s7",
+        "seconds": 337.2687274339987
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s9",
+        "seconds": 338.98982221400365
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s10",
+        "seconds": 330.4386773189981
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s11",
+        "seconds": 313.177016282003
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s12",
+        "seconds": 329.2658814479946
+      },
+      {
+        "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s13",
+        "seconds": 325.4703246920035
+      }
+    ],
+    "current_Gemini_interval_min_median_max_seconds": [
+      304.7964482470052,
+      327.36810306999905,
+      365.20392946599895
+    ],
+    "provisional_load_factor": 1.3353401011634711
+  },
+  "other_jobs_sanity_check": {
+    "jobs": 399,
+    "calculation": "Schedule all 399 non-Qwen-prefill-FFN jobs from zero on the other 87 slots using original complete-job estimates, without credit for 180 already finished; longest-estimated first. This is a comparison estimate, not a live full queue reconstruction.",
+    "estimated_minutes": 25.099802273914275,
+    "three_times_original_minutes": 75.29940682174282,
+    "less_than_live_tail_scenario_upper": true
+  },
+  "assumptions": [
+    "Current progress JSON and process elapsed were read sequentially; use max of both clocks. Four progress timestamps are a few seconds ahead of process status, so timestamps are not simultaneous.",
+    "Search extrapolation uses cumulative seconds per completed step and subtracts age of last checkpoint; remaining search scenario scales that rate by 0.8 and 1.2. A task still reporting search retains at least one mean step rather than being called complete.",
+    "A3h backend center uses the previous exact same class full ten-seed cost, scaled by current Gemini/previous-A3h mean interval. This ratio mixes contention and mapping differences, so it is an estimating assumption, not a measured A3h slowdown.",
+    "A1 has no complete first-seed interval at this snapshot. Its g0_l6 first seed has already exceeded the old A3h seed average; elapsed first-seed time is treated as a lower observation, not a completed duration.",
+    "Gemini primary seed intervals are observed; the extra terminal-state evaluation of seed123 is unmeasured and may differ from its best state. Its extra ten calls are included with explicit 0.8 to 1.25 interval factors.",
+    "Ranges are working scenarios, not statistical confidence intervals or completion guarantees. Normal queuing, runtime variation, or a different terminal-state backend cost can shift them.",
+    "CPU and memory availability can improve as short jobs finish; no speed-up from that future event is required by the center estimate.",
+    "Original 117 to 235 minute starting plan is retained separately. No code, simulation, spec, queue, or active process was changed to make this estimate."
+  ],
+  "jobs": [
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s123",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1420.4617520890024,
+      "progress_elapsed_seconds": 1375.8887053869985,
+      "elapsed_used_seconds": 1420.4617520890024,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 44.57304670200392,
+      "first_backend_interval_seconds": 315.3306974829975,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 10,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 6098.775796997033,
+      "remaining_scenario_seconds": [
+        5250.844372411077,
+        7978.1281351879625
+      ],
+      "remaining_minutes": 101.64626328328387,
+      "remaining_scenario_minutes": [
+        87.51407287351795,
+        132.9688022531327
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s3",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1408.4082681439977,
+      "progress_elapsed_seconds": 1404.4431592809997,
+      "elapsed_used_seconds": 1408.4082681439977,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 325,
+      "search_elapsed_seconds": 929.4146027789975,
+      "seconds_per_completed_step": 2.8597372393199922,
+      "search_remaining_seconds": 1926.3575276779968,
+      "search_remaining_scenario_seconds": [
+        1540.2930003697977,
+        2312.4220549861957
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 5276.07135413903,
+      "remaining_scenario_seconds": [
+        4048.802872530795,
+        6075.186863227692
+      ],
+      "remaining_minutes": 87.93452256898382,
+      "remaining_scenario_minutes": [
+        67.48004787551325,
+        101.25311438712819
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s1",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1408.4093956849974,
+      "progress_elapsed_seconds": 1347.9436249100036,
+      "elapsed_used_seconds": 1408.4093956849974,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 375,
+      "search_elapsed_seconds": 1132.184011913996,
+      "seconds_per_completed_step": 3.0191573651039896,
+      "search_remaining_seconds": 1826.5075824149997,
+      "search_remaining_scenario_seconds": [
+        1449.112911777001,
+        2203.9022530529983
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 5176.221408876032,
+      "remaining_scenario_seconds": [
+        3957.6227839379985,
+        5966.6670612944945
+      ],
+      "remaining_minutes": 86.27035681460053,
+      "remaining_scenario_minutes": [
+        65.96037973229997,
+        99.4444510215749
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s6",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1408.4062266159963,
+      "progress_elapsed_seconds": 1396.3880435949977,
+      "elapsed_used_seconds": 1408.4062266159963,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 400,
+      "search_elapsed_seconds": 1190.0056596130016,
+      "seconds_per_completed_step": 2.975014149032504,
+      "search_remaining_seconds": 1772.990306398504,
+      "search_remaining_scenario_seconds": [
+        1415.9886085146034,
+        2129.992004282404
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 5122.704132859537,
+      "remaining_scenario_seconds": [
+        3924.498480675601,
+        5892.7568125239
+      ],
+      "remaining_minutes": 85.37840221432562,
+      "remaining_scenario_minutes": [
+        65.40830801126002,
+        98.212613542065
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s5",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1408.407140532996,
+      "progress_elapsed_seconds": 1400.287444022004,
+      "elapsed_used_seconds": 1408.407140532996,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 425,
+      "search_elapsed_seconds": 1200.4229245950046,
+      "seconds_per_completed_step": 2.8245245284588343,
+      "search_remaining_seconds": 1615.9819073528377,
+      "search_remaining_scenario_seconds": [
+        1291.1615865800718,
+        1940.8022281256035
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4965.69573381387,
+      "remaining_scenario_seconds": [
+        3799.6714587410693,
+        5703.5670363671
+      ],
+      "remaining_minutes": 82.7615955635645,
+      "remaining_scenario_minutes": [
+        63.32785764568449,
+        95.05945060611833
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g1_s3",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1406.3985033589997,
+      "progress_elapsed_seconds": 1355.2089323330001,
+      "elapsed_used_seconds": 1406.3985033589997,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 375,
+      "search_elapsed_seconds": 980.2529085890055,
+      "seconds_per_completed_step": 2.6140077562373483,
+      "search_remaining_seconds": 1582.5652766223432,
+      "search_remaining_scenario_seconds": [
+        1255.8143070926744,
+        1909.3162461520117
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4932.279103083376,
+      "remaining_scenario_seconds": [
+        3764.324179253672,
+        5672.081054393508
+      ],
+      "remaining_minutes": 82.20465171805627,
+      "remaining_scenario_minutes": [
+        62.73873632089453,
+        94.53468423989179
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s4",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1408.407689558997,
+      "progress_elapsed_seconds": 1372.0433553630064,
+      "elapsed_used_seconds": 1408.407689558997,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 425,
+      "search_elapsed_seconds": 1177.6140984049998,
+      "seconds_per_completed_step": 2.7708567021294113,
+      "search_remaining_seconds": 1556.878269528421,
+      "search_remaining_scenario_seconds": [
+        1238.2297487835385,
+        1875.5267902733033
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4906.592095989454,
+      "remaining_scenario_seconds": [
+        3746.739620944536,
+        5638.291598514799
+      ],
+      "remaining_minutes": 81.77653493315756,
+      "remaining_scenario_minutes": [
+        62.4456603490756,
+        93.97152664191331
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g1_s2",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1406.4001458769999,
+      "progress_elapsed_seconds": 1364.3457310189988,
+      "elapsed_used_seconds": 1406.4001458769999,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 400,
+      "search_elapsed_seconds": 1062.2841727839987,
+      "seconds_per_completed_step": 2.6557104319599967,
+      "search_remaining_seconds": 1551.3718443179969,
+      "search_remaining_scenario_seconds": [
+        1232.6865924827973,
+        1870.0570961531964
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4901.08567077903,
+      "remaining_scenario_seconds": [
+        3741.1964646437946,
+        5632.821904394693
+      ],
+      "remaining_minutes": 81.6847611796505,
+      "remaining_scenario_minutes": [
+        62.35327441072991,
+        93.88036507324487
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g1_s4",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1406.3978220470017,
+      "progress_elapsed_seconds": 1352.0562473559985,
+      "elapsed_used_seconds": 1406.3978220470017,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 425,
+      "search_elapsed_seconds": 1149.105931899001,
+      "seconds_per_completed_step": 2.703778663291767,
+      "search_remaining_seconds": 1500.331156701763,
+      "search_remaining_scenario_seconds": [
+        1189.3966104232097,
+        1811.265702980316
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4850.044983162796,
+      "remaining_scenario_seconds": [
+        3697.906482584207,
+        5574.030511221812
+      ],
+      "remaining_minutes": 80.83408305271327,
+      "remaining_scenario_minutes": [
+        61.63177470973678,
+        92.90050852036353
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g1_s1",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1406.4009872349998,
+      "progress_elapsed_seconds": 1408.440457896002,
+      "elapsed_used_seconds": 1408.440457896002,
+      "progress_ahead_of_status_seconds": 2.0394706610022695,
+      "primary_gemini_raw_exists": false,
+      "step": 450,
+      "search_elapsed_seconds": 1202.4141277929957,
+      "seconds_per_completed_step": 2.672031395095546,
+      "search_remaining_seconds": 1469.6172673025503,
+      "search_remaining_scenario_seconds": [
+        1175.6938138420403,
+        1763.5407207630606
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4819.331093763583,
+      "remaining_scenario_seconds": [
+        3684.2036860030375,
+        5526.305529004557
+      ],
+      "remaining_minutes": 80.32218489605972,
+      "remaining_scenario_minutes": [
+        61.40339476671729,
+        92.10509215007595
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s2",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1408.4088077100023,
+      "progress_elapsed_seconds": 1401.7073324759986,
+      "elapsed_used_seconds": 1408.4088077100023,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 450,
+      "search_elapsed_seconds": 1201.6270837589982,
+      "seconds_per_completed_step": 2.670282408353329,
+      "search_remaining_seconds": 1461.9538493603272,
+      "search_remaining_scenario_seconds": [
+        1168.2227844414613,
+        1755.6849142791934
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4811.66767582136,
+      "remaining_scenario_seconds": [
+        3676.7326566024585,
+        5518.44972252069
+      ],
+      "remaining_minutes": 80.19446126368933,
+      "remaining_scenario_minutes": [
+        61.27887761004097,
+        91.9741620420115
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g1_s6",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1406.3934807190017,
+      "progress_elapsed_seconds": 1406.1461979689993,
+      "elapsed_used_seconds": 1406.3934807190017,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 450,
+      "search_elapsed_seconds": 1192.93982924,
+      "seconds_per_completed_step": 2.6509773983111113,
+      "search_remaining_seconds": 1457.7902863211089,
+      "search_remaining_scenario_seconds": [
+        1166.1827725068865,
+        1749.3978001353312
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4807.504112782141,
+      "remaining_scenario_seconds": [
+        3674.692644667884,
+        5512.162608376828
+      ],
+      "remaining_minutes": 80.12506854636902,
+      "remaining_scenario_minutes": [
+        61.2448774111314,
+        91.86937680628047
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g1_s123",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1406.4017345160028,
+      "progress_elapsed_seconds": 1391.2874309789986,
+      "elapsed_used_seconds": 1406.4017345160028,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 425,
+      "search_elapsed_seconds": 1073.9374758289996,
+      "seconds_per_completed_step": 2.5269117078329404,
+      "search_remaining_seconds": 1437.8599284669365,
+      "search_remaining_scenario_seconds": [
+        1147.2650820661486,
+        1728.4547748677246
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4787.573754927969,
+      "remaining_scenario_seconds": [
+        3655.774954227146,
+        5491.219583109221
+      ],
+      "remaining_minutes": 79.79289591546616,
+      "remaining_scenario_minutes": [
+        60.92958257045243,
+        91.5203263851537
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A3h_g1_s5",
+      "method": "A3h",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1406.3971643839977,
+      "progress_elapsed_seconds": 1357.2477736270012,
+      "elapsed_used_seconds": 1406.3971643839977,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 450,
+      "search_elapsed_seconds": 1150.1652226730002,
+      "seconds_per_completed_step": 2.5559227170511116,
+      "search_remaining_seconds": 1356.6081036211149,
+      "search_remaining_scenario_seconds": [
+        1075.4566047454925,
+        1637.759602496737
+      ],
+      "backend_estimate_basis": "Previous same-model same-hardware A3h complete ten backends; center scaled by current Gemini first-seed interval / previous A3h seed mean as a provisional load proxy.",
+      "remaining_seconds": 4706.321930082147,
+      "remaining_scenario_seconds": [
+        3583.9664769064902,
+        5400.524410738233
+      ],
+      "remaining_minutes": 78.43869883470246,
+      "remaining_scenario_minutes": [
+        59.73277461510817,
+        90.00874017897056
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g0_l6",
+      "method": "A1",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1414.4339811480022,
+      "progress_elapsed_seconds": 985.3750394179951,
+      "elapsed_used_seconds": 1414.4339811480022,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 429.05894173000706,
+      "backend_seed_seconds_assumption": 493.4177829895081,
+      "backend_seed_scenario_seconds": [
+        429.05894173000706,
+        643.5884125950106
+      ],
+      "backend_estimate_basis": "Current A1 first backend is incomplete (censored). Center is max(current Gemini median, elapsed times 1.15); scenario extends from max(previous A3h mean, elapsed) to max(current Gemini maximum times 1.25, elapsed times 1.5).",
+      "remaining_seconds": 4581.151683926117,
+      "remaining_scenario_seconds": [
+        3918.46937502706,
+        6092.233533405593
+      ],
+      "remaining_minutes": 76.35252806543528,
+      "remaining_scenario_minutes": [
+        65.30782291711766,
+        101.53722555675989
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g1_l0",
+      "method": "A1",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1414.4334432620017,
+      "progress_elapsed_seconds": 1394.693608049005,
+      "elapsed_used_seconds": 1414.4334432620017,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 925,
+      "search_elapsed_seconds": 1268.0371890769966,
+      "seconds_per_completed_step": 1.3708510152183746,
+      "search_remaining_seconds": 83.0739909283814,
+      "search_remaining_scenario_seconds": [
+        62.5112257001058,
+        103.63675615665701
+      ],
+      "backend_estimate_basis": "No completed current A1 seed yet: center uses current Gemini interval median; scenario uses prior A3h full cost through 1.25 times current Gemini maximum. Mapping differences remain unmeasured.",
+      "remaining_seconds": 3432.787817389414,
+      "remaining_scenario_seconds": [
+        2571.021097861103,
+        4754.094223667138
+      ],
+      "remaining_minutes": 57.21313028982357,
+      "remaining_scenario_minutes": [
+        42.850351631018384,
+        79.23490372778564
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g1_l5",
+      "method": "A1",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1412.4280402660006,
+      "progress_elapsed_seconds": 1408.025948605995,
+      "elapsed_used_seconds": 1412.4280402660006,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 950,
+      "search_elapsed_seconds": 1280.9226505859988,
+      "seconds_per_completed_step": 1.3483396321957881,
+      "search_remaining_seconds": 63.01488994978372,
+      "search_remaining_scenario_seconds": [
+        49.53149362782585,
+        76.4982862717416
+      ],
+      "backend_estimate_basis": "No completed current A1 seed yet: center uses current Gemini interval median; scenario uses prior A3h full cost through 1.25 times current Gemini maximum. Mapping differences remain unmeasured.",
+      "remaining_seconds": 3412.728716410816,
+      "remaining_scenario_seconds": [
+        2558.0413657888234,
+        4726.955753782223
+      ],
+      "remaining_minutes": 56.87881194018027,
+      "remaining_scenario_minutes": [
+        42.63402276314706,
+        78.78259589637038
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g1_l2",
+      "method": "A1",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1412.4297840009967,
+      "progress_elapsed_seconds": 1390.2066528700016,
+      "elapsed_used_seconds": 1412.4297840009967,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 950,
+      "search_elapsed_seconds": 1263.5417371810036,
+      "seconds_per_completed_step": 1.3300439338747405,
+      "search_remaining_seconds": 44.27906556274185,
+      "search_remaining_scenario_seconds": [
+        30.978626223994453,
+        57.57950490148926
+      ],
+      "backend_estimate_basis": "No completed current A1 seed yet: center uses current Gemini interval median; scenario uses prior A3h full cost through 1.25 times current Gemini maximum. Mapping differences remain unmeasured.",
+      "remaining_seconds": 3393.9928920237744,
+      "remaining_scenario_seconds": [
+        2539.488498384992,
+        4708.036972411971
+      ],
+      "remaining_minutes": 56.56654820039624,
+      "remaining_scenario_minutes": [
+        42.324808306416536,
+        78.46728287353285
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g1_l3",
+      "method": "A1",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1412.429199076003,
+      "progress_elapsed_seconds": 1383.2747249189997,
+      "elapsed_used_seconds": 1412.429199076003,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 950,
+      "search_elapsed_seconds": 1253.393383556002,
+      "seconds_per_completed_step": 1.319361456374739,
+      "search_remaining_seconds": 36.813598661733664,
+      "search_remaining_scenario_seconds": [
+        23.619984097986276,
+        50.00721322548105
+      ],
+      "backend_estimate_basis": "No completed current A1 seed yet: center uses current Gemini interval median; scenario uses prior A3h full cost through 1.25 times current Gemini maximum. Mapping differences remain unmeasured.",
+      "remaining_seconds": 3386.527425122766,
+      "remaining_scenario_seconds": [
+        2532.1298562589836,
+        4700.464680735962
+      ],
+      "remaining_minutes": 56.4421237520461,
+      "remaining_scenario_minutes": [
+        42.20216427098306,
+        78.34107801226604
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g1_l1",
+      "method": "A1",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1414.4330164729981,
+      "progress_elapsed_seconds": 1404.2299877190017,
+      "elapsed_used_seconds": 1414.4330164729981,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 975,
+      "search_elapsed_seconds": 1284.5031192660026,
+      "seconds_per_completed_step": 1.3174390966830796,
+      "search_remaining_seconds": 22.732948663080514,
+      "search_remaining_scenario_seconds": [
+        16.145753179665114,
+        29.320144146495906
+      ],
+      "backend_estimate_basis": "No completed current A1 seed yet: center uses current Gemini interval median; scenario uses prior A3h full cost through 1.25 times current Gemini maximum. Mapping differences remain unmeasured.",
+      "remaining_seconds": 3372.446775124113,
+      "remaining_scenario_seconds": [
+        2524.6556253406625,
+        4679.777611656978
+      ],
+      "remaining_minutes": 56.20744625206855,
+      "remaining_scenario_minutes": [
+        42.07759375567771,
+        77.99629352761629
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g1_l6",
+      "method": "A1",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1412.427602566997,
+      "progress_elapsed_seconds": 1395.473989721002,
+      "elapsed_used_seconds": 1412.427602566997,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 975,
+      "search_elapsed_seconds": 1274.3597340190026,
+      "seconds_per_completed_step": 1.3070356246348744,
+      "search_remaining_seconds": 15.722277769876925,
+      "search_remaining_scenario_seconds": [
+        9.18709964670255,
+        22.257455893051294
+      ],
+      "backend_estimate_basis": "No completed current A1 seed yet: center uses current Gemini interval median; scenario uses prior A3h full cost through 1.25 times current Gemini maximum. Mapping differences remain unmeasured.",
+      "remaining_seconds": 3365.4361042309097,
+      "remaining_scenario_seconds": [
+        2517.6969718077,
+        4672.714923403532
+      ],
+      "remaining_minutes": 56.09060173718183,
+      "remaining_scenario_minutes": [
+        41.961616196795,
+        77.87858205672553
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g1_l4",
+      "method": "A1",
+      "phase_at_snapshot": "search",
+      "process_elapsed_seconds": 1412.4285880820025,
+      "progress_elapsed_seconds": 1374.7578484379992,
+      "elapsed_used_seconds": 1412.4285880820025,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "step": 975,
+      "search_elapsed_seconds": 1244.4666514220007,
+      "seconds_per_completed_step": 1.2763760527405135,
+      "search_remaining_seconds": 1.2763760527405135,
+      "search_remaining_scenario_seconds": [
+        1.2763760527405135,
+        1.2763760527405135
+      ],
+      "backend_estimate_basis": "No completed current A1 seed yet: center uses current Gemini interval median; scenario uses prior A3h full cost through 1.25 times current Gemini maximum. Mapping differences remain unmeasured.",
+      "remaining_seconds": 3350.990202513773,
+      "remaining_scenario_seconds": [
+        2509.786248213738,
+        4651.733843563222
+      ],
+      "remaining_minutes": 55.84983670856288,
+      "remaining_scenario_minutes": [
+        41.8297708035623,
+        77.52889739272037
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s5",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1410.4210029419992,
+      "progress_elapsed_seconds": 1392.1168839969978,
+      "elapsed_used_seconds": 1410.4210029419992,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 18.30411894500139,
+      "first_backend_interval_seconds": 365.20392946599895,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 3344.5640420100312,
+      "remaining_scenario_seconds": [
+        2781.8028147350415,
+        3353.9395954344836
+      ],
+      "remaining_minutes": 55.74273403350052,
+      "remaining_scenario_minutes": [
+        46.363380245584025,
+        55.89899325724139
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s3",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1412.4253613149995,
+      "progress_elapsed_seconds": 1413.8845425649997,
+      "elapsed_used_seconds": 1413.8845425649997,
+      "progress_ahead_of_status_seconds": 1.4591812500002561,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 0,
+      "first_backend_interval_seconds": 358.4216678130033,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 3301.8278060780717,
+      "remaining_scenario_seconds": [
+        2800.106933680043,
+        3372.243714379485
+      ],
+      "remaining_minutes": 55.03046343463453,
+      "remaining_scenario_minutes": [
+        46.66844889466738,
+        56.20406190632475
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g0_l2",
+      "method": "A1",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1414.436270819002,
+      "progress_elapsed_seconds": 1324.831391149004,
+      "elapsed_used_seconds": 1414.436270819002,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 89.6048796699979,
+      "backend_seed_seconds_assumption": 327.36810306999905,
+      "backend_seed_scenario_seconds": [
+        245.15709727040013,
+        456.5049118324987
+      ],
+      "backend_estimate_basis": "Current A1 first backend is incomplete (censored). Center is max(current Gemini median, elapsed times 1.15); scenario extends from max(previous A3h mean, elapsed) to max(current Gemini maximum times 1.25, elapsed times 1.5).",
+      "remaining_seconds": 3260.1089467910347,
+      "remaining_scenario_seconds": [
+        2418.9049924909996,
+        4560.8525878404835
+      ],
+      "remaining_minutes": 54.33514911318391,
+      "remaining_scenario_minutes": [
+        40.315083208183324,
+        76.0142097973414
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g0_l1",
+      "method": "A1",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1414.4368768130007,
+      "progress_elapsed_seconds": 1323.1190173529976,
+      "elapsed_used_seconds": 1414.4368768130007,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 91.31785946000309,
+      "backend_seed_seconds_assumption": 327.36810306999905,
+      "backend_seed_scenario_seconds": [
+        245.15709727040013,
+        456.5049118324987
+      ],
+      "backend_estimate_basis": "Current A1 first backend is incomplete (censored). Center is max(current Gemini median, elapsed times 1.15); scenario extends from max(previous A3h mean, elapsed) to max(current Gemini maximum times 1.25, elapsed times 1.5).",
+      "remaining_seconds": 3258.3959670010295,
+      "remaining_scenario_seconds": [
+        2417.1920127009944,
+        4559.139608050478
+      ],
+      "remaining_minutes": 54.30659945001716,
+      "remaining_scenario_minutes": [
+        40.286533545016574,
+        75.98566013417464
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g0_l3",
+      "method": "A1",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1414.4356740840012,
+      "progress_elapsed_seconds": 1243.144586246999,
+      "elapsed_used_seconds": 1414.4356740840012,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 171.29108783700212,
+      "backend_seed_seconds_assumption": 327.36810306999905,
+      "backend_seed_scenario_seconds": [
+        245.15709727040013,
+        456.5049118324987
+      ],
+      "backend_estimate_basis": "Current A1 first backend is incomplete (censored). Center is max(current Gemini median, elapsed times 1.15); scenario extends from max(previous A3h mean, elapsed) to max(current Gemini maximum times 1.25, elapsed times 1.5).",
+      "remaining_seconds": 3178.4227386240304,
+      "remaining_scenario_seconds": [
+        2337.2187843239954,
+        4479.166379673479
+      ],
+      "remaining_minutes": 52.97371231040051,
+      "remaining_scenario_minutes": [
+        38.95364640539992,
+        74.65277299455799
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g0_l4",
+      "method": "A1",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1414.4351125190005,
+      "progress_elapsed_seconds": 1223.2545737099936,
+      "elapsed_used_seconds": 1414.4351125190005,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 191.18053880900698,
+      "backend_seed_seconds_assumption": 327.36810306999905,
+      "backend_seed_scenario_seconds": [
+        245.15709727040013,
+        456.5049118324987
+      ],
+      "backend_estimate_basis": "Current A1 first backend is incomplete (censored). Center is max(current Gemini median, elapsed times 1.15); scenario extends from max(previous A3h mean, elapsed) to max(current Gemini maximum times 1.25, elapsed times 1.5).",
+      "remaining_seconds": 3158.5332876520256,
+      "remaining_scenario_seconds": [
+        2317.3293333519905,
+        4459.276928701474
+      ],
+      "remaining_minutes": 52.64222146086709,
+      "remaining_scenario_minutes": [
+        38.622155555866506,
+        74.32128214502457
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g0_l0",
+      "method": "A1",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1420.4612555810018,
+      "progress_elapsed_seconds": 1214.8650659699997,
+      "elapsed_used_seconds": 1420.4612555810018,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 205.59618961100205,
+      "backend_seed_seconds_assumption": 327.36810306999905,
+      "backend_seed_scenario_seconds": [
+        245.15709727040013,
+        456.5049118324987
+      ],
+      "backend_estimate_basis": "Current A1 first backend is incomplete (censored). Center is max(current Gemini median, elapsed times 1.15); scenario extends from max(previous A3h mean, elapsed) to max(current Gemini maximum times 1.25, elapsed times 1.5).",
+      "remaining_seconds": 3144.1176368500305,
+      "remaining_scenario_seconds": [
+        2302.9136825499954,
+        4444.861277899479
+      ],
+      "remaining_minutes": 52.40196061416717,
+      "remaining_scenario_minutes": [
+        38.38189470916659,
+        74.08102129832466
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_A1_g0_l5",
+      "method": "A1",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1414.4345812719985,
+      "progress_elapsed_seconds": 1205.2608473540022,
+      "elapsed_used_seconds": 1414.4345812719985,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 209.1737339179963,
+      "backend_seed_seconds_assumption": 327.36810306999905,
+      "backend_seed_scenario_seconds": [
+        245.15709727040013,
+        456.5049118324987
+      ],
+      "backend_estimate_basis": "Current A1 first backend is incomplete (censored). Center is max(current Gemini median, elapsed times 1.15); scenario extends from max(previous A3h mean, elapsed) to max(current Gemini maximum times 1.25, elapsed times 1.5).",
+      "remaining_seconds": 3140.5400925430363,
+      "remaining_scenario_seconds": [
+        2299.336138243001,
+        4441.283733592485
+      ],
+      "remaining_minutes": 52.34233487571727,
+      "remaining_scenario_minutes": [
+        38.322268970716685,
+        74.02139555987475
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s9",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1410.416321851997,
+      "progress_elapsed_seconds": 1386.8335121380005,
+      "elapsed_used_seconds": 1410.416321851997,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 23.58280971399654,
+      "first_backend_interval_seconds": 338.98982221400365,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 3103.3583859730784,
+      "remaining_scenario_seconds": [
+        2776.5241239660463,
+        3348.6609046654885
+      ],
+      "remaining_minutes": 51.72263976621797,
+      "remaining_scenario_minutes": [
+        46.275402066100774,
+        55.81101507775814
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s7",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1410.4173702150001,
+      "progress_elapsed_seconds": 1388.6969479599938,
+      "elapsed_used_seconds": 1410.4173702150001,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 21.72042225500627,
+      "first_backend_interval_seconds": 337.2687274339987,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 3089.7309204120243,
+      "remaining_scenario_seconds": [
+        2778.3865114250366,
+        3350.5232921244788
+      ],
+      "remaining_minutes": 51.495515340200406,
+      "remaining_scenario_minutes": [
+        46.306441857083946,
+        55.842054868741315
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s10",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1410.415431854999,
+      "progress_elapsed_seconds": 1413.858189941995,
+      "elapsed_used_seconds": 1413.858189941995,
+      "progress_ahead_of_status_seconds": 3.4427580869960366,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 0,
+      "first_backend_interval_seconds": 330.4386773189981,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 3049.980891632025,
+      "remaining_scenario_seconds": [
+        2800.106933680043,
+        3372.243714379485
+      ],
+      "remaining_minutes": 50.833014860533744,
+      "remaining_scenario_minutes": [
+        46.66844889466738,
+        56.20406190632475
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s2",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1412.4263110699976,
+      "progress_elapsed_seconds": 1109.8006870660029,
+      "elapsed_used_seconds": 1412.4263110699976,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 302.62562400399474,
+      "first_backend_interval_seconds": 327.36810306999905,
+      "remaining_primary_backend_calls_including_active": 10,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 3047.088202457038,
+      "remaining_scenario_seconds": [
+        2802.2777579230533,
+        3434.8220198414892
+      ],
+      "remaining_minutes": 50.78480337428396,
+      "remaining_scenario_minutes": [
+        46.704629298717556,
+        57.24703366402482
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s12",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1408.4108045190005,
+      "progress_elapsed_seconds": 1413.8577300359975,
+      "elapsed_used_seconds": 1413.8577300359975,
+      "progress_ahead_of_status_seconds": 5.446925516996998,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 0,
+      "first_backend_interval_seconds": 329.2658814479946,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 3039.4257287929936,
+      "remaining_scenario_seconds": [
+        2800.106933680043,
+        3372.243714379485
+      ],
+      "remaining_minutes": 50.657095479883225,
+      "remaining_scenario_minutes": [
+        46.66844889466738,
+        56.20406190632475
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s8",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_1_begin",
+      "process_elapsed_seconds": 1410.416861177997,
+      "progress_elapsed_seconds": 1062.5760772299982,
+      "elapsed_used_seconds": 1410.416861177997,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 1,
+      "completed_backend_seed_count": 0,
+      "current_seed_elapsed_seconds": 347.8407839479987,
+      "first_backend_interval_seconds": 327.36810306999905,
+      "remaining_primary_backend_calls_including_active": 10,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 3001.873042513034,
+      "remaining_scenario_seconds": [
+        2757.0625979790493,
+        3389.6068598974853
+      ],
+      "remaining_minutes": 50.03121737521723,
+      "remaining_scenario_minutes": [
+        45.95104329965082,
+        56.49344766495809
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s13",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1408.410061497998,
+      "progress_elapsed_seconds": 1396.6167785910002,
+      "elapsed_used_seconds": 1408.410061497998,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 11.793282906997774,
+      "first_backend_interval_seconds": 325.4703246920035,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 2993.4724350820757,
+      "remaining_scenario_seconds": [
+        2788.313650773045,
+        3360.4504314724873
+      ],
+      "remaining_minutes": 49.89120725136793,
+      "remaining_scenario_minutes": [
+        46.47189417955075,
+        56.00750719120812
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s1",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1412.4268701260007,
+      "progress_elapsed_seconds": 1392.8645825790009,
+      "elapsed_used_seconds": 1412.4268701260007,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 19.56228754699987,
+      "first_backend_interval_seconds": 315.74031947500043,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 2898.133383489046,
+      "remaining_scenario_seconds": [
+        2780.544646133043,
+        3352.681426832485
+      ],
+      "remaining_minutes": 48.302223058150766,
+      "remaining_scenario_minutes": [
+        46.34241076888405,
+        55.87802378054142
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s11",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1410.414894028996,
+      "progress_elapsed_seconds": 1309.2495720270017,
+      "elapsed_used_seconds": 1410.414894028996,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 101.16532200199435,
+      "first_backend_interval_seconds": 313.177016282003,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 2793.460620297075,
+      "remaining_scenario_seconds": [
+        2698.9416116780485,
+        3271.0783923774907
+      ],
+      "remaining_minutes": 46.55767700495125,
+      "remaining_scenario_minutes": [
+        44.98236019463414,
+        54.51797320629151
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s6",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1410.417950449999,
+      "progress_elapsed_seconds": 1325.7732038909962,
+      "elapsed_used_seconds": 1410.417950449999,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 84.64474655900267,
+      "first_backend_interval_seconds": 305.05751164299727,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 2736.905653989015,
+      "remaining_scenario_seconds": [
+        2715.46218712104,
+        3287.5989678204824
+      ],
+      "remaining_minutes": 45.615094233150245,
+      "remaining_scenario_minutes": [
+        45.257703118684006,
+        54.793316130341374
+      ]
+    },
+    {
+      "candidate_id": "I_qwen3moe_busybarn_prefill_ffn_Gemini_g0_s4",
+      "method": "Gemini",
+      "phase_at_snapshot": "backend_seed_2_begin",
+      "process_elapsed_seconds": 1410.4216992239963,
+      "progress_elapsed_seconds": 1311.7413581880028,
+      "elapsed_used_seconds": 1410.4216992239963,
+      "progress_ahead_of_status_seconds": 0,
+      "primary_gemini_raw_exists": false,
+      "backend_seed_started": 2,
+      "completed_backend_seed_count": 1,
+      "current_seed_elapsed_seconds": 98.68034103599348,
+      "first_backend_interval_seconds": 304.7964482470052,
+      "remaining_primary_backend_calls_including_active": 9,
+      "additional_terminal_backend_calls": 0,
+      "backend_estimate_basis": "Own completed seed interval where available; current Gemini 12 interval range for primary calls. Unmeasured terminal-state seed cost uses 0.8 to 1.25 times observed interval range.",
+      "remaining_seconds": 2720.520488948095,
+      "remaining_scenario_seconds": [
+        2701.4265926440494,
+        3273.5633733434915
+      ],
+      "remaining_minutes": 45.34200814913492,
+      "remaining_scenario_minutes": [
+        45.02377654406749,
+        54.559389555724856
+      ]
+    }
+  ],
+  "source_sha256": {
+    "e2e/hi/evidence/h3_i2_long_jobs_latest.json": "f0cf9f5655c73ac8af7976e8d800522a44822e3340f624fb04de182a81225345",
+    "e2e/hi/out/next_344/results/I_qwen3moe_busybarn_prefill_ffn_A3h_g0_s123.json": "5492a12498933a1e5f46b5332fcb5b916b6217d5ec9241f5b87eb4960ab83091",
+    "e2e/hi/tables/next_timing_exclusive.csv": "d9f9ec5dde802fe7cffac2b762247bad7e466f8d29bf938b65d865709e004861",
+    "e2e/hi/tables/h3_i2_estimates.csv": "6e7f55a6196be47627ab7d803bec60b853a47cc1bb4685860ec69a27c013b31c",
+    "e2e/hi_run.py": "c2ccc3217c0ee9cfa244ee3f279b75279c580765dbec85eb8bbd419913d52c93"
+  }
+}
