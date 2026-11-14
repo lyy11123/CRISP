@@ -125,7 +125,7 @@ def layer_tables(units):
     return layers, requests
 
 
-def coverage(merged, complete):
+def coverage(merged, complete_configs):
     by_key = {(r["hardware_profile"], r["phase_op"]): r for r in merged if r["start_arm"] == "A3h"}
     assert len(by_key) == sum(r["start_arm"] == "A3h" for r in merged)
     expected = {(h, p + "_" + op) for h, ops in (("busybarn", ("ln", "mha", "proj", "ffn")), ("watos", ("mha", "ffn")))
@@ -133,7 +133,7 @@ def coverage(merged, complete):
     rows = []
     for hardware, op in sorted(expected):
         r = by_key.get((hardware, op))
-        done = r is not None and r["EIR_complete"] and (r["batch"] != "closeout_B" or complete)
+        done = r is not None and r["EIR_complete"] and (r["batch"] != "closeout_B" or r["config_id"] in complete_configs)
         rows.append(dict(hardware_profile=hardware, phase_op=op, batch=r["batch"] if r else "closeout_B",
             complete=done, EIR_source_job=r.get("EIR_source_job") if r else None,
             EIR_backend_mean_ns=r.get("EIR_backend_mean_ns") if r else None))
@@ -203,7 +203,10 @@ def report(out, progress):
         if row["phase"] == "decode":
             old = next(r for r in old_decode if r["start_arm"] == "A3h" and r["state"] == row["state"])
             assert row["layer_ns"] == old["decode_ns"]
-    coverage_rows = coverage(merged, complete)
+    point_jobs = {config: [name for name, job in jobs.items() if job["spec"]["config_id"] == config]
+                  for config in {job["spec"]["config_id"] for job in jobs.values()}}
+    complete_configs = {config for config, names in point_jobs.items() if all(name in present for name in names)}
+    coverage_rows = coverage(merged, complete_configs)
     audit = dict(status="complete" if complete else "in_progress", completed_jobs=len(present), expected_jobs=46,
         missing_jobs=len(missing), missing=missing, actual_repair_trajectories=actual, reused_repair_jobs=reused,
         backend_samples=len(samples), stop_records=len(stops), healthy_candidates=56, new_healthy_searches=0,
@@ -212,6 +215,8 @@ def report(out, progress):
         maximum_receipt_seconds=max((r["receipt"]["wall_seconds"] for r in present.values()), default=0),
         peak_rss_gb=max((r["receipt"]["peak_rss_gb"] for r in present.values()), default=0),
         I4_PF4_complete=sum(r["complete"] for r in coverage_rows), I4_PF4_expected=12,
+        point_job_completion=[dict(config_id=config, completed_jobs=sum(name in present for name in names),
+            expected_jobs=len(names), all_jobs_complete=config in complete_configs) for config, names in sorted(point_jobs.items())],
         historical_sources=source_records, input_checks=checks, manifest_sha256=shared.sha(run.MANIFEST),
         inputs_sha256=shared.sha(run.INPUTS), source_sha256=shared.sha(__file__),
         active_EIR_budgets=[30,100,300], larger_diagnostic_not_used=True,

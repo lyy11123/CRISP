@@ -478,10 +478,19 @@ def report(out, progress=False):
         before = "块数及最短块形成的计数项" if left["count_lower_bound_ns"] > left["basic_lower_bound_ns"] else "总工作量/P与最长块形成的基本项"
         after = "计数项" if right["count_lower_bound_ns"] > right["basic_lower_bound_ns"] else "基本项"
         text.append(f"{model} 的原图有 {left['tensor_blocks']} 个 Tensor 块，块时长分为 {len(left['block_time_distribution_ns'])} 档。m1 下界由{before}决定；m2 把块数增加到 {right['tensor_blocks']} 后，下界由{after}决定，最忙 Tensor 实际负载为 {right['busiest_tensor_ns']/1e6:.3f} Mns。计算负载、输入复制和真实后端时间一起说明该点的切分效果。")
+        final = next((r for r in tables["c_stops"] if r["model"] == model and r["budget"] == 300), None)
+        if final is not None:
+            q = {r["method"]: r for r in summary["quality"] if r["model"] == model}
+            reason = {"within_epsilon": "回到健康值的 2% 以内", "tier_gain": "相邻两档改进小于 2%", "budget": "达到 300 步预算"}[final["reason"]]
+            text.append(f"{model} 的刚性 EIR 最终采用 {final['level']}，停止原因是{reason}；该档五条轨迹的 CPCM 均值为 {final['stop_mean_T_hat_ns']/1e6:.3f} Mns，较健康 {final['stop_mean_T_hat_ns']/final['T_pre_ns']-1:+.2%}。十次后端均值的中位代表为修复 seed{final['representative_repair_seed']}，其后端均值 {q['rigid EIR']['backend_mean_ns']/1e6:.3f} Mns。m1、m2 相对这一最终 EIR 的后端均值分别变化 {q['Local-m1']['backend_mean_ns']/q['rigid EIR']['backend_mean_ns']-1:+.2%}、{q['Split-m2']['backend_mean_ns']/q['rigid EIR']['backend_mean_ns']-1:+.2%}。")
+            if model == "llama":
+                text.append("Llama 的二分降低了最忙核负载及分块下界，并在十个后端样本中的一个样本达到旧块下界以下；其后端均值仍高于该下界。这里体现的是切分扩大可实现的范围，而非十个种子一致突破。")
+            elif model == "qwen3moe":
+                text.append("Qwen3-MoE 的 m1 已把最忙核负载恢复到健康图的水平；二分增加了块数和激活传输，却没有继续降低最忙核负载或总工作量下界。m2 与 m1、最终 EIR 的后端均值相差都不到 0.3%，各自十个样本的取值范围重叠；本点主要体现局部搬移的恢复作用，未观察到二分带来的额外收益。")
     text += [""]
     if figures:
         text += ["![十种子后端延迟](figures/c_backend_latency.png)", "",
-            "柱为十种子均值，线段为最小至最大值；Pending 表示该状态尚未收齐。虚线为故障后旧分块下界。", "",
+            "柱为十种子均值，线段为最小至最大值；虚线为故障后旧分块下界。" + ("Pending 表示该状态尚未收齐。" if pending else ""), "",
             "![切分的计算与通信变化](figures/c_split_tradeoff.png)", "",
             "所有变化以同模型 Local-m1 为参照。对应 SVG 与 PNG 一并保存在 figures；绝对值与逐种子样本在表中。", ""]
     text += ["### 运行成本逐项相加", "",
