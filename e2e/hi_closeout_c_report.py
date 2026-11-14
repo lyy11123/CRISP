@@ -335,7 +335,7 @@ def plot_figures(summary, tables):
                    yerr=[[mean-low], [high-mean]], error_kw=dict(capsize=3, lw=1, ecolor="#343434"))
             ax.text(index, high + .025*top, f"{mean:.1f}", ha="center", va="bottom", fontsize=9)
         bound = comparisons[model]["old_rigid_bound_ns"] / 1e6
-        ax.axhline(bound, color="#555555", linestyle="--", lw=1, label="Original-block bound")
+        ax.axhline(bound, color="#555555", linestyle="--", lw=1, label="Post-fault original-block bound")
         ax.set_xticks(range(len(methods)), ("Healthy", "R0", "Rigid\nEIR", "Local-m1", "Split-m2"))
         ax.set_ylim(0, top*1.18)
         ax.set_ylabel("Backend latency (million ns)")

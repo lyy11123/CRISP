@@ -282,7 +282,7 @@ def detail_sections(rows, paired, checkpoint_change, states):
     lines += ["", f"seed 2、3 的后端分别改善 {good[0]['backend_change']:.2%}、{good[1]['backend_change']:.2%}。seed 4 的独立 1000 步后端为 {bad['backend_change']:+.3%}，确定性 CPCM 也为 {bad['T_hat_change']:+.3%}；因此增加预算的收益取决于轨迹，不能由步数直接保证。",
         f"五状态唯一迁移块中位数由 {statistics.median(r['migration_300_bytes'] for r in paired)/2**20:.3f} MiB 增到 {statistics.median(r['migration_1000_bytes'] for r in paired)/2**20:.3f} MiB。这里统计去重后的实际迁移块字节；移动的行为数与DDR读取来源变化另保留在原 migration 字段中。", "",
         "## 同一条 1000 步轨迹后半段还有多少变化", "",
-        "| 修复种子 | 第300步 T̂ µs | 第700步 T̂ µs | 第1000步 T̂ µs | 300→1000变化 | 700→1000变化 | 原独立300与本轨迹第300步相同 |",
+        "| 修复种子 | 第300步 T̂ µs | 第700步 T̂ µs | 第1000步 T̂ µs | 300→1000变化 | 700→1000变化 | 原独立300与本轨迹第300步的 T̂ 是否相等 |",
         "|---|---:|---:|---:|---:|---:|---|"]
     for r in checkpoint_change:
         lines.append(f"| {r['repair_seed']} | {r['T_at_300_ns']/1000:.3f} | {r['T_at_700_ns']/1000:.3f} | {r['T_at_1000_ns']/1000:.3f} | {r['within_300_to_1000']:+.3%} | {r['within_700_to_1000']:+.3%} | {'是' if r['old300_equals_1000_checkpoint300'] else '否'} |")
@@ -305,7 +305,7 @@ def detail_sections(rows, paired, checkpoint_change, states):
         "图中300步r3与1000步r2分别是各预算的后端中位状态；另列1000步r3，展示关键等待转向NoC的实例。两张子图分别展示时间构成与等待归因，不互相相加。", "",
         "## 本次实际耗时与资源", "",
         "以下是质量实验期间的实测进程时间，同机存在其他质量任务；正式空闲单进程计时由 J 单列。校准、搜索、恢复、最终 CPCM 与十次后端验证分别记账，未重新收取已有 R0/L1。", "",
-        "| 种子 | 校准 s | 搜索 s | 恢复+最终CPCM s | 十次后端含准备 s | 其他初始化/导出/检查点 s | 完整进程 min | 峰值 GiB |",
+        "| 种子 | 校准 s | 搜索 s | 恢复+最终CPCM s | 十次后端含准备 s | 其他初始化/导出/检查点落盘 s | 完整进程 min | 峰值 GiB |",
         "|---|---:|---:|---:|---:|---:|---:|---:|"]
     new=[r for r in rows if r["budget"]==1000]
     for r in new:

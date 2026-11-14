@@ -31,7 +31,7 @@ def stats(values):
 
 def source_checks(records, out):
     """Check saved sources and the two different uses of CPCM, without a replay."""
-    checks, mapping, cost_rows = [], [], []
+    checks, mapping, cost_rows, timing_checks = [], [], [], []
     for hw in ("wsc", "face"):
         cid = f"F_{hw}_2x2_fixed_d2d1"
         reference = run.READ(run.OLD / "results" / (cid + "__joint_reference.json"))
@@ -97,18 +97,31 @@ def source_checks(records, out):
                          and r["spec"]["hardware_profile"] == hw and r["spec"]["phase_op"] == op] if method == "A1" else
                         [run.READ(p) for p in (run.OLD / "results").glob(cid + f"__rep_{op}_PF4_s*_r*.json")])
                 reps = [r for r in reps if r["status"] == "ok"]
-                restore = sum(audit.raw_read(r["sink"])["search"]["t_restore_best"] for r in reps)
-                decision = raw["t_R0"] + raw["t_L1"] + restore + sum(
+                rep_raw = [audit.raw_read(r["sink"]) for r in reps]
+                for r, saved in zip(reps, rep_raw):
+                    restored = saved["search"]["t_restore_best"]
+                    finalized = saved["record"]["t_finalize"]
+                    assert r["timing"]["t_finalize"] == saved["timing"]["t_finalize"] == restored + finalized
+                    timing_checks.append(dict(job_id=r["job_id"], hardware=hw, method=method, op=op,
+                        raw=r["sink"], timing_t_finalize=r["timing"]["t_finalize"],
+                        restore_best_seconds=restored, final_cpcm_seconds=finalized,
+                        combined_equals_sum=True, restore_counted_once=True))
+                restore = sum(r["search"]["t_restore_best"] for r in rep_raw)
+                final_cpcm = sum(r["record"]["t_finalize"] for r in rep_raw)
+                # Frozen EIR t_finalize already combines restore-best and final CPCM.
+                decision = raw["t_R0"] + raw["t_L1"] + sum(
                     r["timing"]["t_calibration"] + r["timing"]["t_L2_search"] + r["timing"]["t_finalize"] for r in reps)
                 cost_rows.append(dict(hardware=hw, method=method, op=op,
                     source_scope="new closeout work" if method == "A1" else "historical F/G work",
                     actual_L2=len(reps), search_proposals=sum(r["steps"] for r in reps),
-                    restore_best_seconds=restore, research_five_seed_decision_seconds=decision,
+                    restore_best_seconds=restore, final_cpcm_seconds=final_cpcm,
+                    L2_finalize_including_restore_seconds=restore + final_cpcm,
+                    restore_included_once=True, research_five_seed_decision_seconds=decision,
                     backend_calls=20 + 10*len(reps),
                     backend_validation_seconds=raw["R0"]["t_backend"] + raw["L1"]["t_backend"] +
                         sum(r["timing"]["t_backend_offline"] for r in reps)))
     assert len(checks) == 240 and len(mapping) == 32
-    return checks, mapping, cost_rows
+    return checks, mapping, cost_rows, timing_checks
 
 
 def plot(rows, destination):
@@ -149,7 +162,7 @@ def report(out, destination):
     for job in manifest["jobs"]:
         record = records[job["id"]]
         assert record["status"] in ("ok", "reused") and record["spec"] == job["spec"]
-    source_evidence, mapping, mapping_costs = source_checks(records, out)
+    source_evidence, mapping, mapping_costs, timing_evidence = source_checks(records, out)
     joints, repair, ledger = [], [], []
     for name, r in records.items():
         s = r["spec"]
@@ -263,6 +276,13 @@ def report(out, destination):
     run.WRITE(destination / "evidence/s_source_reference_audit.json", dict(status="passed", graph_sources=8,
         operator_state_exports=32, reference_and_C4_checked_jobs=len(source_evidence), new_backend_calls=0,
         new_searches=0, checks=source_evidence))
+    run.WRITE(destination / "evidence/s_finalize_timing_check.json", dict(status="passed",
+        checked_trajectories=len(timing_evidence), new_A1_trajectories=sum(r["method"] == "A1" for r in timing_evidence),
+        historical_A3h_trajectories=sum(r["method"] == "A3h" for r in timing_evidence),
+        rule="timing.t_finalize = search.t_restore_best + record.t_finalize; add combined field once",
+        corrected_double_count_seconds_by_method={method:sum(r["restore_best_seconds"] for r in timing_evidence if r["method"] == method)
+                                                for method in ("A1", "A3h")},
+        new_searches=0, new_backend_calls=0, checks=timing_evidence))
     plot(summaries, destination)
     lines = ["# GPT S 系统八组合", "", f"144 项联合已齐：108 项新增、36 项由 fresh_transform_v1 同身份复用。共 {summary['actual_L2']} 条实际 A1 修复搜索、{summary['actual_backend_calls']} 次新增后端；96 项逻辑配对单跑中实际运行 {summary['solo_actual']} 次，另24项按实际图及执行身份复用。", "",
              "三位数字依次表示映射、修复和传输选择。P 是一个 prefill MHA 流，D 是 LN、8个代表MHA、projection与FFN组成的decode链；PF4故障施加于D侧。M切换时P和D映射一起切换；R只修复D侧；S采用All256+C4。", "",
@@ -294,7 +314,7 @@ def report(out, destination):
         lines.append(f"| {r['hardware']} | {r['op']} | {r['selected_level']} | {r['actual_L2_trajectories']} | {c['research_five_seed_decision_seconds']:.3f} | {c['backend_validation_seconds']:.3f} | {m['unique_block_bytes']/2**20:.3f} | {m['moved_behas_share']:.2%} |")
     lines += ["", f"本轮S作业体累计{summary['process_hours']:.5f}进程小时、最高RSS {summary['peak_task_rss_gb']:.3f} GiB。840次新增后端 = 8×20次A1 R0/L1 + 50×10次实际L2 + 72次配对单跑 + 108次联合。搜索提议3900次，校准另列于质量总账；已有36次联合与24次单跑复用不计新增后端。", "",
               "迁移按每个算子相对自身健康映射计算，包含行为落点、DDR读取源变化和去重权重副本字节；32个完整状态见[s_mapping_states.csv](tables/s_mapping_states.csv)。它们是模板算子的迁移量，未简单乘8当成整个MHA链的物理权重迁移。三相位、三种子和两种传输共享同一映射状态，不重复计算修复成本。", "",
-              "[s_mapping_costs.csv](tables/s_mapping_costs.csv)同时保存新增A1与历史A3h修复成本，并标明来源。研究五种子累计决策包含R0/L1、各已执行档校准、搜索、恢复最佳状态和最终CPCM；十种子后端验证另外列示。报告补计原始记录中的恢复时间，没有修改执行过程。这些并行时长与J阶段的空闲单进程计时分开。", "",
+              "[s_mapping_costs.csv](tables/s_mapping_costs.csv)同时保存新增A1与历史A3h修复成本，并标明来源。研究五种子累计决策包含R0/L1、各已执行档校准、搜索及t_finalize；t_finalize已包含恢复最佳状态和最终CPCM，两个分项另列展示，累计时只加一次。十种子后端验证另外列示。逐条原始记录核对见[s_finalize_timing_check.json](evidence/s_finalize_timing_check.json)。这些并行时长与J阶段的空闲单进程计时分开。", "",
               "[s_arm_summary.csv](tables/s_arm_summary.csv)保留每个组合P、D、L̂与干扰的均值、中位数和极值；[s_conditional_pairs.csv](tables/s_conditional_pairs.csv)保留全部216个条件配对；[s_phase_conditionals.csv](tables/s_phase_conditionals.csv)按相位拆分。图中的点是中位数、线段是最小至最大，两个符号分别表示P和D。", "",
               "所有三相位都依据共同A1参考释放；g=0.9表示参考KV窗口的90%位置。配对单跑只复用完整图、实际遍历顺序、平台、执行方式、rank、释放和种子完全相同的记录。当前结果衡量这两种硬件、PF4、一个P流与一条D链的固定工作负载完成时间和干扰。", ""]
     (destination / "S_FACTORIAL_SUMMARY.md").write_text("\n".join(lines), encoding="utf-8")
