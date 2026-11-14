@@ -2,7 +2,7 @@
 
 ## 本轮已完成（2026-11-14 19:35:59）
 
-本轮1256/1256作业全部成功，H/I健康候选已齐896个。先读[完整总览](HI_FOLLOWUP_SUMMARY.md)，其中分别报告健康搜索、PF4修复、联合验证、耗时与后续未运行项。最新原始结果均在本目录的out子目录；统一归档名为`dist/HIJ_H3_I2_I3_PF4_JOINT_20261114_complete.tar.gz`，下载校验记录单列于evidence。
+本轮1256/1256作业全部成功，H/I健康候选已齐896个。先读[完整总览](HI_FOLLOWUP_SUMMARY.md)，其中分别报告健康搜索、PF4修复、联合验证、耗时与后续未运行项。最新原始结果均在本目录的out子目录；统一归档名为`dist/HIJ_H3_I2_I3_PF4_JOINT_20261114_complete.tar.gz`，[下载校验记录](evidence/followup_delivery.json)确认14,004文件、361,627,875字节全部相同，COS总包已上传。
 
 I3的108项于19:35:59完成，实际109.786分钟；I4 WATOS decode FFN的23项于19:14:54完成，实际48.396分钟。H5/I5均110项完成，各有63联合与39实际配对单跑。故障部分见[Qwen补充点](I4_WATOS_DFFN_REPORT.md)与[I4已完成10/12点](I4_PF4_COVERAGE.md)，联合部分见[H5](H5_REPORT.md)和[I5](I5_REPORT.md)。
 

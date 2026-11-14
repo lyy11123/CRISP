@@ -144,7 +144,7 @@ original整包后端与A256全链路256KiB+C4按跳后端的差值是完整执�
 | H5 | [out/h5](out/h5/)、[输入来源](manifest/h5_inputs.json) | [runtime/h5_20261114](runtime/h5_20261114/) | [H5核对](evidence/h5_completion_audit.json) |
 | I5 | [out/i5](out/i5/)、[输入来源](manifest/i5_inputs.json) | [runtime/i5_20261114](runtime/i5_20261114/) | [I5核对](evidence/i5_completion_audit.json)、[49输入文件SHA](evidence/i5_input_sha256.json) |
 
-已完成批次的压缩包放在[dist](dist/)：`H4_PF4_OUTPUTS_20261114.tar.gz`（1220文件）、`I4_LIGHT_COMPLETE_20261114.tar.gz`（1014文件）、`I4_WATOS_DFFN_COMPLETE_20261114.tar.gz`（145文件）、`H5_COMPLETE_20261114.tar.gz`（481文件）、`I5_COMPLETE_20261114.tar.gz`（486文件）。每包都有[evidence](evidence/)下对应`*.tar.verified.json`，逐文件长度与SHA均已核对；H3/I2与I3通过增量及最后补包收齐，原始结果分别按440和108清单复算。本轮统一总包命名为`HIJ_H3_I2_I3_PF4_JOINT_20261114_complete.tar.gz`，总包上传与逐文件核对数字另附归档记录。
+已完成批次的压缩包放在[dist](dist/)：`H4_PF4_OUTPUTS_20261114.tar.gz`（1220文件）、`I4_LIGHT_COMPLETE_20261114.tar.gz`（1014文件）、`I4_WATOS_DFFN_COMPLETE_20261114.tar.gz`（145文件）、`H5_COMPLETE_20261114.tar.gz`（481文件）、`I5_COMPLETE_20261114.tar.gz`（486文件）。每包都有[evidence](evidence/)下对应`*.tar.verified.json`，逐文件长度与SHA均已核对；H3/I2与I3通过增量及最后补包收齐，原始结果分别按440和108清单复算。本轮[统一总包](dist/HIJ_H3_I2_I3_PF4_JOINT_20261114_complete.tar.gz)已从COS下载并恢复本机：361,627,875字节、14,004文件，含36个引用的旧输入和3,006个源码/配置文件；整包及逐文件长度、SHA-256全部相同。整包SHA-256为`5c41670351ab9a3937a5b4edd72708724933e688c9cbcccb8a948898bc9faf2e`。[交付核对记录](evidence/followup_delivery.json)与[COS成功上传记录](evidence/followup_cos_backup.json)另存；COS总包于22:17:03上传成功。本机改用COS直接下载耗时7.67秒，确认整包摘要后结束重复的SSH下载。结果、报告、表图与核对记录推送到`codex/e2e-handoff`，原始大文件保留本机和COS。
 
 健康输出保留spec、raw、完整快照、十后端、十次随机CPCM、完成回执；故障输出保留pre/R0/L1/各预算与种子、停止记录、迁移量和选中导出；联合输出保留图文件、真实KV、单跑、公共参考、逐相位种子结果及图遍历指纹。运行时冻结源码与当前开发文件分开保存，旧CPCM/EIR/DSTU方法没有被本轮包装改写。
 
