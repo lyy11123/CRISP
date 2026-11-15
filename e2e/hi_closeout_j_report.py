@@ -389,7 +389,13 @@ def serial_conditions(out):
     quality_end = datetime.fromisoformat(gate["quality_completion"]["utc"])
     j_start = datetime.fromisoformat(start["utc"])
     assert quality_end < j_start
-    return dict(status="passed", gate=gate, start=start, latest_downloaded_status=status,
+    completion = None
+    if (out / "controller_finish.json").exists():
+        completion = read(out / "controller_finish.json")
+        final_batch = read(out / "closeout.batch.json")
+        assert completion["rc"] == 0 and completion["completed"] == completion["expected"] == final_batch["completed"] == 80
+        assert final_batch["failed"] == final_batch["pending"] == [] and read(out / "live_workers.json") == {}
+    return dict(status="passed", completion=completion, gate=gate, start=start, latest_downloaded_status=status,
         sampled_statuses=len(observed)-1, current_status_checked=True,
         observed_max_active=max(r["max_active"] for r in observed),
         quality_to_J_seconds=(j_start-quality_end).total_seconds(),
@@ -470,6 +476,21 @@ def render(inputs, records, summaries, cumulative, environments, audit):
         lines += ["", "Qwen decode FFN 的 A1/A3h 各三个独立进程已齐，六次合计 6000 个正式提议、60 次后端和 60 次随机 CPCM。每个方法重复的是同一个固定候选与搜索种子 123；六条轨迹分别与历史同候选逐步相同，恢复后的事件顺序和图摘要亦相同。环境、线程数和运行源码一致，现场记录为单进程计时。详见[六项独立复查](evidence/j2_qwen_six_review.json)。",
             f"校准单独计数：A1 每次 {by_method['A1']['calibration_proposals_per_trajectory']} 个提议，A3h 每次 {by_method['A3h']['calibration_proposals_per_trajectory']} 个，合计 {six['calibration_proposals_total']} 个。原算法先采样 50 次，若使代价上升的有效提议不足 3 个便继续采样；本例 A3h 在第 59 次达到条件。校准之后仍各运行完整 1000 步。",
             f"完整作业中位数为 A1 {a1['wall_seconds']['median']:.3f} 秒 [{a1['wall_seconds']['minimum']:.3f}, {a1['wall_seconds']['maximum']:.3f}]、A3h {a3['wall_seconds']['median']:.3f} 秒 [{a3['wall_seconds']['minimum']:.3f}, {a3['wall_seconds']['maximum']:.3f}]。扣除循环监测和进度记录后的搜索中位数分别为 {a1['algorithm_search_seconds']['median']:.3f} 与 {a3['algorithm_search_seconds']['median']:.3f} 秒；已单独计时的映射生成中位数为 {a1['offline_generation_measured_seconds']['median']:.3f} 与 {a3['offline_generation_measured_seconds']['median']:.3f} 秒。各分项的中位数各自统计；互斥分项与完整作业的相等关系按每次实际进程逐项核对。"]
+    llama_review=BASE/"evidence/j2_llama_six_review.json"
+    if llama_review.exists():
+        llama=json.loads(llama_review.read_text(encoding="utf-8"))
+        lines += ["", "Llama prefill MHA 的 A1/A3h 各三个独立进程也已齐。六次使用同一模型合同与对应固定候选（搜索种子 123），正式轨迹、最佳状态、事件顺序和图摘要逐项匹配历史记录；运行环境和源码相同。各进程保留完整 1000 步与十次后端、十次随机 CPCM，合计 6000 步、60 次后端、60 次随机 CPCM。A1 每次校准 50 个提议，A3h 每次 52 个，合计 306 个；A3h 在第 52 次取得第 3 个有效上升提议。详见[Llama 六项复查](evidence/j2_llama_six_review.json)。", ""]
+        short=[]
+        for item in llama["methods"]:
+            metrics=item["metrics"];wall=metrics["wall_seconds"]
+            short.append(dict(method=item["method"],repeats=item["process_repeats"],
+                wall=f"{wall['median']:.3f} [{wall['minimum']:.3f}, {wall['maximum']:.3f}]",
+                search=metrics["algorithm_search_seconds"]["median"],
+                generation=metrics["offline_generation_measured_seconds"]["median"],
+                backend=metrics["backend_calls_seconds"]["median"]))
+        lines += markdown_table(short,[("method","Llama prefill MHA"),("repeats","独立进程数"),
+            ("wall","完整作业中位秒 [最小, 最大]"),("search","纯搜索中位秒"),
+            ("generation","映射生成中位秒"),("backend","十后端中位秒")])
     historical=audit["historical_fourteen_candidate_costs"]
     lines += ["", "十四候选整体费用另取历史同输入的完整记录累计：下表每行实际读取 14 个候选、14000 个正式提议、140 次后端及 140 次随机 CPCM。单位为各并行进程经历时间之和（进程分钟），其中包含当时的共享资源竞争；本轮 J2 表是空闲服务器上的固定候选串行实测。", ""]
     historic_minutes=[dict(row,**{key.removesuffix("_seconds")+"_minutes":value/60 for key,value in row.items() if key.endswith("_seconds")}) for row in historical]
@@ -502,6 +523,8 @@ def render(inputs, records, summaries, cumulative, environments, audit):
         lines += markdown_table(qwen_control, [("stage_name","独立档位"),("process_count","n"),
             ("median","控制中位秒"),("minimum","最小秒"),("maximum","最大秒")])
         lines += ["", f"按每个种子的R0/L1、30、100、300步四个任务的实测墙钟相加，全过程为中位 {statistics.median(whole):.3f} 秒 [{min(whole):.3f}, {max(whole):.3f}]，包含50次研究用后端验证。三个种子的12个任务合计 {sum(whole):.3f} 秒；这是这些任务本身的时间之和，排队间隔及期间穿插的其他输入任务不计入。九条L2提议与最终状态和对应历史预算/种子的逐项核对见 [Qwen完整J3复核](evidence/j3_qwen_complete_review.json)。GPT各输入按自身完成项报告。"]
+    if len(records) == 125:
+        lines += ["", "GPT144历史质量实验在100步达到健康CPCM的2%以内：T̂=10441.8、健康T̂=10442，因此旧300步条目复用了100步状态。本轮J3按预定预算重新执行完整300步，用来测量该预算的成本；旧300步条目没有真实300步轨迹可供比较。质量主表继续保留原停止结果。此项与完整125条计时的最终核对见[完成审计](evidence/j_final_completion_audit.json)。"]
     lines += ["", "## J4 与 J5：控制准备与完整选轴", "",
         "J4 的 total_prepare 包含读取平台、全链路 256 KB 构图、CPCM 截止时间/排序及初始 ready 列表。resident_prepare 去掉读取平台；这不是硬件每包服务时间。",
         "J5 的 resident_decision 包含全部合法轴的构造、评分和选择；每轴 phases 包含在 build_seconds 内，而 build_seconds 又包含在 resident_decision 内。完整 case 另含输入、平台、基线指标、冻结图核对和导出，其他差值单列。", ""]
@@ -526,15 +549,19 @@ def render(inputs, records, summaries, cumulative, environments, audit):
         "新批单进程与空闲证明读取 out 中保存的 batch 和现场证据；只有结果中的线程设置不能独立证明没有其他进程。已完成旧批的现场证据保存在 hi/evidence/j_serial_conditions.json。", "",
         f"当前环境记录 {len(environments)} 条；来源 SHA-256 {len(audit['sources_sha256'])} 项。所有已纳入结果均有成功回执，且回执身份与对应清单一致。",
         "", "生成命令：", "", "```text",
-        "e2e/post_fg/dist/venv/Scripts/python.exe -B e2e/hi_closeout_j_report.py --progress",
-        "```", "", "去掉 --progress 时要求本地 125 项全部齐备。J_TIMING.csv 是逐进程宽表；tables/j_timing_summary.csv 是独立进程统计，j1_calls.csv 保留所有稳态/预热调用，j2_costs.csv 与 j3_costs.csv 保留分项，j3_cumulative.csv 保存各档累计，j5_axis_costs.csv 保存全轴成本。", ""]
+        "e2e/post_fg/dist/venv/Scripts/python.exe -B e2e/hi_closeout_j_report.py",
+        "```", "", "本命令要求本地125项全部齐备；运行中的局部报告可加 --progress。J_TIMING.csv 是逐进程宽表；tables/j_timing_summary.csv 是独立进程统计，j1_calls.csv 保留所有稳态/预热调用，j2_costs.csv 与 j3_costs.csv 保留分项，j3_cumulative.csv 保存各档累计，j5_axis_costs.csv 保存全轴成本。", ""]
     serial=audit["new_serial_conditions"]
     if serial["status"]=="passed":
         lines += [f"本轮质量池 549/549 完成且控制器退出后，等待 {serial['quality_to_J_seconds']:.3f} 秒启动 J。下载的串行现场记录截至 {serial['latest_downloaded_status']['utc']}，{serial['sampled_statuses']} 条状态记录的最大活跃实验数为 {serial['observed_max_active']}；启动条件记录中质量实验剩余进程为 0。",
-            "本轮运行环境为 AMD EPYC 9K65（实例分配128 vCPU）、Linux 5.15、Python 3.13.18、NumPy 2.5.4、Numba 0.68.1；四项数值库线程设置均为1。现场记录随后续结果下载继续更新。", ""]
+            "本轮运行环境为 AMD EPYC 9K65（实例分配128 vCPU）、Linux 5.15、Python 3.13.18、NumPy 2.5.4、Numba 0.68.1；四项数值库线程设置均为1。现场采样保留至最后一个任务返回前；最终完成时间以controller_finish.json为准。", ""]
     review=BASE/"evidence/j_micro_24_review.json"
     if review.exists():
         lines += ["首24项的[独立复查记录](evidence/j_micro_24_review.json)逐项核对成功回执、输入文件与运行源码哈希：三个J1图的各36次调用具有相同T̂、活动规模和关键链/等待摘要；两个J5冻结图及六个重新导出图的事件语义摘要均一致。J5图的语义摘要与gzip文件字节SHA分别保存。复查没有启动CPCM、后端或搜索。", ""]
+    if audit["new_serial_conditions"].get("completion"):
+        end = audit["new_serial_conditions"]["completion"]["utc"]
+        elapsed = (datetime.fromisoformat(end) - datetime.fromisoformat(audit["new_serial_conditions"]["start"]["utc"])).total_seconds()
+        lines += ["", f"本轮80项计时最终成功完成于{end}（北京时间2026-11-15 14:54:54），串行墙钟{elapsed:.3f}秒。合并原45项共125/125，27条EIR累计行均齐备。新增650次真实后端及200次随机CPCM；已下载的全部结果、回执与输入摘要通过最终核对。"]
     return "\n".join(lines)
 
 

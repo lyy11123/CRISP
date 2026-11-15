@@ -46,6 +46,8 @@ def input_files(root, source_maps=()):
         ("j_offline_cost_inputs.json", "files", "closeout_J_fourteen_candidate_costs"),
         ("j2_first_complete_review.json", "input_files", "closeout_J2_first_review"),
         ("j2_qwen_six_review.json", "new_historical_archive_inputs", "closeout_J2_Qwen_repeats_review"),
+        ("j2_llama_six_review.json", "new_historical_archive_inputs", "closeout_J2_Llama_repeats_review"),
+        ("j_final_completion_audit.json", "additional_historical_inputs", "closeout_J_final_review"),
         ("j3_first_formal_review.json", "actual_historical_inputs", "closeout_J3_first_formal_review"),
         ("j3_qwen_complete_review.json", "additional_historical_inputs", "closeout_J3_Qwen_complete_review"),
     ):

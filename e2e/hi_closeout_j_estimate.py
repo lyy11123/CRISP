@@ -49,11 +49,14 @@ def main():
     unknown = [r["job_id"] for r in rows if r["remaining_seconds"] is None]
     known = sum(r["remaining_seconds"] or 0 for r in rows)
     started = (OUT / "closeout.start.json").exists()
-    estimate = dict(utc=now.isoformat(), status="running" if started else "waiting_for_quality",
+    completion = read(OUT / "controller_finish.json") if (OUT / "controller_finish.json").exists() else None
+    complete = bool(completion and completion["rc"] == 0 and len(done) == len(jobs) == 80 and not live)
+    estimate = dict(utc=now.isoformat(), status="complete" if complete else "running" if started else "waiting_for_quality",
         jobs_expected=80, jobs_prepared=len(jobs), completed=len(done), active=len(live), workers=1,
         measured_process_hours=sum(done.values()) / 3600, remaining_known_hours=known / 3600,
         overdue_jobs=unknown, remaining_hours=None if unknown or len(jobs) != 80 else known / 3600,
-        estimated_finish_utc=(now + timedelta(seconds=known)).isoformat()
+        actual_finish_utc=completion["utc"] if complete else None,
+        estimated_finish_utc=completion["utc"] if complete else (now + timedelta(seconds=known)).isoformat()
             if started and not unknown and len(jobs) == 80 else None,
         note="Includes all remaining J jobs and their validation backends; download/report time excluded. Historical parallel estimates remain until the same class has a completed serial repetition.",
         jobs=rows)

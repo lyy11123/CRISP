@@ -1,15 +1,15 @@
 # J：正式计时汇总
 
-生成时间：2026-11-15T02:08:51.092171+00:00。只读取保存结果；本次后处理没有启动搜索或仿真。
+生成时间：2026-11-15T09:52:10.447603+00:00。只读取保存结果；本次后处理没有启动搜索或仿真。
 
-已核对 88/125 项：旧 45 项保留，新计时最多 80 项。当前状态：partial。
+已核对 125/125 项：旧 45 项保留，新计时最多 80 项。当前状态：complete。
 
 | 批次 | 计划项 | 已核对 | 待完成 |
 |---|---|---|---|
 | old45 | 45 | 45 | 0 |
 | micro | 24 | 24 | 0 |
-| search | 20 | 6 | 14 |
-| eir | 36 | 13 | 23 |
+| search | 20 | 20 | 0 |
+| eir | 36 | 36 | 0 |
 
 micro 包含新模型 J1 的 18 项与 C 两个真实代表点 J5 的最多 6 项；C 输入尚未进入清单的项列为 pending_C_representative。
 J2a 是三个输入 × A1/A3h × 三次完整 1000 步，J2b 是 GPT144 prefill MHA × A1/A3h 各一次。J3 是三个输入 × 三个修复种子 × R0/L1 与独立 30/100/300 步。
@@ -70,6 +70,42 @@ final_eval 没有独立的最终 CPCM 秒表，J2 将最终 CPCM、评估构图�
 
 | 输入 | 方法 | 分项 | n | 中位秒 | 最小秒 | 最大秒 |
 |---|---|---|---|---|---|---|
+| GPT144_prefill_mha | A1 | wall_seconds | 1 | 3978.31 | 3978.31 | 3978.31 |
+| GPT144_prefill_mha | A1 | calibration_seconds | 1 | 51.6012 | 51.6012 | 51.6012 |
+| GPT144_prefill_mha | A1 | algorithm_search_seconds | 1 | 777.586 | 777.586 | 777.586 |
+| GPT144_prefill_mha | A1 | backend_calls_seconds | 1 | 1825.18 | 1825.18 | 1825.18 |
+| GPT144_prefill_mha | A1 | random_cpcm_calls_seconds | 1 | 50.0198 | 50.0198 | 50.0198 |
+| GPT144_prefill_mha | A1 | offline_generation_measured_seconds | 1 | 1139.16 | 1139.16 | 1139.16 |
+| GPT144_prefill_mha | A3h | wall_seconds | 1 | 8082.85 | 8082.85 | 8082.85 |
+| GPT144_prefill_mha | A3h | calibration_seconds | 1 | 222.871 | 222.871 | 222.871 |
+| GPT144_prefill_mha | A3h | algorithm_search_seconds | 1 | 4684.73 | 4684.73 | 4684.73 |
+| GPT144_prefill_mha | A3h | backend_calls_seconds | 1 | 1973.65 | 1973.65 | 1973.65 |
+| GPT144_prefill_mha | A3h | random_cpcm_calls_seconds | 1 | 58.4567 | 58.4567 | 58.4567 |
+| GPT144_prefill_mha | A3h | offline_generation_measured_seconds | 1 | 5560.82 | 5560.82 | 5560.82 |
+| GPT64_decode_ffn | A1 | wall_seconds | 3 | 41.7974 | 40.7824 | 46.398 |
+| GPT64_decode_ffn | A1 | calibration_seconds | 3 | 1.74456 | 1.72466 | 2.09305 |
+| GPT64_decode_ffn | A1 | algorithm_search_seconds | 3 | 16.7166 | 16.1117 | 20.1193 |
+| GPT64_decode_ffn | A1 | backend_calls_seconds | 3 | 3.17745 | 3.13103 | 3.21147 |
+| GPT64_decode_ffn | A1 | random_cpcm_calls_seconds | 3 | 0.0922496 | 0.0902028 | 0.092417 |
+| GPT64_decode_ffn | A1 | offline_generation_measured_seconds | 3 | 22.4683 | 21.7529 | 26.4013 |
+| GPT64_decode_ffn | A3h | wall_seconds | 3 | 55.9331 | 54.4912 | 61.9911 |
+| GPT64_decode_ffn | A3h | calibration_seconds | 3 | 4.89969 | 4.75696 | 7.10397 |
+| GPT64_decode_ffn | A3h | algorithm_search_seconds | 3 | 30.0325 | 29.5268 | 34.4206 |
+| GPT64_decode_ffn | A3h | backend_calls_seconds | 3 | 1.48668 | 1.47568 | 1.50714 |
+| GPT64_decode_ffn | A3h | random_cpcm_calls_seconds | 3 | 0.060809 | 0.0607283 | 0.0622932 |
+| GPT64_decode_ffn | A3h | offline_generation_measured_seconds | 3 | 39.3403 | 38.5425 | 46.2058 |
+| Llama_prefill_mha | A1 | wall_seconds | 3 | 208.832 | 185.175 | 245.657 |
+| Llama_prefill_mha | A1 | calibration_seconds | 3 | 8.77471 | 8.56402 | 11.5417 |
+| Llama_prefill_mha | A1 | algorithm_search_seconds | 3 | 150.442 | 129.087 | 180.358 |
+| Llama_prefill_mha | A1 | backend_calls_seconds | 3 | 19.5676 | 19.1508 | 19.9233 |
+| Llama_prefill_mha | A1 | random_cpcm_calls_seconds | 3 | 0.822966 | 0.759729 | 0.861598 |
+| Llama_prefill_mha | A1 | offline_generation_measured_seconds | 3 | 165.94 | 144.79 | 199.611 |
+| Llama_prefill_mha | A3h | wall_seconds | 3 | 345.02 | 302.873 | 369.011 |
+| Llama_prefill_mha | A3h | calibration_seconds | 3 | 18.0662 | 14.4994 | 18.1571 |
+| Llama_prefill_mha | A3h | algorithm_search_seconds | 3 | 280.438 | 243.396 | 302.648 |
+| Llama_prefill_mha | A3h | backend_calls_seconds | 3 | 19.0507 | 18.9391 | 19.3202 |
+| Llama_prefill_mha | A3h | random_cpcm_calls_seconds | 3 | 0.761848 | 0.756751 | 0.822675 |
+| Llama_prefill_mha | A3h | offline_generation_measured_seconds | 3 | 306.631 | 265.462 | 328.768 |
 | Qwen_decode_ffn | A1 | wall_seconds | 3 | 724.537 | 719.39 | 813.614 |
 | Qwen_decode_ffn | A1 | calibration_seconds | 3 | 20.3144 | 20.1809 | 26.01 |
 | Qwen_decode_ffn | A1 | algorithm_search_seconds | 3 | 289.843 | 282.503 | 364.111 |
@@ -87,12 +123,26 @@ final_eval 没有独立的最终 CPCM 秒表，J2 将最终 CPCM、评估构图�
 
 | 独立进程 | 映射生成 s | 记录/复查 s | 十次后端 s | 十次随机 CPCM s | 最终 CPCM/评估准备 s | 合计 s |
 |---|---|---|---|---|---|---|
+| J2_GPT64_decode_ffn_A1_r1 | 22.4683 | 2.30654 | 3.21147 | 0.092417 | 13.7186 | 41.7974 |
+| J2_GPT64_decode_ffn_A1_r2 | 26.4013 | 2.47759 | 3.17745 | 0.0922496 | 14.2494 | 46.398 |
+| J2_GPT64_decode_ffn_A1_r3 | 21.7529 | 2.273 | 3.13103 | 0.0902028 | 13.5352 | 40.7824 |
+| J2_GPT64_decode_ffn_A3h_r1 | 39.3403 | 1.23268 | 1.50714 | 0.0622932 | 13.7907 | 55.9331 |
+| J2_GPT64_decode_ffn_A3h_r2 | 38.5425 | 1.17431 | 1.47568 | 0.0607283 | 13.2379 | 54.4912 |
+| J2_GPT64_decode_ffn_A3h_r3 | 46.2058 | 1.16965 | 1.48668 | 0.060809 | 13.0682 | 61.9911 |
+| J2_Llama_prefill_mha_A1_r1 | 165.94 | 4.10658 | 19.5676 | 0.822966 | 18.3948 | 208.832 |
+| J2_Llama_prefill_mha_A1_r2 | 199.611 | 4.71706 | 19.9233 | 0.861598 | 20.5446 | 245.657 |
+| J2_Llama_prefill_mha_A1_r3 | 144.79 | 3.52856 | 19.1508 | 0.759729 | 16.9464 | 185.175 |
+| J2_Llama_prefill_mha_A3h_r1 | 306.631 | 1.66561 | 19.3202 | 0.761848 | 16.6414 | 345.02 |
+| J2_Llama_prefill_mha_A3h_r2 | 328.768 | 1.89362 | 18.9391 | 0.822675 | 18.588 | 369.011 |
+| J2_Llama_prefill_mha_A3h_r3 | 265.462 | 1.62002 | 19.0507 | 0.756751 | 15.9828 | 302.873 |
 | J2_Qwen_decode_ffn_A1_r1 | 397.949 | 8.23842 | 377.4 | 5.611 | 24.415 | 813.614 |
 | J2_Qwen_decode_ffn_A1_r2 | 309.916 | 6.77126 | 376.096 | 5.36872 | 21.2374 | 719.39 |
 | J2_Qwen_decode_ffn_A1_r3 | 317.115 | 6.79963 | 373.634 | 5.31086 | 21.6774 | 724.537 |
 | J2_Qwen_decode_ffn_A3h_r1 | 576.326 | 1.87858 | 306.984 | 4.73638 | 20.6422 | 910.568 |
 | J2_Qwen_decode_ffn_A3h_r2 | 572.375 | 1.86817 | 302.302 | 4.71575 | 20.735 | 901.996 |
 | J2_Qwen_decode_ffn_A3h_r3 | 644.627 | 2.21049 | 306.142 | 4.95263 | 22.3281 | 980.261 |
+| J2_GPT144_prefill_mha_A1_r1 | 1139.16 | 481.264 | 1825.18 | 50.0198 | 482.681 | 3978.31 |
+| J2_GPT144_prefill_mha_A3h_r1 | 5560.82 | 15.2287 | 1973.65 | 58.4567 | 474.688 | 8082.85 |
 
 A1 用聚合代价做搜索；额外的十次随机 CPCM 用于统一的候选选择比较，不属于 A1 的原生搜索循环。完整作业、外层入口、调度回执分别计时，进程启动和退出后的轮询差值不计作算法成本。每行是一条完整 1000 步轨迹；环境 helper 中通用的‘五次稳态’字符串只适用于 J1 的内核重复，J2 的实际次数以自身协议、轨迹和回执为准。
 
@@ -101,6 +151,13 @@ A1 用聚合代价做搜索；额外的十次随机 CPCM 用于统一的候选�
 Qwen decode FFN 的 A1/A3h 各三个独立进程已齐，六次合计 6000 个正式提议、60 次后端和 60 次随机 CPCM。每个方法重复的是同一个固定候选与搜索种子 123；六条轨迹分别与历史同候选逐步相同，恢复后的事件顺序和图摘要亦相同。环境、线程数和运行源码一致，现场记录为单进程计时。详见[六项独立复查](evidence/j2_qwen_six_review.json)。
 校准单独计数：A1 每次 50 个提议，A3h 每次 59 个，合计 327 个。原算法先采样 50 次，若使代价上升的有效提议不足 3 个便继续采样；本例 A3h 在第 59 次达到条件。校准之后仍各运行完整 1000 步。
 完整作业中位数为 A1 724.537 秒 [719.390, 813.614]、A3h 910.568 秒 [901.996, 980.261]。扣除循环监测和进度记录后的搜索中位数分别为 289.843 与 525.675 秒；已单独计时的映射生成中位数为 317.115 与 576.326 秒。各分项的中位数各自统计；互斥分项与完整作业的相等关系按每次实际进程逐项核对。
+
+Llama prefill MHA 的 A1/A3h 各三个独立进程也已齐。六次使用同一模型合同与对应固定候选（搜索种子 123），正式轨迹、最佳状态、事件顺序和图摘要逐项匹配历史记录；运行环境和源码相同。各进程保留完整 1000 步与十次后端、十次随机 CPCM，合计 6000 步、60 次后端、60 次随机 CPCM。A1 每次校准 50 个提议，A3h 每次 52 个，合计 306 个；A3h 在第 52 次取得第 3 个有效上升提议。详见[Llama 六项复查](evidence/j2_llama_six_review.json)。
+
+| Llama prefill MHA | 独立进程数 | 完整作业中位秒 [最小, 最大] | 纯搜索中位秒 | 映射生成中位秒 | 十后端中位秒 |
+|---|---|---|---|---|---|
+| A1 | 3 | 208.832 [185.175, 245.657] | 150.442 | 165.94 | 19.5676 |
+| A3h | 3 | 345.020 [302.873, 369.011] | 280.438 | 306.631 | 19.0507 |
 
 十四候选整体费用另取历史同输入的完整记录累计：下表每行实际读取 14 个候选、14000 个正式提议、140 次后端及 140 次随机 CPCM。单位为各并行进程经历时间之和（进程分钟），其中包含当时的共享资源竞争；本轮 J2 表是空闲服务器上的固定候选串行实测。
 
@@ -124,6 +181,24 @@ J3 计时的三个修复种子是三次轨迹；研究质量表的五种子挑�
 
 | 输入 | 累计至 | 分项 | n | 中位秒 | 最小秒 | 最大秒 |
 |---|---|---|---|---|---|---|
+| gpt144 | 100 | measured_control_with_finalize_export_seconds | 3 | 136.315 | 126.706 | 138.009 |
+| gpt144 | 100 | backend_validation_seconds | 3 | 460.113 | 451.587 | 467.858 |
+| gpt144 | 100 | wall_seconds | 3 | 740.291 | 719.263 | 744.97 |
+| gpt144 | 30 | measured_control_with_finalize_export_seconds | 3 | 94.1688 | 91.6764 | 95.0129 |
+| gpt144 | 30 | backend_validation_seconds | 3 | 347.043 | 346.307 | 350.048 |
+| gpt144 | 30 | wall_seconds | 3 | 529.048 | 526.2 | 530.359 |
+| gpt144 | 300 | measured_control_with_finalize_export_seconds | 3 | 237.176 | 228.182 | 241.213 |
+| gpt144 | 300 | backend_validation_seconds | 3 | 565.369 | 562.982 | 578.655 |
+| gpt144 | 300 | wall_seconds | 3 | 1000.31 | 985.388 | 1009.37 |
+| gpt64 | 100 | measured_control_with_finalize_export_seconds | 3 | 23.0672 | 22.3481 | 23.9323 |
+| gpt64 | 100 | backend_validation_seconds | 3 | 74.146 | 72.3739 | 74.7446 |
+| gpt64 | 100 | wall_seconds | 3 | 111.308 | 109.016 | 113.388 |
+| gpt64 | 30 | measured_control_with_finalize_export_seconds | 3 | 13.7775 | 12.9514 | 14.1573 |
+| gpt64 | 30 | backend_validation_seconds | 3 | 56.0624 | 55.3375 | 57.9709 |
+| gpt64 | 30 | wall_seconds | 3 | 79.1315 | 77.8148 | 81.7628 |
+| gpt64 | 300 | measured_control_with_finalize_export_seconds | 3 | 48.8801 | 48.2447 | 49.444 |
+| gpt64 | 300 | backend_validation_seconds | 3 | 91.3287 | 90.8627 | 91.3547 |
+| gpt64 | 300 | wall_seconds | 3 | 159.609 | 158.427 | 159.774 |
 | qwen | 100 | measured_control_with_finalize_export_seconds | 3 | 218.195 | 210.151 | 262.62 |
 | qwen | 100 | backend_validation_seconds | 3 | 1273.34 | 1263.89 | 1276.61 |
 | qwen | 100 | wall_seconds | 3 | 1520.72 | 1509.73 | 1552.36 |
@@ -144,6 +219,8 @@ Qwen decode FFN 的12项正式计时已齐：三个修复种子各运行一次R0
 | 300步 | 3 | 393.887 | 392.854 | 514.923 |
 
 按每个种子的R0/L1、30、100、300步四个任务的实测墙钟相加，全过程为中位 2218.788 秒 [2209.502, 2390.052]，包含50次研究用后端验证。三个种子的12个任务合计 6818.342 秒；这是这些任务本身的时间之和，排队间隔及期间穿插的其他输入任务不计入。九条L2提议与最终状态和对应历史预算/种子的逐项核对见 [Qwen完整J3复核](evidence/j3_qwen_complete_review.json)。GPT各输入按自身完成项报告。
+
+GPT144历史质量实验在100步达到健康CPCM的2%以内：T̂=10441.8、健康T̂=10442，因此旧300步条目复用了100步状态。本轮J3按预定预算重新执行完整300步，用来测量该预算的成本；旧300步条目没有真实300步轨迹可供比较。质量主表继续保留原停止结果。此项与完整125条计时的最终核对见[完成审计](evidence/j_final_completion_audit.json)。
 
 ## J4 与 J5：控制准备与完整选轴
 
@@ -183,17 +260,20 @@ J5 的 resident_decision 包含全部合法轴的构造、评分和选择；每�
 J_INPUTS.json/CSV 保存逐项清单、实际完成状态、输入哈希、结果及回执身份；J_ENVIRONMENT.json/CSV 保存每个实际进程的 CPU、系统、Python/NumPy/Numba、线程设置、空闲采样与运行源码哈希。旧批与新批保持标签，不以旧环境代替尚未生成的新环境。
 新批单进程与空闲证明读取 out 中保存的 batch 和现场证据；只有结果中的线程设置不能独立证明没有其他进程。已完成旧批的现场证据保存在 hi/evidence/j_serial_conditions.json。
 
-当前环境记录 88 条；来源 SHA-256 307 项。所有已纳入结果均有成功回执，且回执身份与对应清单一致。
+当前环境记录 125 条；来源 SHA-256 384 项。所有已纳入结果均有成功回执，且回执身份与对应清单一致。
 
 生成命令：
 
 ```text
-e2e/post_fg/dist/venv/Scripts/python.exe -B e2e/hi_closeout_j_report.py --progress
+e2e/post_fg/dist/venv/Scripts/python.exe -B e2e/hi_closeout_j_report.py
 ```
 
-去掉 --progress 时要求本地 125 项全部齐备。J_TIMING.csv 是逐进程宽表；tables/j_timing_summary.csv 是独立进程统计，j1_calls.csv 保留所有稳态/预热调用，j2_costs.csv 与 j3_costs.csv 保留分项，j3_cumulative.csv 保存各档累计，j5_axis_costs.csv 保存全轴成本。
+本命令要求本地125项全部齐备；运行中的局部报告可加 --progress。J_TIMING.csv 是逐进程宽表；tables/j_timing_summary.csv 是独立进程统计，j1_calls.csv 保留所有稳态/预热调用，j2_costs.csv 与 j3_costs.csv 保留分项，j3_cumulative.csv 保存各档累计，j5_axis_costs.csv 保存全轴成本。
 
-本轮质量池 549/549 完成且控制器退出后，等待 28.955 秒启动 J。下载的串行现场记录截至 2026-11-15T02:03:45.730748+00:00，404 条状态记录的最大活跃实验数为 1；启动条件记录中质量实验剩余进程为 0。
-本轮运行环境为 AMD EPYC 9K65（实例分配128 vCPU）、Linux 5.15、Python 3.13.18、NumPy 2.5.4、Numba 0.68.1；四项数值库线程设置均为1。现场记录随后续结果下载继续更新。
+本轮质量池 549/549 完成且控制器退出后，等待 28.955 秒启动 J。下载的串行现场记录截至 2026-11-15T06:54:50.502777+00:00，986 条状态记录的最大活跃实验数为 1；启动条件记录中质量实验剩余进程为 0。
+本轮运行环境为 AMD EPYC 9K65（实例分配128 vCPU）、Linux 5.15、Python 3.13.18、NumPy 2.5.4、Numba 0.68.1；四项数值库线程设置均为1。现场采样保留至最后一个任务返回前；最终完成时间以controller_finish.json为准。
 
 首24项的[独立复查记录](evidence/j_micro_24_review.json)逐项核对成功回执、输入文件与运行源码哈希：三个J1图的各36次调用具有相同T̂、活动规模和关键链/等待摘要；两个J5冻结图及六个重新导出图的事件语义摘要均一致。J5图的语义摘要与gzip文件字节SHA分别保存。复查没有启动CPCM、后端或搜索。
+
+
+本轮80项计时最终成功完成于2026-11-15T06:54:54.505579+00:00（北京时间2026-11-15 14:54:54），串行墙钟29562.394秒。合并原45项共125/125，27条EIR累计行均齐备。新增650次真实后端及200次随机CPCM；已下载的全部结果、回执与输入摘要通过最终核对。
