@@ -45,9 +45,13 @@ def input_files(root, source_maps=()):
     for ledger, key, role in (
         ("j_offline_cost_inputs.json", "files", "closeout_J_fourteen_candidate_costs"),
         ("j2_first_complete_review.json", "input_files", "closeout_J2_first_review"),
+        ("j2_qwen_six_review.json", "new_historical_archive_inputs", "closeout_J2_Qwen_repeats_review"),
     ):
         for row in archive.read(BASE / "evidence" / ledger)[key]:
             add(row["path"], row["sha256"], role)
+    for row in archive.read(BASE / "evidence/j3_cost_independent_review.json")["source_inventory"]:
+        if row["path"].startswith("e2e/hi/out/"):
+            add(row["path"], row["sha256"], "closeout_J3_cost_review")
 
     for relative, item in sorted(expected.items()):
         source = resolve_input(root, relative)

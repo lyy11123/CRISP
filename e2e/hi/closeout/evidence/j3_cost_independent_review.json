@@ -1,0 +1,344 @@
+{
+  "status": "passed",
+  "scope": "Read-only J3 timing-field and aggregation review; not a timing experiment.",
+  "formal_J3_outputs_read": 0,
+  "smoke_records": 3,
+  "smoke_searches": 0,
+  "smoke_backend_calls": 0,
+  "fixture": "Existing Qwen I4 raw times with artificial Numba warmup 0.01/0.02/0.03/0.04 seconds and export 0.001 seconds per state; used only to check aggregation. No fixture row is written to formal tables.",
+  "field_extraction": "Executes only the original J3 child AST statements at lines 170-193; no engine, CPCM or backend call.",
+  "checks": {
+    "original_raw_finalize_equals_restore_plus_pure_final": true,
+    "new_control_excludes_inherited_R0_L1": true,
+    "inherited_billion_second_sentinel_has_no_effect": true,
+    "backend_calls_plus_copy_equals_validation": true,
+    "per_job_and_cumulative_partition_equals_wall": true,
+    "cumulative_R0_L1_charges": 1,
+    "formal_proposals": [
+      30,
+      130,
+      430
+    ],
+    "separate_calibration_proposals": [
+      15,
+      30,
+      45
+    ],
+    "backend_calls": [
+      30,
+      40,
+      50
+    ],
+    "all_budgets_start_same_L1": true
+  },
+  "original_timing_fields": [
+    {
+      "job_id": "J3__qwen_r123__l1",
+      "historical_result": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__l1_dc_ffn_A3h_PF4.json",
+      "budget": 0,
+      "timing": {
+        "numba_warmup_or_cache_seconds": 0.01,
+        "state_export_seconds": 0.002,
+        "state_exports": 2,
+        "R0_prepare_seconds": 3.4786199269947247,
+        "L1_search_seconds": 16.267078867997043,
+        "new_control_seconds": 19.745698794991767,
+        "calibration_seconds": 0,
+        "search_seconds": 0,
+        "restore_best_seconds": 0,
+        "final_CPCM_seconds": 0.6336014919943409,
+        "backend_validation_seconds": 690.7565099569983,
+        "backend_actual_calls_seconds": 644.477504491806,
+        "backend_calls": 20
+      }
+    },
+    {
+      "job_id": "J3__qwen_r123__s30",
+      "historical_result": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s30_r123.json",
+      "budget": 30,
+      "timing": {
+        "numba_warmup_or_cache_seconds": 0.02,
+        "state_export_seconds": 0.001,
+        "state_exports": 1,
+        "R0_prepare_seconds": 0,
+        "L1_search_seconds": 0,
+        "calibration_seconds": 27.263937351002824,
+        "search_seconds": 47.75991049100412,
+        "restore_best_seconds": 0.8171755400035181,
+        "new_control_seconds": 75.84102338201046,
+        "inherited_R0_L1_seconds": 19.745698794991767,
+        "search_proposals": 30,
+        "calibration_proposals": 15,
+        "accepted_proposals": 9,
+        "best_step": 30,
+        "final_CPCM_seconds": 0.3259784990004846,
+        "backend_validation_seconds": 346.68660260699835,
+        "backend_actual_calls_seconds": 323.76163029670715,
+        "backend_calls": 10
+      }
+    },
+    {
+      "job_id": "J3__qwen_r123__s100",
+      "historical_result": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s100_r123.json",
+      "budget": 100,
+      "timing": {
+        "numba_warmup_or_cache_seconds": 0.03,
+        "state_export_seconds": 0.001,
+        "state_exports": 1,
+        "R0_prepare_seconds": 0,
+        "L1_search_seconds": 0,
+        "calibration_seconds": 26.7799085489969,
+        "search_seconds": 154.38786231900303,
+        "restore_best_seconds": 0.8360877699960838,
+        "new_control_seconds": 182.00385863799602,
+        "inherited_R0_L1_seconds": 19.745698794991767,
+        "search_proposals": 100,
+        "calibration_proposals": 15,
+        "accepted_proposals": 34,
+        "best_step": 95,
+        "final_CPCM_seconds": 0.301155599001504,
+        "backend_validation_seconds": 342.7529439009959,
+        "backend_actual_calls_seconds": 320.67998576164246,
+        "backend_calls": 10
+      }
+    },
+    {
+      "job_id": "J3__qwen_r123__s300",
+      "historical_result": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s300_r123.json",
+      "budget": 300,
+      "timing": {
+        "numba_warmup_or_cache_seconds": 0.04,
+        "state_export_seconds": 0.001,
+        "state_exports": 1,
+        "R0_prepare_seconds": 0,
+        "L1_search_seconds": 0,
+        "calibration_seconds": 26.325789062000695,
+        "search_seconds": 474.13715382399823,
+        "restore_best_seconds": 0.12949949099856894,
+        "new_control_seconds": 500.5924423769975,
+        "inherited_R0_L1_seconds": 19.745698794991767,
+        "search_proposals": 300,
+        "calibration_proposals": 15,
+        "accepted_proposals": 102,
+        "best_step": 300,
+        "final_CPCM_seconds": 0.2991802460019244,
+        "backend_validation_seconds": 331.5858145320017,
+        "backend_actual_calls_seconds": 309.3760361671448,
+        "backend_calls": 10
+      }
+    }
+  ],
+  "fixture_cumulative": [
+    {
+      "input_id": "qwen",
+      "repair_seed": 123,
+      "through_budget": 30,
+      "status": "complete",
+      "tiers": [
+        30
+      ],
+      "R0_L1_charges": 1,
+      "measured_jobs": [
+        "J3__qwen_r123__l1",
+        "J3__qwen_r123__s30"
+      ],
+      "new_control_seconds": 95.58672217700223,
+      "calibration_seconds": 27.263937351002824,
+      "search_seconds": 47.75991049100412,
+      "restore_best_seconds": 0.8171755400035181,
+      "final_CPCM_seconds": 0.9595799909948255,
+      "state_export_seconds": 0.003,
+      "measured_control_with_finalize_export_seconds": 96.54930216799706,
+      "backend_validation_seconds": 1037.4431125639967,
+      "backend_actual_calls_seconds": 968.2391347885132,
+      "backend_copy_setup_seconds": 69.20397777548351,
+      "numba_warmup_or_cache_seconds": 0.03,
+      "backend_calls": 30,
+      "other_job_seconds": 18.58809833600705,
+      "wall_seconds": 1152.6105130680007,
+      "L2_search_proposals": 30,
+      "calibration_proposals": 15
+    },
+    {
+      "input_id": "qwen",
+      "repair_seed": 123,
+      "through_budget": 100,
+      "status": "complete",
+      "tiers": [
+        30,
+        100
+      ],
+      "R0_L1_charges": 1,
+      "measured_jobs": [
+        "J3__qwen_r123__l1",
+        "J3__qwen_r123__s30",
+        "J3__qwen_r123__s100"
+      ],
+      "new_control_seconds": 277.59058081499825,
+      "calibration_seconds": 54.043845899999724,
+      "search_seconds": 202.14777281000715,
+      "restore_best_seconds": 1.653263309999602,
+      "final_CPCM_seconds": 1.2607355899963295,
+      "state_export_seconds": 0.004,
+      "measured_control_with_finalize_export_seconds": 278.8553164049946,
+      "backend_validation_seconds": 1380.1960564649926,
+      "backend_actual_calls_seconds": 1288.9191205501556,
+      "backend_copy_setup_seconds": 91.27693591483694,
+      "numba_warmup_or_cache_seconds": 0.06,
+      "backend_calls": 40,
+      "other_job_seconds": 29.107556981018607,
+      "wall_seconds": 1688.2189298510057,
+      "L2_search_proposals": 130,
+      "calibration_proposals": 30
+    },
+    {
+      "input_id": "qwen",
+      "repair_seed": 123,
+      "through_budget": 300,
+      "status": "complete",
+      "tiers": [
+        30,
+        100,
+        300
+      ],
+      "R0_L1_charges": 1,
+      "measured_jobs": [
+        "J3__qwen_r123__l1",
+        "J3__qwen_r123__s30",
+        "J3__qwen_r123__s100",
+        "J3__qwen_r123__s300"
+      ],
+      "new_control_seconds": 778.1830231919957,
+      "calibration_seconds": 80.36963496200042,
+      "search_seconds": 676.2849266340054,
+      "restore_best_seconds": 1.7827628009981709,
+      "final_CPCM_seconds": 1.559915835998254,
+      "state_export_seconds": 0.005,
+      "measured_control_with_finalize_export_seconds": 779.747939027994,
+      "backend_validation_seconds": 1711.7818709969943,
+      "backend_actual_calls_seconds": 1598.2951567173004,
+      "backend_copy_setup_seconds": 113.48671427969384,
+      "numba_warmup_or_cache_seconds": 0.1,
+      "backend_calls": 50,
+      "other_job_seconds": 39.40932160001435,
+      "wall_seconds": 2531.0391316250025,
+      "L2_search_proposals": 430,
+      "calibration_proposals": 45
+    }
+  ],
+  "source_inventory": [
+    {
+      "path": "e2e/fg_fault.py",
+      "bytes": 19268,
+      "sha256": "74a696deff9b5196ddd4ae4785d1334dfa48052e400abe950af95179a4e9be54"
+    },
+    {
+      "path": "e2e/hi/closeout/evidence/j3_smoke_gpt144.json",
+      "bytes": 1433,
+      "sha256": "6f25680220121e6c1ed783cf856f1956bb62d6a07102734dea466866c69b7162"
+    },
+    {
+      "path": "e2e/hi/closeout/evidence/j3_smoke_gpt64.json",
+      "bytes": 1206,
+      "sha256": "d0db6d7817c5ab6d77e3e15a7ad278c7006cf64e5011cef6bc8cc83790695af3"
+    },
+    {
+      "path": "e2e/hi/closeout/evidence/j3_smoke_qwen.json",
+      "bytes": 1608,
+      "sha256": "592774cc5aa4df549c2a619969bd7ce858d9c779d613cf2691ce06ef8c2f3a77"
+    },
+    {
+      "path": "e2e/hi/closeout/J_SUMMARY.md",
+      "bytes": 15949,
+      "sha256": "d408427b17b03b1fb42485922f0af853e8ecb1dacf84497aefe46cf14afc8a2b"
+    },
+    {
+      "path": "e2e/hi/closeout/manifests/j3.json",
+      "bytes": 97884,
+      "sha256": "502353ba38788bd904b0d5f53b5862b2adc01b62df7728f683b5a90712e14cf9"
+    },
+    {
+      "path": "e2e/hi/closeout/manifests/j3_inputs.json",
+      "bytes": 11612,
+      "sha256": "7da9e27c7ef9162702d349faba627e5b2ddd1d2914efce5e9140fb4ce37a598d"
+    },
+    {
+      "path": "e2e/hi/closeout/tables/j3_costs.csv",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "e2e/hi/closeout/tables/j3_cumulative.csv",
+      "bytes": 1095,
+      "sha256": "5fdcd4bdf3fbe7d17752f54ca5e60ec8a4ee5a135fe2a70cbbc6cf635d543031"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__l1_dc_ffn_A3h_PF4.pkl.gz",
+      "bytes": 1168269,
+      "sha256": "525ce930dc75994179f26f8d1f397b67004dfb7ac1827382d2194d234fe2f6d7"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__pre_dc_ffn_A3h.pkl.gz",
+      "bytes": 75567,
+      "sha256": "fa4181ae1860f5da5a38098391c5de4a9e083792536249bb5e95de7ce11d5a7f"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s100_r123.pkl.gz",
+      "bytes": 587598,
+      "sha256": "7d03e07d1bb5a8cfe24c06c6e7a64f8e7abb74f5e032da82d2470886dd57f724"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s300_r123.pkl.gz",
+      "bytes": 590296,
+      "sha256": "6d6689aad7a1218a67659839b5e2c84c9212e1fb972d970125d1b46cb8d16cc3"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/raw/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s30_r123.pkl.gz",
+      "bytes": 585844,
+      "sha256": "2f946bf3f72abd34b2ea082f49156724c08b569173fe2cf30852935c362f3fbd"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__l1_dc_ffn_A3h_PF4.json",
+      "bytes": 2624,
+      "sha256": "118e134966b74da00a4609200f6cfd1d6553056c19b46efc67661a07987e07a6"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s100_r123.json",
+      "bytes": 2626,
+      "sha256": "fa0472d7875614770ffc9c293565949b1f47083c421384bfeb055cc92216b50c"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s300_r123.json",
+      "bytes": 2632,
+      "sha256": "891c7cd6524e4ac99d16a232e2422fbf36df65b33fc9691f50eea4ee660e1d27"
+    },
+    {
+      "path": "e2e/hi/out/i4_light/results/qwen3moe_busybarn_2x2_fixed_668547c78787_49668fb8bf__rep_dc_ffn_PF4_s30_r123.json",
+      "bytes": 2620,
+      "sha256": "effb8aa9e7b15139c8f005f443f23f849844ab23eef675bfa561a31a66b78fe4"
+    },
+    {
+      "path": "e2e/hi_closeout_j_eir.py",
+      "bytes": 14381,
+      "sha256": "5829ff5aef12af6d9e2d21ce57e9f15fb7c49118cd1c8cd216609d8d571c71f4"
+    },
+    {
+      "path": "e2e/hi_closeout_j_report.py",
+      "bytes": 48048,
+      "sha256": "5a9f057e6e5f4d38c84a110306b762bc7dbe46df08d09fcc5c671f691d49463b"
+    },
+    {
+      "path": "eir/eir.py",
+      "bytes": 97496,
+      "sha256": "a0e34c9a4e5e4614689ff0fc404a38fd72892beb9c713d52e72184da86cc2694"
+    }
+  ],
+  "report_sha256": "5a9f057e6e5f4d38c84a110306b762bc7dbe46df08d09fcc5c671f691d49463b",
+  "newly_run": {
+    "searches": 0,
+    "backend_calls": 0,
+    "CPCM_calls": 0
+  },
+  "formal_progress_report_completed": 70,
+  "formal_progress_note": "Local archived outputs; cloud progress can be newer."
+}

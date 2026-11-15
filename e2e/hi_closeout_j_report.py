@@ -300,9 +300,13 @@ def build_tables(records):
                 if complete:
                     for key in ("new_control_seconds", "calibration_seconds", "search_seconds", "restore_best_seconds",
                                 "final_CPCM_seconds", "state_export_seconds", "measured_control_with_finalize_export_seconds",
-                                "backend_validation_seconds", "backend_actual_calls_seconds", "backend_calls", "other_job_seconds", "wall_seconds"):
+                                "backend_validation_seconds", "backend_actual_calls_seconds", "backend_copy_setup_seconds",
+                                "numba_warmup_or_cache_seconds", "backend_calls", "other_job_seconds", "wall_seconds"):
                         common[key] = sum(r[key] for r in selected)
                     common["L2_search_proposals"] = sum(tiers)
+                    common["calibration_proposals"] = sum(r["calibration_proposals"] for r in selected if r["kind"] == "fault_rep")
+                    assert math.isclose(common["measured_control_with_finalize_export_seconds"] + common["backend_validation_seconds"]
+                        + common["numba_warmup_or_cache_seconds"] + common["other_job_seconds"], common["wall_seconds"], abs_tol=1e-6)
                 cumulative.append(common)
     return wide, samples, axis_rows, j2, j3, cumulative, equality
 
@@ -458,6 +462,14 @@ def render(inputs, records, summaries, cumulative, environments, audit):
     if first_review.exists():
         first=json.loads(first_review.read_text(encoding="utf-8"))
         lines += ["", f"首个 Qwen decode FFN A1 独立进程已核对 1000 个正式提议、{first['counts']['calibration_proposals']} 个校准提议、10 次后端与 10 次随机 CPCM；与历史同候选的 1000 条非计时轨迹逐项一致。详见[首项复查](evidence/j2_first_complete_review.json)。它的调度回执耗时为 {first['costs']['receipt_wall_seconds']:.3f} 秒（{first['costs']['receipt_wall_seconds']/60:.3f} 分钟），该类旧的并行实测估计为 {first['historical_estimate_seconds']:.3f} 秒。该实测只更新同输入、同方法的剩余重复，不用于缩放其他图或方法的预计耗时。"]
+    six_review=BASE/"evidence/j2_qwen_six_review.json"
+    if six_review.exists():
+        six=json.loads(six_review.read_text(encoding="utf-8"))
+        by_method={r["method"]:r for r in six["methods"]}
+        a1,a3=by_method["A1"]["metrics"],by_method["A3h"]["metrics"]
+        lines += ["", "Qwen decode FFN 的 A1/A3h 各三个独立进程已齐，六次合计 6000 个正式提议、60 次后端和 60 次随机 CPCM。每个方法重复的是同一个固定候选与搜索种子 123；六条轨迹分别与历史同候选逐步相同，恢复后的事件顺序和图摘要亦相同。环境、线程数和运行源码一致，现场记录为单进程计时。详见[六项独立复查](evidence/j2_qwen_six_review.json)。",
+            f"校准单独计数：A1 每次 {by_method['A1']['calibration_proposals_per_trajectory']} 个提议，A3h 每次 {by_method['A3h']['calibration_proposals_per_trajectory']} 个，合计 {six['calibration_proposals_total']} 个。原算法先采样 50 次，若使代价上升的有效提议不足 3 个便继续采样；本例 A3h 在第 59 次达到条件。校准之后仍各运行完整 1000 步。",
+            f"完整作业中位数为 A1 {a1['wall_seconds']['median']:.3f} 秒 [{a1['wall_seconds']['minimum']:.3f}, {a1['wall_seconds']['maximum']:.3f}]、A3h {a3['wall_seconds']['median']:.3f} 秒 [{a3['wall_seconds']['minimum']:.3f}, {a3['wall_seconds']['maximum']:.3f}]。扣除循环监测和进度记录后的搜索中位数分别为 {a1['algorithm_search_seconds']['median']:.3f} 与 {a3['algorithm_search_seconds']['median']:.3f} 秒；已单独计时的映射生成中位数为 {a1['offline_generation_measured_seconds']['median']:.3f} 与 {a3['offline_generation_measured_seconds']['median']:.3f} 秒。各分项的中位数各自统计；互斥分项与完整作业的相等关系按每次实际进程逐项核对。"]
     historical=audit["historical_fourteen_candidate_costs"]
     lines += ["", "十四候选整体费用另取历史同输入的完整记录累计：下表每行实际读取 14 个候选、14000 个正式提议、140 次后端及 140 次随机 CPCM。单位为各并行进程经历时间之和（进程分钟），其中包含当时的共享资源竞争；本轮 J2 表是空闲服务器上的固定候选串行实测。", ""]
     historic_minutes=[dict(row,**{key.removesuffix("_seconds")+"_minutes":value/60 for key,value in row.items() if key.endswith("_seconds")}) for row in historical]
@@ -473,6 +485,7 @@ def render(inputs, records, summaries, cumulative, environments, audit):
         "", "## J3：EIR 的分档与累计成本", "",
         "每个修复种子先计一次 R0/L1，再分别从同一 L1 运行 30、100、300 步。累计到 300 步计 430 个正式提议以及三次独立校准；每档重新开始温度日程，不把 300 步轨迹当成前三档的全部代价。R0/L1 原数值也保存在后续 raw 中，但累计表忽略这些继承字段。",
         "measured_control_with_finalize_export_seconds = 新增 R0/L1 或校准+搜索+恢复 + 最终 CPCM + 状态导出。后端调用及其复制准备独立计费。读取/初始化、原快照整理、未单独计时的诊断与记录保留为 other_job_seconds，不将它伪称为纯算法成本；完整 observed wall 同时列出。",
+        "累计任务体 = measured_control_with_finalize_export_seconds + backend_validation_seconds + numba_warmup_or_cache_seconds + other_job_seconds。backend_validation_seconds 已含 backend_actual_calls_seconds 与 backend_copy_setup_seconds；控制总项也已含校准、搜索、恢复、最终CPCM和导出，明细不再与总项重复相加。calibration_proposals 独立累计，正式提议数仍为30、130、430。",
         "J3 计时的三个修复种子是三次轨迹；研究质量表的五种子挑选是另一项工作。这里既不把三次或五次的最佳质量配上一条轨迹成本，也不把 5×中位数写成五种子的实测。停档及多候选状态选择未在 J3 单独重测，不能从此表补造其耗时。", ""]
     cum = [r for r in summaries if r["kind"] == "J3 cumulative" and r["metric"] in
            ("measured_control_with_finalize_export_seconds", "backend_validation_seconds", "wall_seconds")]

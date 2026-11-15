@@ -1,14 +1,14 @@
 # J：正式计时汇总
 
-生成时间：2026-11-14T23:10:10.128685+00:00。只读取保存结果；本次后处理没有启动搜索或仿真。
+生成时间：2026-11-15T00:14:22.107749+00:00。只读取保存结果；本次后处理没有启动搜索或仿真。
 
-已核对 70/125 项：旧 45 项保留，新计时最多 80 项。当前状态：partial。
+已核对 75/125 项：旧 45 项保留，新计时最多 80 项。当前状态：partial。
 
 | 批次 | 计划项 | 已核对 | 待完成 |
 |---|---|---|---|
 | old45 | 45 | 45 | 0 |
 | micro | 24 | 24 | 0 |
-| search | 20 | 1 | 19 |
+| search | 20 | 6 | 14 |
 | eir | 36 | 0 | 36 |
 
 micro 包含新模型 J1 的 18 项与 C 两个真实代表点 J5 的最多 6 项；C 输入尚未进入清单的项列为 pending_C_representative。
@@ -70,22 +70,37 @@ final_eval 没有独立的最终 CPCM 秒表，J2 将最终 CPCM、评估构图�
 
 | 输入 | 方法 | 分项 | n | 中位秒 | 最小秒 | 最大秒 |
 |---|---|---|---|---|---|---|
-| Qwen_decode_ffn | A1 | wall_seconds | 1 | 813.614 | 813.614 | 813.614 |
-| Qwen_decode_ffn | A1 | calibration_seconds | 1 | 26.01 | 26.01 | 26.01 |
-| Qwen_decode_ffn | A1 | algorithm_search_seconds | 1 | 364.111 | 364.111 | 364.111 |
-| Qwen_decode_ffn | A1 | backend_calls_seconds | 1 | 377.4 | 377.4 | 377.4 |
-| Qwen_decode_ffn | A1 | random_cpcm_calls_seconds | 1 | 5.611 | 5.611 | 5.611 |
-| Qwen_decode_ffn | A1 | offline_generation_measured_seconds | 1 | 397.949 | 397.949 | 397.949 |
+| Qwen_decode_ffn | A1 | wall_seconds | 3 | 724.537 | 719.39 | 813.614 |
+| Qwen_decode_ffn | A1 | calibration_seconds | 3 | 20.3144 | 20.1809 | 26.01 |
+| Qwen_decode_ffn | A1 | algorithm_search_seconds | 3 | 289.843 | 282.503 | 364.111 |
+| Qwen_decode_ffn | A1 | backend_calls_seconds | 3 | 376.096 | 373.634 | 377.4 |
+| Qwen_decode_ffn | A1 | random_cpcm_calls_seconds | 3 | 5.36872 | 5.31086 | 5.611 |
+| Qwen_decode_ffn | A1 | offline_generation_measured_seconds | 3 | 317.115 | 309.916 | 397.949 |
+| Qwen_decode_ffn | A3h | wall_seconds | 3 | 910.568 | 901.996 | 980.261 |
+| Qwen_decode_ffn | A3h | calibration_seconds | 3 | 42.9781 | 42.3924 | 43.4495 |
+| Qwen_decode_ffn | A3h | algorithm_search_seconds | 3 | 525.675 | 520.714 | 592.801 |
+| Qwen_decode_ffn | A3h | backend_calls_seconds | 3 | 306.142 | 302.302 | 306.984 |
+| Qwen_decode_ffn | A3h | random_cpcm_calls_seconds | 3 | 4.73638 | 4.71575 | 4.95263 |
+| Qwen_decode_ffn | A3h | offline_generation_measured_seconds | 3 | 576.326 | 572.375 | 644.627 |
 
 以下五项互不重叠，相加为完整作业时间。映射生成列包含已单独计时的初始化、校准、搜索、最佳状态恢复及导出；记录/复查列包含 A1 的 CPCM 监测、进度回调、快照重载和余下记账时间。最终 CPCM 与评估准备仍留在最后一列，不将它归入纯搜索或真实后端调用。
 
 | 独立进程 | 映射生成 s | 记录/复查 s | 十次后端 s | 十次随机 CPCM s | 最终 CPCM/评估准备 s | 合计 s |
 |---|---|---|---|---|---|---|
 | J2_Qwen_decode_ffn_A1_r1 | 397.949 | 8.23842 | 377.4 | 5.611 | 24.415 | 813.614 |
+| J2_Qwen_decode_ffn_A1_r2 | 309.916 | 6.77126 | 376.096 | 5.36872 | 21.2374 | 719.39 |
+| J2_Qwen_decode_ffn_A1_r3 | 317.115 | 6.79963 | 373.634 | 5.31086 | 21.6774 | 724.537 |
+| J2_Qwen_decode_ffn_A3h_r1 | 576.326 | 1.87858 | 306.984 | 4.73638 | 20.6422 | 910.568 |
+| J2_Qwen_decode_ffn_A3h_r2 | 572.375 | 1.86817 | 302.302 | 4.71575 | 20.735 | 901.996 |
+| J2_Qwen_decode_ffn_A3h_r3 | 644.627 | 2.21049 | 306.142 | 4.95263 | 22.3281 | 980.261 |
 
 A1 用聚合代价做搜索；额外的十次随机 CPCM 用于统一的候选选择比较，不属于 A1 的原生搜索循环。完整作业、外层入口、调度回执分别计时，进程启动和退出后的轮询差值不计作算法成本。每行是一条完整 1000 步轨迹；环境 helper 中通用的‘五次稳态’字符串只适用于 J1 的内核重复，J2 的实际次数以自身协议、轨迹和回执为准。
 
 首个 Qwen decode FFN A1 独立进程已核对 1000 个正式提议、50 个校准提议、10 次后端与 10 次随机 CPCM；与历史同候选的 1000 条非计时轨迹逐项一致。详见[首项复查](evidence/j2_first_complete_review.json)。它的调度回执耗时为 816.234 秒（13.604 分钟），该类旧的并行实测估计为 1437.840 秒。该实测只更新同输入、同方法的剩余重复，不用于缩放其他图或方法的预计耗时。
+
+Qwen decode FFN 的 A1/A3h 各三个独立进程已齐，六次合计 6000 个正式提议、60 次后端和 60 次随机 CPCM。每个方法重复的是同一个固定候选与搜索种子 123；六条轨迹分别与历史同候选逐步相同，恢复后的事件顺序和图摘要亦相同。环境、线程数和运行源码一致，现场记录为单进程计时。详见[六项独立复查](evidence/j2_qwen_six_review.json)。
+校准单独计数：A1 每次 50 个提议，A3h 每次 59 个，合计 327 个。原算法先采样 50 次，若使代价上升的有效提议不足 3 个便继续采样；本例 A3h 在第 59 次达到条件。校准之后仍各运行完整 1000 步。
+完整作业中位数为 A1 724.537 秒 [719.390, 813.614]、A3h 910.568 秒 [901.996, 980.261]。扣除循环监测和进度记录后的搜索中位数分别为 289.843 与 525.675 秒；已单独计时的映射生成中位数为 317.115 与 576.326 秒。各分项的中位数各自统计；互斥分项与完整作业的相等关系按每次实际进程逐项核对。
 
 十四候选整体费用另取历史同输入的完整记录累计：下表每行实际读取 14 个候选、14000 个正式提议、140 次后端及 140 次随机 CPCM。单位为各并行进程经历时间之和（进程分钟），其中包含当时的共享资源竞争；本轮 J2 表是空闲服务器上的固定候选串行实测。
 
@@ -104,6 +119,7 @@ GPT144 prefill MHA 计划每方法测 n=1；最小/最大相同表示同一次�
 
 每个修复种子先计一次 R0/L1，再分别从同一 L1 运行 30、100、300 步。累计到 300 步计 430 个正式提议以及三次独立校准；每档重新开始温度日程，不把 300 步轨迹当成前三档的全部代价。R0/L1 原数值也保存在后续 raw 中，但累计表忽略这些继承字段。
 measured_control_with_finalize_export_seconds = 新增 R0/L1 或校准+搜索+恢复 + 最终 CPCM + 状态导出。后端调用及其复制准备独立计费。读取/初始化、原快照整理、未单独计时的诊断与记录保留为 other_job_seconds，不将它伪称为纯算法成本；完整 observed wall 同时列出。
+累计任务体 = measured_control_with_finalize_export_seconds + backend_validation_seconds + numba_warmup_or_cache_seconds + other_job_seconds。backend_validation_seconds 已含 backend_actual_calls_seconds 与 backend_copy_setup_seconds；控制总项也已含校准、搜索、恢复、最终CPCM和导出，明细不再与总项重复相加。calibration_proposals 独立累计，正式提议数仍为30、130、430。
 J3 计时的三个修复种子是三次轨迹；研究质量表的五种子挑选是另一项工作。这里既不把三次或五次的最佳质量配上一条轨迹成本，也不把 5×中位数写成五种子的实测。停档及多候选状态选择未在 J3 单独重测，不能从此表补造其耗时。
 
 J3 尚无齐备的累计档位；27 个累计行已列出 pending。
@@ -146,7 +162,7 @@ J5 的 resident_decision 包含全部合法轴的构造、评分和选择；每�
 J_INPUTS.json/CSV 保存逐项清单、实际完成状态、输入哈希、结果及回执身份；J_ENVIRONMENT.json/CSV 保存每个实际进程的 CPU、系统、Python/NumPy/Numba、线程设置、空闲采样与运行源码哈希。旧批与新批保持标签，不以旧环境代替尚未生成的新环境。
 新批单进程与空闲证明读取 out 中保存的 batch 和现场证据；只有结果中的线程设置不能独立证明没有其他进程。已完成旧批的现场证据保存在 hi/evidence/j_serial_conditions.json。
 
-当前环境记录 70 条；来源 SHA-256 271 项。所有已纳入结果均有成功回执，且回执身份与对应清单一致。
+当前环境记录 75 条；来源 SHA-256 281 项。所有已纳入结果均有成功回执，且回执身份与对应清单一致。
 
 生成命令：
 
@@ -156,7 +172,7 @@ e2e/post_fg/dist/venv/Scripts/python.exe -B e2e/hi_closeout_j_report.py --progre
 
 去掉 --progress 时要求本地 125 项全部齐备。J_TIMING.csv 是逐进程宽表；tables/j_timing_summary.csv 是独立进程统计，j1_calls.csv 保留所有稳态/预热调用，j2_costs.csv 与 j3_costs.csv 保留分项，j3_cumulative.csv 保存各档累计，j5_axis_costs.csv 保存全轴成本。
 
-本轮质量池 549/549 完成且控制器退出后，等待 28.955 秒启动 J。下载的串行现场记录截至 2026-11-14T22:58:42.498189+00:00，34 条状态记录的最大活跃实验数为 1；启动条件记录中质量实验剩余进程为 0。
+本轮质量池 549/549 完成且控制器退出后，等待 28.955 秒启动 J。下载的串行现场记录截至 2026-11-15T00:09:43.703360+00:00，176 条状态记录的最大活跃实验数为 1；启动条件记录中质量实验剩余进程为 0。
 本轮运行环境为 AMD EPYC 9K65（实例分配128 vCPU）、Linux 5.15、Python 3.13.18、NumPy 2.5.4、Numba 0.68.1；四项数值库线程设置均为1。现场记录随后续结果下载继续更新。
 
 首24项的[独立复查记录](evidence/j_micro_24_review.json)逐项核对成功回执、输入文件与运行源码哈希：三个J1图的各36次调用具有相同T̂、活动规模和关键链/等待摘要；两个J5冻结图及六个重新导出图的事件语义摘要均一致。J5图的语义摘要与gzip文件字节SHA分别保存。复查没有启动CPCM、后端或搜索。
