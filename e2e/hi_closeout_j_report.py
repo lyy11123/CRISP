@@ -491,6 +491,17 @@ def render(inputs, records, summaries, cumulative, environments, audit):
            ("measured_control_with_finalize_export_seconds", "backend_validation_seconds", "wall_seconds")]
     lines += markdown_table(cum, [("input_id", "输入"), ("through_budget", "累计至"), ("metric", "分项"),
         ("process_count", "n"), ("median", "中位秒"), ("minimum", "最小秒"), ("maximum", "最大秒")]) if cum else ["J3 尚无齐备的累计档位；27 个累计行已列出 pending。"]
+    qwen_cumulative = [r for r in cumulative if r["input_id"] == "qwen"]
+    if len(qwen_cumulative) == 9 and all(r["status"] == "complete" for r in qwen_cumulative):
+        qwen_control = [dict(r, stage_name="R0/L1" if r["stage"] == "fault_l1" else str(r["budget"])+"步")
+            for r in summaries if r["kind"] == "J3" and r["input_id"] == "qwen"
+            and r["metric"] == "measured_control_with_finalize_export_seconds"]
+        qwen_control.sort(key=lambda r: r["budget"] or 0)
+        whole = [r["wall_seconds"] for r in qwen_cumulative if r["through_budget"] == 300]
+        lines += ["", "Qwen decode FFN 的12项正式计时已齐：三个修复种子各运行一次R0/L1及三个独立预算。每个种子累计430个正式提议、45个校准提议和50次后端，三种子合计1290、135、150次。九条累计结果均已完成，R0/L1在每条累计链中只计一次。下表是每个独立档位的三个进程，控制时间包含最终CPCM和状态导出，后端验证另列。", ""]
+        lines += markdown_table(qwen_control, [("stage_name","独立档位"),("process_count","n"),
+            ("median","控制中位秒"),("minimum","最小秒"),("maximum","最大秒")])
+        lines += ["", f"按每个种子的R0/L1、30、100、300步四个任务的实测墙钟相加，全过程为中位 {statistics.median(whole):.3f} 秒 [{min(whole):.3f}, {max(whole):.3f}]，包含50次研究用后端验证。三个种子的12个任务合计 {sum(whole):.3f} 秒；这是这些任务本身的时间之和，排队间隔及期间穿插的其他输入任务不计入。九条L2提议与最终状态和对应历史预算/种子的逐项核对见 [Qwen完整J3复核](evidence/j3_qwen_complete_review.json)。GPT各输入按自身完成项报告。"]
     lines += ["", "## J4 与 J5：控制准备与完整选轴", "",
         "J4 的 total_prepare 包含读取平台、全链路 256 KB 构图、CPCM 截止时间/排序及初始 ready 列表。resident_prepare 去掉读取平台；这不是硬件每包服务时间。",
         "J5 的 resident_decision 包含全部合法轴的构造、评分和选择；每轴 phases 包含在 build_seconds 内，而 build_seconds 又包含在 resident_decision 内。完整 case 另含输入、平台、基线指标、冻结图核对和导出，其他差值单列。", ""]
