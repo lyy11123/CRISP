@@ -27,6 +27,7 @@ S256相对A256的P均值降低10.465%、D均值降低0.717%；P为108/108改善�
 |---|---|
 | [S_AND_HI_S256_REPORT.md](S_AND_HI_S256_REPORT.md) | 完整均值、分模型/硬件/状态、三类选择、Pareto、系统消融与成本 |
 | [DSTU_APPLICABILITY_ANALYSIS.md](DSTU_APPLICABILITY_ANALYSIS.md) | 共享、实际重叠、三相位及单跑/跨流干扰解释 |
+| [ONLINE_GATE_DIAGNOSIS.md](ONLINE_GATE_DIAGNOSIS.md) | 已有108组的门控诊断：Qwen中相位预测误关、六个旁路场景、实际窗口替换分析与单跑变化 |
 | [FIGURE_GUIDE.md](FIGURE_GUIDE.md) | 三张论文图、中文图注和可复算数据 |
 | [FINAL_PAPER_TABLES.md](FINAL_PAPER_TABLES.md) | 所有表格及绘图输入目录 |
 | [ONLINE_RECOVERY.md](ONLINE_RECOVERY.md) | 九条单轨迹停档、24点选择、固定服务时间下恢复回本 |
