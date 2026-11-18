@@ -1,0 +1,92 @@
+[
+  {
+    "model": "GPT artifact",
+    "stages": "A-G, Post-FG, S, J, DSTU supplement",
+    "batch": 16,
+    "hidden": 6144,
+    "q_heads": 64,
+    "q_heads_per_graph": 8,
+    "head_groups": 8,
+    "head_dim": 96,
+    "layers": 44,
+    "sequence_length": 2048,
+    "workload": "W0 historical; W1 main",
+    "historical_KV": "shared within batch",
+    "hardware": "WSC-LLM/FACE/WATOS; GPT 1x4,2x2,2x3,3x3",
+    "direct_simulation": "operator; one P operator plus D chain on paired groups",
+    "layer_assembly": "2 LN+8 MHA+proj+FFN prefill; LN+8 MHA+proj+FFN decode after LN correction",
+    "full_model": "44-layer serial sum / ideal pipeline analytical only",
+    "source": "e2e/F_SUMMARY.md",
+    "source_sha256": "224d9a618e28df8523451b38b5e4b55128afc488346c0cbabda32671ef3f811e"
+  },
+  {
+    "model": "llama",
+    "stages": "H, J, DSTU supplement",
+    "batch": 8,
+    "hidden": 8192,
+    "q_heads": 64,
+    "q_heads_per_graph": 8,
+    "kv_heads_per_graph": 1,
+    "head_groups": 8,
+    "head_dim": 128,
+    "layers": 80,
+    "sequence_length": 2048,
+    "workload": "W1_8Q_1KV_v1",
+    "historical_KV": "one shared Ktranspose/V offline tensor pair for eight Q heads; history is shared across batch; per-head biases and arithmetic retained",
+    "hardware": "main 2x2 all 8 operators; WATOS MHA/FFN only",
+    "direct_simulation": "operator; main-hardware one P operator plus D chain",
+    "layer_assembly": {
+      "prefill": {
+        "norm": 2,
+        "mha": 8,
+        "proj": 1,
+        "ffn": 1
+      },
+      "decode": {
+        "norm": 1,
+        "mha": 8,
+        "proj": 1,
+        "ffn": 1
+      }
+    },
+    "full_model": "analytical accumulation only; full model simultaneous residency not simulated",
+    "expert_assignment": null,
+    "source": "e2e/hi/models/llama/model_contract.json",
+    "source_sha256": "908082a698f0ed23d8e4385d08e2b51d5b60b4dd591ec4a12cda188bc62fb455"
+  },
+  {
+    "model": "qwen3moe",
+    "stages": "I, J, DSTU supplement",
+    "batch": 16,
+    "hidden": 2048,
+    "q_heads": 32,
+    "q_heads_per_graph": 8,
+    "kv_heads_per_graph": 1,
+    "head_groups": 4,
+    "head_dim": 64,
+    "layers": 48,
+    "sequence_length": 2048,
+    "workload": "W1_8Q_1KV_v1",
+    "historical_KV": "one shared Ktranspose/V offline tensor pair for eight Q heads; history is shared across batch; per-head biases and arithmetic retained",
+    "hardware": "main 2x2 all 8 operators; WATOS MHA/FFN only",
+    "direct_simulation": "operator; main-hardware one P operator plus D chain",
+    "layer_assembly": {
+      "prefill": {
+        "norm": 2,
+        "mha": 4,
+        "proj": 1,
+        "ffn": 1
+      },
+      "decode": {
+        "norm": 1,
+        "mha": 4,
+        "proj": 1,
+        "ffn": 1
+      }
+    },
+    "full_model": "analytical accumulation only; full model simultaneous residency not simulated",
+    "expert_assignment": "expert_idx % 16; one token dispatch per expert; eight experts per batch item",
+    "source": "e2e/hi/models/qwen3moe/model_contract.json",
+    "source_sha256": "09e639fc65dbb7fdcaf9d9e8c6e24ff1ed31d0855d622217fe282ef1f8696a58"
+  }
+]
